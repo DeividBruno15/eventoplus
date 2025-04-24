@@ -53,9 +53,9 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
 
   const handleMenuItemClick = (path: string) => {
     console.log('Navegando para:', path);
-    // Atualizar o caminho ativo
+    // Informar ao componente pai sobre a mudança
     onNavigate(path);
-    // E navegar para a rota
+    // Navegar para a rota
     navigate(path);
   };
 

@@ -55,7 +55,6 @@ const DashboardLayout = () => {
   const handleNavigation = (path: string) => {
     console.log('Navegando para o caminho (handleNavigation):', path);
     setActivePath(path);
-    navigate(path);
   };
 
   if (sessionLoading) {

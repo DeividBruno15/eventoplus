@@ -1,24 +1,24 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-const Settings = () => {
+const Events = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Configurações</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Eventos</h2>
         <p className="text-muted-foreground mt-2">
-          Ajuste as configurações da sua conta e preferências.
+          Gerencie e visualize todos os seus eventos.
         </p>
       </div>
       
       <Card>
         <CardHeader>
-          <CardTitle>Preferências</CardTitle>
+          <CardTitle>Meus Eventos</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p>Conteúdo da página de Configurações</p>
+          <p>Conteúdo da página de Eventos</p>
           <p className="text-muted-foreground">
-            Esta é a página de configurações onde você pode ajustar suas preferências.
+            Esta é a página de eventos onde você pode ver e gerenciar seus eventos.
           </p>
         </CardContent>
       </Card>
@@ -26,4 +26,4 @@ const Settings = () => {
   );
 };
 
-export default Settings;
+export default Events;
