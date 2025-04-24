@@ -156,6 +156,41 @@ export const useAuth = () => {
     }
   };
 
+  const updateOnboardingStatus = async (isComplete: boolean) => {
+    try {
+      setLoading(true);
+      
+      if (!user) {
+        throw new Error('Usuário não autenticado');
+      }
+      
+      // Update user metadata
+      const { error } = await supabase.auth.updateUser({
+        data: { is_onboarding_complete: isComplete }
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Perfil atualizado!",
+        description: "Seu cadastro foi finalizado com sucesso."
+      });
+      
+      // Redirect to dashboard after completing onboarding
+      navigate('/dashboard');
+      
+    } catch (error: any) {
+      console.error('Erro ao atualizar status de onboarding:', error);
+      toast({
+        title: "Erro ao finalizar cadastro",
+        description: error.message || 'Ocorreu um erro ao atualizar seu perfil',
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const logout = async () => {
     try {
       setLoading(true);
@@ -181,6 +216,7 @@ export const useAuth = () => {
     login,
     signInWithGoogle,
     logout,
+    updateOnboardingStatus,
     loading,
     session,
     user
