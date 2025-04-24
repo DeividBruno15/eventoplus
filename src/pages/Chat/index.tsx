@@ -14,6 +14,14 @@ const Chat = () => {
   const navigate = useNavigate();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  
+  // Filtered conversations based on search query
+  const filteredConversations = conversations.filter((conv) => {
+    const fullName = `${conv.otherUser.first_name} ${conv.otherUser.last_name}`.toLowerCase();
+    return fullName.includes(searchQuery.toLowerCase()) || 
+           (conv.lastMessage?.message.toLowerCase().includes(searchQuery.toLowerCase()));
+  });
   
   useEffect(() => {
     const fetchConversations = async () => {
@@ -90,6 +98,10 @@ const Chat = () => {
     return null;
   }
 
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+  };
+
   return (
     <Card className="h-[calc(100vh-12rem)] flex flex-col">
       <div className="p-4 border-b flex justify-between items-center">
@@ -101,9 +113,16 @@ const Chat = () => {
       </div>
       
       {conversations.length > 0 ? (
-        <ConversationList conversations={conversations} />
+        <ConversationList 
+          loading={isLoading} 
+          conversations={conversations} 
+          filteredConversations={filteredConversations} 
+          searchQuery={searchQuery} 
+          onSearchChange={handleSearchChange} 
+        />
       ) : (
         <EmptyState 
+          totalConversations={0}
           title="Nenhuma conversa encontrada" 
           description="Você ainda não tem nenhuma conversa iniciada." 
           icon={<MessageCircle className="h-12 w-12 text-muted-foreground" />}
