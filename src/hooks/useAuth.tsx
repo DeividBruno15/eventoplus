@@ -60,17 +60,20 @@ export const useAuth = () => {
     if (!userId) return;
     
     try {
+      // Como o tipo ainda não foi atualizado, vamos usar uma abordagem mais genérica
       const { data, error } = await supabase
         .from('user_profiles')
-        .select('is_onboarding_complete')
+        .select('*')
         .eq('id', userId)
         .single();
         
       if (error) throw error;
       
-      setIsOnboardingComplete(data?.is_onboarding_complete || false);
+      // Acessamos o campo como uma propriedade dinâmica
+      const isComplete = (data as any)?.is_onboarding_complete || false;
+      setIsOnboardingComplete(isComplete);
       
-      if (data?.is_onboarding_complete) {
+      if (isComplete) {
         navigate('/dashboard');
       } else {
         navigate('/onboarding');
@@ -102,8 +105,8 @@ export const useAuth = () => {
             neighborhood: data.neighborhood,
             city: data.city,
             state: data.state,
-            zipcode: data.zipcode,
-            is_onboarding_complete: false
+            zipcode: data.zipcode
+            // Removemos is_onboarding_complete daqui
           },
         },
       });
@@ -135,9 +138,12 @@ export const useAuth = () => {
     try {
       setLoading(true);
       
+      // Usamos objetos index signature para evitar problemas de tipos
+      const updateData: any = { is_onboarding_complete: complete };
+      
       const { error } = await supabase
         .from('user_profiles')
-        .update({ is_onboarding_complete: complete })
+        .update(updateData)
         .eq('id', user.id);
       
       if (error) throw error;

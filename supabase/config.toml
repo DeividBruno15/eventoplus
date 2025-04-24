@@ -2,3 +2,4 @@
 project_id = "euktkuqjadepwwsnrdsl"
 [functions.send-whatsapp-notification]
 verify_jwt = true
+
