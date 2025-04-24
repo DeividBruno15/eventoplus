@@ -1,0 +1,182 @@
+
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { Message } from '@/types/chat';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+
+interface ConversationDetails {
+  otherUser: {
+    first_name: string;
+    last_name: string;
+  } | null;
+  messages: Message[];
+  loading: boolean;
+}
+
+export function useConversation(conversationId: string): ConversationDetails & {
+  sendMessage: (message: string) => Promise<void>;
+  fetchMessages: () => Promise<void>;
+} {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [otherUser, setOtherUser] = useState<{ first_name: string; last_name: string; } | null>(null);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const fetchMessages = async () => {
+    if (!conversationId || !user) return;
+
+    try {
+      setLoading(true);
+      
+      const { data, error } = await supabase
+        .from('chat_messages')
+        .select('*')
+        .eq('conversation_id', conversationId)
+        .order('created_at', { ascending: true });
+        
+      if (error) throw error;
+      
+      if (data) {
+        setMessages(data);
+        
+        // Mark unread messages as read
+        const unreadMessages = data.filter(msg => 
+          !msg.read && msg.sender_id !== user.id
+        );
+        
+        if (unreadMessages?.length > 0) {
+          await supabase
+            .from('chat_messages')
+            .update({ read: true })
+            .in('id', unreadMessages.map(msg => msg.id));
+        }
+      }
+    } catch (error) {
+      console.error('Error loading messages:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const verifyConversation = async () => {
+    try {
+      // Verify conversation exists and structure
+      const { data: conversation } = await supabase
+        .from('conversations')
+        .select('id')
+        .eq('id', conversationId)
+        .single();
+        
+      if (!conversation) {
+        navigate('/chat');
+        return;
+      }
+      
+      // Get conversation participants
+      const { data: participants } = await supabase
+        .from('conversation_participants')
+        .select('user_id')
+        .eq('conversation_id', conversationId);
+        
+      if (!participants?.length) {
+        navigate('/chat');
+        return;
+      }
+      
+      const isParticipant = participants.some(p => p.user_id === user?.id);
+      if (!isParticipant) {
+        navigate('/chat');
+        return;
+      }
+      
+      // Get other participant's details
+      const otherParticipant = participants.find(p => p.user_id !== user?.id);
+      if (!otherParticipant) {
+        navigate('/chat');
+        return;
+      }
+      
+      const { data: otherUserData } = await supabase
+        .from('user_profiles')
+        .select('first_name, last_name')
+        .eq('id', otherParticipant.user_id)
+        .single();
+        
+      if (otherUserData) {
+        setOtherUser(otherUserData);
+      }
+      
+      // Fetch messages
+      fetchMessages();
+    } catch (error) {
+      console.error('Error loading conversation details:', error);
+      navigate('/chat');
+    }
+  };
+
+  const sendMessage = async (message: string) => {
+    if (!conversationId || !user || !otherUser) return;
+    
+    // Get receiver_id from participants
+    const { data: participants } = await supabase
+      .from('conversation_participants')
+      .select('user_id')
+      .eq('conversation_id', conversationId);
+      
+    const receiver = participants?.find(p => p.user_id !== user.id);
+    if (!receiver) return;
+    
+    await supabase
+      .from('chat_messages')
+      .insert({
+        conversation_id: conversationId,
+        sender_id: user.id,
+        receiver_id: receiver.user_id,
+        message: message,
+        read: false
+      });
+      
+    // Update conversation timestamp
+    await supabase
+      .from('conversations')
+      .update({ updated_at: new Date().toISOString() })
+      .eq('id', conversationId);
+  };
+
+  useEffect(() => {
+    if (!user || !conversationId) {
+      navigate('/login');
+      return;
+    }
+
+    verifyConversation();
+
+    // Set up real-time subscription
+    const channel = supabase
+      .channel('conversation_messages')
+      .on('postgres_changes', 
+        { 
+          event: 'INSERT', 
+          schema: 'public',
+          table: 'chat_messages',
+          filter: `conversation_id=eq.${conversationId}`
+        },
+        () => fetchMessages()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [conversationId, user, navigate]);
+
+  return {
+    messages,
+    loading,
+    otherUser,
+    sendMessage,
+    fetchMessages
+  };
+}
