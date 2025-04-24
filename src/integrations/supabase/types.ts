@@ -74,17 +74,53 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
+          service_request_id: string | null
           updated_at: string | null
         }
         Insert: {
           created_at?: string | null
           id?: string
+          service_request_id?: string | null
           updated_at?: string | null
         }
         Update: {
           created_at?: string | null
           id?: string
+          service_request_id?: string | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          link: string | null
+          read: boolean | null
+          title: string
+          type: string | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          link?: string | null
+          read?: boolean | null
+          title: string
+          type?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          link?: string | null
+          read?: boolean | null
+          title?: string
+          type?: string | null
+          user_id?: string
         }
         Relationships: []
       }

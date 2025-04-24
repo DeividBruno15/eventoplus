@@ -52,8 +52,8 @@ const EventDetail = () => {
 
     const fetchEvent = async () => {
       try {
-        const { data, error } = await supabase
-          .from('events' as any)
+        const { data: eventData, error: eventError } = await supabase
+          .from('events')
           .select(`
             *,
             contractor:user_profiles!contractor_id(first_name, last_name, phone_number)
@@ -61,13 +61,32 @@ const EventDetail = () => {
           .eq('id', id)
           .single();
           
-        if (error) throw error;
-        setEvent(data as Event);
+        if (eventError) throw eventError;
+        setEvent(eventData as Event);
 
-        if (data.contractor_id === user.id) {
-          fetchApplications();
+        if (eventData.contractor_id === user?.id) {
+          const { data: applicationsData, error: applicationsError } = await supabase
+            .from('event_applications')
+            .select(`
+              *,
+              provider:user_profiles!provider_id(first_name, last_name)
+            `)
+            .eq('event_id', id)
+            .order('created_at', { ascending: false });
+            
+          if (applicationsError) throw applicationsError;
+          setApplications(applicationsData as Application[] || []);
         } else {
-          checkUserApplication();
+          const { data: applicationData, error: applicationError } = await supabase
+            .from('event_applications')
+            .select('*')
+            .eq('event_id', id)
+            .eq('provider_id', user?.id)
+            .maybeSingle();
+            
+          if (applicationError) throw applicationError;
+          setUserHasApplied(!!applicationData);
+          setUserApplication(applicationData as Application | null);
         }
       } catch (error) {
         console.error('Erro ao buscar detalhes do evento:', error);
@@ -78,41 +97,6 @@ const EventDetail = () => {
         });
       } finally {
         setLoading(false);
-      }
-    };
-
-    const fetchApplications = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('event_applications' as any)
-          .select(`
-            *,
-            provider:user_profiles!provider_id(first_name, last_name)
-          `)
-          .eq('event_id', id)
-          .order('created_at', { ascending: false });
-          
-        if (error) throw error;
-        setApplications(data as Application[] || []);
-      } catch (error) {
-        console.error('Erro ao buscar candidaturas:', error);
-      }
-    };
-
-    const checkUserApplication = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('event_applications' as any)
-          .select('*')
-          .eq('event_id', id)
-          .eq('provider_id', user.id)
-          .maybeSingle();
-          
-        if (error) throw error;
-        setUserHasApplied(!!data);
-        setUserApplication(data as Application);
-      } catch (error) {
-        console.error('Erro ao verificar candidatura do usuário:', error);
       }
     };
 
@@ -127,7 +111,7 @@ const EventDetail = () => {
       setSubmitting(true);
       
       const { data, error } = await supabase
-        .from('event_applications' as any)
+        .from('event_applications')
         .insert({
           event_id: event.id,
           provider_id: user.id,
@@ -148,7 +132,7 @@ const EventDetail = () => {
       setUserApplication(data as Application);
 
       await supabase
-        .from('notifications' as any)
+        .from('notifications')
         .insert({
           user_id: event.contractor_id,
           title: "Nova candidatura ao seu evento",
@@ -175,20 +159,20 @@ const EventDetail = () => {
       setSubmitting(true);
       
       const { error } = await supabase
-        .from('event_applications' as any)
+        .from('event_applications')
         .update({ status: 'approved' })
         .eq('id', applicationId);
         
       if (error) throw error;
       
       await supabase
-        .from('event_applications' as any)
+        .from('event_applications')
         .update({ status: 'rejected' })
         .eq('event_id', event.id)
         .neq('id', applicationId);
       
       await supabase
-        .from('events' as any)
+        .from('events')
         .update({ status: 'in_progress' })
         .eq('id', event.id);
       
@@ -210,7 +194,7 @@ const EventDetail = () => {
         ]);
       
       await supabase
-        .from('notifications' as any)
+        .from('notifications')
         .insert({
           user_id: providerId,
           title: "Parabéns! Você foi aprovado para um evento",
@@ -261,49 +245,6 @@ const EventDetail = () => {
         return 'bg-red-500';
       default:
         return 'bg-gray-500';
-    }
-  };
-
-  const fetchEvent = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('events' as any)
-        .select(`
-          *,
-          contractor:user_profiles!contractor_id(first_name, last_name, phone_number)
-        `)
-        .eq('id', id)
-        .single();
-        
-      if (error) throw error;
-      setEvent(data as Event);
-
-      if (data.contractor_id === user?.id) {
-        const { data: applicationsData, error: applicationsError } = await supabase
-          .from('event_applications' as any)
-          .select(`
-            *,
-            provider:user_profiles!provider_id(first_name, last_name)
-          `)
-          .eq('event_id', id)
-          .order('created_at', { ascending: false });
-          
-        if (applicationsError) throw applicationsError;
-        setApplications(applicationsData as Application[] || []);
-      } else {
-        const { data: applicationData, error: applicationError } = await supabase
-          .from('event_applications' as any)
-          .select('*')
-          .eq('event_id', id)
-          .eq('provider_id', user?.id)
-          .maybeSingle();
-          
-        if (applicationError) throw applicationError;
-        setUserHasApplied(!!applicationData);
-        setUserApplication(applicationData as Application);
-      }
-    } catch (error) {
-      console.error('Erro ao buscar detalhes do evento:', error);
     }
   };
 

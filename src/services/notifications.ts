@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 interface SendWhatsAppParams {
@@ -58,7 +57,7 @@ export const notificationsService = {
           content,
           type,
           link,
-        });
+        } as any);
 
       if (error) {
         console.error('Erro ao criar notificação:', error);

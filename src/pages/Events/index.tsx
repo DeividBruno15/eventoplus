@@ -43,7 +43,7 @@ const Events = () => {
     const fetchEvents = async () => {
       try {
         const { data, error } = await supabase
-          .from('events' as any)
+          .from('events')
           .select(`
             *,
             contractor:user_profiles!contractor_id(first_name, last_name)
@@ -86,9 +86,11 @@ const Events = () => {
             <p className="text-gray-600">Encontre e candidate-se a eventos na sua região</p>
           </div>
           {userRole === 'contractor' && (
-            <Button as={Link} to="/events/create">
-              <Plus className="mr-2 h-4 w-4" /> Criar Evento
-            </Button>
+            <Link to="/events/create">
+              <Button>
+                <Plus className="mr-2 h-4 w-4" /> Criar Evento
+              </Button>
+            </Link>
           )}
         </div>
 
@@ -106,9 +108,11 @@ const Events = () => {
                   : 'No momento não há eventos disponíveis para se candidatar.'}
               </p>
               {userRole === 'contractor' && (
-                <Button as={Link} to="/events/create">
-                  <Plus className="mr-2 h-4 w-4" /> Criar Evento
-                </Button>
+                <Link to="/events/create">
+                  <Button>
+                    <Plus className="mr-2 h-4 w-4" /> Criar Evento
+                  </Button>
+                </Link>
               )}
             </CardContent>
           </Card>
