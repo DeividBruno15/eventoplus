@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { 
   SidebarProvider, 
@@ -22,6 +22,18 @@ const DashboardLayout = () => {
   const location = useLocation();
   const [activePath, setActivePath] = useState(location.pathname);
 
+  // Atualizar o caminho ativo quando a localização mudar
+  useEffect(() => {
+    setActivePath(location.pathname);
+  }, [location]);
+
+  // Verificar a autenticação
+  useEffect(() => {
+    if (!sessionLoading && !session) {
+      navigate('/login');
+    }
+  }, [session, sessionLoading, navigate]);
+
   const getUserInitials = () => {
     if (!user) return "?";
     const firstName = user.user_metadata?.first_name as string | undefined;
@@ -40,6 +52,7 @@ const DashboardLayout = () => {
   const userName = user?.user_metadata?.first_name || 'Usuário';
 
   const handleNavigation = (path: string) => {
+    console.log('Navegando para o caminho:', path);
     setActivePath(path);
     navigate(path);
   };
@@ -51,6 +64,19 @@ const DashboardLayout = () => {
       </div>
     );
   }
+
+  const getPageTitle = () => {
+    const route = location.pathname;
+    
+    if (route.startsWith('/dashboard')) return 'Dashboard';
+    if (route.startsWith('/profile')) return 'Perfil';
+    if (route.startsWith('/events')) return 'Eventos';
+    if (route.startsWith('/chat')) return 'Chat';
+    if (route.startsWith('/settings')) return 'Configurações';
+    if (route.startsWith('/service-providers')) return 'Prestadores de Serviços';
+    
+    return 'Dashboard';
+  };
 
   return (
     <SidebarProvider>
@@ -72,11 +98,7 @@ const DashboardLayout = () => {
         <SidebarInset className="flex flex-col flex-1">
           <header className="sticky top-0 z-10 w-full bg-white border-b px-8 py-4 flex justify-between items-center">
             <h1 className="text-xl font-semibold text-gray-900">
-              {activePath === '/dashboard' ? 'Dashboard' : 
-               activePath === '/profile' ? 'Perfil' :
-               activePath === '/events' ? 'Eventos' :
-               activePath === '/chat' ? 'Chat' :
-               activePath === '/settings' ? 'Configurações' : 'Dashboard'}
+              {getPageTitle()}
             </h1>
             
             <div className="flex items-center gap-4">

@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, 
   User, 
@@ -14,6 +14,7 @@ import {
   SidebarMenuButton 
 } from '@/components/ui/sidebar';
 import { Input } from '@/components/ui/input';
+import { useLocation } from 'react-router-dom';
 
 type MenuItem = {
   path: string;
@@ -28,6 +29,15 @@ type SidebarNavigationProps = {
 
 export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationProps) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const location = useLocation();
+  
+  // Atualizar o caminho ativo quando a localização mudar
+  useEffect(() => {
+    // Isso garante que o menu ativo seja atualizado quando a navegação ocorrer por outros meios
+    if (location.pathname !== activePath) {
+      onNavigate(location.pathname);
+    }
+  }, [location, activePath, onNavigate]);
 
   const menuItems: MenuItem[] = [
     { path: '/dashboard', name: 'Dashboard', icon: LayoutDashboard },
@@ -40,6 +50,11 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
   const filteredItems = menuItems.filter(item =>
     item.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleMenuItemClick = (path: string) => {
+    console.log('Navegando para:', path);
+    onNavigate(path);
+  };
 
   return (
     <div className="flex flex-col gap-4 animate-fade-in">
@@ -66,7 +81,7 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
             }}
           >
             <SidebarMenuButton
-              onClick={() => onNavigate(item.path)}
+              onClick={() => handleMenuItemClick(item.path)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ease-in-out transform hover:translate-x-1 ${
                 activePath === item.path
                   ? 'bg-primary/10 text-primary font-medium scale-105'
