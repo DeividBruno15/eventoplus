@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Event, EventStatus } from "@/types/events";
@@ -31,7 +32,7 @@ export const EventsList = () => {
           max_attendees: event.max_attendees,
           contractor_id: event.contractor_id,
           created_at: event.created_at,
-          updated_at: event.updated_at,
+          updated_at: event.updated_at || null, // Use null as fallback if property doesn't exist
           service_type: event.service_type,
           status: event.status as EventStatus
         }));
