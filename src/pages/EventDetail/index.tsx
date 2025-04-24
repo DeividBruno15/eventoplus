@@ -15,6 +15,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { getStatusColor, getApplicationStatusColor } from '@/lib/utils';
 
 const EventDetail = () => {
   const { id } = useParams();
@@ -64,31 +65,9 @@ const EventDetail = () => {
           
         if (eventError) throw eventError;
         
-        // Map database fields to Event type
-        const formattedEvent = {
-          id: eventData.id,
-          title: eventData.title,
-          description: eventData.description,
-          event_date: eventData.event_date,
-          event_time: eventData.event_time,
-          location: eventData.location,
-          latitude: eventData.latitude,
-          longitude: eventData.longitude,
-          images: eventData.images || [],
-          event_type: eventData.event_type,
-          target_audience: eventData.target_audience,
-          status: eventData.status,
-          creator_id: eventData.creator_id,
-          estimated_budget: eventData.estimated_budget,
-          max_guests: eventData.max_guests,
-          created_at: eventData.created_at,
-          updated_at: eventData.updated_at,
-          creator: eventData.creator
-        } as Event;
+        setEvent(eventData as Event);
 
-        setEvent(formattedEvent);
-
-        if (eventData.creator_id === user?.id) {
+        if (eventData.contractor_id === user?.id) {
           const { data: applicationsData, error: applicationsError } = await supabase
             .from('event_applications')
             .select(`
@@ -162,9 +141,9 @@ const EventDetail = () => {
       await supabase
         .from('notifications')
         .insert({
-          user_id: event.creator_id,
+          user_id: event.contractor_id,
           title: "Nova candidatura ao seu evento",
-          content: `Você recebeu uma nova candidatura para o evento "${event.title}"`,
+          content: `Você recebeu uma nova candidatura para o evento "${event.name}"`,
           type: "new_application",
           link: `/events/${event.id}`
         });
@@ -226,7 +205,7 @@ const EventDetail = () => {
         .insert({
           user_id: providerId,
           title: "Parabéns! Você foi aprovado para um evento",
-          content: `Sua candidatura para o evento "${event.title}" foi aprovada!`,
+          content: `Sua candidatura para o evento "${event.name}" foi aprovada!`,
           type: "application_approved",
           link: `/events/${event.id}`
         });
@@ -247,21 +226,6 @@ const EventDetail = () => {
       });
     } finally {
       setSubmitting(false);
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'draft':
-        return 'bg-gray-500';
-      case 'published':
-        return 'bg-green-500';
-      case 'cancelled':
-        return 'bg-red-500';
-      case 'finished':
-        return 'bg-blue-500';
-      default:
-        return 'bg-gray-500';
     }
   };
 
@@ -321,7 +285,7 @@ const EventDetail = () => {
               </Badge>
             </div>
             
-            <h1 className="text-3xl font-bold mb-2">{event.title}</h1>
+            <h1 className="text-3xl font-bold mb-2">{event.name}</h1>
             <p className="text-gray-600 mb-6">
               Organizado por {event.creator?.first_name} {event.creator?.last_name}
             </p>
@@ -342,7 +306,7 @@ const EventDetail = () => {
                   <div>
                     <p className="text-sm text-muted-foreground">Horário</p>
                     <p className="font-medium">
-                      {event.event_time} horas
+                      {new Date(event.event_date).toLocaleTimeString('pt-BR')} horas
                     </p>
                   </div>
                 </div>
@@ -357,7 +321,7 @@ const EventDetail = () => {
                   <Users className="h-5 w-5 mr-3 text-primary" />
                   <div>
                     <p className="text-sm text-muted-foreground">Convidados</p>
-                    <p className="font-medium">{event.max_guests || "Não especificado"}</p>
+                    <p className="font-medium">{event.max_attendees || "Não especificado"}</p>
                   </div>
                 </div>
               </div>
@@ -366,12 +330,12 @@ const EventDetail = () => {
               <p className="text-gray-700 whitespace-pre-line">{event.description}</p>
               
               <h3 className="font-medium text-lg mt-6 mb-2">Tipo de Evento</h3>
-              <p className="text-gray-700">{event.event_type}</p>
+              <p className="text-gray-700">{event.service_type}</p>
             </div>
           </div>
           
           <div className="lg:col-span-1">
-            {userRole === 'provider' && event.status === 'published' && !userHasApplied && (
+            {userRole === 'provider' && (event.status === 'open' || event.status === 'published') && !userHasApplied && (
               <Card className="mb-6">
                 <CardContent className="pt-6">
                   <h3 className="font-medium text-lg mb-3">Candidatar-se a este evento</h3>
@@ -443,7 +407,7 @@ const EventDetail = () => {
               </Card>
             )}
             
-            {userRole === 'contractor' && event.creator_id === user?.id && (
+            {userRole === 'contractor' && event.contractor_id === user?.id && (
               <Card>
                 <CardContent className="pt-6">
                   <h3 className="font-medium text-lg mb-4">Candidaturas</h3>
@@ -460,7 +424,7 @@ const EventDetail = () => {
                             <div className="flex items-center">
                               <User className="h-5 w-5 mr-2 text-primary" />
                               <span className="font-medium">
-                                {app.provider.first_name} {app.provider.last_name}
+                                {app.provider?.first_name} {app.provider?.last_name}
                               </span>
                             </div>
                             <Badge 
@@ -477,7 +441,7 @@ const EventDetail = () => {
                             {app.message}
                           </p>
                           
-                          {app.status === 'pending' && event.status === 'published' && (
+                          {app.status === 'pending' && (event.status === 'open' || event.status === 'published') && (
                             <Button 
                               onClick={() => handleApproveApplication(app.id, app.provider_id)}
                               disabled={submitting}

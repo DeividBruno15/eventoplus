@@ -23,28 +23,7 @@ export const EventsList = () => {
 
         if (error) throw error;
         
-        // Map database fields to our Event interface
-        const formattedEvents = data?.map(item => ({
-          id: item.id,
-          title: item.title,
-          description: item.description,
-          event_date: item.event_date,
-          event_time: item.event_time,
-          location: item.location,
-          latitude: item.latitude,
-          longitude: item.longitude,
-          images: item.images || [],
-          event_type: item.event_type,
-          target_audience: item.target_audience,
-          status: item.status,
-          creator_id: item.creator_id,
-          estimated_budget: item.estimated_budget,
-          max_guests: item.max_guests,
-          created_at: item.created_at,
-          updated_at: item.updated_at
-        })) as Event[];
-        
-        setEvents(formattedEvents || []);
+        setEvents(data as Event[] || []);
       } catch (error) {
         console.error('Erro ao buscar eventos:', error);
       } finally {
