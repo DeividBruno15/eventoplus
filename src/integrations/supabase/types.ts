@@ -9,13 +9,152 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      provider_services: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string | null
+          id: string
+          portfolio_links: Json | null
+          provider_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          portfolio_links?: Json | null
+          provider_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          portfolio_links?: Json | null
+          provider_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_services_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_requests: {
+        Row: {
+          attendees: number | null
+          city: string
+          contractor_id: string
+          created_at: string | null
+          description: string | null
+          event_date: string
+          event_type: string
+          id: string
+          provider_id: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          attendees?: number | null
+          city: string
+          contractor_id: string
+          created_at?: string | null
+          description?: string | null
+          event_date: string
+          event_type: string
+          id?: string
+          provider_id: string
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          attendees?: number | null
+          city?: string
+          contractor_id?: string
+          created_at?: string | null
+          description?: string | null
+          event_date?: string
+          event_type?: string
+          id?: string
+          provider_id?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_requests_contractor_id_fkey"
+            columns: ["contractor_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_requests_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_profiles: {
+        Row: {
+          address: string | null
+          city: string
+          created_at: string | null
+          document_number: string
+          first_name: string
+          id: string
+          last_name: string | null
+          person_type: string
+          role: string
+          state: string
+          updated_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          city: string
+          created_at?: string | null
+          document_number: string
+          first_name: string
+          id: string
+          last_name?: string | null
+          person_type: string
+          role: string
+          state: string
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string
+          created_at?: string | null
+          document_number?: string
+          first_name?: string
+          id?: string
+          last_name?: string | null
+          person_type?: string
+          role?: string
+          state?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_role: {
+        Args: { user_id: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
