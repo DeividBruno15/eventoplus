@@ -1,133 +1,115 @@
 
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import ConversationList from '@/components/chat/ConversationList';
-import { Conversation } from '@/types/chat';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSession } from "@/contexts/SessionContext";
+import ConversationList from "@/components/chat/ConversationList";
+import EmptyState from "@/components/chat/EmptyState";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Conversation } from "@/types/chat";
+import { Loader2, MessageCircle } from "lucide-react";
 
 const Chat = () => {
-  const { user } = useAuth();
+  const { session, loading } = useSession();
   const navigate = useNavigate();
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-
+  const [isLoading, setIsLoading] = useState(true);
+  
   useEffect(() => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
-
     const fetchConversations = async () => {
-      try {
-        const { data: conversationIds, error: conversationError } = await supabase
-          .rpc('get_user_conversations', { p_user_id: user.id });
-          
-        if (conversationError) {
-          console.error('Erro ao buscar conversas:', conversationError);
-          setConversations([]);
-          setLoading(false);
-          return;
-        }
-        
-        if (!conversationIds || conversationIds.length === 0) {
-          setConversations([]);
-          setLoading(false);
-          return;
-        }
-        
-        const formattedConversations: Conversation[] = [];
-        
-        for (const item of conversationIds) {
-          const { data: convDetails, error: detailsError } = await supabase
-            .rpc('get_conversation_details', { 
-              p_conversation_id: item.conversation_id, 
-              p_user_id: user.id 
-            });
-            
-          if (detailsError || !convDetails || convDetails.length === 0) {
-            console.error('Erro ao buscar detalhes da conversa:', detailsError);
-            continue;
-          }
-          
-          const details = convDetails[0];
-          
-          formattedConversations.push({
-            id: item.conversation_id,
-            updated_at: details.updated_at,
+      // Simulação de carregamento de conversas
+      setIsLoading(true);
+      setTimeout(() => {
+        // Dados simulados
+        setConversations([
+          {
+            id: "1",
+            updated_at: new Date().toISOString(),
             otherUser: {
-              id: details.other_user_id,
-              first_name: details.other_user_first_name || 'Usuário',
-              last_name: details.other_user_last_name || ''
+              id: "user1",
+              first_name: "Maria",
+              last_name: "Silva"
             },
-            lastMessage: details.last_message ? {
-              message: details.last_message,
-              created_at: details.last_message_time,
-              is_read: details.is_read || false,
-              is_mine: details.is_sender === user.id
-            } : null
-          });
-        }
-        
-        formattedConversations.sort((a, b) => 
-          new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-        );
-        
-        setConversations(formattedConversations);
-      } catch (error) {
-        console.error('Erro ao carregar conversas:', error);
-      } finally {
-        setLoading(false);
-      }
+            lastMessage: {
+              message: "Olá, gostaria de saber mais sobre seus serviços",
+              created_at: new Date(Date.now() - 25 * 60000).toISOString(), // 25 minutos atrás
+              is_read: false,
+              is_mine: false
+            }
+          },
+          {
+            id: "2",
+            updated_at: new Date(Date.now() - 60 * 60000).toISOString(), // 1 hora atrás
+            otherUser: {
+              id: "user2",
+              first_name: "João",
+              last_name: "Santos"
+            },
+            lastMessage: {
+              message: "Tudo confirmado para o evento",
+              created_at: new Date(Date.now() - 60 * 60000).toISOString(),
+              is_read: true,
+              is_mine: true
+            }
+          },
+          {
+            id: "3",
+            updated_at: new Date(Date.now() - 24 * 60 * 60000).toISOString(), // 1 dia atrás
+            otherUser: {
+              id: "user3",
+              first_name: "Ana",
+              last_name: "Pereira"
+            },
+            lastMessage: {
+              message: "Você pode enviar um orçamento atualizado?",
+              created_at: new Date(Date.now() - 24 * 60 * 60000).toISOString(),
+              is_read: true,
+              is_mine: false
+            }
+          }
+        ]);
+        setIsLoading(false);
+      }, 1000);
     };
 
-    fetchConversations();
+    if (session) {
+      fetchConversations();
+    }
+  }, [session]);
 
-    const channel = supabase.channel('chat-updates')
-      .on('postgres_changes', 
-        { 
-          event: '*', 
-          schema: 'public', 
-          table: 'chat_messages' 
-        }, 
-        () => {
-          fetchConversations();
-        })
-      .subscribe();
+  if (loading || isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user, navigate]);
-
-  const filteredConversations = conversations.filter(conv => {
-    if (!searchQuery) return true;
-    
-    const fullName = `${conv.otherUser.first_name} ${conv.otherUser.last_name}`.toLowerCase();
-    return fullName.includes(searchQuery.toLowerCase());
-  });
+  if (!session) {
+    navigate('/login');
+    return null;
+  }
 
   return (
-    <div className="min-h-screen flex flex-col bg-page">
-      <Navbar />
-      <div className="container mx-auto px-4 py-8 flex-grow">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-primary">Conversas</h1>
-        </div>
-        
-        <ConversationList
-          loading={loading}
-          conversations={conversations}
-          filteredConversations={filteredConversations}
-          searchQuery={searchQuery}
-          onSearchChange={(value) => setSearchQuery(value)}
-        />
+    <Card className="h-[calc(100vh-12rem)] flex flex-col">
+      <div className="p-4 border-b flex justify-between items-center">
+        <h2 className="text-xl font-semibold">Mensagens</h2>
+        <Button size="sm" className="gap-2">
+          <MessageCircle className="h-4 w-4" />
+          Nova Conversa
+        </Button>
       </div>
-      <Footer />
-    </div>
+      
+      {conversations.length > 0 ? (
+        <ConversationList conversations={conversations} />
+      ) : (
+        <EmptyState 
+          title="Nenhuma conversa encontrada" 
+          description="Você ainda não tem nenhuma conversa iniciada." 
+          icon={<MessageCircle className="h-12 w-12 text-muted-foreground" />}
+        />
+      )}
+    </Card>
   );
 };
 
