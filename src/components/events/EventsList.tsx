@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Event, EventStatus } from "@/types/events";
@@ -23,7 +22,6 @@ export const EventsList = () => {
 
         if (error) throw error;
         
-        // Process the events to match our Event type
         const processedEvents: Event[] = (data || []).map(event => ({
           id: event.id,
           name: event.name,
@@ -33,7 +31,7 @@ export const EventsList = () => {
           max_attendees: event.max_attendees,
           contractor_id: event.contractor_id,
           created_at: event.created_at,
-          updated_at: event.updated_at || null, // Adiciona o campo updated_at com valor padrão
+          updated_at: event.updated_at ?? null,
           service_type: event.service_type,
           status: event.status as EventStatus
         }));
