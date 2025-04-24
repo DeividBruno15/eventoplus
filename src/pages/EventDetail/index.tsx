@@ -63,15 +63,15 @@ const EventDetail = () => {
         
         const safeGetCreator = () => {
           if (eventData?.creator && 
-              typeof eventData.creator === 'object' && 
-              !('code' in eventData.creator) &&
-              !('message' in eventData.creator) &&
-              !('details' in eventData.creator) &&
-              !('hint' in eventData.creator)) {
+              typeof eventData?.creator === 'object' && 
+              !('code' in eventData?.creator) &&
+              !('message' in eventData?.creator) &&
+              !('details' in eventData?.creator) &&
+              !('hint' in eventData?.creator)) {
             return {
-              first_name: eventData.creator?.first_name ?? '',
-              last_name: eventData.creator?.last_name ?? '',
-              phone_number: eventData.creator?.phone_number ?? null
+              first_name: eventData?.creator?.first_name ?? '',
+              last_name: eventData?.creator?.last_name ?? '',
+              phone_number: eventData?.creator?.phone_number ?? null
             };
           }
           return null;
@@ -111,14 +111,14 @@ const EventDetail = () => {
           const processedApplications: EventApplication[] = (applicationsData || []).map(app => {
             const safeGetProvider = () => {
               if (app?.provider && 
-                  typeof app.provider === 'object' && 
-                  !('code' in app.provider) &&
-                  !('message' in app.provider) &&
-                  !('details' in app.provider) &&
-                  !('hint' in app.provider)) {
+                  typeof app?.provider === 'object' && 
+                  !('code' in app?.provider) &&
+                  !('message' in app?.provider) &&
+                  !('details' in app?.provider) &&
+                  !('hint' in app?.provider)) {
                 return {
-                  first_name: app.provider?.first_name ?? '',
-                  last_name: app.provider?.last_name ?? ''
+                  first_name: app?.provider?.first_name ?? '',
+                  last_name: app?.provider?.last_name ?? ''
                 };
               }
               return null;
