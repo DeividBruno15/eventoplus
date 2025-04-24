@@ -22,7 +22,7 @@ const createEventSchema = z.object({
   event_time: z.string().min(1, 'O horário do evento é obrigatório'),
   location: z.string().min(5, 'O local do evento é obrigatório (min. 5 caracteres)'),
   service_type: z.string().min(3, 'O tipo de serviço é obrigatório (min. 3 caracteres)'),
-  max_attendees: z.string().optional().transform(val => val === '' ? null : parseInt(val, 10)),
+  max_attendees: z.string().optional().transform(val => val === '' ? null : parseInt(val, 10))
 });
 
 type CreateEventFormData = z.infer<typeof createEventSchema>;
