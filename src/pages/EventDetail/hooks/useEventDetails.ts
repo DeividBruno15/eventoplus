@@ -74,8 +74,6 @@ export const useEventDetails = ({ id, user }: UseEventDetailsProps) => {
           return null;
         };
         
-        const creatorData = safeGetCreator();
-        
         const processedEvent: Event = {
           id: eventData.id,
           name: eventData.name,
@@ -85,10 +83,10 @@ export const useEventDetails = ({ id, user }: UseEventDetailsProps) => {
           max_attendees: eventData.max_attendees,
           contractor_id: eventData.contractor_id,
           created_at: eventData.created_at,
-          updated_at: eventData.updated_at ?? null,
+          updated_at: eventData.updated_at,
           service_type: eventData.service_type,
           status: eventData.status as EventStatus,
-          creator: creatorData
+          creator: safeGetCreator()
         };
 
         if (eventData.contractor_id === user?.id) {
