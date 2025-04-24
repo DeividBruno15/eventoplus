@@ -65,13 +65,14 @@ const EventDetail = () => {
           
         if (eventError) throw eventError;
         
+        // Safely access creator properties with proper null checking
         const creatorData = eventData.creator && 
-                           typeof eventData.creator === 'object' &&
-                           !('error' in eventData.creator) ? {
-                             first_name: eventData.creator?.first_name || '',
-                             last_name: eventData.creator?.last_name || '',
-                             phone_number: eventData.creator?.phone_number
-                           } : null;
+                          typeof eventData.creator === 'object' && 
+                          !('error' in eventData.creator) ? {
+                            first_name: eventData.creator?.first_name || '',
+                            last_name: eventData.creator?.last_name || '',
+                            phone_number: eventData.creator?.phone_number
+                          } : null;
         
         const processedEvent: Event = {
           id: eventData.id,
@@ -103,12 +104,13 @@ const EventDetail = () => {
           if (applicationsError) throw applicationsError;
           
           const processedApplications: EventApplication[] = (applicationsData || []).map(app => {
+            // Safely access provider properties with proper null checking
             const providerData = app.provider && 
-                               typeof app.provider === 'object' &&
-                               !('error' in app.provider) ? {
-                                 first_name: app.provider?.first_name || '',
-                                 last_name: app.provider?.last_name || ''
-                               } : null;
+                              typeof app.provider === 'object' &&
+                              !('error' in app.provider) ? {
+                                first_name: app.provider?.first_name || '',
+                                last_name: app.provider?.last_name || ''
+                              } : null;
             
             return {
               id: app.id,
