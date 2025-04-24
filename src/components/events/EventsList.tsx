@@ -35,7 +35,8 @@ export const EventsList = () => {
           created_at: event.created_at,
           service_type: event.service_type,
           status: event.status as EventStatus, // Cast status to EventStatus
-          updated_at: event.updated_at
+          // Only include updated_at if it exists in the response
+          ...(event.updated_at !== undefined && { updated_at: event.updated_at })
         }));
         
         setEvents(processedEvents);
