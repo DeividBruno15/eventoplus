@@ -1,16 +1,49 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, LogOut } from 'lucide-react';
+import { Menu, X, LogOut, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { session, logout } = useAuth();
+  const { session, user, logout, loading } = useAuth();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleLogout = () => {
+    logout();
+    setIsMenuOpen(false);
+  };
+
+  // Função para obter as iniciais do nome do usuário
+  const getUserInitials = () => {
+    if (!user) return "?";
+    
+    // Tenta obter o nome dos metadados de usuário
+    const firstName = user.user_metadata?.first_name as string | undefined;
+    const lastName = user.user_metadata?.last_name as string | undefined;
+    
+    if (firstName && lastName) {
+      return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+    } else if (firstName) {
+      return firstName.charAt(0).toUpperCase();
+    } else if (user.email) {
+      return user.email.charAt(0).toUpperCase();
+    }
+    
+    return "U";
   };
 
   return (
@@ -30,15 +63,33 @@ const Navbar = () => {
 
         <div className="hidden md:flex items-center space-x-4">
           {session ? (
-            <>
+            <div className="flex items-center gap-4">
               <Link to="/dashboard">
                 <Button variant="outline" className="border-primary text-primary hover:bg-primary/5">Dashboard</Button>
               </Link>
-              <Button variant="ghost" onClick={logout} className="flex items-center gap-2">
-                <LogOut size={18} />
-                Sair
-              </Button>
-            </>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Avatar className="cursor-pointer h-10 w-10 bg-primary text-primary-foreground">
+                    <AvatarFallback>{getUserInitials()}</AvatarFallback>
+                  </Avatar>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile" className="cursor-pointer w-full">
+                      <User className="mr-2 h-4 w-4" />
+                      Perfil
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout} disabled={loading} className="cursor-pointer text-red-500 focus:text-red-500">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sair
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           ) : (
             <>
               <Link to="/login">
@@ -73,8 +124,19 @@ const Navbar = () => {
                   <Link to="/dashboard" onClick={toggleMenu}>
                     <Button variant="outline" className="w-full border-primary text-primary">Dashboard</Button>
                   </Link>
-                  <Button variant="ghost" onClick={() => { logout(); toggleMenu(); }} className="w-full flex items-center justify-center gap-2">
-                    <LogOut size={18} />
+                  <Link to="/profile" onClick={toggleMenu}>
+                    <Button variant="outline" className="w-full">
+                      <User className="mr-2 h-4 w-4" />
+                      Perfil
+                    </Button>
+                  </Link>
+                  <Button 
+                    variant="ghost" 
+                    onClick={handleLogout} 
+                    disabled={loading}
+                    className="w-full flex items-center justify-center gap-2 text-red-500"
+                  >
+                    <LogOut className="h-4 w-4" />
                     Sair
                   </Button>
                 </>
