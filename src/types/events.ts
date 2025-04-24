@@ -1,6 +1,4 @@
 
-
-
 export type EventStatus = 'draft' | 'published' | 'cancelled' | 'finished' | 'open' | 'closed' | 'in_progress';
 
 export type ApplicationStatus = 'pending' | 'approved' | 'rejected';
@@ -14,7 +12,7 @@ export type Event = {
   max_attendees?: number;
   contractor_id: string;
   created_at: string;
-  updated_at: string | null | undefined; // Ensure optional and nullable
+  updated_at: string | null | undefined; // Make it optional and nullable
   service_type: string;
   status: EventStatus;
   creator?: {
@@ -36,4 +34,3 @@ export type EventApplication = {
     last_name: string;
   } | null;
 }
-
