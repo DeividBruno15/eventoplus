@@ -34,3 +34,16 @@ export interface CreateEventFormData {
   max_guests?: number;
   images?: File[];
 }
+
+export interface EventApplication {
+  id: string;
+  event_id: string;
+  provider_id: string;
+  message: string;
+  status: 'pending' | 'approved' | 'rejected';
+  created_at: string;
+  provider?: {
+    first_name: string;
+    last_name: string;
+  };
+}
