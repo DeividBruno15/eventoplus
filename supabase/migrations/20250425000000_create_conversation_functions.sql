@@ -1,4 +1,5 @@
 
+
 -- Função para buscar as conversas de um usuário
 CREATE OR REPLACE FUNCTION public.get_user_conversations(p_user_id UUID)
 RETURNS TABLE (conversation_id UUID) 
@@ -61,3 +62,4 @@ BEGIN
   WHERE c.id = p_conversation_id;
 END;
 $$;
+

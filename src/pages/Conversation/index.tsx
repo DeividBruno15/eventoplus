@@ -45,45 +45,58 @@ const Conversation = () => {
 
     const fetchConversationDetails = async () => {
       try {
+        // Verificar se a conversa existe e a estrutura
+        const { data: conversation, error: conversationError } = await supabase
+          .from('conversations')
+          .select('id')
+          .eq('id', id)
+          .single();
+          
+        if (conversationError) {
+          console.error('Erro ao buscar conversa:', conversationError);
+          navigate('/chat');
+          return;
+        }
+        
         // Verificar se o usuário é participante da conversa
-        const { data: participation, error: participationError } = await supabase
+        const { data: participants, error: participantsError } = await supabase
           .from('conversation_participants')
           .select('user_id')
-          .eq('conversation_id', id)
-          .eq('user_id', user.id)
-          .maybeSingle();
+          .eq('conversation_id', id);
           
-        if (participationError) throw participationError;
+        if (participantsError) {
+          console.error('Erro ao buscar participantes:', participantsError);
+          navigate('/chat');
+          return;
+        }
         
-        if (!participation) {
+        const isParticipant = participants.some(p => p.user_id === user.id);
+        if (!isParticipant) {
+          console.error('Usuário não é participante desta conversa');
           navigate('/chat');
           return;
         }
         
         // Buscar o outro participante
-        const { data: otherParticipants, error: participantsError } = await supabase
-          .from('conversation_participants')
-          .select('user_id')
-          .eq('conversation_id', id)
-          .neq('user_id', user.id);
-          
-        if (participantsError) throw participantsError;
-        
-        if (!otherParticipants || otherParticipants.length === 0) {
+        const otherParticipant = participants.find(p => p.user_id !== user.id);
+        if (!otherParticipant) {
+          console.error('Outro participante não encontrado');
           navigate('/chat');
           return;
         }
-        
-        const otherUserId = otherParticipants[0].user_id;
         
         // Buscar dados do outro usuário
         const { data: otherUserData, error: otherUserError } = await supabase
           .from('user_profiles')
           .select('id, first_name, last_name')
-          .eq('id', otherUserId)
+          .eq('id', otherParticipant.user_id)
           .single();
           
-        if (otherUserError) throw otherUserError;
+        if (otherUserError) {
+          console.error('Erro ao buscar dados do outro usuário:', otherUserError);
+          navigate('/chat');
+          return;
+        }
         
         setOtherUser(otherUserData);
         
@@ -122,7 +135,7 @@ const Conversation = () => {
   }, [messages]);
 
   const fetchMessages = async () => {
-    if (!id) return;
+    if (!id || !user) return;
 
     try {
       setLoading(true);
@@ -133,20 +146,23 @@ const Conversation = () => {
         .eq('conversation_id', id)
         .order('created_at', { ascending: true });
         
-      if (error) throw error;
-      
-      setMessages(data || []);
-      
-      // Marcar mensagens não lidas como lidas
-      const unreadMessages = data?.filter(msg => 
-        !msg.read && msg.sender_id !== user?.id
-      );
-      
-      if (unreadMessages && unreadMessages.length > 0) {
-        await supabase
-          .from('chat_messages')
-          .update({ read: true })
-          .in('id', unreadMessages.map(msg => msg.id));
+      if (error) {
+        console.error('Erro ao buscar mensagens:', error);
+        setMessages([]);
+      } else if (data) {
+        setMessages(data as Message[]);
+        
+        // Marcar mensagens não lidas como lidas
+        const unreadMessages = data.filter(msg => 
+          !msg.read && msg.sender_id !== user.id
+        );
+        
+        if (unreadMessages && unreadMessages.length > 0) {
+          await supabase
+            .from('chat_messages')
+            .update({ read: true })
+            .in('id', unreadMessages.map(msg => msg.id));
+        }
       }
     } catch (error) {
       console.error('Erro ao carregar mensagens:', error);
@@ -158,21 +174,25 @@ const Conversation = () => {
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!newMessage.trim() || !user || !id) return;
+    if (!newMessage.trim() || !user || !id || !otherUser) return;
     
     try {
       setSending(true);
       
       // Enviar nova mensagem
-      await supabase
+      const { error } = await supabase
         .from('chat_messages')
         .insert({
           conversation_id: id,
           sender_id: user.id,
-          receiver_id: otherUser?.id,
+          receiver_id: otherUser.id,
           message: newMessage.trim(),
           read: false
         });
+
+      if (error) {
+        throw error;
+      }
       
       // Atualizar timestamp da conversa
       await supabase

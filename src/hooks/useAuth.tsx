@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
@@ -60,7 +59,6 @@ export const useAuth = () => {
     if (!userId) return;
     
     try {
-      // Como o tipo ainda não foi atualizado, vamos usar uma abordagem mais genérica
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
@@ -69,8 +67,8 @@ export const useAuth = () => {
         
       if (error) throw error;
       
-      // Acessamos o campo como uma propriedade dinâmica
-      const isComplete = (data as any)?.is_onboarding_complete || false;
+      // Verificar se o campo is_onboarding_complete existe no objeto
+      const isComplete = 'is_onboarding_complete' in data ? data.is_onboarding_complete : false;
       setIsOnboardingComplete(isComplete);
       
       if (isComplete) {
@@ -106,7 +104,6 @@ export const useAuth = () => {
             city: data.city,
             state: data.state,
             zipcode: data.zipcode
-            // Removemos is_onboarding_complete daqui
           },
         },
       });
@@ -138,12 +135,9 @@ export const useAuth = () => {
     try {
       setLoading(true);
       
-      // Usamos objetos index signature para evitar problemas de tipos
-      const updateData: any = { is_onboarding_complete: complete };
-      
       const { error } = await supabase
         .from('user_profiles')
-        .update(updateData)
+        .update({ is_onboarding_complete: complete })
         .eq('id', user.id);
       
       if (error) throw error;
