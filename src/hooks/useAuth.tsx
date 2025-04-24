@@ -3,26 +3,14 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
-
-export type RegisterData = {
-  email: string;
-  password: string;
-  first_name: string;
-  last_name: string;
-  person_type: 'fisica' | 'juridica';
-  document_number: string;
-  role: 'contractor' | 'provider';
-  address: string;
-  city: string;
-  state: string;
-};
+import { RegisterFormData } from '@/pages/Register/types';
 
 export const useAuth = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const register = async (data: RegisterData) => {
+  const register = async (data: RegisterFormData) => {
     try {
       setLoading(true);
       
