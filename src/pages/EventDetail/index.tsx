@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -67,9 +68,9 @@ const EventDetail = () => {
         const creatorData = eventData.creator && 
                            typeof eventData.creator === 'object' &&
                            !('error' in eventData.creator) ? {
-                             first_name: eventData.creator.first_name || '',
-                             last_name: eventData.creator.last_name || '',
-                             phone_number: eventData.creator.phone_number
+                             first_name: eventData.creator?.first_name || '',
+                             last_name: eventData.creator?.last_name || '',
+                             phone_number: eventData.creator?.phone_number
                            } : null;
         
         const processedEvent: Event = {
@@ -81,7 +82,7 @@ const EventDetail = () => {
           max_attendees: eventData.max_attendees,
           contractor_id: eventData.contractor_id,
           created_at: eventData.created_at,
-          updated_at: eventData.updated_at,
+          updated_at: eventData.updated_at || undefined,
           service_type: eventData.service_type,
           status: eventData.status as EventStatus,
           creator: creatorData
@@ -105,8 +106,8 @@ const EventDetail = () => {
             const providerData = app.provider && 
                                typeof app.provider === 'object' &&
                                !('error' in app.provider) ? {
-                                 first_name: app.provider.first_name || '',
-                                 last_name: app.provider.last_name || ''
+                                 first_name: app.provider?.first_name || '',
+                                 last_name: app.provider?.last_name || ''
                                } : null;
             
             return {
