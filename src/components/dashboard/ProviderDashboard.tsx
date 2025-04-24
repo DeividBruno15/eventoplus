@@ -55,10 +55,11 @@ const ProviderDashboard = () => {
                 </li>
               ))}
             </ul>
-          </CardContent>
-        </Card>
-      </div>
-    );
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
 };
 
 export default ProviderDashboard;
