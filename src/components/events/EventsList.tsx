@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Event, EventStatus } from "@/types/events";
@@ -32,9 +33,9 @@ export const EventsList = () => {
           max_attendees: event.max_attendees,
           contractor_id: event.contractor_id,
           created_at: event.created_at,
+          updated_at: event.updated_at,
           service_type: event.service_type,
           status: event.status as EventStatus // Cast status to EventStatus
-          // We're not including updated_at as it doesn't exist in the response
         }));
         
         setEvents(processedEvents);

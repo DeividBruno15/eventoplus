@@ -1,4 +1,6 @@
 
+export type EventStatus = 'draft' | 'published' | 'cancelled' | 'finished' | 'open' | 'closed' | 'in_progress';
+
 export interface Event {
   id: string;
   name: string;
