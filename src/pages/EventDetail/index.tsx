@@ -69,9 +69,9 @@ const EventDetail = () => {
               !('details' in eventData.creator) &&
               !('hint' in eventData.creator)) {
             return {
-              first_name: eventData.creator?.first_name || '',
-              last_name: eventData.creator?.last_name || '',
-              phone_number: eventData.creator?.phone_number || null
+              first_name: eventData.creator?.first_name ?? '',
+              last_name: eventData.creator?.last_name ?? '',
+              phone_number: eventData.creator?.phone_number ?? null
             };
           }
           return null;
@@ -117,8 +117,8 @@ const EventDetail = () => {
                   !('details' in app.provider) &&
                   !('hint' in app.provider)) {
                 return {
-                  first_name: app.provider?.first_name || '',
-                  last_name: app.provider?.last_name || ''
+                  first_name: app.provider?.first_name ?? '',
+                  last_name: app.provider?.last_name ?? ''
                 };
               }
               return null;
