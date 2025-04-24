@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -55,7 +56,6 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [document, setDocument] = useState('');
-  const [address, setAddress] = useState('');
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
@@ -213,20 +213,6 @@ const Register = () => {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>CPF/CNPJ</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="address"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Endereço</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
