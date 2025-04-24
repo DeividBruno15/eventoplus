@@ -30,11 +30,10 @@ type SidebarNavigationProps = {
 export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const location = useLocation();
-  const navigate = useNavigate(); // Adicionando o hook de navegação diretamente aqui
+  const navigate = useNavigate();
   
   // Atualizar o caminho ativo quando a localização mudar
   useEffect(() => {
-    // Isso garante que o menu ativo seja atualizado quando a navegação ocorrer por outros meios
     if (location.pathname !== activePath) {
       onNavigate(location.pathname);
     }
@@ -54,9 +53,9 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
 
   const handleMenuItemClick = (path: string) => {
     console.log('Navegando para:', path);
-    // Atualize o caminho ativo
+    // Atualizar o caminho ativo
     onNavigate(path);
-    // E navegue para a rota usando o navigate diretamente
+    // E navegar para a rota
     navigate(path);
   };
 

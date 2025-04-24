@@ -25,6 +25,7 @@ const DashboardLayout = () => {
   // Atualizar o caminho ativo quando a localização mudar
   useEffect(() => {
     setActivePath(location.pathname);
+    console.log('Rota atual:', location.pathname);
   }, [location]);
 
   // Verificar a autenticação
@@ -54,7 +55,6 @@ const DashboardLayout = () => {
   const handleNavigation = (path: string) => {
     console.log('Navegando para o caminho (handleNavigation):', path);
     setActivePath(path);
-    // Vamos garantir que a navegação ocorra aqui
     navigate(path);
   };
 

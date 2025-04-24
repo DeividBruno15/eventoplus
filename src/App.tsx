@@ -37,7 +37,7 @@ const App = () => (
             <Route path="/register" element={<Register />} />
             
             {/* Rotas com o layout do dashboard */}
-            <Route path="/" element={<DashboardLayout />}>
+            <Route element={<DashboardLayout />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/settings" element={<Settings />} />
