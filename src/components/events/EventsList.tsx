@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Event, EventStatus } from "@/types/events";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,7 +33,7 @@ export const EventsList = () => {
           max_attendees: event.max_attendees,
           contractor_id: event.contractor_id,
           created_at: event.created_at,
-          updated_at: event.updated_at || null,
+          updated_at: event.updated_at || null, // Adiciona o campo updated_at com valor padrão
           service_type: event.service_type,
           status: event.status as EventStatus
         }));
