@@ -10,7 +10,7 @@ export interface Event {
   max_attendees?: number;
   contractor_id: string;
   created_at: string;
-  updated_at?: string;
+  updated_at: string | null | undefined;
   service_type: string;
   status: EventStatus;
   creator?: {

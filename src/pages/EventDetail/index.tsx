@@ -69,9 +69,9 @@ const EventDetail = () => {
               !('details' in eventData.creator) &&
               !('hint' in eventData.creator)) {
             return {
-              first_name: eventData.creator.first_name || '',
-              last_name: eventData.creator.last_name || '',
-              phone_number: eventData.creator.phone_number
+              first_name: eventData.creator?.first_name || '',
+              last_name: eventData.creator?.last_name || '',
+              phone_number: eventData.creator?.phone_number || null
             };
           }
           return null;
@@ -88,7 +88,7 @@ const EventDetail = () => {
           max_attendees: eventData.max_attendees,
           contractor_id: eventData.contractor_id,
           created_at: eventData.created_at,
-          updated_at: eventData.updated_at,
+          updated_at: eventData.updated_at || null,
           service_type: eventData.service_type,
           status: eventData.status as EventStatus,
           creator: creatorData
@@ -117,8 +117,8 @@ const EventDetail = () => {
                   !('details' in app.provider) &&
                   !('hint' in app.provider)) {
                 return {
-                  first_name: app.provider.first_name || '',
-                  last_name: app.provider.last_name || ''
+                  first_name: app.provider?.first_name || '',
+                  last_name: app.provider?.last_name || ''
                 };
               }
               return null;

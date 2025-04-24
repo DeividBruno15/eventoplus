@@ -33,7 +33,7 @@ export const EventsList = () => {
           max_attendees: event.max_attendees,
           contractor_id: event.contractor_id,
           created_at: event.created_at,
-          updated_at: event.updated_at || undefined,
+          updated_at: event.updated_at || null,
           service_type: event.service_type,
           status: event.status as EventStatus
         }));
