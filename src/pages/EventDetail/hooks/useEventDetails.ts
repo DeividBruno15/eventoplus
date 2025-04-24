@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Event, EventApplication } from '@/types/events';
+import { Event, EventApplication, ApplicationStatus, EventStatus } from '@/types/events';
 import { User } from '@supabase/supabase-js';
 
 interface UseEventDetailsProps {
@@ -88,7 +88,7 @@ export const useEventDetails = ({ id, user }: UseEventDetailsProps) => {
           created_at: eventData.created_at,
           updated_at: eventData.updated_at || null,
           service_type: eventData.service_type,
-          status: eventData.status,
+          status: eventData.status as EventStatus,
           creator: creatorData
         };
 
@@ -125,7 +125,7 @@ export const useEventDetails = ({ id, user }: UseEventDetailsProps) => {
               event_id: app.event_id,
               provider_id: app.provider_id,
               message: app.message,
-              status: app.status,
+              status: app.status as ApplicationStatus,
               created_at: app.created_at,
               provider: safeGetProvider()
             };
@@ -159,10 +159,11 @@ export const useEventDetails = ({ id, user }: UseEventDetailsProps) => {
               event_id: applicationData.event_id,
               provider_id: applicationData.provider_id,
               message: applicationData.message,
-              status: applicationData.status,
+              status: applicationData.status as ApplicationStatus,
               created_at: applicationData.created_at,
               provider: null
-            } : null
+            } : null,
+            applications: []
           }));
         }
       } catch (error: any) {

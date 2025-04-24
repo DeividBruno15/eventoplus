@@ -8,7 +8,7 @@ export const useEventApplications = (event: Event | null) => {
   const { toast } = useToast();
   const [submitting, setSubmitting] = useState(false);
 
-  const handleApply = async (message: string) => {
+  const handleApply = async (message: string): Promise<void> => {
     if (!event) return;
     
     try {
@@ -41,8 +41,6 @@ export const useEventApplications = (event: Event | null) => {
           type: "new_application",
           link: `/events/${event.id}`
         });
-        
-      return data as EventApplication;
     } catch (error: any) {
       console.error('Erro ao enviar candidatura:', error);
       toast({
@@ -50,13 +48,12 @@ export const useEventApplications = (event: Event | null) => {
         description: error.message || 'Ocorreu um erro ao enviar sua candidatura',
         variant: "destructive",
       });
-      return null;
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleApproveApplication = async (applicationId: string, providerId: string) => {
+  const handleApproveApplication = async (applicationId: string, providerId: string): Promise<void> => {
     if (!event) return;
     
     try {
@@ -111,8 +108,6 @@ export const useEventApplications = (event: Event | null) => {
         title: "Candidatura aprovada!",
         description: "O prestador foi notificado e vocês já podem começar a conversar.",
       });
-      
-      return true;
     } catch (error: any) {
       console.error('Erro ao aprovar candidatura:', error);
       toast({
@@ -120,7 +115,6 @@ export const useEventApplications = (event: Event | null) => {
         description: error.message || 'Ocorreu um erro ao aprovar a candidatura',
         variant: "destructive",
       });
-      return false;
     } finally {
       setSubmitting(false);
     }

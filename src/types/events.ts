@@ -20,12 +20,14 @@ export interface Event {
   } | null;
 }
 
+export type ApplicationStatus = 'pending' | 'approved' | 'rejected';
+
 export interface EventApplication {
   id: string;
   event_id: string;
   provider_id: string;
   message: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: ApplicationStatus;
   created_at: string;
   provider?: {
     first_name: string;
