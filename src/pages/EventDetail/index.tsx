@@ -64,10 +64,10 @@ const EventDetail = () => {
         const safeGetCreator = () => {
           if (eventData?.creator && 
               typeof eventData?.creator === 'object' && 
-              !('code' in eventData?.creator) &&
-              !('message' in eventData?.creator) &&
-              !('details' in eventData?.creator) &&
-              !('hint' in eventData?.creator)) {
+              !('code' in (eventData?.creator || {})) &&
+              !('message' in (eventData?.creator || {})) &&
+              !('details' in (eventData?.creator || {})) &&
+              !('hint' in (eventData?.creator || {}))) {
             return {
               first_name: eventData?.creator?.first_name ?? '',
               last_name: eventData?.creator?.last_name ?? '',
@@ -112,10 +112,10 @@ const EventDetail = () => {
             const safeGetProvider = () => {
               if (app?.provider && 
                   typeof app?.provider === 'object' && 
-                  !('code' in app?.provider) &&
-                  !('message' in app?.provider) &&
-                  !('details' in app?.provider) &&
-                  !('hint' in app?.provider)) {
+                  !('code' in (app?.provider || {})) &&
+                  !('message' in (app?.provider || {})) &&
+                  !('details' in (app?.provider || {})) &&
+                  !('hint' in (app?.provider || {}))) {
                 return {
                   first_name: app?.provider?.first_name ?? '',
                   last_name: app?.provider?.last_name ?? ''
