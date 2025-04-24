@@ -35,7 +35,7 @@ export const EventsList = () => {
           created_at: event.created_at,
           updated_at: event.updated_at || undefined,
           service_type: event.service_type,
-          status: event.status as EventStatus // Cast status to EventStatus
+          status: event.status as EventStatus
         }));
         
         setEvents(processedEvents);
