@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { Button } from '@/components/ui/button';
@@ -12,24 +12,16 @@ import {
   CardContent,
   CardFooter,
 } from '@/components/ui/card';
+import { useAuth } from '@/hooks/useAuth';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  
-  const navigate = useNavigate();
+  const { login, signInWithGoogle, loading } = useAuth();
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulação de login
-    setIsLoading(true);
-    
-    setTimeout(() => {
-      setIsLoading(false);
-      // Simulação de redirecionamento após login
-      navigate('/dashboard');
-    }, 1500);
+    login(email, password);
   };
   
   return (
@@ -77,8 +69,8 @@ const Login = () => {
                 />
               </div>
               
-              <Button type="submit" className="w-full bg-primary" disabled={isLoading}>
-                {isLoading ? 'Entrando...' : 'Entrar'}
+              <Button type="submit" className="w-full bg-primary" disabled={loading}>
+                {loading ? 'Entrando...' : 'Entrar'}
               </Button>
               
               <div className="relative my-6">
@@ -90,7 +82,13 @@ const Login = () => {
                 </div>
               </div>
               
-              <Button type="button" variant="outline" className="w-full">
+              <Button 
+                type="button" 
+                variant="outline" 
+                className="w-full"
+                onClick={() => signInWithGoogle()}
+                disabled={loading}
+              >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                   <path
                     fill="currentColor"
@@ -110,7 +108,7 @@ const Login = () => {
                   />
                   <path fill="none" d="M1 1h22v22H1z" />
                 </svg>
-                Entrar com Google
+                {loading ? 'Processando...' : 'Entrar com Google'}
               </Button>
             </form>
           </CardContent>

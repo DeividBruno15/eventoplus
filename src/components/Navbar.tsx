@@ -1,11 +1,13 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/useAuth';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { session, logout } = useAuth();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -27,12 +29,26 @@ const Navbar = () => {
         </div>
 
         <div className="hidden md:flex items-center space-x-4">
-          <Link to="/login">
-            <Button variant="outline" className="border-primary text-primary hover:bg-primary/5">Entrar</Button>
-          </Link>
-          <Link to="/register">
-            <Button variant="default" className="bg-primary text-white hover:bg-primary/90">Cadastrar</Button>
-          </Link>
+          {session ? (
+            <>
+              <Link to="/dashboard">
+                <Button variant="outline" className="border-primary text-primary hover:bg-primary/5">Dashboard</Button>
+              </Link>
+              <Button variant="ghost" onClick={logout} className="flex items-center gap-2">
+                <LogOut size={18} />
+                Sair
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link to="/login">
+                <Button variant="outline" className="border-primary text-primary hover:bg-primary/5">Entrar</Button>
+              </Link>
+              <Link to="/register">
+                <Button variant="default" className="bg-primary text-white hover:bg-primary/90">Cadastrar</Button>
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Navigation */}
@@ -52,12 +68,26 @@ const Navbar = () => {
             <Link to="/about" className="font-medium hover:text-primary transition-colors py-2" onClick={toggleMenu}>Sobre</Link>
             <Link to="/contact" className="font-medium hover:text-primary transition-colors py-2" onClick={toggleMenu}>Contato</Link>
             <div className="flex flex-col space-y-2 pt-2 border-t">
-              <Link to="/login" onClick={toggleMenu}>
-                <Button variant="outline" className="w-full border-primary text-primary">Entrar</Button>
-              </Link>
-              <Link to="/register" onClick={toggleMenu}>
-                <Button variant="default" className="w-full bg-primary text-white">Cadastrar</Button>
-              </Link>
+              {session ? (
+                <>
+                  <Link to="/dashboard" onClick={toggleMenu}>
+                    <Button variant="outline" className="w-full border-primary text-primary">Dashboard</Button>
+                  </Link>
+                  <Button variant="ghost" onClick={() => { logout(); toggleMenu(); }} className="w-full flex items-center justify-center gap-2">
+                    <LogOut size={18} />
+                    Sair
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link to="/login" onClick={toggleMenu}>
+                    <Button variant="outline" className="w-full border-primary text-primary">Entrar</Button>
+                  </Link>
+                  <Link to="/register" onClick={toggleMenu}>
+                    <Button variant="default" className="w-full bg-primary text-white">Cadastrar</Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
