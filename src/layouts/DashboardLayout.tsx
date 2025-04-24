@@ -18,8 +18,7 @@ import {
   LayoutDashboard, 
   User, 
   Calendar, 
-  Briefcase, 
-  MessageSquare, 
+  MessagesSquare, 
   Settings, 
   Bell, 
   LogOut 
@@ -42,11 +41,8 @@ const DashboardLayout = () => {
   const navigate = useNavigate();
   const [activePath, setActivePath] = useState(window.location.pathname);
 
-  // Função para obter as iniciais do nome do usuário
   const getUserInitials = () => {
     if (!user) return "?";
-    
-    // Tenta obter o nome dos metadados de usuário
     const firstName = user.user_metadata?.first_name as string | undefined;
     const lastName = user.user_metadata?.last_name as string | undefined;
     
@@ -57,44 +53,17 @@ const DashboardLayout = () => {
     } else if (user.email) {
       return user.email.charAt(0).toUpperCase();
     }
-    
     return "U";
   };
-  
+
   const userName = user?.user_metadata?.first_name || 'Usuário';
-  const userRole = user?.user_metadata?.role;
 
   const menuItems = [
-    {
-      path: '/dashboard',
-      name: 'Dashboard',
-      icon: LayoutDashboard,
-    },
-    {
-      path: '/profile',
-      name: 'Perfil',
-      icon: User,
-    },
-    {
-      path: '/events',
-      name: 'Meus Eventos',
-      icon: Calendar,
-    },
-    {
-      path: '/service-providers',
-      name: 'Serviços',
-      icon: Briefcase,
-    },
-    {
-      path: '/chat',
-      name: 'Chat',
-      icon: MessageSquare,
-    },
-    {
-      path: '/settings',
-      name: 'Configurações',
-      icon: Settings,
-    },
+    { path: '/dashboard', name: 'Dashboard', icon: LayoutDashboard },
+    { path: '/profile', name: 'Perfil', icon: User },
+    { path: '/events', name: 'Eventos', icon: Calendar },
+    { path: '/chat', name: 'Chat', icon: MessagesSquare },
+    { path: '/settings', name: 'Configurações', icon: Settings },
   ];
 
   const handleNavigation = (path: string) => {
@@ -102,7 +71,6 @@ const DashboardLayout = () => {
     navigate(path);
   };
 
-  // Se estiver carregando, exibimos um spinner
   if (sessionLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -113,8 +81,8 @@ const DashboardLayout = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
-        <Sidebar>
+      <div className="min-h-screen flex w-full bg-gray-50">
+        <Sidebar className="border-r border-gray-200">
           <SidebarHeader className="p-4 border-b">
             <div className="font-bold text-xl text-primary">Evento<span className="text-secondary">+</span></div>
           </SidebarHeader>
@@ -122,10 +90,13 @@ const DashboardLayout = () => {
             <SidebarMenu>
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.path}>
-                  <SidebarMenuButton 
+                  <SidebarMenuButton
                     onClick={() => handleNavigation(item.path)}
-                    tooltip={item.name}
-                    isActive={activePath === item.path}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                      activePath === item.path
+                        ? 'bg-primary/10 text-primary'
+                        : 'hover:bg-gray-100'
+                    }`}
                   >
                     <item.icon className="h-5 w-5" />
                     <span>{item.name}</span>
@@ -136,22 +107,13 @@ const DashboardLayout = () => {
           </SidebarContent>
         </Sidebar>
 
-        <SidebarInset className="flex flex-col">
-          {/* Header com informações do usuário e botões de ação */}
-          <div className="sticky top-0 z-10 w-full bg-white border-b shadow-sm p-4 flex justify-between items-center">
-            <div>
-              <h1 className="text-xl font-semibold">
-                {activePath === '/dashboard' ? 'Dashboard' : 
-                 activePath === '/profile' ? 'Perfil' :
-                 activePath === '/events' ? 'Meus Eventos' :
-                 activePath === '/service-providers' ? 'Serviços' :
-                 activePath === '/chat' ? 'Chat' :
-                 activePath === '/settings' ? 'Configurações' : 'Dashboard'}
-              </h1>
-            </div>
+        <SidebarInset className="flex flex-col flex-1">
+          <header className="sticky top-0 z-10 w-full bg-white border-b px-6 py-4 flex justify-between items-center">
+            <h1 className="text-xl font-semibold text-gray-900">
+              {menuItems.find(item => item.path === activePath)?.name || 'Dashboard'}
+            </h1>
             
             <div className="flex items-center gap-4">
-              {/* Notificações */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="icon" className="relative">
@@ -165,67 +127,58 @@ const DashboardLayout = () => {
                   <DropdownMenuLabel>Notificações</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <div className="max-h-80 overflow-auto">
-                    <DropdownMenuItem className="cursor-pointer py-3">
-                      <div>
+                    <DropdownMenuItem className="cursor-pointer">
+                      <div className="py-2">
                         <p className="font-medium">Nova mensagem recebida</p>
                         <p className="text-xs text-gray-500">Há 5 minutos</p>
                       </div>
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="cursor-pointer py-3">
-                      <div>
-                        <p className="font-medium">Evento confirmado</p>
-                        <p className="text-xs text-gray-500">Há 2 horas</p>
-                      </div>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="cursor-pointer py-3">
-                      <div>
-                        <p className="font-medium">Proposta aceita</p>
-                        <p className="text-xs text-gray-500">Há 1 dia</p>
-                      </div>
-                    </DropdownMenuItem>
                   </div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="justify-center cursor-pointer">
-                    Ver todas as notificações
-                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {/* Menu do usuário */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <div className="flex items-center gap-2 cursor-pointer">
-                    <span className="text-sm font-medium hidden md:block">{userName}</span>
                     <Avatar className="h-9 w-9 bg-primary text-primary-foreground">
                       <AvatarFallback>{getUserInitials()}</AvatarFallback>
                     </Avatar>
                   </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="font-medium leading-none">{userName}</p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {user?.email}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => handleNavigation('/profile')} className="cursor-pointer">
+                  <DropdownMenuItem onClick={() => handleNavigation('/profile')}>
                     <User className="mr-2 h-4 w-4" />
                     Perfil
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleNavigation('/settings')} className="cursor-pointer">
+                  <DropdownMenuItem onClick={() => handleNavigation('/settings')}>
                     <Settings className="mr-2 h-4 w-4" />
                     Configurações
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={logout} className="cursor-pointer text-red-500 focus:text-red-500">
+                  <DropdownMenuItem 
+                    onClick={logout} 
+                    className="text-red-500 focus:text-red-500"
+                  >
                     <LogOut className="mr-2 h-4 w-4" />
                     Sair
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-          </div>
+          </header>
 
-          {/* Conteúdo principal - usa Outlet para renderizar as rotas aninhadas */}
-          <div className="flex-grow p-6">
+          <main className="flex-1 p-6 overflow-y-auto">
             <Outlet />
-          </div>
+          </main>
         </SidebarInset>
       </div>
     </SidebarProvider>
