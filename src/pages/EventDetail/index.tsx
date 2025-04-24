@@ -1,9 +1,8 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Event, EventApplication } from '@/types/events';
+import { Event, EventApplication, EventStatus } from '@/types/events';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -65,7 +64,6 @@ const EventDetail = () => {
           
         if (eventError) throw eventError;
         
-        // Handle event data - ensure it matches our Event type
         const processedEvent: Event = {
           id: eventData.id,
           name: eventData.name,
@@ -76,18 +74,13 @@ const EventDetail = () => {
           contractor_id: eventData.contractor_id,
           created_at: eventData.created_at,
           service_type: eventData.service_type,
-          status: eventData.status,
+          status: eventData.status as EventStatus,
           updated_at: eventData.updated_at,
-          // Handle possible SelectQueryError from Supabase by providing fallback values
-          creator: eventData.creator && typeof eventData.creator !== 'string' ? {
+          creator: eventData.creator && typeof eventData.creator === 'object' && !('error' in eventData.creator) ? {
             first_name: eventData.creator.first_name || '',
             last_name: eventData.creator.last_name || '',
             phone_number: eventData.creator.phone_number
-          } : {
-            first_name: '',
-            last_name: '',
-            phone_number: undefined
-          }
+          } : null
         };
         
         setEvent(processedEvent);
@@ -104,22 +97,17 @@ const EventDetail = () => {
             
           if (applicationsError) throw applicationsError;
           
-          // Process applications to ensure they match our EventApplication type
           const processedApplications: EventApplication[] = applicationsData.map(app => ({
             id: app.id,
             event_id: app.event_id,
             provider_id: app.provider_id,
             message: app.message,
-            status: app.status,
+            status: app.status as 'pending' | 'approved' | 'rejected',
             created_at: app.created_at,
-            // Handle possible SelectQueryError from Supabase
-            provider: app.provider && typeof app.provider !== 'string' ? {
+            provider: app.provider && typeof app.provider === 'object' && !('error' in app.provider) ? {
               first_name: app.provider.first_name || '',
               last_name: app.provider.last_name || ''
-            } : {
-              first_name: '',
-              last_name: ''
-            }
+            } : null
           }));
           
           setApplications(processedApplications);
@@ -140,9 +128,8 @@ const EventDetail = () => {
               event_id: applicationData.event_id,
               provider_id: applicationData.provider_id,
               message: applicationData.message,
-              status: applicationData.status,
+              status: applicationData.status as 'pending' | 'approved' | 'rejected',
               created_at: applicationData.created_at,
-              // No provider info needed for user's own application
               provider: null
             });
           }

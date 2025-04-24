@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Event } from "@/types/events";
+import { Event, EventStatus } from "@/types/events";
 import { supabase } from "@/integrations/supabase/client";
 import { EventCard } from "./EventCard";
 import { Button } from "@/components/ui/button";
@@ -34,7 +34,7 @@ export const EventsList = () => {
           contractor_id: event.contractor_id,
           created_at: event.created_at,
           service_type: event.service_type,
-          status: event.status,
+          status: event.status as EventStatus, // Cast status to EventStatus
           updated_at: event.updated_at
         }));
         
