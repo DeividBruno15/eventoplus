@@ -1,12 +1,13 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Event, EventApplication } from '@/types/events';
+import { Event, EventApplication, EventStatus } from '@/types/events';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Loader2 } from 'lucide-react';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { EventInfo } from './components/EventInfo';
@@ -22,7 +23,6 @@ const EventDetail = () => {
   const [applications, setApplications] = useState<EventApplication[]>([]);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [applicationMessage, setApplicationMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [userHasApplied, setUserHasApplied] = useState(false);
   const [userApplication, setUserApplication] = useState<EventApplication | null>(null);

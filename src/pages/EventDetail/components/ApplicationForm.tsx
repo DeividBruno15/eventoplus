@@ -1,10 +1,14 @@
 
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Loader2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 import { Event, EventApplication } from '@/types/events';
+import { getApplicationStatusColor } from '@/lib/utils';
 
 interface ApplicationFormProps {
   event: Event;
@@ -14,6 +18,7 @@ interface ApplicationFormProps {
 }
 
 export const ApplicationForm = ({ event, onSubmit, userApplication, submitting }: ApplicationFormProps) => {
+  const navigate = useNavigate();
   const [applicationMessage, setApplicationMessage] = useState('');
 
   if (userApplication) {
