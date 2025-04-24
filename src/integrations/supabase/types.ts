@@ -91,6 +91,80 @@ export type Database = {
         }
         Relationships: []
       }
+      event_applications: {
+        Row: {
+          created_at: string | null
+          event_id: string
+          id: string
+          message: string
+          provider_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_id: string
+          id?: string
+          message: string
+          provider_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string | null
+          event_id?: string
+          id?: string
+          message?: string
+          provider_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_applications_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          contractor_id: string
+          created_at: string | null
+          description: string
+          event_date: string
+          id: string
+          location: string
+          max_attendees: number | null
+          name: string
+          service_type: string
+          status: string
+        }
+        Insert: {
+          contractor_id: string
+          created_at?: string | null
+          description: string
+          event_date: string
+          id?: string
+          location: string
+          max_attendees?: number | null
+          name: string
+          service_type: string
+          status?: string
+        }
+        Update: {
+          contractor_id?: string
+          created_at?: string | null
+          description?: string
+          event_date?: string
+          id?: string
+          location?: string
+          max_attendees?: number | null
+          name?: string
+          service_type?: string
+          status?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           content: string

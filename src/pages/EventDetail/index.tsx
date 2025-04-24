@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -56,7 +57,7 @@ const EventDetail = () => {
           .from('events')
           .select(`
             *,
-            contractor:user_profiles!contractor_id(first_name, last_name, phone_number)
+            contractor:user_profiles!inner(first_name, last_name, phone_number)
           `)
           .eq('id', id)
           .single();
@@ -69,7 +70,7 @@ const EventDetail = () => {
             .from('event_applications')
             .select(`
               *,
-              provider:user_profiles!provider_id(first_name, last_name)
+              provider:user_profiles!inner(first_name, last_name)
             `)
             .eq('event_id', id)
             .order('created_at', { ascending: false });
