@@ -15,6 +15,7 @@ export const registerFormSchema = z.object({
   neighborhood: z.string(),
   city: z.string().min(2, 'Cidade é obrigatória'),
   state: z.string().length(2, 'Estado deve ter 2 letras'),
+  is_onboarding_complete: z.boolean().optional(),
 });
 
 export type RegisterFormData = z.infer<typeof registerFormSchema>;

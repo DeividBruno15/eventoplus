@@ -10,6 +10,7 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
+  const [isOnboardingComplete, setIsOnboardingComplete] = useState<boolean | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -22,13 +23,13 @@ export const useAuth = () => {
       setUser(currentSession?.user || null);
       
       if (event === 'SIGNED_IN') {
+        // Verificar se o onboarding está completo
+        checkOnboardingStatus(currentSession?.user?.id);
+        
         toast({
           title: "Login realizado com sucesso!",
           description: "Bem-vindo de volta.",
         });
-        
-        // Permitimos que a navegação automática aconteça apenas em eventos de login
-        navigate('/dashboard');
       } else if (event === 'SIGNED_OUT') {
         toast({
           title: "Logout realizado",
@@ -43,6 +44,10 @@ export const useAuth = () => {
       console.log('Initial session check:', currentSession?.user?.email);
       setSession(currentSession);
       setUser(currentSession?.user || null);
+      
+      if (currentSession?.user) {
+        checkOnboardingStatus(currentSession.user.id);
+      }
     });
 
     // Limpa o listener quando o componente é desmontado
@@ -50,6 +55,33 @@ export const useAuth = () => {
       subscription.unsubscribe();
     };
   }, [navigate, toast]);
+
+  const checkOnboardingStatus = async (userId: string | undefined) => {
+    if (!userId) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('is_onboarding_complete')
+        .eq('id', userId)
+        .single();
+        
+      if (error) throw error;
+      
+      setIsOnboardingComplete(data?.is_onboarding_complete || false);
+      
+      if (data?.is_onboarding_complete) {
+        navigate('/dashboard');
+      } else {
+        navigate('/onboarding');
+      }
+    } catch (error) {
+      console.error('Erro ao verificar status do onboarding:', error);
+      // Se não conseguir verificar, assume que não está completo
+      setIsOnboardingComplete(false);
+      navigate('/onboarding');
+    }
+  };
 
   const register = async (data: RegisterFormData) => {
     try {
@@ -71,6 +103,7 @@ export const useAuth = () => {
             city: data.city,
             state: data.state,
             zipcode: data.zipcode,
+            is_onboarding_complete: false
           },
         },
       });
@@ -81,11 +114,47 @@ export const useAuth = () => {
         title: "Cadastro realizado com sucesso!",
         description: "Verifique seu email para confirmar seu cadastro.",
       });
+      
+      // Redireciona para a página de onboarding
+      navigate('/onboarding');
     } catch (error: any) {
       console.error('Erro no cadastro:', error);
       toast({
         title: "Erro no cadastro",
         description: error.message || 'Ocorreu um erro durante o cadastro',
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateOnboardingStatus = async (complete: boolean = true) => {
+    if (!user) return;
+    
+    try {
+      setLoading(true);
+      
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({ is_onboarding_complete: complete })
+        .eq('id', user.id);
+      
+      if (error) throw error;
+      
+      setIsOnboardingComplete(complete);
+      
+      toast({
+        title: "Onboarding concluído!",
+        description: "Agora você pode usar todas as funcionalidades da plataforma.",
+      });
+      
+      navigate('/dashboard');
+    } catch (error: any) {
+      console.error('Erro ao atualizar status de onboarding:', error);
+      toast({
+        title: "Erro ao finalizar onboarding",
+        description: error.message || 'Ocorreu um erro ao finalizar o processo de onboarding',
         variant: "destructive",
       });
     } finally {
@@ -174,8 +243,10 @@ export const useAuth = () => {
     login,
     signInWithGoogle,
     logout,
+    updateOnboardingStatus,
     loading,
     session,
-    user
+    user,
+    isOnboardingComplete
   };
 };
