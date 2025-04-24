@@ -1,4 +1,5 @@
 
+
 export type EventStatus = 'draft' | 'published' | 'cancelled' | 'finished' | 'open' | 'closed' | 'in_progress';
 
 export type ApplicationStatus = 'pending' | 'approved' | 'rejected';
@@ -34,3 +35,4 @@ export type EventApplication = {
     last_name: string;
   } | null;
 }
+
