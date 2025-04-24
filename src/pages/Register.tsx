@@ -19,7 +19,6 @@ import {
 } from '@/components/ui/tabs';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { useAuth } from '@/hooks/useAuth';
 import {
   Form,
@@ -30,31 +29,19 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-
-const formSchema = z.object({
-  email: z.string().email('Email inválido'),
-  password: z.string().min(6, 'A senha deve ter no mínimo 6 caracteres'),
-  first_name: z.string().min(2, 'Nome deve ter no mínimo 2 caracteres'),
-  last_name: z.string(),
-  person_type: z.enum(['fisica', 'juridica']),
-  document_number: z.string().min(11, 'CPF/CNPJ inválido'),
-  role: z.enum(['contractor', 'provider']),
-  address: z.string(),
-  city: z.string().min(2, 'Cidade é obrigatória'),
-  state: z.string().length(2, 'Estado deve ter 2 letras'),
-});
+import { registerFormSchema, RegisterFormData } from './Register/types';
 
 const Register = () => {
   const { register, signInWithGoogle, loading } = useAuth();
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<RegisterFormData>({
+    resolver: zodResolver(registerFormSchema),
     defaultValues: {
       person_type: 'fisica',
       role: 'contractor',
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = (values: RegisterFormData) => {
     register(values);
   };
 
@@ -62,7 +49,6 @@ const Register = () => {
   const [personType, setPersonType] = useState<'fisica' | 'juridica'>('fisica');
   const [step, setStep] = useState(1);
   
-  // Form fields
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -77,13 +63,11 @@ const Register = () => {
   const location = useLocation();
   const navigate = useNavigate();
   
-  // Service categories
   const serviceCategories = [
     'Buffet', 'DJ', 'Fotografia', 'Decoração', 'Iluminação', 'Segurança',
     'Banda', 'Bartender', 'Aluguel de Móveis', 'Lembrancinhas', 'Convites'
   ];
   
-  // Get user type from URL query params
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const type = params.get('type');

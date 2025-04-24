@@ -15,4 +15,3 @@ export const registerFormSchema = z.object({
 });
 
 export type RegisterFormData = z.infer<typeof registerFormSchema>;
-
