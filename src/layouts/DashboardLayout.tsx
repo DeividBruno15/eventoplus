@@ -54,10 +54,10 @@ const DashboardLayout = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-gray-50">
+      <div className="min-h-screen flex w-full bg-[#FAFAFA]">
         <Sidebar variant="floating" className="border-none">
-          <SidebarHeader className="p-4">
-            <div className="font-bold text-xl text-primary">
+          <SidebarHeader className="p-6">
+            <div className="font-bold text-2xl text-primary">
               Evento<span className="text-secondary">+</span>
             </div>
           </SidebarHeader>
@@ -70,7 +70,7 @@ const DashboardLayout = () => {
         </Sidebar>
 
         <SidebarInset className="flex flex-col flex-1">
-          <header className="sticky top-0 z-10 w-full bg-white border-b px-6 py-4 flex justify-between items-center">
+          <header className="sticky top-0 z-10 w-full bg-white/80 backdrop-blur-sm border-b px-6 py-4 flex justify-between items-center">
             <h1 className="text-xl font-semibold text-gray-900">
               {activePath === '/dashboard' ? 'Dashboard' : 
                activePath === '/profile' ? 'Perfil' :

@@ -24,37 +24,43 @@ export const UserMenu = ({ userName, userInitials, onNavigate }: UserMenuProps) 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <div className="flex items-center gap-2 cursor-pointer">
-          <Avatar className="h-9 w-9 bg-primary text-primary-foreground">
-            <AvatarFallback>{userInitials}</AvatarFallback>
+        <div className="flex items-center gap-2 cursor-pointer p-1.5 rounded-full hover:bg-gray-100 transition-colors">
+          <Avatar className="h-8 w-8">
+            <AvatarFallback className="bg-primary text-primary-foreground">
+              {userInitials}
+            </AvatarFallback>
           </Avatar>
+          <div className="hidden md:flex flex-col items-start">
+            <span className="text-sm font-medium">{userName}</span>
+            <span className="text-xs text-muted-foreground">{user?.email}</span>
+          </div>
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="font-medium leading-none">{userName}</p>
+            <p className="text-sm font-medium leading-none">{userName}</p>
             <p className="text-xs leading-none text-muted-foreground">
               {user?.email}
             </p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => onNavigate('/profile')}>
+        <DropdownMenuItem onClick={() => onNavigate('/profile')} className="cursor-pointer">
           <User className="mr-2 h-4 w-4" />
-          Perfil
+          <span>Perfil</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onNavigate('/settings')}>
+        <DropdownMenuItem onClick={() => onNavigate('/settings')} className="cursor-pointer">
           <Settings className="mr-2 h-4 w-4" />
-          Configurações
+          <span>Configurações</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem 
-          onClick={logout} 
-          className="text-red-500 focus:text-red-500"
+          onClick={logout}
+          className="text-red-500 focus:text-red-500 cursor-pointer"
         >
           <LogOut className="mr-2 h-4 w-4" />
-          Sair
+          <span>Sair</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
