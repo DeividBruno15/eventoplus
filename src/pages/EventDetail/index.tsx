@@ -1,8 +1,9 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Event, Application } from '@/types/events';
+import { Event, EventApplication } from '@/types/events';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -21,13 +22,13 @@ const EventDetail = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [event, setEvent] = useState<Event | null>(null);
-  const [applications, setApplications] = useState<Application[]>([]);
+  const [applications, setApplications] = useState<EventApplication[]>([]);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [applicationMessage, setApplicationMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [userHasApplied, setUserHasApplied] = useState(false);
-  const [userApplication, setUserApplication] = useState<Application | null>(null);
+  const [userApplication, setUserApplication] = useState<EventApplication | null>(null);
 
   const fetchData = async () => {
     if (!user) {
@@ -56,15 +57,38 @@ const EventDetail = () => {
           .from('events')
           .select(`
             *,
-            contractor:user_profiles(first_name, last_name, phone_number)
+            creator:user_profiles(first_name, last_name, phone_number)
           `)
           .eq('id', id)
           .single();
           
         if (eventError) throw eventError;
-        setEvent(eventData as unknown as Event);
+        
+        // Map database fields to Event type
+        const formattedEvent = {
+          id: eventData.id,
+          title: eventData.title,
+          description: eventData.description,
+          event_date: eventData.event_date,
+          event_time: eventData.event_time,
+          location: eventData.location,
+          latitude: eventData.latitude,
+          longitude: eventData.longitude,
+          images: eventData.images || [],
+          event_type: eventData.event_type,
+          target_audience: eventData.target_audience,
+          status: eventData.status,
+          creator_id: eventData.creator_id,
+          estimated_budget: eventData.estimated_budget,
+          max_guests: eventData.max_guests,
+          created_at: eventData.created_at,
+          updated_at: eventData.updated_at,
+          creator: eventData.creator
+        } as Event;
 
-        if (eventData.contractor_id === user?.id) {
+        setEvent(formattedEvent);
+
+        if (eventData.creator_id === user?.id) {
           const { data: applicationsData, error: applicationsError } = await supabase
             .from('event_applications')
             .select(`
@@ -75,7 +99,7 @@ const EventDetail = () => {
             .order('created_at', { ascending: false });
             
           if (applicationsError) throw applicationsError;
-          setApplications(applicationsData as unknown as Application[]);
+          setApplications(applicationsData as EventApplication[]);
         } else {
           const { data: applicationData, error: applicationError } = await supabase
             .from('event_applications')
@@ -86,7 +110,7 @@ const EventDetail = () => {
             
           if (applicationError) throw applicationError;
           setUserHasApplied(!!applicationData);
-          setUserApplication(applicationData as unknown as Application | null);
+          setUserApplication(applicationData as EventApplication);
         }
       } catch (error) {
         console.error('Erro ao buscar detalhes do evento:', error);
@@ -133,14 +157,14 @@ const EventDetail = () => {
       });
       
       setUserHasApplied(true);
-      setUserApplication(data as Application);
+      setUserApplication(data as EventApplication);
 
       await supabase
         .from('notifications')
         .insert({
-          user_id: event.contractor_id,
+          user_id: event.creator_id,
           title: "Nova candidatura ao seu evento",
-          content: `Você recebeu uma nova candidatura para o evento "${event.name}"`,
+          content: `Você recebeu uma nova candidatura para o evento "${event.title}"`,
           type: "new_application",
           link: `/events/${event.id}`
         });
@@ -177,7 +201,7 @@ const EventDetail = () => {
       
       await supabase
         .from('events')
-        .update({ status: 'in_progress' })
+        .update({ status: 'published' })
         .eq('id', event.id);
       
       const { data: conversation, error: conversationError } = await supabase
@@ -202,7 +226,7 @@ const EventDetail = () => {
         .insert({
           user_id: providerId,
           title: "Parabéns! Você foi aprovado para um evento",
-          content: `Sua candidatura para o evento "${event.name}" foi aprovada!`,
+          content: `Sua candidatura para o evento "${event.title}" foi aprovada!`,
           type: "application_approved",
           link: `/events/${event.id}`
         });
@@ -228,25 +252,14 @@ const EventDetail = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'open':
-        return 'bg-green-500';
-      case 'closed':
-        return 'bg-red-500';
-      case 'in_progress':
-        return 'bg-yellow-500';
-      default:
+      case 'draft':
         return 'bg-gray-500';
-    }
-  };
-
-  const getApplicationStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return 'bg-yellow-500';
-      case 'approved':
+      case 'published':
         return 'bg-green-500';
-      case 'rejected':
+      case 'cancelled':
         return 'bg-red-500';
+      case 'finished':
+        return 'bg-blue-500';
       default:
         return 'bg-gray-500';
     }
@@ -304,15 +317,13 @@ const EventDetail = () => {
                 variant="outline" 
                 className={`${getStatusColor(event.status)} text-white`}
               >
-                {event.status === 'open' ? 'Aberto' : 
-                 event.status === 'closed' ? 'Fechado' : 
-                 event.status === 'in_progress' ? 'Em Andamento' : 'Desconhecido'}
+                {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
               </Badge>
             </div>
             
-            <h1 className="text-3xl font-bold mb-2">{event.name}</h1>
+            <h1 className="text-3xl font-bold mb-2">{event.title}</h1>
             <p className="text-gray-600 mb-6">
-              Organizado por {event.contractor.first_name} {event.contractor.last_name}
+              Organizado por {event.creator?.first_name} {event.creator?.last_name}
             </p>
             
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
@@ -331,7 +342,7 @@ const EventDetail = () => {
                   <div>
                     <p className="text-sm text-muted-foreground">Horário</p>
                     <p className="font-medium">
-                      {format(new Date(event.event_date), "HH:mm", { locale: ptBR })} horas
+                      {event.event_time} horas
                     </p>
                   </div>
                 </div>
@@ -346,7 +357,7 @@ const EventDetail = () => {
                   <Users className="h-5 w-5 mr-3 text-primary" />
                   <div>
                     <p className="text-sm text-muted-foreground">Convidados</p>
-                    <p className="font-medium">{event.max_attendees || "Não especificado"}</p>
+                    <p className="font-medium">{event.max_guests || "Não especificado"}</p>
                   </div>
                 </div>
               </div>
@@ -354,13 +365,13 @@ const EventDetail = () => {
               <h3 className="font-medium text-lg mb-2">Descrição</h3>
               <p className="text-gray-700 whitespace-pre-line">{event.description}</p>
               
-              <h3 className="font-medium text-lg mt-6 mb-2">Tipo de Serviço</h3>
-              <p className="text-gray-700">{event.service_type}</p>
+              <h3 className="font-medium text-lg mt-6 mb-2">Tipo de Evento</h3>
+              <p className="text-gray-700">{event.event_type}</p>
             </div>
           </div>
           
           <div className="lg:col-span-1">
-            {userRole === 'provider' && event.status === 'open' && !userHasApplied && (
+            {userRole === 'provider' && event.status === 'published' && !userHasApplied && (
               <Card className="mb-6">
                 <CardContent className="pt-6">
                   <h3 className="font-medium text-lg mb-3">Candidatar-se a este evento</h3>
@@ -432,7 +443,7 @@ const EventDetail = () => {
               </Card>
             )}
             
-            {userRole === 'contractor' && event.contractor_id === user?.id && (
+            {userRole === 'contractor' && event.creator_id === user?.id && (
               <Card>
                 <CardContent className="pt-6">
                   <h3 className="font-medium text-lg mb-4">Candidaturas</h3>
@@ -466,7 +477,7 @@ const EventDetail = () => {
                             {app.message}
                           </p>
                           
-                          {app.status === 'pending' && event.status === 'open' && (
+                          {app.status === 'pending' && event.status === 'published' && (
                             <Button 
                               onClick={() => handleApproveApplication(app.id, app.provider_id)}
                               disabled={submitting}
