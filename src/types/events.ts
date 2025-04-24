@@ -12,7 +12,7 @@ export type Event = {
   max_attendees?: number;
   contractor_id: string;
   created_at: string;
-  updated_at: string | null | undefined; // Make it optional and nullable
+  updated_at: string | null; // Make it nullable to handle the case when it's not present
   service_type: string;
   status: EventStatus;
   creator?: {

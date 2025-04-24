@@ -23,19 +23,36 @@ export const EventsList = () => {
 
         if (error) throw error;
         
-        const processedEvents: Event[] = (data || []).map(event => ({
-          id: event.id,
-          name: event.name,
-          description: event.description,
-          event_date: event.event_date,
-          location: event.location,
-          max_attendees: event.max_attendees,
-          contractor_id: event.contractor_id,
-          created_at: event.created_at,
-          updated_at: event.updated_at || null, // Use null as fallback if property doesn't exist
-          service_type: event.service_type,
-          status: event.status as EventStatus
-        }));
+        const processedEvents: Event[] = (data || []).map(event => {
+          // Extract all fields from the database object
+          const {
+            id,
+            name,
+            description,
+            event_date,
+            location,
+            max_attendees,
+            contractor_id,
+            created_at,
+            service_type,
+            status
+          } = event;
+          
+          // Create a new properly typed Event object
+          return {
+            id,
+            name, 
+            description,
+            event_date,
+            location,
+            max_attendees,
+            contractor_id,
+            created_at,
+            service_type,
+            status: status as EventStatus,
+            updated_at: null // Since it's missing from the database, provide null as default
+          };
+        });
         
         setEvents(processedEvents);
       } catch (error) {

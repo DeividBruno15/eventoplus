@@ -83,7 +83,7 @@ export const useEventDetails = ({ id, user }: UseEventDetailsProps) => {
           max_attendees: eventData.max_attendees,
           contractor_id: eventData.contractor_id,
           created_at: eventData.created_at,
-          updated_at: eventData.updated_at || null,
+          updated_at: null,
           service_type: eventData.service_type,
           status: eventData.status as EventStatus,
           creator: safeGetCreator()
