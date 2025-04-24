@@ -8,7 +8,6 @@ import { SessionProvider } from "./contexts/SessionContext";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
 import ServiceProviders from "./pages/ServiceProviders";
 import ProviderProfile from "./pages/ProviderProfile";
@@ -33,7 +32,6 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/service-providers" element={<ServiceProviders />} />
             <Route path="/provider-profile/:id" element={<ProviderProfile />} />

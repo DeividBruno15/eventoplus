@@ -17,6 +17,7 @@ import { LoginForm } from '@/components/auth/LoginForm';
 const Login = () => {
   const { login, signInWithGoogle, loading, session } = useAuth();
   
+  // Redirect to dashboard if user is already logged in
   if (session) {
     return <Navigate to="/dashboard" replace />;
   }

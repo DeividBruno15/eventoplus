@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
@@ -9,23 +10,26 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [isOnboardingComplete, setIsOnboardingComplete] = useState<boolean | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
+    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, currentSession) => {
       console.log('Auth state changed:', event, currentSession?.user?.email);
       setSession(currentSession);
       setUser(currentSession?.user || null);
       
       if (event === 'SIGNED_IN') {
-        checkOnboardingStatus(currentSession?.user?.id);
-        
         toast({
           title: "Login realizado com sucesso!",
           description: "Bem-vindo de volta.",
         });
+
+        // Navigation should happen after state update to avoid race conditions
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 0);
       } else if (event === 'SIGNED_OUT') {
         toast({
           title: "Logout realizado",
@@ -35,13 +39,15 @@ export const useAuth = () => {
       }
     });
 
+    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
       console.log('Initial session check:', currentSession?.user?.email);
       setSession(currentSession);
       setUser(currentSession?.user || null);
       
       if (currentSession?.user) {
-        checkOnboardingStatus(currentSession.user.id);
+        // Navigate to dashboard if user is already logged in
+        navigate('/dashboard');
       }
     });
 
@@ -50,36 +56,11 @@ export const useAuth = () => {
     };
   }, [navigate, toast]);
 
-  const checkOnboardingStatus = async (userId: string | undefined) => {
-    if (!userId) return;
-    
-    try {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('is_onboarding_complete')
-        .eq('id', userId)
-        .single();
-        
-      if (error) throw error;
-      
-      setIsOnboardingComplete(Boolean(data?.is_onboarding_complete));
-      
-      if (data?.is_onboarding_complete) {
-        navigate('/dashboard');
-      } else {
-        navigate('/onboarding');
-      }
-    } catch (error) {
-      console.error('Erro ao verificar status do onboarding:', error);
-      setIsOnboardingComplete(false);
-      navigate('/onboarding');
-    }
-  };
-
   const register = async (data: RegisterFormData) => {
     try {
       setLoading(true);
       
+      // Update user fields to include all needed data from the beginning
       const { error: signUpError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -95,7 +76,8 @@ export const useAuth = () => {
             neighborhood: data.neighborhood,
             city: data.city,
             state: data.state,
-            zipcode: data.zipcode
+            zipcode: data.zipcode,
+            is_onboarding_complete: true, // Mark onboarding as complete during registration
           },
         },
       });
@@ -107,45 +89,11 @@ export const useAuth = () => {
         description: "Verifique seu email para confirmar seu cadastro.",
       });
       
-      navigate('/onboarding');
     } catch (error: any) {
       console.error('Erro no cadastro:', error);
       toast({
         title: "Erro no cadastro",
         description: error.message || 'Ocorreu um erro durante o cadastro',
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const updateOnboardingStatus = async (complete: boolean = true) => {
-    if (!user) return;
-    
-    try {
-      setLoading(true);
-      
-      const { error } = await supabase
-        .from('user_profiles')
-        .update({ is_onboarding_complete: complete })
-        .eq('id', user.id);
-      
-      if (error) throw error;
-      
-      setIsOnboardingComplete(complete);
-      
-      toast({
-        title: "Onboarding concluído!",
-        description: "Agora você pode usar todas as funcionalidades da plataforma.",
-      });
-      
-      navigate('/dashboard');
-    } catch (error: any) {
-      console.error('Erro ao atualizar status de onboarding:', error);
-      toast({
-        title: "Erro ao finalizar onboarding",
-        description: error.message || 'Ocorreu um erro ao finalizar o processo de onboarding',
         variant: "destructive",
       });
     } finally {
@@ -163,6 +111,8 @@ export const useAuth = () => {
       });
       
       if (error) throw error;
+      
+      // Let the onAuthStateChange handler handle the navigation
       
     } catch (error: any) {
       console.error('Erro no login:', error);
@@ -231,10 +181,8 @@ export const useAuth = () => {
     login,
     signInWithGoogle,
     logout,
-    updateOnboardingStatus,
     loading,
     session,
-    user,
-    isOnboardingComplete
+    user
   };
 };

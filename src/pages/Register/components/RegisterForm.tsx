@@ -15,12 +15,17 @@ import { registerFormSchema, RegisterFormData } from '../types';
 import { useAuth } from '@/hooks/useAuth';
 import { CheckCircle } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { RoleCard } from './RoleCard';
+import { ServiceCategoriesField } from './ServiceCategoriesField';
 
 export const RegisterForm = () => {
-  const { register, signInWithGoogle, loading } = useAuth();
+  const { register: signUp, signInWithGoogle, loading } = useAuth();
   const { toast } = useToast();
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState<Partial<RegisterFormData>>({});
+  const [formData, setFormData] = useState<Partial<RegisterFormData>>({
+    person_type: 'fisica',
+    role: 'contractor',
+  });
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerFormSchema),
@@ -31,6 +36,8 @@ export const RegisterForm = () => {
     },
   });
 
+  const selectedRole = form.watch('role');
+
   const onSubmit = async (values: RegisterFormData) => {
     if (step === 1) {
       // Save step 1 data and move to step 2
@@ -40,13 +47,12 @@ export const RegisterForm = () => {
       });
       setStep(2);
     } else {
-      // Final submission
+      // Final submission with is_onboarding_complete set to true
       const completeFormData = {
         ...formData,
         ...values,
-        is_onboarding_complete: false, // Será atualizado após a segunda etapa do onboarding
       };
-      await register(completeFormData as RegisterFormData);
+      await signUp(completeFormData as RegisterFormData);
     }
   };
 
@@ -81,10 +87,31 @@ export const RegisterForm = () => {
               <h3 className="text-lg font-medium">Informações Básicas</h3>
               <p className="text-sm text-muted-foreground">Preencha seus dados pessoais</p>
             </div>
-            <RoleSelector form={form} />
+
+            <div className="mb-6">
+              <p className="label mb-2">Selecione seu perfil</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <RoleCard 
+                  role="contractor" 
+                  selected={selectedRole === 'contractor'}
+                  onClick={() => form.setValue('role', 'contractor')}
+                />
+                <RoleCard 
+                  role="provider" 
+                  selected={selectedRole === 'provider'}
+                  onClick={() => form.setValue('role', 'provider')}
+                />
+              </div>
+            </div>
+            
             <BasicInfoFields form={form} />
             <PersonTypeSelector form={form} />
             <DocumentFields form={form} />
+            
+            {/* Show service categories field only for providers */}
+            {selectedRole === 'provider' && (
+              <ServiceCategoriesField form={form} />
+            )}
 
             <Button
               type="submit"
