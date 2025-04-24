@@ -52,8 +52,9 @@ const DashboardLayout = () => {
   const userName = user?.user_metadata?.first_name || 'Usuário';
 
   const handleNavigation = (path: string) => {
-    console.log('Navegando para o caminho:', path);
+    console.log('Navegando para o caminho (handleNavigation):', path);
     setActivePath(path);
+    // Vamos garantir que a navegação ocorra aqui
     navigate(path);
   };
 

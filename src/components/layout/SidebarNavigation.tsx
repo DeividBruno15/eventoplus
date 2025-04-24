@@ -14,7 +14,7 @@ import {
   SidebarMenuButton 
 } from '@/components/ui/sidebar';
 import { Input } from '@/components/ui/input';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 type MenuItem = {
   path: string;
@@ -30,6 +30,7 @@ type SidebarNavigationProps = {
 export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const location = useLocation();
+  const navigate = useNavigate(); // Adicionando o hook de navegação diretamente aqui
   
   // Atualizar o caminho ativo quando a localização mudar
   useEffect(() => {
@@ -53,7 +54,10 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
 
   const handleMenuItemClick = (path: string) => {
     console.log('Navegando para:', path);
+    // Atualize o caminho ativo
     onNavigate(path);
+    // E navegue para a rota usando o navigate diretamente
+    navigate(path);
   };
 
   return (
