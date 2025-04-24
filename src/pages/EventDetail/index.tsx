@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -65,25 +64,11 @@ const EventDetail = () => {
           
         if (eventError) throw eventError;
         
-        // Create safe accessor function for nested objects
-        const getNestedValue = <T extends Record<string, any>, K extends keyof T>(
-          obj: T | null | undefined,
-          key: K,
-          defaultValue: T[K]
-        ): T[K] => {
-          if (!obj || typeof obj !== 'object' || ('error' in obj)) {
-            return defaultValue;
-          }
-          return obj[key] ?? defaultValue;
-        };
-        
-        const creatorData = eventData.creator && 
-                          typeof eventData.creator === 'object' && 
-                          !('error' in eventData.creator) ? {
-                            first_name: getNestedValue(eventData.creator, 'first_name', ''),
-                            last_name: getNestedValue(eventData.creator, 'last_name', ''),
-                            phone_number: getNestedValue(eventData.creator, 'phone_number', undefined)
-                          } : null;
+        const creatorData = eventData.creator ? {
+          first_name: eventData.creator.first_name || '',
+          last_name: eventData.creator.last_name || '',
+          phone_number: eventData.creator.phone_number
+        } : null;
         
         const processedEvent: Event = {
           id: eventData.id,
@@ -115,13 +100,10 @@ const EventDetail = () => {
           if (applicationsError) throw applicationsError;
           
           const processedApplications: EventApplication[] = (applicationsData || []).map(app => {
-            // Use the same safe accessor for provider data
-            const providerData = app.provider && 
-                              typeof app.provider === 'object' &&
-                              !('error' in app.provider) ? {
-                                first_name: getNestedValue(app.provider, 'first_name', ''),
-                                last_name: getNestedValue(app.provider, 'last_name', '')
-                              } : null;
+            const providerData = app.provider ? {
+              first_name: app.provider.first_name || '',
+              last_name: app.provider.last_name || ''
+            } : null;
             
             return {
               id: app.id,
