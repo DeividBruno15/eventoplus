@@ -53,10 +53,12 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
 
   const handleMenuItemClick = (path: string) => {
     console.log('Navegando para:', path);
-    // Informar ao componente pai sobre a mudança
-    onNavigate(path);
-    // Navegar para a rota
+    
+    // First navigate to the path
     navigate(path);
+    
+    // Then inform the parent component about the change
+    onNavigate(path);
   };
 
   return (
@@ -77,11 +79,6 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
           <SidebarMenuItem 
             key={item.path}
             className="transition-all duration-200 ease-in-out"
-            style={{ 
-              animationDelay: `${index * 50}ms`,
-              opacity: 0,
-              animation: 'fade-in 0.3s ease-out forwards'
-            }}
           >
             <SidebarMenuButton
               onClick={() => handleMenuItemClick(item.path)}
