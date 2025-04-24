@@ -1,7 +1,17 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useSession } from "@/contexts/SessionContext";
+import { useNavigate } from "react-router-dom";
 
 const Settings = () => {
+  const { session } = useSession();
+  const navigate = useNavigate();
+
+  if (!session) {
+    navigate('/login');
+    return null;
+  }
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
