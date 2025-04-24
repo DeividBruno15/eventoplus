@@ -1,4 +1,8 @@
 
+export type EventStatus = 'draft' | 'published' | 'cancelled' | 'finished' | 'open' | 'closed' | 'in_progress';
+
+export type ApplicationStatus = 'pending' | 'approved' | 'rejected';
+
 export type Event = {
   id: string;
   name: string;
@@ -15,5 +19,18 @@ export type Event = {
     first_name: string;
     last_name: string;
     phone_number?: string | null;
+  } | null;
+}
+
+export type EventApplication = {
+  id: string;
+  event_id: string;
+  provider_id: string;
+  message: string;
+  status: ApplicationStatus;
+  created_at: string;
+  provider?: {
+    first_name: string;
+    last_name: string;
   } | null;
 }
