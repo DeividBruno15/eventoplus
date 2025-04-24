@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Event, EventStatus } from "@/types/events";
@@ -34,9 +33,8 @@ export const EventsList = () => {
           contractor_id: event.contractor_id,
           created_at: event.created_at,
           service_type: event.service_type,
-          status: event.status as EventStatus, // Cast status to EventStatus
-          // Only include updated_at if it exists in the response
-          ...(event.updated_at !== undefined && { updated_at: event.updated_at })
+          status: event.status as EventStatus // Cast status to EventStatus
+          // We're not including updated_at as it doesn't exist in the response
         }));
         
         setEvents(processedEvents);

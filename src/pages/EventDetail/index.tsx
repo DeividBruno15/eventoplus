@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -76,16 +75,13 @@ const EventDetail = () => {
           created_at: eventData.created_at,
           service_type: eventData.service_type,
           status: eventData.status as EventStatus,
-          // Only include updated_at if it exists
-          ...(eventData.updated_at !== undefined && { updated_at: eventData.updated_at }),
-          // Safely handle the creator object
           creator: eventData.creator && 
                    typeof eventData.creator === 'object' && 
                    !('error' in eventData.creator) ? 
                    {
                      first_name: eventData.creator?.first_name || '',
                      last_name: eventData.creator?.last_name || '',
-                     phone_number: eventData.creator?.phone_number
+                     phone_number: eventData.creator?.phone_number || undefined
                    } : null
         };
         
@@ -110,7 +106,6 @@ const EventDetail = () => {
             message: app.message,
             status: app.status as 'pending' | 'approved' | 'rejected',
             created_at: app.created_at,
-            // Safely handle the provider object
             provider: app.provider && 
                      typeof app.provider === 'object' && 
                      !('error' in app.provider) ? 
