@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -7,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'react-router-dom';
 import { RoleSelector } from './RoleSelector';
 import { PersonTypeSelector } from './PersonTypeSelector';
+import { AddressFields } from '@/components/address/AddressFields';
 import { registerFormSchema, RegisterFormData } from '../types';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -87,6 +87,20 @@ export const RegisterForm = () => {
           )}
         />
 
+        <FormField
+          control={form.control}
+          name="phone_number"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Telefone (WhatsApp)</FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="(00) 00000-0000" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <PersonTypeSelector form={form} />
 
         <FormField
@@ -103,48 +117,7 @@ export const RegisterForm = () => {
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="address"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Endereço</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="city"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Cidade</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="state"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Estado</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+        <AddressFields form={form} />
 
         <Button
           type="submit"

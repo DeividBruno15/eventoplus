@@ -65,9 +65,12 @@ export const useAuth = () => {
             person_type: data.person_type,
             document_number: data.document_number,
             role: data.role,
-            address: data.address,
+            phone_number: data.phone_number,
+            street: data.street,
+            neighborhood: data.neighborhood,
             city: data.city,
             state: data.state,
+            zipcode: data.zipcode,
           },
         },
       });

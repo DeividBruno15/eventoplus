@@ -9,7 +9,10 @@ export const registerFormSchema = z.object({
   person_type: z.enum(['fisica', 'juridica']),
   document_number: z.string().min(11, 'CPF/CNPJ inválido'),
   role: z.enum(['contractor', 'provider']),
-  address: z.string(),
+  phone_number: z.string().min(10, 'Telefone inválido'),
+  zipcode: z.string().min(8, 'CEP inválido'),
+  street: z.string().min(2, 'Rua é obrigatória'),
+  neighborhood: z.string(),
   city: z.string().min(2, 'Cidade é obrigatória'),
   state: z.string().length(2, 'Estado deve ter 2 letras'),
 });

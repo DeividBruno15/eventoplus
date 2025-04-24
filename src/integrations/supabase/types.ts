@@ -47,6 +47,27 @@ export type Database = {
           },
         ]
       }
+      service_categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       service_requests: {
         Row: {
           attendees: number | null
@@ -113,10 +134,16 @@ export type Database = {
           first_name: string
           id: string
           last_name: string | null
+          latitude: number | null
+          longitude: number | null
+          neighborhood: string | null
           person_type: string
+          phone_number: string | null
           role: string
           state: string
+          street: string | null
           updated_at: string | null
+          zipcode: string | null
         }
         Insert: {
           address?: string | null
@@ -126,10 +153,16 @@ export type Database = {
           first_name: string
           id: string
           last_name?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          neighborhood?: string | null
           person_type: string
+          phone_number?: string | null
           role: string
           state: string
+          street?: string | null
           updated_at?: string | null
+          zipcode?: string | null
         }
         Update: {
           address?: string | null
@@ -139,10 +172,16 @@ export type Database = {
           first_name?: string
           id?: string
           last_name?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          neighborhood?: string | null
           person_type?: string
+          phone_number?: string | null
           role?: string
           state?: string
+          street?: string | null
           updated_at?: string | null
+          zipcode?: string | null
         }
         Relationships: []
       }
