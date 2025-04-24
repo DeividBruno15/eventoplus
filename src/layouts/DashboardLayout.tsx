@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { 
   SidebarProvider, 
-  Sidebar, 
+  Sidebar,
   SidebarContent,
   SidebarHeader,
   SidebarInset
@@ -54,14 +54,14 @@ const DashboardLayout = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-[#FAFAFA]">
-        <Sidebar variant="floating" className="border-none">
-          <SidebarHeader className="p-6">
+      <div className="min-h-screen flex w-full">
+        <Sidebar className="border-r border-gray-200">
+          <SidebarHeader className="px-6 py-8">
             <div className="font-bold text-2xl text-primary">
               Evento<span className="text-secondary">+</span>
             </div>
           </SidebarHeader>
-          <SidebarContent className="py-2">
+          <SidebarContent className="px-4">
             <SidebarNavigation 
               activePath={activePath} 
               onNavigate={handleNavigation} 
@@ -70,7 +70,7 @@ const DashboardLayout = () => {
         </Sidebar>
 
         <SidebarInset className="flex flex-col flex-1">
-          <header className="sticky top-0 z-10 w-full bg-white/80 backdrop-blur-sm border-b px-6 py-4 flex justify-between items-center">
+          <header className="sticky top-0 z-10 w-full bg-white border-b px-8 py-4 flex justify-between items-center">
             <h1 className="text-xl font-semibold text-gray-900">
               {activePath === '/dashboard' ? 'Dashboard' : 
                activePath === '/profile' ? 'Perfil' :
@@ -89,7 +89,7 @@ const DashboardLayout = () => {
             </div>
           </header>
 
-          <main className="flex-1 p-6 overflow-y-auto">
+          <main className="flex-1 p-8 bg-gray-50">
             <Outlet />
           </main>
         </SidebarInset>
