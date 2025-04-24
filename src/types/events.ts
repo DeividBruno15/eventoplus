@@ -1,31 +1,36 @@
 
+export type EventType = 'wedding' | 'birthday' | 'corporate' | 'graduation' | 'other';
+export type EventStatus = 'draft' | 'published' | 'cancelled' | 'finished';
+
 export interface Event {
   id: string;
-  name: string;
-  description: string;
+  title: string;
+  description?: string;
   event_date: string;
+  event_time: string;
   location: string;
-  service_type: string;
-  max_attendees: number | null;
-  contractor_id: string;
-  status: string;
+  latitude?: number;
+  longitude?: number;
+  images: string[];
+  event_type: EventType;
+  target_audience?: string;
+  status: EventStatus;
+  creator_id: string;
+  estimated_budget?: number;
+  max_guests?: number;
   created_at: string;
-  contractor?: {
-    first_name: string;
-    last_name: string;
-    phone_number?: string;
-  } | null;
+  updated_at: string;
 }
 
-export interface Application {
-  id: string;
-  provider_id: string;
-  event_id: string;
-  message: string;
-  status: string;
-  created_at: string;
-  provider?: {
-    first_name: string;
-    last_name: string;
-  } | null;
+export interface CreateEventFormData {
+  title: string;
+  description?: string;
+  event_date: string;
+  event_time: string;
+  location: string;
+  event_type: EventType;
+  target_audience?: string;
+  estimated_budget?: number;
+  max_guests?: number;
+  images?: File[];
 }
