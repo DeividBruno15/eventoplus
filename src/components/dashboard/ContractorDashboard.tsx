@@ -12,10 +12,7 @@ const ContractorDashboard = () => {
         .from('service_requests')
         .select(`
           *,
-          provider:provider_id(
-            first_name,
-            last_name
-          )
+          provider:provider_id(id, first_name, last_name)
         `)
         .order('created_at', { ascending: false })
         .limit(5);
@@ -46,7 +43,7 @@ const ContractorDashboard = () => {
                     {request.event_type}
                   </p>
                   <p className="text-sm text-gray-600">
-                    {request.provider.first_name} {request.provider.last_name}
+                    {request.provider?.first_name} {request.provider?.last_name}
                   </p>
                   <p className="text-sm text-gray-600">
                     Status: {request.status}
