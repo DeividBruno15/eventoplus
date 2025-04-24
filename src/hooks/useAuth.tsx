@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 
-interface RegisterData {
+export type RegisterData = {
   email: string;
   password: string;
   first_name: string;
@@ -15,7 +15,7 @@ interface RegisterData {
   address: string;
   city: string;
   state: string;
-}
+};
 
 export const useAuth = () => {
   const [loading, setLoading] = useState(false);
