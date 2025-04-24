@@ -46,12 +46,12 @@ const Events = () => {
           .from('events')
           .select(`
             *,
-            contractor:user_profiles!contractor_id(first_name, last_name)
+            contractor:user_profiles(first_name, last_name)
           `)
           .order('created_at', { ascending: false });
           
         if (error) throw error;
-        setEvents(data as Event[] || []);
+        setEvents(data as unknown as Event[] || []);
       } catch (error) {
         console.error('Erro ao buscar eventos:', error);
       } finally {
@@ -157,10 +157,9 @@ const Events = () => {
                 </CardContent>
                 <CardFooter>
                   <Button 
-                    as={Link} 
-                    to={`/events/${event.id}`} 
                     className="w-full"
                     variant={userRole === 'provider' ? "default" : "outline"}
+                    onClick={() => navigate(`/events/${event.id}`)}
                   >
                     {userRole === 'provider' ? 'Candidatar-se' : 'Ver Detalhes'}
                   </Button>

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -30,7 +29,7 @@ const EventDetail = () => {
   const [userHasApplied, setUserHasApplied] = useState(false);
   const [userApplication, setUserApplication] = useState<Application | null>(null);
 
-  useEffect(() => {
+  const fetchData = async () => {
     if (!user) {
       navigate('/login');
       return;
@@ -51,32 +50,32 @@ const EventDetail = () => {
       }
     };
 
-    const fetchEvent = async () => {
+    const fetchEventDetails = async () => {
       try {
         const { data: eventData, error: eventError } = await supabase
           .from('events')
           .select(`
             *,
-            contractor:user_profiles!inner(first_name, last_name, phone_number)
+            contractor:user_profiles(first_name, last_name, phone_number)
           `)
           .eq('id', id)
           .single();
           
         if (eventError) throw eventError;
-        setEvent(eventData as Event);
+        setEvent(eventData as unknown as Event);
 
         if (eventData.contractor_id === user?.id) {
           const { data: applicationsData, error: applicationsError } = await supabase
             .from('event_applications')
             .select(`
               *,
-              provider:user_profiles!inner(first_name, last_name)
+              provider:user_profiles(first_name, last_name)
             `)
             .eq('event_id', id)
             .order('created_at', { ascending: false });
             
           if (applicationsError) throw applicationsError;
-          setApplications(applicationsData as Application[] || []);
+          setApplications(applicationsData as unknown as Application[]);
         } else {
           const { data: applicationData, error: applicationError } = await supabase
             .from('event_applications')
@@ -87,7 +86,7 @@ const EventDetail = () => {
             
           if (applicationError) throw applicationError;
           setUserHasApplied(!!applicationData);
-          setUserApplication(applicationData as Application | null);
+          setUserApplication(applicationData as unknown as Application | null);
         }
       } catch (error) {
         console.error('Erro ao buscar detalhes do evento:', error);
@@ -102,7 +101,11 @@ const EventDetail = () => {
     };
 
     fetchUserRole();
-    fetchEvent();
+    fetchEventDetails();
+  };
+
+  useEffect(() => {
+    fetchData();
   }, [id, user, navigate, toast]);
 
   const handleApply = async () => {
@@ -209,7 +212,7 @@ const EventDetail = () => {
         description: "O prestador foi notificado e vocês já podem começar a conversar.",
       });
       
-      fetchEvent();
+      fetchData();
       
     } catch (error: any) {
       console.error('Erro ao aprovar candidatura:', error);

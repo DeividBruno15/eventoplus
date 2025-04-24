@@ -14,7 +14,7 @@ export interface Event {
     first_name: string;
     last_name: string;
     phone_number?: string;
-  };
+  } | null;
 }
 
 export interface Application {
@@ -27,5 +27,5 @@ export interface Application {
   provider?: {
     first_name: string;
     last_name: string;
-  };
+  } | null;
 }
