@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -41,38 +42,34 @@ const Chat = () => {
         const formattedConversations: Conversation[] = [];
         
         for (const item of conversationIds) {
-          try {
-            const { data: convData, error: detailsError } = await supabase
-              .rpc('get_conversation_details', { 
-                p_conversation_id: item.conversation_id, 
-                p_user_id: user.id 
-              });
-              
-            if (detailsError || !convData || convData.length === 0) {
-              console.error('Erro ao buscar detalhes da conversa:', detailsError);
-              continue;
-            }
-            
-            const conversationDetails = convData[0];
-            
-            formattedConversations.push({
-              id: item.conversation_id,
-              updated_at: conversationDetails.updated_at || new Date().toISOString(),
-              otherUser: {
-                id: conversationDetails.other_user_id,
-                first_name: conversationDetails.other_user_first_name || 'Usuário',
-                last_name: conversationDetails.other_user_last_name || ''
-              },
-              lastMessage: conversationDetails.last_message ? {
-                message: conversationDetails.last_message,
-                created_at: conversationDetails.last_message_time || new Date().toISOString(),
-                is_read: conversationDetails.is_read || false,
-                is_mine: conversationDetails.is_sender === user.id
-              } : null
+          const { data: convDetails, error: detailsError } = await supabase
+            .rpc('get_conversation_details', { 
+              p_conversation_id: item.conversation_id, 
+              p_user_id: user.id 
             });
-          } catch (err) {
-            console.error(`Erro ao processar conversa ${item.conversation_id}:`, err);
+            
+          if (detailsError || !convDetails || convDetails.length === 0) {
+            console.error('Erro ao buscar detalhes da conversa:', detailsError);
+            continue;
           }
+          
+          const details = convDetails[0];
+          
+          formattedConversations.push({
+            id: item.conversation_id,
+            updated_at: details.updated_at,
+            otherUser: {
+              id: details.other_user_id,
+              first_name: details.other_user_first_name || 'Usuário',
+              last_name: details.other_user_last_name || ''
+            },
+            lastMessage: details.last_message ? {
+              message: details.last_message,
+              created_at: details.last_message_time,
+              is_read: details.is_read || false,
+              is_mine: details.is_sender === user.id
+            } : null
+          });
         }
         
         formattedConversations.sort((a, b) => 
@@ -89,10 +86,16 @@ const Chat = () => {
 
     fetchConversations();
 
-    const channel = supabase.channel('custom-channel-name')
-      .on('broadcast', { event: 'chat_update' }, () => {
-        fetchConversations();
-      })
+    const channel = supabase.channel('chat-updates')
+      .on('postgres_changes', 
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'chat_messages' 
+        }, 
+        () => {
+          fetchConversations();
+        })
       .subscribe();
 
     return () => {

@@ -13,16 +13,13 @@ export const useAuth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Inicializa a sessão e configura o listener de mudanças de autenticação
   useEffect(() => {
-    // Configura o listener de mudanças de autenticação antes de verificar a sessão existente
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, currentSession) => {
       console.log('Auth state changed:', event, currentSession?.user?.email);
       setSession(currentSession);
       setUser(currentSession?.user || null);
       
       if (event === 'SIGNED_IN') {
-        // Verificar se o onboarding está completo
         checkOnboardingStatus(currentSession?.user?.id);
         
         toast({
@@ -38,7 +35,6 @@ export const useAuth = () => {
       }
     });
 
-    // Verifica a sessão existente após configurar o listener
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
       console.log('Initial session check:', currentSession?.user?.email);
       setSession(currentSession);
@@ -49,7 +45,6 @@ export const useAuth = () => {
       }
     });
 
-    // Limpa o listener quando o componente é desmontado
     return () => {
       subscription.unsubscribe();
     };
@@ -61,24 +56,21 @@ export const useAuth = () => {
     try {
       const { data, error } = await supabase
         .from('user_profiles')
-        .select('*')
+        .select('is_onboarding_complete')
         .eq('id', userId)
         .single();
         
       if (error) throw error;
       
-      // Verificar se o campo is_onboarding_complete existe no objeto
-      const isComplete = 'is_onboarding_complete' in data ? data.is_onboarding_complete : false;
-      setIsOnboardingComplete(isComplete);
+      setIsOnboardingComplete(Boolean(data?.is_onboarding_complete));
       
-      if (isComplete) {
+      if (data?.is_onboarding_complete) {
         navigate('/dashboard');
       } else {
         navigate('/onboarding');
       }
     } catch (error) {
       console.error('Erro ao verificar status do onboarding:', error);
-      // Se não conseguir verificar, assume que não está completo
       setIsOnboardingComplete(false);
       navigate('/onboarding');
     }
@@ -115,7 +107,6 @@ export const useAuth = () => {
         description: "Verifique seu email para confirmar seu cadastro.",
       });
       
-      // Redireciona para a página de onboarding
       navigate('/onboarding');
     } catch (error: any) {
       console.error('Erro no cadastro:', error);
@@ -173,7 +164,6 @@ export const useAuth = () => {
       
       if (error) throw error;
       
-      // O toast e navegação serão tratados pelo onAuthStateChange
     } catch (error: any) {
       console.error('Erro no login:', error);
       toast({
@@ -204,7 +194,6 @@ export const useAuth = () => {
       if (error) throw error;
       console.log("Redirecionando para Google:", data);
       
-      // O resto do fluxo será tratado pelo callback OAuth e onAuthStateChange
     } catch (error: any) {
       console.error('Erro ao iniciar login com Google:', error);
       toast({
@@ -225,7 +214,6 @@ export const useAuth = () => {
       
       if (error) throw error;
       
-      // O toast e navegação serão tratados pelo onAuthStateChange
     } catch (error: any) {
       console.error('Erro ao fazer logout:', error);
       toast({

@@ -9,6 +9,85 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      chat_messages: {
+        Row: {
+          conversation_id: string | null
+          created_at: string | null
+          id: string
+          message: string
+          read: boolean | null
+          receiver_id: string | null
+          sender_id: string | null
+        }
+        Insert: {
+          conversation_id?: string | null
+          created_at?: string | null
+          id?: string
+          message: string
+          read?: boolean | null
+          receiver_id?: string | null
+          sender_id?: string | null
+        }
+        Update: {
+          conversation_id?: string | null
+          created_at?: string | null
+          id?: string
+          message?: string
+          read?: boolean | null
+          receiver_id?: string | null
+          sender_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversation_participants: {
+        Row: {
+          conversation_id: string
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_participants_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          created_at: string | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       provider_services: {
         Row: {
           category: string
@@ -133,6 +212,7 @@ export type Database = {
           document_number: string
           first_name: string
           id: string
+          is_onboarding_complete: boolean | null
           last_name: string | null
           latitude: number | null
           longitude: number | null
@@ -152,6 +232,7 @@ export type Database = {
           document_number: string
           first_name: string
           id: string
+          is_onboarding_complete?: boolean | null
           last_name?: string | null
           latitude?: number | null
           longitude?: number | null
@@ -171,6 +252,7 @@ export type Database = {
           document_number?: string
           first_name?: string
           id?: string
+          is_onboarding_complete?: boolean | null
           last_name?: string | null
           latitude?: number | null
           longitude?: number | null
@@ -190,6 +272,25 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_conversation_details: {
+        Args: { p_conversation_id: string; p_user_id: string }
+        Returns: {
+          updated_at: string
+          other_user_id: string
+          other_user_first_name: string
+          other_user_last_name: string
+          last_message: string
+          last_message_time: string
+          is_read: boolean
+          is_sender: string
+        }[]
+      }
+      get_user_conversations: {
+        Args: { p_user_id: string }
+        Returns: {
+          conversation_id: string
+        }[]
+      }
       get_user_role: {
         Args: { user_id: string }
         Returns: string
