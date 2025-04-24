@@ -1,19 +1,18 @@
 
 import { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { 
   SidebarProvider, 
   Sidebar, 
-  SidebarContent, 
+  SidebarContent,
   SidebarMenu, 
   SidebarMenuItem, 
-  SidebarMenuButton, 
+  SidebarMenuButton,
   SidebarHeader,
   SidebarInset
 } from '@/components/ui/sidebar';
 import { useSession } from '@/contexts/SessionContext';
 import { useAuth } from '@/hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   User, 
@@ -39,7 +38,8 @@ const DashboardLayout = () => {
   const { session, loading: sessionLoading } = useSession();
   const { logout, user } = useAuth();
   const navigate = useNavigate();
-  const [activePath, setActivePath] = useState(window.location.pathname);
+  const location = useLocation();
+  const [activePath, setActivePath] = useState(location.pathname);
 
   const getUserInitials = () => {
     if (!user) return "?";
@@ -82,8 +82,8 @@ const DashboardLayout = () => {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gray-50">
-        <Sidebar className="border-r border-gray-200">
-          <SidebarHeader className="p-4 border-b">
+        <Sidebar variant="floating" className="border-none">
+          <SidebarHeader className="p-4">
             <div className="font-bold text-xl text-primary">Evento<span className="text-secondary">+</span></div>
           </SidebarHeader>
           <SidebarContent className="py-2">
@@ -92,10 +92,10 @@ const DashboardLayout = () => {
                 <SidebarMenuItem key={item.path}>
                   <SidebarMenuButton
                     onClick={() => handleNavigation(item.path)}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 ${
                       activePath === item.path
                         ? 'bg-primary/10 text-primary'
-                        : 'hover:bg-gray-100'
+                        : 'hover:bg-gray-100 text-gray-600 hover:text-primary'
                     }`}
                   >
                     <item.icon className="h-5 w-5" />
@@ -145,7 +145,7 @@ const DashboardLayout = () => {
                     </Avatar>
                   </div>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
                       <p className="font-medium leading-none">{userName}</p>
