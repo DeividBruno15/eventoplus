@@ -22,7 +22,11 @@ const createEventSchema = z.object({
   event_time: z.string().min(1, 'O horário do evento é obrigatório'),
   location: z.string().min(5, 'O local do evento é obrigatório (min. 5 caracteres)'),
   service_type: z.string().min(3, 'O tipo de serviço é obrigatório (min. 3 caracteres)'),
-  max_attendees: z.string().optional().transform(val => val === '' ? null : parseInt(val, 10))
+  max_attendees: z.union([
+    z.string().optional().transform(val => val === '' ? null : parseInt(val, 10)),
+    z.number().optional(),
+    z.null()
+  ])
 });
 
 type CreateEventFormData = z.infer<typeof createEventSchema>;
@@ -42,7 +46,7 @@ const CreateEvent = () => {
       event_time: '',
       location: '',
       service_type: '',
-      max_attendees: '',
+      max_attendees: null,
     },
   });
   
@@ -71,7 +75,7 @@ const CreateEvent = () => {
           event_date: eventDate.toISOString(),
           location: data.location,
           service_type: data.service_type,
-          max_attendees: data.max_attendees,
+          max_attendees: data.max_attendees ?? null,
           contractor_id: user.id,
           status: 'open'
         })
