@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -69,9 +68,9 @@ const EventDetail = () => {
               !('details' in (eventData?.creator || {})) &&
               !('hint' in (eventData?.creator || {}))) {
             return {
-              first_name: eventData?.creator?.first_name ?? '',
-              last_name: eventData?.creator?.last_name ?? '',
-              phone_number: eventData?.creator?.phone_number ?? null
+              first_name: (eventData.creator as any)?.first_name ?? '',
+              last_name: (eventData.creator as any)?.last_name ?? '',
+              phone_number: (eventData.creator as any)?.phone_number ?? null
             };
           }
           return null;
@@ -117,8 +116,8 @@ const EventDetail = () => {
                   !('details' in (app?.provider || {})) &&
                   !('hint' in (app?.provider || {}))) {
                 return {
-                  first_name: app?.provider?.first_name ?? '',
-                  last_name: app?.provider?.last_name ?? ''
+                  first_name: (app.provider as any)?.first_name ?? '',
+                  last_name: (app.provider as any)?.last_name ?? ''
                 };
               }
               return null;
