@@ -65,7 +65,32 @@ const EventDetail = () => {
           
         if (eventError) throw eventError;
         
-        setEvent(eventData as Event);
+        // Handle event data - ensure it matches our Event type
+        const processedEvent: Event = {
+          id: eventData.id,
+          name: eventData.name,
+          description: eventData.description,
+          event_date: eventData.event_date,
+          location: eventData.location,
+          max_attendees: eventData.max_attendees,
+          contractor_id: eventData.contractor_id,
+          created_at: eventData.created_at,
+          service_type: eventData.service_type,
+          status: eventData.status,
+          updated_at: eventData.updated_at,
+          // Handle possible SelectQueryError from Supabase by providing fallback values
+          creator: eventData.creator && typeof eventData.creator !== 'string' ? {
+            first_name: eventData.creator.first_name || '',
+            last_name: eventData.creator.last_name || '',
+            phone_number: eventData.creator.phone_number
+          } : {
+            first_name: '',
+            last_name: '',
+            phone_number: undefined
+          }
+        };
+        
+        setEvent(processedEvent);
 
         if (eventData.contractor_id === user?.id) {
           const { data: applicationsData, error: applicationsError } = await supabase
@@ -78,7 +103,26 @@ const EventDetail = () => {
             .order('created_at', { ascending: false });
             
           if (applicationsError) throw applicationsError;
-          setApplications(applicationsData as EventApplication[]);
+          
+          // Process applications to ensure they match our EventApplication type
+          const processedApplications: EventApplication[] = applicationsData.map(app => ({
+            id: app.id,
+            event_id: app.event_id,
+            provider_id: app.provider_id,
+            message: app.message,
+            status: app.status,
+            created_at: app.created_at,
+            // Handle possible SelectQueryError from Supabase
+            provider: app.provider && typeof app.provider !== 'string' ? {
+              first_name: app.provider.first_name || '',
+              last_name: app.provider.last_name || ''
+            } : {
+              first_name: '',
+              last_name: ''
+            }
+          }));
+          
+          setApplications(processedApplications);
         } else {
           const { data: applicationData, error: applicationError } = await supabase
             .from('event_applications')
@@ -89,7 +133,19 @@ const EventDetail = () => {
             
           if (applicationError) throw applicationError;
           setUserHasApplied(!!applicationData);
-          setUserApplication(applicationData as EventApplication);
+          
+          if (applicationData) {
+            setUserApplication({
+              id: applicationData.id,
+              event_id: applicationData.event_id,
+              provider_id: applicationData.provider_id,
+              message: applicationData.message,
+              status: applicationData.status,
+              created_at: applicationData.created_at,
+              // No provider info needed for user's own application
+              provider: null
+            });
+          }
         }
       } catch (error) {
         console.error('Erro ao buscar detalhes do evento:', error);
@@ -286,9 +342,11 @@ const EventDetail = () => {
             </div>
             
             <h1 className="text-3xl font-bold mb-2">{event.name}</h1>
-            <p className="text-gray-600 mb-6">
-              Organizado por {event.creator?.first_name} {event.creator?.last_name}
-            </p>
+            {event.creator && (
+              <p className="text-gray-600 mb-6">
+                Organizado por {event.creator.first_name} {event.creator.last_name}
+              </p>
+            )}
             
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -424,7 +482,7 @@ const EventDetail = () => {
                             <div className="flex items-center">
                               <User className="h-5 w-5 mr-2 text-primary" />
                               <span className="font-medium">
-                                {app.provider?.first_name} {app.provider?.last_name}
+                                {app.provider ? `${app.provider.first_name} ${app.provider.last_name}` : 'Usuário'}
                               </span>
                             </div>
                             <Badge 

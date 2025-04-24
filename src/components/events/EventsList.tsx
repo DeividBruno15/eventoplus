@@ -23,7 +23,22 @@ export const EventsList = () => {
 
         if (error) throw error;
         
-        setEvents(data as Event[] || []);
+        // Process the events to match our Event type
+        const processedEvents: Event[] = (data || []).map(event => ({
+          id: event.id,
+          name: event.name,
+          description: event.description,
+          event_date: event.event_date,
+          location: event.location,
+          max_attendees: event.max_attendees,
+          contractor_id: event.contractor_id,
+          created_at: event.created_at,
+          service_type: event.service_type,
+          status: event.status,
+          updated_at: event.updated_at
+        }));
+        
+        setEvents(processedEvents);
       } catch (error) {
         console.error('Erro ao buscar eventos:', error);
       } finally {
