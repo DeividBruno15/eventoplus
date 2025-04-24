@@ -62,7 +62,7 @@ const EventDetail = () => {
         if (eventError) throw eventError;
         
         const safeGetCreator = () => {
-          if (eventData.creator && 
+          if (eventData?.creator && 
               typeof eventData.creator === 'object' && 
               !('code' in eventData.creator) &&
               !('message' in eventData.creator) &&
@@ -110,7 +110,7 @@ const EventDetail = () => {
           
           const processedApplications: EventApplication[] = (applicationsData || []).map(app => {
             const safeGetProvider = () => {
-              if (app.provider && 
+              if (app?.provider && 
                   typeof app.provider === 'object' && 
                   !('code' in app.provider) &&
                   !('message' in app.provider) &&
