@@ -64,8 +64,9 @@ const CreateEvent = () => {
       // Combinar data e hora para armazenar
       const eventDate = new Date(`${data.event_date}T${data.event_time}`);
       
+      // Using the any type here as a workaround since the Supabase types don't include the events table yet
       const { data: eventData, error } = await supabase
-        .from('events')
+        .from('events' as any)
         .insert({
           name: data.name,
           description: data.description,
@@ -76,7 +77,7 @@ const CreateEvent = () => {
           contractor_id: user.id,
           status: 'open'
         })
-        .select()
+        .select('*')
         .single();
       
       if (error) throw error;
@@ -86,7 +87,9 @@ const CreateEvent = () => {
         description: "Seu evento foi publicado e já está disponível para candidaturas.",
       });
       
-      navigate(`/events/${eventData.id}`);
+      // Cast to unknown first before accessing id to avoid TypeScript errors
+      const eventId = (eventData as unknown as { id: string }).id;
+      navigate(`/events/${eventId}`);
     } catch (error: any) {
       console.error('Erro ao criar evento:', error);
       toast({

@@ -1,8 +1,8 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { Event } from '@/types/events';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -11,23 +11,6 @@ import { Loader2, CalendarIcon, MapPin, Users, Plus } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Badge } from '@/components/ui/badge';
-
-interface Event {
-  id: string;
-  name: string;
-  description: string;
-  event_date: string;
-  location: string;
-  service_type: string;
-  max_attendees: number;
-  contractor_id: string;
-  status: string;
-  created_at: string;
-  contractor: {
-    first_name: string;
-    last_name: string;
-  };
-}
 
 const Events = () => {
   const { user } = useAuth();
@@ -60,7 +43,7 @@ const Events = () => {
     const fetchEvents = async () => {
       try {
         const { data, error } = await supabase
-          .from('events')
+          .from('events' as any)
           .select(`
             *,
             contractor:user_profiles!contractor_id(first_name, last_name)
@@ -68,7 +51,7 @@ const Events = () => {
           .order('created_at', { ascending: false });
           
         if (error) throw error;
-        setEvents(data || []);
+        setEvents(data as Event[] || []);
       } catch (error) {
         console.error('Erro ao buscar eventos:', error);
       } finally {

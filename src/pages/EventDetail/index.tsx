@@ -1,8 +1,8 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { Event, Application } from '@/types/events';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -14,36 +14,6 @@ import { useToast } from '@/components/ui/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-
-interface Event {
-  id: string;
-  name: string;
-  description: string;
-  event_date: string;
-  location: string;
-  service_type: string;
-  max_attendees: number;
-  contractor_id: string;
-  status: string;
-  created_at: string;
-  contractor: {
-    first_name: string;
-    last_name: string;
-    phone_number: string;
-  };
-}
-
-interface Application {
-  id: string;
-  provider_id: string;
-  message: string;
-  status: string;
-  created_at: string;
-  provider: {
-    first_name: string;
-    last_name: string;
-  };
-}
 
 const EventDetail = () => {
   const { id } = useParams();
@@ -83,7 +53,7 @@ const EventDetail = () => {
     const fetchEvent = async () => {
       try {
         const { data, error } = await supabase
-          .from('events')
+          .from('events' as any)
           .select(`
             *,
             contractor:user_profiles!contractor_id(first_name, last_name, phone_number)
@@ -92,13 +62,11 @@ const EventDetail = () => {
           .single();
           
         if (error) throw error;
-        setEvent(data);
+        setEvent(data as Event);
 
-        // Se o usuário for um contratante, buscar todas as candidaturas para este evento
         if (data.contractor_id === user.id) {
           fetchApplications();
         } else {
-          // Se o usuário for um prestador, verificar se já se candidatou
           checkUserApplication();
         }
       } catch (error) {
@@ -116,7 +84,7 @@ const EventDetail = () => {
     const fetchApplications = async () => {
       try {
         const { data, error } = await supabase
-          .from('event_applications')
+          .from('event_applications' as any)
           .select(`
             *,
             provider:user_profiles!provider_id(first_name, last_name)
@@ -125,7 +93,7 @@ const EventDetail = () => {
           .order('created_at', { ascending: false });
           
         if (error) throw error;
-        setApplications(data || []);
+        setApplications(data as Application[] || []);
       } catch (error) {
         console.error('Erro ao buscar candidaturas:', error);
       }
@@ -134,7 +102,7 @@ const EventDetail = () => {
     const checkUserApplication = async () => {
       try {
         const { data, error } = await supabase
-          .from('event_applications')
+          .from('event_applications' as any)
           .select('*')
           .eq('event_id', id)
           .eq('provider_id', user.id)
@@ -142,7 +110,7 @@ const EventDetail = () => {
           
         if (error) throw error;
         setUserHasApplied(!!data);
-        setUserApplication(data);
+        setUserApplication(data as Application);
       } catch (error) {
         console.error('Erro ao verificar candidatura do usuário:', error);
       }
@@ -159,7 +127,7 @@ const EventDetail = () => {
       setSubmitting(true);
       
       const { data, error } = await supabase
-        .from('event_applications')
+        .from('event_applications' as any)
         .insert({
           event_id: event.id,
           provider_id: user.id,
@@ -177,11 +145,10 @@ const EventDetail = () => {
       });
       
       setUserHasApplied(true);
-      setUserApplication(data);
+      setUserApplication(data as Application);
 
-      // Enviar notificação para o contratante
       await supabase
-        .from('notifications')
+        .from('notifications' as any)
         .insert({
           user_id: event.contractor_id,
           title: "Nova candidatura ao seu evento",
@@ -207,28 +174,24 @@ const EventDetail = () => {
     try {
       setSubmitting(true);
       
-      // Atualizar status da candidatura
       const { error } = await supabase
-        .from('event_applications')
+        .from('event_applications' as any)
         .update({ status: 'approved' })
         .eq('id', applicationId);
         
       if (error) throw error;
       
-      // Atualizar status das outras candidaturas
       await supabase
-        .from('event_applications')
+        .from('event_applications' as any)
         .update({ status: 'rejected' })
         .eq('event_id', event.id)
         .neq('id', applicationId);
       
-      // Atualizar status do evento
       await supabase
-        .from('events')
+        .from('events' as any)
         .update({ status: 'in_progress' })
         .eq('id', event.id);
       
-      // Criar conversa entre contratante e prestador
       const { data: conversation, error: conversationError } = await supabase
         .from('conversations')
         .insert({
@@ -239,7 +202,6 @@ const EventDetail = () => {
       
       if (conversationError) throw conversationError;
       
-      // Adicionar participantes à conversa
       await supabase
         .from('conversation_participants')
         .insert([
@@ -247,9 +209,8 @@ const EventDetail = () => {
           { conversation_id: conversation.id, user_id: providerId }
         ]);
       
-      // Enviar notificação ao prestador
       await supabase
-        .from('notifications')
+        .from('notifications' as any)
         .insert({
           user_id: providerId,
           title: "Parabéns! Você foi aprovado para um evento",
@@ -263,7 +224,6 @@ const EventDetail = () => {
         description: "O prestador foi notificado e vocês já podem começar a conversar.",
       });
       
-      // Recarregar aplicações
       fetchEvent();
       
     } catch (error: any) {
@@ -304,11 +264,10 @@ const EventDetail = () => {
     }
   };
 
-  // Função auxiliar para buscar os dados do evento
   const fetchEvent = async () => {
     try {
       const { data, error } = await supabase
-        .from('events')
+        .from('events' as any)
         .select(`
           *,
           contractor:user_profiles!contractor_id(first_name, last_name, phone_number)
@@ -317,12 +276,11 @@ const EventDetail = () => {
         .single();
         
       if (error) throw error;
-      setEvent(data);
+      setEvent(data as Event);
 
-      // Se o usuário for um contratante, buscar todas as candidaturas para este evento
       if (data.contractor_id === user?.id) {
         const { data: applicationsData, error: applicationsError } = await supabase
-          .from('event_applications')
+          .from('event_applications' as any)
           .select(`
             *,
             provider:user_profiles!provider_id(first_name, last_name)
@@ -331,11 +289,10 @@ const EventDetail = () => {
           .order('created_at', { ascending: false });
           
         if (applicationsError) throw applicationsError;
-        setApplications(applicationsData || []);
+        setApplications(applicationsData as Application[] || []);
       } else {
-        // Se o usuário for um prestador, verificar se já se candidatou
         const { data: applicationData, error: applicationError } = await supabase
-          .from('event_applications')
+          .from('event_applications' as any)
           .select('*')
           .eq('event_id', id)
           .eq('provider_id', user?.id)
@@ -343,7 +300,7 @@ const EventDetail = () => {
           
         if (applicationError) throw applicationError;
         setUserHasApplied(!!applicationData);
-        setUserApplication(applicationData);
+        setUserApplication(applicationData as Application);
       }
     } catch (error) {
       console.error('Erro ao buscar detalhes do evento:', error);
