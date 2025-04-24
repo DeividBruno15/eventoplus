@@ -4,6 +4,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 
+// Define an interface for our service request data
+interface ServiceRequest {
+  id: string;
+  event_type: string;
+  city: string;
+  contractor: {
+    id: string;
+    first_name: string;
+    last_name: string;
+  } | null;
+}
+
 const ProviderDashboard = () => {
   const { data: requests, isLoading } = useQuery({
     queryKey: ['provider-requests'],
@@ -11,15 +23,17 @@ const ProviderDashboard = () => {
       const { data, error } = await supabase
         .from('service_requests')
         .select(`
-          *,
-          contractor:contractor_id(id, first_name, last_name)
+          id,
+          event_type,
+          city,
+          contractor:user_profiles!contractor_id(id, first_name, last_name)
         `)
         .eq('status', 'pending')
         .order('created_at', { ascending: false })
         .limit(5);
 
       if (error) throw error;
-      return data;
+      return data as ServiceRequest[];
     }
   });
 
