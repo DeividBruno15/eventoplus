@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -17,6 +18,7 @@ interface EventDetailsState {
   loading: boolean;
   userHasApplied: boolean;
   userApplication: EventApplication | null;
+  refetchEvent: () => void;
 }
 
 export const useEventDetails = ({ id, user }: UseEventDetailsProps) => {
@@ -29,6 +31,7 @@ export const useEventDetails = ({ id, user }: UseEventDetailsProps) => {
     loading: true,
     userHasApplied: false,
     userApplication: null,
+    refetchEvent: () => {}, // Will be overridden later
   });
 
   const fetchEventData = useCallback(async () => {
