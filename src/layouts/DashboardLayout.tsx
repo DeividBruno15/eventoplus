@@ -1,6 +1,6 @@
 
-import { useState, useEffect } from 'react';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect, ReactNode } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   SidebarProvider, 
   Sidebar,
@@ -15,7 +15,11 @@ import { NotificationsMenu } from '@/components/layout/NotificationsMenu';
 import { UserMenu } from '@/components/layout/UserMenu';
 import { SidebarNavigation } from '@/components/layout/SidebarNavigation';
 
-const DashboardLayout = () => {
+interface DashboardLayoutProps {
+  children: ReactNode;
+}
+
+const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { session, loading: sessionLoading } = useSession();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -57,6 +61,8 @@ const DashboardLayout = () => {
     if (route.startsWith('/chat')) return 'Chat';
     if (route.startsWith('/settings')) return 'Configurações';
     if (route.startsWith('/service-providers')) return 'Prestadores de Serviços';
+    if (route.startsWith('/help-center')) return 'Central de Ajuda';
+    if (route.startsWith('/support')) return 'Suporte';
     
     return 'Dashboard';
   };
@@ -91,7 +97,7 @@ const DashboardLayout = () => {
           </header>
 
           <main className="flex-1 p-8 bg-gray-50">
-            <Outlet />
+            {children}
           </main>
         </SidebarInset>
       </div>
