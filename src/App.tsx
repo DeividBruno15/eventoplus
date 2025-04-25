@@ -9,7 +9,6 @@ import NotFound from './pages/NotFound';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
-import Conversation from './pages/Conversation';
 import Chat from './pages/Chat';
 import ServiceProviders from './pages/ServiceProviders';
 import ProviderProfile from './pages/ProviderProfile';
@@ -19,6 +18,7 @@ import CreateEvent from './pages/CreateEvent';
 import EventDetail from './pages/EventDetail';
 import Events from './pages/Events';
 import RequestQuote from './pages/RequestQuote';
+import Conversation from './pages/Conversation';
 import { SessionProvider } from './contexts/SessionContext';
 
 function App() {

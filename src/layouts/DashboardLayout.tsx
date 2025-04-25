@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { 
@@ -34,23 +35,6 @@ const DashboardLayout = () => {
       navigate('/login');
     }
   }, [session, sessionLoading, navigate]);
-
-  const getUserInitials = () => {
-    if (!user) return "?";
-    const firstName = user.user_metadata?.first_name as string | undefined;
-    const lastName = user.user_metadata?.last_name as string | undefined;
-    
-    if (firstName && lastName) {
-      return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
-    } else if (firstName) {
-      return firstName.charAt(0).toUpperCase();
-    } else if (user.email) {
-      return user.email.charAt(0).toUpperCase();
-    }
-    return "U";
-  };
-
-  const userName = user?.user_metadata?.first_name || 'Usuário';
 
   const handleNavigation = (path: string) => {
     console.log('Navigation triggered to:', path);
