@@ -1,5 +1,5 @@
 
-import { Check } from 'lucide-react';
+import { Check, User, Briefcase } from 'lucide-react';
 
 interface RoleCardProps {
   role: 'contractor' | 'provider';
@@ -12,7 +12,6 @@ export const RoleCard = ({ role, selected, onClick }: RoleCardProps) => {
   const description = role === 'contractor' 
     ? 'Quero contratar serviços para meus eventos' 
     : 'Quero oferecer meus serviços para eventos';
-  const icon = role === 'contractor' ? '🎭' : '👨‍🍳';
 
   return (
     <div 
@@ -32,7 +31,13 @@ export const RoleCard = ({ role, selected, onClick }: RoleCardProps) => {
       )}
       
       <div className="flex flex-col items-center text-center gap-4">
-        <div className="text-4xl">{icon}</div>
+        <div className="text-4xl text-primary">
+          {role === 'contractor' ? (
+            <User className="h-12 w-12" />
+          ) : (
+            <Briefcase className="h-12 w-12" />
+          )}
+        </div>
         <div>
           <h3 className="font-semibold text-lg">{title}</h3>
           <p className="text-muted-foreground text-sm mt-1">{description}</p>
