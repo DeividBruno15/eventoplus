@@ -1,121 +1,137 @@
 
-import { User, Settings, LogOut, Upload } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useSession } from "@/contexts/SessionContext";
+import { useToast } from "@/components/ui/use-toast";
+import { Camera } from "lucide-react";
 
-type UserMenuProps = {
-  userName: string;
-  userInitials: string;
-  onNavigate: (path: string) => void;
-}
-
-export const UserMenu = ({ userName, userInitials, onNavigate }: UserMenuProps) => {
-  const { logout, user } = useAuth();
+export function UserMenu() {
+  const { logout } = useAuth();
+  const { session } = useSession();
+  const navigate = useNavigate();
   const { toast } = useToast();
-  
-  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const [uploading, setUploading] = useState(false);
+
+  const user = session?.user;
+  const firstName = user?.user_metadata?.first_name || "";
+  const lastName = user?.user_metadata?.last_name || "";
+  const avatarUrl = user?.user_metadata?.avatar_url;
+  const initials = firstName && lastName ? `${firstName[0]}${lastName[0]}` : "U";
+
+  const handleLogout = async () => {
+    await logout();
+  };
+
+  const uploadAvatar = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
-      const file = event.target.files?.[0];
-      if (!file) return;
-
+      setUploading(true);
+      
+      if (!event.target.files || event.target.files.length === 0) {
+        return;
+      }
+      
+      const file = event.target.files[0];
       const fileExt = file.name.split('.').pop();
-      const filePath = `${user?.id}/${Math.random()}.${fileExt}`;
-
+      const filePath = `${user?.id}/${Math.random().toString(36).slice(2)}.${fileExt}`;
+      
+      // Upload file to Supabase storage
       const { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(filePath, file);
-
+        
       if (uploadError) throw uploadError;
-
+      
+      // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(filePath);
-
-      const { error: updateError } = await supabase
-        .from('user_profiles')
-        .update({ avatar_url: publicUrl })
-        .eq('id', user?.id);
-
+      
+      // Update user metadata
+      const { error: updateError } = await supabase.auth.updateUser({
+        data: { avatar_url: publicUrl }
+      });
+      
       if (updateError) throw updateError;
-
+      
       toast({
-        title: "Sucesso!",
-        description: "Sua foto de perfil foi atualizada.",
+        title: "Avatar atualizado",
+        description: "Sua imagem de perfil foi atualizada com sucesso."
       });
-
-    } catch (error) {
-      console.error('Error uploading avatar:', error);
+      
+    } catch (error: any) {
       toast({
-        title: "Erro",
-        description: "Não foi possível atualizar sua foto de perfil.",
-        variant: "destructive",
+        title: "Erro ao atualizar avatar",
+        description: error.message,
+        variant: "destructive"
       });
+      console.error(error);
+    } finally {
+      setUploading(false);
     }
   };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <div className="flex items-center gap-2 cursor-pointer p-1.5 rounded-full hover:bg-gray-100 transition-colors group relative">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={user?.user_metadata?.avatar_url} />
-            <AvatarFallback className="bg-primary text-primary-foreground">
-              {userInitials}
-            </AvatarFallback>
-          </Avatar>
-          <label className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-            <Upload className="h-4 w-4 text-white" />
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleAvatarUpload}
-            />
-          </label>
-          <div className="hidden md:flex flex-col items-start">
-            <span className="text-sm font-medium">{userName}</span>
-            <span className="text-xs text-muted-foreground">{user?.email}</span>
+        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+          <div className="relative">
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={avatarUrl} />
+              <AvatarFallback>{initials}</AvatarFallback>
+            </Avatar>
+            <label htmlFor="avatar-upload" className="absolute bottom-0 right-0 flex items-center justify-center w-5 h-5 bg-primary text-white rounded-full cursor-pointer">
+              <Camera className="h-3 w-3" />
+              <input 
+                id="avatar-upload" 
+                type="file" 
+                accept="image/*" 
+                className="sr-only" 
+                onChange={uploadAvatar}
+                disabled={uploading}
+              />
+            </label>
           </div>
-        </div>
+        </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel className="font-normal">
+      <DropdownMenuContent className="w-56" align="end" forceMount>
+        <DropdownMenuLabel>
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{userName}</p>
+            <p className="text-sm font-medium leading-none">{firstName} {lastName}</p>
             <p className="text-xs leading-none text-muted-foreground">
               {user?.email}
             </p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => onNavigate('/profile')} className="cursor-pointer">
-          <User className="mr-2 h-4 w-4" />
-          <span>Perfil</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onNavigate('/settings')} className="cursor-pointer">
-          <Settings className="mr-2 h-4 w-4" />
-          <span>Configurações</span>
-        </DropdownMenuItem>
+        <DropdownMenuGroup>
+          <DropdownMenuItem onClick={() => navigate('/profile')}>
+            Perfil
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+            Dashboard
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => navigate('/settings')}>
+            Configurações
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem 
-          onClick={logout}
-          className="text-red-500 focus:text-red-500 cursor-pointer"
-        >
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>Sair</span>
+        <DropdownMenuItem onClick={handleLogout}>
+          Sair
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
-};
+}

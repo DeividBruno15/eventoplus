@@ -1,4 +1,3 @@
-
 import { useSession } from "@/contexts/SessionContext";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
@@ -12,7 +11,6 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const userRole = session?.user?.user_metadata?.role;
   const userName = session?.user?.user_metadata?.first_name || 'Usuário';
-  const isOnboardingComplete = session?.user?.user_metadata?.is_onboarding_complete;
 
   useEffect(() => {
     if (!loading && !session) {
@@ -69,29 +67,6 @@ const Dashboard = () => {
           Bem-vindo(a) ao seu Dashboard da plataforma Evento+.
         </p>
       </div>
-      
-      {!isOnboardingComplete && (
-        <Card className="bg-primary/5 border-primary/20">
-          <CardContent className="pt-6">
-            <div className="flex items-start gap-4">
-              <div>
-                <h3 className="text-lg font-semibold text-primary">Complete seu cadastro</h3>
-                <p className="text-muted-foreground mt-1">
-                  Para aproveitar todas as funcionalidades da plataforma, complete as informações do seu perfil.
-                </p>
-                <Button 
-                  onClick={() => navigate('/profile')}
-                  className="mt-4"
-                  size="sm"
-                >
-                  Completar Agora
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat, index) => (

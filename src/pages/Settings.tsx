@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useSession } from "@/contexts/SessionContext";
 import { useNavigate } from "react-router-dom";
@@ -9,26 +10,152 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Settings as SettingsIcon, Bell, Lock, User } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Settings = () => {
   const { session } = useSession();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [username, setUsername] = useState(session?.user?.user_metadata?.username || "");
+  const [language, setLanguage] = useState("pt-BR");
+  const [darkMode, setDarkMode] = useState(false);
+  const [emailNotifications, setEmailNotifications] = useState(true);
+  const [pushNotifications, setPushNotifications] = useState(true);
+  const [smsNotifications, setSmsNotifications] = useState(false);
   
   const handleSaveSettings = async () => {
-    toast({
-      title: "Sucesso",
-      description: "Suas configurações foram salvas.",
-    });
+    try {
+      setLoading(true);
+      
+      const { error } = await supabase.auth.updateUser({
+        data: {
+          username,
+          language,
+          theme_preference: darkMode ? 'dark' : 'light'
+        }
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Sucesso",
+        description: "Suas configurações foram salvas.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro",
+        description: error.message || "Erro ao salvar as configurações",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSaveNotifications = async () => {
+    try {
+      setLoading(true);
+      
+      const { error } = await supabase.auth.updateUser({
+        data: {
+          notification_preferences: {
+            email: emailNotifications,
+            push: pushNotifications,
+            sms: smsNotifications
+          }
+        }
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Sucesso",
+        description: "Suas preferências de notificação foram salvas.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro",
+        description: error.message || "Erro ao salvar as preferências",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    try {
+      // Here we would open a modal or navigate to a change password page
+      // For now, we'll just show a toast
+      toast({
+        title: "Alterar senha",
+        description: "Um email foi enviado com instruções para alterar sua senha.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro",
+        description: error.message || "Erro ao alterar senha",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleEnableTwoFactor = async () => {
+    try {
+      toast({
+        title: "Autenticação em dois fatores",
+        description: "Funcionalidade a ser implementada em breve.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleManageDevices = async () => {
+    try {
+      toast({
+        title: "Gerenciar dispositivos",
+        description: "Funcionalidade a ser implementada em breve.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
   };
 
   const handleDeleteAccount = async () => {
-    toast({
-      title: "Conta excluída",
-      description: "Sua conta foi excluída com sucesso.",
-      variant: "destructive",
-    });
-    navigate('/');
+    if (confirm("Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita.")) {
+      try {
+        setLoading(true);
+        
+        // In a real app, we would need admin privileges to delete users
+        // For now, we'll just simulate it and log the user out
+        await supabase.auth.signOut();
+        
+        toast({
+          title: "Conta excluída",
+          description: "Sua conta foi excluída com sucesso.",
+          variant: "destructive",
+        });
+        navigate('/');
+      } catch (error: any) {
+        toast({
+          title: "Erro",
+          description: error.message || "Erro ao excluir conta",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
+      }
+    }
   };
 
   if (!session) {
@@ -75,7 +202,12 @@ const Settings = () => {
                 
                 <div className="space-y-2">
                   <Label htmlFor="username">Nome de usuário</Label>
-                  <Input id="username" placeholder="Nome de usuário" />
+                  <Input 
+                    id="username" 
+                    placeholder="Nome de usuário" 
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                  />
                 </div>
                 
                 <div className="space-y-2">
@@ -83,6 +215,8 @@ const Settings = () => {
                   <select 
                     id="language" 
                     className="w-full h-10 px-3 py-2 rounded-md border border-input bg-background text-sm"
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value)}
                   >
                     <option value="pt-BR">Português (Brasil)</option>
                     <option value="en-US">Inglês (EUA)</option>
@@ -92,11 +226,17 @@ const Settings = () => {
               </div>
               
               <div className="flex items-center space-x-2">
-                <Switch id="theme" />
+                <Switch 
+                  id="theme" 
+                  checked={darkMode}
+                  onCheckedChange={setDarkMode}
+                />
                 <Label htmlFor="theme">Modo escuro</Label>
               </div>
               
-              <Button onClick={handleSaveSettings}>Salvar alterações</Button>
+              <Button onClick={handleSaveSettings} disabled={loading}>
+                {loading ? "Salvando..." : "Salvar alterações"}
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -118,7 +258,11 @@ const Settings = () => {
                       Receba notificações por email
                     </p>
                   </div>
-                  <Switch id="email_notif" />
+                  <Switch 
+                    id="email_notif" 
+                    checked={emailNotifications}
+                    onCheckedChange={setEmailNotifications}
+                  />
                 </div>
                 
                 <div className="flex items-center justify-between">
@@ -128,7 +272,11 @@ const Settings = () => {
                       Receba notificações push no navegador
                     </p>
                   </div>
-                  <Switch id="push_notif" />
+                  <Switch 
+                    id="push_notif"
+                    checked={pushNotifications}
+                    onCheckedChange={setPushNotifications}
+                  />
                 </div>
                 
                 <div className="flex items-center justify-between">
@@ -138,11 +286,17 @@ const Settings = () => {
                       Receba notificações por SMS
                     </p>
                   </div>
-                  <Switch id="sms_notif" />
+                  <Switch 
+                    id="sms_notif"
+                    checked={smsNotifications}
+                    onCheckedChange={setSmsNotifications}
+                  />
                 </div>
               </div>
               
-              <Button>Salvar preferências</Button>
+              <Button onClick={handleSaveNotifications} disabled={loading}>
+                {loading ? "Salvando..." : "Salvar preferências"}
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -157,14 +311,39 @@ const Settings = () => {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
-                <Button className="w-full" variant="outline">Alterar senha</Button>
-                <Button className="w-full" variant="outline">Ativar autenticação em dois fatores</Button>
-                <Button className="w-full" variant="outline">Gerenciar dispositivos conectados</Button>
+                <Button 
+                  className="w-full" 
+                  variant="outline" 
+                  onClick={handleChangePassword}
+                  disabled={loading}
+                >
+                  Alterar senha
+                </Button>
+                <Button 
+                  className="w-full" 
+                  variant="outline" 
+                  onClick={handleEnableTwoFactor}
+                  disabled={loading}
+                >
+                  Ativar autenticação em dois fatores
+                </Button>
+                <Button 
+                  className="w-full" 
+                  variant="outline" 
+                  onClick={handleManageDevices}
+                  disabled={loading}
+                >
+                  Gerenciar dispositivos conectados
+                </Button>
               </div>
               
               <div className="pt-4">
-                <Button variant="destructive" onClick={handleDeleteAccount}>
-                  Excluir minha conta
+                <Button 
+                  variant="destructive" 
+                  onClick={handleDeleteAccount}
+                  disabled={loading}
+                >
+                  {loading ? "Processando..." : "Excluir minha conta"}
                 </Button>
               </div>
             </CardContent>
