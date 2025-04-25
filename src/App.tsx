@@ -21,6 +21,7 @@ import EventDetail from "./pages/EventDetail";
 import CreateEvent from "./pages/CreateEvent";
 import Chat from "./pages/Chat";
 import Conversation from "./pages/Conversation";
+import Plans from "./pages/Plans";
 
 const queryClient = new QueryClient();
 
