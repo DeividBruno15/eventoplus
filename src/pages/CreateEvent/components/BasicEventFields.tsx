@@ -10,13 +10,20 @@ import {
 } from "@/components/ui/select";
 import { useServiceCategories } from "@/hooks/useServiceCategories";
 import { Loader2 } from "lucide-react";
+import { UseFormReturn } from "react-hook-form";
+import { CreateEventFormData } from "../schema";
 
-export const BasicEventFields = () => {
+interface BasicEventFieldsProps {
+  form: UseFormReturn<CreateEventFormData>;
+}
+
+export const BasicEventFields = ({ form }: BasicEventFieldsProps) => {
   const { data: categories, isLoading } = useServiceCategories();
 
   return (
     <div className="space-y-4">
       <FormField
+        control={form.control}
         name="name"
         render={({ field }) => (
           <FormItem>
@@ -29,6 +36,7 @@ export const BasicEventFields = () => {
       />
 
       <FormField
+        control={form.control}
         name="service_type"
         render={({ field }) => (
           <FormItem>

@@ -1,9 +1,11 @@
+
 import { useSession } from "@/contexts/SessionContext";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { Loader2, ArrowRight, Calendar, Users, MessageSquare, BarChart4 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { OnboardingCard } from "@/components/dashboard/OnboardingCard";
 
 const Dashboard = () => {
   const { session, loading } = useSession();

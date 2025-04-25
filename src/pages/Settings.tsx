@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useSession } from "@/contexts/SessionContext";
 import { useNavigate } from "react-router-dom";
@@ -7,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Settings as SettingsIcon, Bell, Lock, User } from "lucide-react";
-import { useToast } from "@/contexts/ToastContext";
+import { useToast } from "@/components/ui/use-toast";
 
 const Settings = () => {
   const { session } = useSession();
