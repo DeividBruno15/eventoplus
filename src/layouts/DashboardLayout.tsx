@@ -11,7 +11,6 @@ import { useSession } from '@/contexts/SessionContext';
 import { useAuth } from '@/hooks/useAuth';
 import { Loader2 } from 'lucide-react';
 import { NotificationsMenu } from '@/components/layout/NotificationsMenu';
-import { UserMenu } from '@/components/layout/UserMenu';
 import { SidebarNavigation } from '@/components/layout/SidebarNavigation';
 
 interface DashboardLayoutProps {
@@ -92,14 +91,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         </Sidebar>
 
         <SidebarInset className="flex flex-col flex-1">
-          <header className="sticky top-0 z-10 w-full bg-white border-b px-8 py-4 flex justify-between items-center shadow-sm">
+          <header className="sticky top-0 z-10 w-full bg-white border-b px-8 py-4 flex justify-between items-center">
             <h1 className="text-xl font-semibold text-gray-900">
               {getPageTitle()}
             </h1>
             
             <div className="flex items-center gap-4">
               <NotificationsMenu />
-              <UserMenu />
             </div>
           </header>
 

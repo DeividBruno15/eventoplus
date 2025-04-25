@@ -1,3 +1,4 @@
+
 import { 
   LayoutDashboard, 
   User, 
@@ -13,6 +14,9 @@ import {
   SidebarMenuButton 
 } from '@/components/ui/sidebar';
 import { Link, useLocation } from 'react-router-dom';
+import { useSession } from '@/contexts/SessionContext';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
 type MenuItem = {
   path: string;
@@ -27,7 +31,15 @@ type SidebarNavigationProps = {
 
 export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationProps) => {
   const location = useLocation();
+  const { session } = useSession();
   
+  const user = session?.user;
+  const firstName = user?.user_metadata?.first_name || '';
+  const lastName = user?.user_metadata?.last_name || '';
+  const avatarUrl = user?.user_metadata?.avatar_url;
+  const userRole = user?.user_metadata?.role === 'provider' ? 'Prestador' : 'Contratante';
+  const initials = firstName && lastName ? `${firstName[0]}${lastName[0]}` : 'U';
+
   const mainMenuItems: MenuItem[] = [
     { path: '/dashboard', name: 'Dashboard', icon: LayoutDashboard },
     { path: '/profile', name: 'Perfil', icon: User },
@@ -42,7 +54,6 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
   ];
 
   const handleLinkClick = (path: string) => {
-    // Only log for debugging purposes
     console.log('Sidebar item clicked:', path);
     onNavigate(path);
   };
@@ -84,6 +95,26 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
 
   return (
     <div className="flex flex-col gap-8 animate-fade-in">
+      <div className="px-6 py-4">
+        <div className="flex flex-col items-center text-center">
+          <Avatar className="h-20 w-20 mb-3">
+            {avatarUrl ? (
+              <AvatarImage src={avatarUrl} />
+            ) : (
+              <AvatarFallback>{initials}</AvatarFallback>
+            )}
+          </Avatar>
+          <h3 className="font-medium text-gray-900">{firstName} {lastName}</h3>
+          <Badge variant="secondary" className="mt-1">
+            {userRole}
+          </Badge>
+        </div>
+      </div>
+
+      <div className="px-3 py-2">
+        <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
+      </div>
+      
       <SidebarMenu>
         {renderMenuItems(mainMenuItems)}
       </SidebarMenu>
