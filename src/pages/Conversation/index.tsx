@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
@@ -23,7 +22,7 @@ export default function Conversation() {
   }, [id, fetchMessages]);
 
   if (!id) {
-    return <EmptyState />;
+    return <EmptyState totalConversations={0} />;
   }
 
   if (!otherUser) {
