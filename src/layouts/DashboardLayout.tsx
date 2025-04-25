@@ -22,11 +22,6 @@ const DashboardLayout = () => {
   const location = useLocation();
   const [activePath, setActivePath] = useState(location.pathname);
 
-  // Update active path when location changes
-  useEffect(() => {
-    setActivePath(location.pathname);
-  }, [location]);
-
   // Check authentication
   useEffect(() => {
     if (!sessionLoading && !session) {
@@ -53,7 +48,7 @@ const DashboardLayout = () => {
   const userName = user?.user_metadata?.first_name || 'Usuário';
 
   const handleNavigation = (path: string) => {
-    // Only update the active path state
+    // Only update the active path state, navigation is handled in SidebarNavigation
     setActivePath(path);
   };
 

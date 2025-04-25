@@ -52,11 +52,11 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
   );
 
   const handleMenuItemClick = (path: string) => {
-    // First navigate programmatically to the path
-    navigate(path);
-    
-    // Then update the active path state in parent
+    // Update the parent's active path state first
     onNavigate(path);
+    
+    // Then navigate programmatically to the path
+    navigate(path);
   };
 
   return (
