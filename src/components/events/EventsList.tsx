@@ -28,21 +28,24 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
         if (error) throw error;
         
         const processedEvents: Event[] = (data || []).map(event => {
+          // Type assertion to handle the properties that TypeScript doesn't recognize
+          const eventData = event as any;
+          
           // Precisamos fazer um cast explícito para o tipo Event com todos os campos necessários
           return {
-            id: event.id,
-            name: event.name, 
-            description: event.description,
-            event_date: event.event_date,
-            location: event.location,
-            max_attendees: event.max_attendees,
-            contractor_id: event.contractor_id,
-            created_at: event.created_at,
-            updated_at: event.updated_at || null,
-            service_type: event.service_type,
-            status: event.status as EventStatus,
+            id: eventData.id,
+            name: eventData.name, 
+            description: eventData.description,
+            event_date: eventData.event_date,
+            location: eventData.location,
+            max_attendees: eventData.max_attendees,
+            contractor_id: eventData.contractor_id,
+            created_at: eventData.created_at,
+            updated_at: eventData.updated_at || null,
+            service_type: eventData.service_type,
+            status: eventData.status as EventStatus,
             // Tratando explicitamente cada campo para compatibilidade com o tipo Event
-            image_url: 'image_url' in event && event.image_url ? event.image_url as string : undefined
+            image_url: eventData.image_url ? String(eventData.image_url) : undefined
           };
         });
         

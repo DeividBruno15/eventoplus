@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import Navbar from '@/components/Navbar';
@@ -75,16 +76,16 @@ const EventDetail = () => {
         .from('events')
         .getPublicUrl(filePath);
       
-      // Update event with correct type handling for the fields
+      // Use appropriate typing for update operation
+      const updateData = {
+        image_url: publicUrl,
+        updated_at: new Date().toISOString()
+      };
+      
+      // Update event
       const { error: updateError } = await supabase
         .from('events')
-        .update({
-          image_url: publicUrl,
-          updated_at: new Date().toISOString()
-        } as {
-          image_url: string;
-          updated_at: string;
-        })
+        .update(updateData)
         .eq('id', event.id);
         
       if (updateError) throw updateError;

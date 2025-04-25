@@ -76,22 +76,23 @@ export const useEventDetails = ({ id, user }: UseEventDetailsProps) => {
         return undefined;
       };
       
+      // Type assertion for eventData to handle all fields properly
+      const typedEventData = eventData as any;
+      
       // Crie explicitamente um objeto Event com todos os campos necessários
       const processedEvent: Event = {
-        id: eventData.id,
-        name: eventData.name,
-        description: eventData.description,
-        event_date: eventData.event_date,
-        location: eventData.location,
-        max_attendees: eventData.max_attendees,
-        contractor_id: eventData.contractor_id,
-        created_at: eventData.created_at,
-        // Garantindo que updated_at é tratado corretamente como string | null
-        updated_at: 'updated_at' in eventData ? eventData.updated_at || null : null,
-        service_type: eventData.service_type,
-        status: eventData.status as EventStatus,
-        // Garantindo que image_url é tratado corretamente como opcional
-        image_url: 'image_url' in eventData && eventData.image_url ? String(eventData.image_url) : undefined,
+        id: typedEventData.id,
+        name: typedEventData.name,
+        description: typedEventData.description,
+        event_date: typedEventData.event_date,
+        location: typedEventData.location,
+        max_attendees: typedEventData.max_attendees,
+        contractor_id: typedEventData.contractor_id,
+        created_at: typedEventData.created_at,
+        updated_at: typedEventData.updated_at || null,
+        service_type: typedEventData.service_type,
+        status: typedEventData.status as EventStatus,
+        image_url: typedEventData.image_url ? String(typedEventData.image_url) : undefined,
         creator: safeGetCreator()
       };
 
