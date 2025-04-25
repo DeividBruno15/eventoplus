@@ -9,7 +9,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import { Loader2, MailCheck } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 const ForgotPassword = () => {
@@ -52,13 +52,13 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-page">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-indigo-50 to-white">
       <Navbar />
       <div className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <Card className="w-full max-w-md">
+        <Card className="w-full max-w-md shadow-lg border-0">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold">Recuperar senha</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-2xl font-bold text-gray-800">Recuperar senha</CardTitle>
+            <CardDescription className="text-gray-600">
               {!submitted
                 ? "Digite seu email para receber instruções de recuperação de senha"
                 : "Verifique seu email para as instruções de recuperação de senha"}
@@ -69,7 +69,7 @@ const ForgotPassword = () => {
             {!submitted ? (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">E-mail</Label>
+                  <Label htmlFor="email" className="text-gray-700">E-mail</Label>
                   <Input
                     id="email"
                     type="email"
@@ -78,11 +78,15 @@ const ForgotPassword = () => {
                     placeholder="seu@email.com"
                     required
                     disabled={loading}
-                    className="w-full"
+                    className="w-full p-3 border-gray-300 focus:ring-primary focus:border-primary"
                   />
                 </div>
                 
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button 
+                  type="submit" 
+                  className="w-full py-2.5 bg-primary hover:bg-primary/90 transition-all duration-200"
+                  disabled={loading}
+                >
                   {loading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -93,10 +97,16 @@ const ForgotPassword = () => {
               </form>
             ) : (
               <div className="text-center">
-                <p className="text-muted-foreground mb-4">
+                <div className="mb-6 flex justify-center">
+                  <div className="rounded-full bg-green-100 p-3">
+                    <MailCheck className="h-8 w-8 text-green-600" />
+                  </div>
+                </div>
+                <p className="text-gray-600 mb-6">
                   Se existir uma conta com este email, você receberá um link para redefinir sua senha.
+                  Verifique também sua pasta de spam.
                 </p>
-                <Button onClick={() => setSubmitted(false)} variant="outline">
+                <Button onClick={() => setSubmitted(false)} variant="outline" className="hover:bg-gray-100">
                   Tentar novamente
                 </Button>
               </div>

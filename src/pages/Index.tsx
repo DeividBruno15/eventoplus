@@ -11,13 +11,19 @@ import FAQ from '../components/FAQ';
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-page">
+    <div className="min-h-screen bg-gradient-to-b from-indigo-50 to-white">
       <Navbar />
       <main>
         <Hero />
-        <FeatureSection />
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-b from-indigo-50 to-white z-[-1]"></div>
+          <FeatureSection />
+        </div>
         <ServiceCategories />
-        <PlanSection />
+        <div className="relative bg-gray-50 py-16">
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-white to-green-50 opacity-50 z-[-1]"></div>
+          <PlanSection />
+        </div>
         <TestimonialSection />
         <FAQ />
         <CallToAction />
@@ -28,4 +34,3 @@ const Index = () => {
 };
 
 export default Index;
-

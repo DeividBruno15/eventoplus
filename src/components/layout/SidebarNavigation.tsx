@@ -62,10 +62,10 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
         >
           <SidebarMenuButton
             asChild
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ease-in-out transform hover:translate-x-1 ${
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
               isActive
-                ? 'bg-primary/10 text-primary font-medium scale-105'
-                : 'hover:bg-gray-100 text-gray-600 hover:text-primary hover:scale-[1.02]'
+                ? 'bg-primary/10 text-primary font-medium scale-105 shadow-sm'
+                : 'hover:bg-gray-100 text-gray-600 hover:text-primary hover:translate-x-1'
             }`}
           >
             <Link 
@@ -73,8 +73,8 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
               onClick={() => handleLinkClick(item.path)}
               className="flex items-center gap-3 w-full"
             >
-              <item.icon className={`h-5 w-5 transition-transform duration-200 ${
-                isActive ? 'scale-110' : ''
+              <item.icon className={`h-5 w-5 transition-transform duration-300 ${
+                isActive ? 'scale-110 text-primary' : 'text-gray-500'
               }`} />
               <span>{item.name}</span>
             </Link>
@@ -85,13 +85,13 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
   };
 
   return (
-    <div className="flex flex-col gap-4 animate-fade-in">
+    <div className="flex flex-col gap-6 animate-fade-in">
       <SidebarMenu>
         {renderMenuItems(mainMenuItems)}
       </SidebarMenu>
       
       <div className="px-3 py-2">
-        <div className="h-px bg-gray-200"></div>
+        <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
       </div>
       
       <SidebarMenu>

@@ -26,24 +26,24 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				primary: {
-					DEFAULT: '#3D5AFE',
+					DEFAULT: '#4F46E5', // Indigo mudado para um tom mais vibrante
 					foreground: '#FFFFFF'
 				},
 				secondary: {
-					DEFAULT: '#FFB300',
-					foreground: '#1A1A1A'
+					DEFAULT: '#10B981', // Verde esmeralda para secundário
+					foreground: '#FFFFFF'
 				},
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
 					foreground: 'hsl(var(--destructive-foreground))'
 				},
 				muted: {
-					DEFAULT: '#E0E0E0',
-					foreground: '#1A1A1A'
+					DEFAULT: '#F3F4F6', // Cinza mais suave
+					foreground: '#6B7280'
 				},
 				accent: {
-					DEFAULT: '#FFB300',
-					foreground: '#1A1A1A'
+					DEFAULT: '#F59E0B', // Âmbar para destaque
+					foreground: '#FFFFFF'
 				},
 				popover: {
 					DEFAULT: 'hsl(var(--popover))',
@@ -54,26 +54,30 @@ export default {
 					foreground: 'hsl(var(--card-foreground))'
 				},
 				sidebar: {
-					DEFAULT: 'hsl(var(--sidebar-background))',
-					foreground: 'hsl(var(--sidebar-foreground))',
-					primary: 'hsl(var(--sidebar-primary))',
-					'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
-					accent: 'hsl(var(--sidebar-accent))',
-					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
-					border: 'hsl(var(--sidebar-border))',
-					ring: 'hsl(var(--sidebar-ring))'
+					DEFAULT: '#111827', // Azul escuro para a barra lateral
+					foreground: '#F9FAFB',
+					primary: '#4F46E5',
+					'primary-foreground': '#FFFFFF',
+					accent: '#1E293B',
+					'accent-foreground': '#F9FAFB',
+					border: '#1E293B',
+					ring: '#3B82F6'
 				}
 			},
 			borderRadius: {
-				lg: 'var(--radius)',
-				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
+				lg: '0.75rem', // Bordas mais arredondadas
+				md: '0.5rem',
+				sm: '0.25rem'
 			},
 			backgroundColor: {
-				'page': '#FAFAFA',
+				'page': '#F9FAFB', // Fundo da página um pouco mais claro
 			},
 			textColor: {
-				'default': '#1A1A1A',
+				'default': '#1F2937', // Texto mais escuro para melhor contraste
+			},
+			boxShadow: {
+				'card': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)', // Sombra mais suave para cards
+				'button': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)', // Sombra para botões
 			},
 			keyframes: {
 				'accordion-down': {

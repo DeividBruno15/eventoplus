@@ -49,8 +49,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   // Mostrar o loader apenas durante o carregamento inicial da sessão
   if (sessionLoading && !session) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-6 h-6 animate-spin" />
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-gray-600">Carregando sua experiência...</p>
+        </div>
       </div>
     );
   }
@@ -78,11 +81,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
-        <Sidebar className="border-r border-gray-200">
+      <div className="min-h-screen flex w-full bg-gray-50">
+        <Sidebar className="border-r border-gray-200 shadow-sm bg-white">
           <SidebarHeader className="px-6 py-8">
-            <div className="font-bold text-2xl text-primary">
-              Evento<span className="text-secondary">+</span>
+            <div className="font-bold text-2xl bg-gradient-to-r from-primary to-indigo-600 bg-clip-text text-transparent">
+              Evento<span className="text-accent">+</span>
             </div>
           </SidebarHeader>
           <SidebarContent className="px-4">
@@ -94,7 +97,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         </Sidebar>
 
         <SidebarInset className="flex flex-col flex-1">
-          <header className="sticky top-0 z-10 w-full bg-white border-b px-8 py-4 flex justify-between items-center">
+          <header className="sticky top-0 z-10 w-full bg-white border-b px-8 py-4 flex justify-between items-center shadow-sm">
             <h1 className="text-xl font-semibold text-gray-900">
               {getPageTitle()}
             </h1>
@@ -106,7 +109,9 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </header>
 
           <main className="flex-1 p-8 bg-gray-50">
-            {children}
+            <div className="animate-fade-in">
+              {children}
+            </div>
           </main>
         </SidebarInset>
       </div>
