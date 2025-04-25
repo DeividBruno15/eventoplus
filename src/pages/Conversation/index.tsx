@@ -22,6 +22,10 @@ export default function Conversation() {
     }
   }, [id, fetchMessages]);
 
+  if (!id) {
+    return <EmptyState />;
+  }
+
   if (!otherUser) {
     return (
       <div className="h-[80vh] flex items-center justify-center">
