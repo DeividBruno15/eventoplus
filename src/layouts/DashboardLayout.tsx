@@ -29,13 +29,12 @@ const DashboardLayout = () => {
     console.log('Current path:', location.pathname);
   }, [location.pathname]);
 
-  // Check authentication
+  // Check authentication - ONLY redirect to login if not authenticated
   useEffect(() => {
     if (!sessionLoading && !session) {
       navigate('/login');
     }
-    // Only redirect to dashboard if we're at the root of the dashboard layout
-    // and not if we're already on a specific route
+    // Removed any automatic redirect to dashboard
   }, [session, sessionLoading, navigate]);
 
   // Get user initials for avatar
@@ -57,9 +56,10 @@ const DashboardLayout = () => {
   const userName = user?.user_metadata?.first_name || 'Usuário';
 
   const handleNavigation = (path: string) => {
-    setActivePath(path);
-    // Debug: Log when navigation is triggered manually
+    // Remove setActivePath since it will be handled by the useEffect above
+    // Just log for debugging
     console.log('Navigation triggered to:', path);
+    // Do not navigate programmatically here - the Link component will handle it
   };
 
   if (sessionLoading) {

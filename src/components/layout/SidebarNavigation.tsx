@@ -43,6 +43,13 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
     item.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const handleLinkClick = (path: string) => {
+    // Just call the onNavigate callback for logging purposes
+    onNavigate(path);
+    // Log active path immediately after navigation attempt
+    console.log('Sidebar item clicked:', path);
+  };
+
   return (
     <div className="flex flex-col gap-4 animate-fade-in">
       <div className="relative transition-all duration-200 ease-in-out hover:scale-[1.02]">
@@ -78,7 +85,7 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
               >
                 <Link 
                   to={item.path} 
-                  onClick={() => onNavigate(item.path)}
+                  onClick={() => handleLinkClick(item.path)}
                   className="flex items-center gap-3 w-full"
                 >
                   <item.icon className={`h-5 w-5 transition-transform duration-200 ${
