@@ -42,7 +42,7 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
             service_type: event.service_type,
             status: event.status as EventStatus,
             // Tratando explicitamente cada campo para compatibilidade com o tipo Event
-            image_url: 'image_url' in event ? event.image_url : undefined
+            image_url: 'image_url' in event && event.image_url ? event.image_url as string : undefined
           };
         });
         

@@ -87,11 +87,11 @@ export const useEventDetails = ({ id, user }: UseEventDetailsProps) => {
         contractor_id: eventData.contractor_id,
         created_at: eventData.created_at,
         // Garantindo que updated_at é tratado corretamente como string | null
-        updated_at: 'updated_at' in eventData ? eventData.updated_at : null,
+        updated_at: 'updated_at' in eventData ? eventData.updated_at || null : null,
         service_type: eventData.service_type,
         status: eventData.status as EventStatus,
         // Garantindo que image_url é tratado corretamente como opcional
-        image_url: 'image_url' in eventData ? eventData.image_url : undefined,
+        image_url: 'image_url' in eventData && eventData.image_url ? String(eventData.image_url) : undefined,
         creator: safeGetCreator()
       };
 
