@@ -12,10 +12,10 @@ export default {
   theme: {
     container: {
       center: true,
-      padding: '2rem',
+      padding: "2rem",
       screens: {
-        '2xl': '1400px'
-      }
+        "2xl": "1400px",
+      },
     },
     extend: {
       colors: {
@@ -53,7 +53,7 @@ export default {
           foreground: 'hsl(var(--card-foreground))'
         },
         sidebar: {
-          DEFAULT: '#F9FAFB',
+          DEFAULT: '#FFFFFF',
           foreground: '#1F2937',
           primary: '#4F46E5',
           'primary-foreground': '#FFFFFF',
