@@ -29,16 +29,8 @@ type SidebarNavigationProps = {
 
 export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationProps) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const location = useLocation();
   const navigate = useNavigate();
   
-  // Update active path when location changes
-  useEffect(() => {
-    if (location.pathname !== activePath) {
-      onNavigate(location.pathname);
-    }
-  }, [location, activePath, onNavigate]);
-
   const menuItems: MenuItem[] = [
     { path: '/dashboard', name: 'Dashboard', icon: LayoutDashboard },
     { path: '/profile', name: 'Perfil', icon: User },
@@ -52,11 +44,11 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
   );
 
   const handleMenuItemClick = (path: string) => {
-    // Update the parent's active path state first
+    // Update the parent's active path state
     onNavigate(path);
     
-    // Then navigate programmatically to the path
-    navigate(path);
+    // Navigate to the path with replace to avoid history issues
+    navigate(path, { replace: true });
   };
 
   return (
