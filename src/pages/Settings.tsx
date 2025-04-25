@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useSession } from "@/contexts/SessionContext";
 import { useNavigate } from "react-router-dom";
@@ -8,10 +7,28 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Settings as SettingsIcon, Bell, Lock, User } from "lucide-react";
+import { useToast } from "@/contexts/ToastContext";
 
 const Settings = () => {
   const { session } = useSession();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  
+  const handleSaveSettings = async () => {
+    toast({
+      title: "Sucesso",
+      description: "Suas configurações foram salvas.",
+    });
+  };
+
+  const handleDeleteAccount = async () => {
+    toast({
+      title: "Conta excluída",
+      description: "Sua conta foi excluída com sucesso.",
+      variant: "destructive",
+    });
+    navigate('/');
+  };
 
   if (!session) {
     navigate('/login');
@@ -78,7 +95,7 @@ const Settings = () => {
                 <Label htmlFor="theme">Modo escuro</Label>
               </div>
               
-              <Button>Salvar alterações</Button>
+              <Button onClick={handleSaveSettings}>Salvar alterações</Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -145,7 +162,9 @@ const Settings = () => {
               </div>
               
               <div className="pt-4">
-                <Button variant="destructive">Excluir minha conta</Button>
+                <Button variant="destructive" onClick={handleDeleteAccount}>
+                  Excluir minha conta
+                </Button>
               </div>
             </CardContent>
           </Card>

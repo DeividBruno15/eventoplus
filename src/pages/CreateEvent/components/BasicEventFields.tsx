@@ -1,55 +1,61 @@
 
-import React from 'react';
-import { UseFormReturn } from 'react-hook-form';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import type { CreateEventFormData } from '../schema';
+import { FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useServiceCategories } from "@/hooks/useServiceCategories";
+import { Loader2 } from "lucide-react";
 
-interface BasicEventFieldsProps {
-  form: UseFormReturn<CreateEventFormData>;
-}
+export const BasicEventFields = () => {
+  const { data: categories, isLoading } = useServiceCategories();
 
-export const BasicEventFields = ({ form }: BasicEventFieldsProps) => {
   return (
-    <>
-      <div>
-        <Label htmlFor="name">Nome do Evento*</Label>
-        <Input 
-          id="name"
-          placeholder="Ex.: Casamento de João e Maria"
-          {...form.register('name')}
-        />
-        {form.formState.errors.name && (
-          <p className="text-sm text-red-500 mt-1">{form.formState.errors.name.message}</p>
+    <div className="space-y-4">
+      <FormField
+        name="name"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Nome do evento</FormLabel>
+            <FormControl>
+              <Input placeholder="Ex: Casamento Ana e João" {...field} />
+            </FormControl>
+          </FormItem>
         )}
-      </div>
+      />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="event_date">Data do Evento*</Label>
-          <Input 
-            id="event_date"
-            type="date"
-            min={new Date().toISOString().split('T')[0]}
-            {...form.register('event_date')}
-          />
-          {form.formState.errors.event_date && (
-            <p className="text-sm text-red-500 mt-1">{form.formState.errors.event_date.message}</p>
-          )}
-        </div>
-        
-        <div>
-          <Label htmlFor="event_time">Horário*</Label>
-          <Input 
-            id="event_time"
-            type="time"
-            {...form.register('event_time')}
-          />
-          {form.formState.errors.event_time && (
-            <p className="text-sm text-red-500 mt-1">{form.formState.errors.event_time.message}</p>
-          )}
-        </div>
-      </div>
-    </>
+      <FormField
+        name="service_type"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Tipo de serviço</FormLabel>
+            <Select onValueChange={field.onChange} value={field.value}>
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o tipo de serviço" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                {isLoading ? (
+                  <div className="flex items-center justify-center p-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  </div>
+                ) : (
+                  categories?.map((category) => (
+                    <SelectItem key={category.id} value={category.name}>
+                      {category.name}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
+          </FormItem>
+        )}
+      />
+    </div>
   );
 };

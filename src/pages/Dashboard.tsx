@@ -1,4 +1,3 @@
-
 import { useSession } from "@/contexts/SessionContext";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
@@ -60,6 +59,8 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      <OnboardingCard />
+      
       <div>
         <h2 className="text-3xl font-bold tracking-tight">Olá, {userName}!</h2>
         <p className="text-muted-foreground mt-2">

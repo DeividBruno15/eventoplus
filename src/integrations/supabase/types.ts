@@ -317,6 +317,7 @@ export type Database = {
       user_profiles: {
         Row: {
           address: string | null
+          avatar_url: string | null
           city: string
           created_at: string | null
           document_number: string
@@ -337,6 +338,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          avatar_url?: string | null
           city: string
           created_at?: string | null
           document_number: string
@@ -357,6 +359,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          avatar_url?: string | null
           city?: string
           created_at?: string | null
           document_number?: string
