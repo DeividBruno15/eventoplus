@@ -32,7 +32,7 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
   const location = useLocation();
   const navigate = useNavigate();
   
-  // Atualizar o caminho ativo quando a localização mudar
+  // Update active path when location changes
   useEffect(() => {
     if (location.pathname !== activePath) {
       onNavigate(location.pathname);
@@ -52,12 +52,10 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
   );
 
   const handleMenuItemClick = (path: string) => {
-    console.log('Navegando para:', path);
-    
-    // First navigate to the path
+    // First navigate programmatically to the path
     navigate(path);
     
-    // Then inform the parent component about the change
+    // Then update the active path state in parent
     onNavigate(path);
   };
 
@@ -75,7 +73,7 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
       </div>
       
       <SidebarMenu>
-        {filteredItems.map((item, index) => (
+        {filteredItems.map((item) => (
           <SidebarMenuItem 
             key={item.path}
             className="transition-all duration-200 ease-in-out"

@@ -22,19 +22,19 @@ const DashboardLayout = () => {
   const location = useLocation();
   const [activePath, setActivePath] = useState(location.pathname);
 
-  // Atualizar o caminho ativo quando a localização mudar
+  // Update active path when location changes
   useEffect(() => {
     setActivePath(location.pathname);
-    console.log('Rota atual:', location.pathname);
   }, [location]);
 
-  // Verificar a autenticação
+  // Check authentication
   useEffect(() => {
     if (!sessionLoading && !session) {
       navigate('/login');
     }
   }, [session, sessionLoading, navigate]);
 
+  // Get user initials for avatar
   const getUserInitials = () => {
     if (!user) return "?";
     const firstName = user.user_metadata?.first_name as string | undefined;
@@ -53,7 +53,7 @@ const DashboardLayout = () => {
   const userName = user?.user_metadata?.first_name || 'Usuário';
 
   const handleNavigation = (path: string) => {
-    console.log('Navegando para o caminho (handleNavigation):', path);
+    // Only update the active path state
     setActivePath(path);
   };
 
