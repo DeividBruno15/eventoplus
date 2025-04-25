@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Event, EventApplication, ApplicationStatus, EventStatus } from '@/types/events';
+import { Event, EventApplication } from '@/types/events';
 import { User } from '@supabase/supabase-js';
 
 interface UseEventDetailsProps {
@@ -75,7 +75,7 @@ export const useEventDetails = ({ id, user }: UseEventDetailsProps) => {
         created_at: typedEventData.created_at,
         updated_at: typedEventData.updated_at || null,
         service_type: typedEventData.service_type,
-        status: typedEventData.status as EventStatus,
+        status: typedEventData.status,
         image_url: typedEventData.image_url ? String(typedEventData.image_url) : null,
         event_time: typedEventData.event_time
       };
@@ -97,10 +97,11 @@ export const useEventDetails = ({ id, user }: UseEventDetailsProps) => {
             id: app.id,
             event_id: app.event_id,
             provider_id: app.provider_id,
-            message: app.message,
-            status: app.status as ApplicationStatus,
+            message: app.message || "",
+            status: app.status,
             created_at: app.created_at,
-            updated_at: app.updated_at || null,
+            updated_at: null, // Set default value for updated_at since it might not exist in the fetched data
+            price: app.price,
             provider: app.provider ? {
               first_name: (app.provider as any)?.first_name ?? '',
               last_name: (app.provider as any)?.last_name ?? '',
@@ -136,10 +137,11 @@ export const useEventDetails = ({ id, user }: UseEventDetailsProps) => {
             id: applicationData.id,
             event_id: applicationData.event_id,
             provider_id: applicationData.provider_id,
-            message: applicationData.message,
-            status: applicationData.status as ApplicationStatus,
+            message: applicationData.message || "",
+            status: applicationData.status,
             created_at: applicationData.created_at,
-            updated_at: applicationData.updated_at || null
+            updated_at: null, // Set default value for updated_at since it might not exist in the fetched data
+            price: applicationData.price
           } : null,
           applications: []
         }));
