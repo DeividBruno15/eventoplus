@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, Users, Clock, ArrowRight, Edit, Trash } from "lucide-react";
+import { Calendar, MapPin, Users, Clock, ArrowRight, Edit, Trash, ImageIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Event } from "@/types/events";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -83,21 +83,28 @@ export const EventCard = ({ event }: EventCardProps) => {
   };
 
   // Create an image placeholder for events with no image
-  const eventImageUrl = event.image_url || "https://plus.unsplash.com/premium_photo-1681582960531-73493d0a95a5?q=80&w=1470&auto=format&fit=crop";
+  const eventImageUrl = event.image_url || "";
 
   const handleEditEvent = () => {
-    // Aqui você implementaria a navegação para edição do evento
+    // Navigate to edit event page
     navigate(`/events/${event.id}/edit`);
     setDetailsOpen(false);
   };
 
   const handleDeleteEvent = () => {
-    // Aqui você implementaria a lógica de exclusão do evento
-    toast({
-      title: "Evento excluído",
-      description: `O evento "${event.name}" foi excluído com sucesso.`,
-    });
-    setConfirmDeleteOpen(false);
+    // Implement deletion logic
+    setTimeout(() => {
+      toast({
+        title: "Evento excluído",
+        description: `O evento "${event.name}" foi excluído com sucesso.`,
+      });
+      setConfirmDeleteOpen(false);
+      setDetailsOpen(false);
+    }, 500);
+  };
+
+  const handleViewDetails = () => {
+    navigate(`/events/${event.id}`);
     setDetailsOpen(false);
   };
   
@@ -105,11 +112,17 @@ export const EventCard = ({ event }: EventCardProps) => {
     <>
       <Card className="overflow-hidden transition-all hover:shadow-md flex flex-col h-full bg-white">
         <div className="relative h-36">
-          <img 
-            src={eventImageUrl}
-            alt={event.name}
-            className="object-cover w-full h-full"
-          />
+          {eventImageUrl ? (
+            <img 
+              src={eventImageUrl}
+              alt={event.name}
+              className="object-cover w-full h-full"
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+              <ImageIcon className="h-8 w-8 text-gray-400" />
+            </div>
+          )}
           <Badge 
             className="absolute top-3 right-3"
             variant={getStatusBadgeVariant(event.status)}
@@ -127,9 +140,14 @@ export const EventCard = ({ event }: EventCardProps) => {
               </AvatarFallback>
             </Avatar>
           </div>
-          <p className="text-xs text-muted-foreground line-clamp-2">
-            {event.service_type}
-          </p>
+          
+          {event.service_type && (
+            <div className="flex flex-wrap gap-1 mt-1">
+              <Badge variant="outline" className="text-xs px-2 py-0 h-5">
+                {event.service_type}
+              </Badge>
+            </div>
+          )}
         </CardHeader>
         
         <CardContent className="p-4 pb-2 pt-0">
@@ -176,105 +194,116 @@ export const EventCard = ({ event }: EventCardProps) => {
         </CardFooter>
       </Card>
 
-      {/* Modal de detalhes do evento */}
+      {/* Modal de detalhes do evento - design melhorado */}
       <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
-        <DialogContent className="sm:max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <span>{event.name}</span>
-              <Badge variant={getStatusBadgeVariant(event.status)}>
-                {getStatusLabel(event.status)}
-              </Badge>
-            </DialogTitle>
-          </DialogHeader>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <div className="rounded-md overflow-hidden aspect-video mb-4">
-                <img 
-                  src={eventImageUrl} 
-                  alt={event.name} 
-                  className="object-cover w-full h-full"
-                />
+        <DialogContent className="sm:max-w-2xl p-0 overflow-hidden">
+          <div className="flex flex-col md:flex-row">
+            {/* Lado esquerdo: Imagem e detalhes básicos */}
+            <div className="md:w-2/5">
+              <div className="relative aspect-video w-full">
+                {eventImageUrl ? (
+                  <img 
+                    src={eventImageUrl} 
+                    alt={event.name} 
+                    className="object-cover w-full h-full"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-100 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors">
+                    <ImageIcon className="h-12 w-12 text-gray-400 mb-2" />
+                    <p className="text-sm text-gray-500">Clique para adicionar imagem</p>
+                  </div>
+                )}
+                <Badge 
+                  className="absolute top-4 right-4"
+                  variant={getStatusBadgeVariant(event.status)}
+                >
+                  {getStatusLabel(event.status)}
+                </Badge>
               </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h4 className="text-sm font-medium text-muted-foreground mb-1">Data</h4>
-                  <p className="flex items-center gap-1 text-sm">
-                    <Calendar className="h-4 w-4" /> {formatDate(event.event_date)}
-                  </p>
+
+              <div className="p-4 space-y-4">
+                <div className="space-y-1">
+                  <h2 className="font-semibold text-xl">{event.name}</h2>
+                  <div className="flex flex-wrap gap-1">
+                    {event.service_type.split(',').map((service, index) => (
+                      <Badge key={index} variant="outline" className="text-xs">
+                        {service.trim()}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-sm font-medium text-muted-foreground mb-1">Horário</h4>
-                  <p className="flex items-center gap-1 text-sm">
-                    <Clock className="h-4 w-4" /> {getEventTime()}
-                  </p>
-                </div>
-                <div>
-                  <h4 className="text-sm font-medium text-muted-foreground mb-1">Local</h4>
-                  <p className="flex items-center gap-1 text-sm">
-                    <MapPin className="h-4 w-4" /> {event.location}
-                  </p>
-                </div>
-                <div>
-                  <h4 className="text-sm font-medium text-muted-foreground mb-1">Convidados</h4>
-                  <p className="flex items-center gap-1 text-sm">
-                    <Users className="h-4 w-4" /> 
-                    {event.max_attendees ? `${event.max_attendees} pessoas` : 'Ilimitado'}
-                  </p>
+                
+                <div className="grid grid-cols-2 gap-y-4">
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Data</p>
+                    <p className="flex items-center gap-1 text-sm">
+                      <Calendar className="h-3.5 w-3.5 text-primary" /> {formatDate(event.event_date)}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Horário</p>
+                    <p className="flex items-center gap-1 text-sm">
+                      <Clock className="h-3.5 w-3.5 text-primary" /> {getEventTime()}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Local</p>
+                    <p className="flex items-center gap-1 text-sm">
+                      <MapPin className="h-3.5 w-3.5 text-primary" /> {event.location}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Capacidade</p>
+                    <p className="flex items-center gap-1 text-sm">
+                      <Users className="h-3.5 w-3.5 text-primary" /> 
+                      {event.max_attendees ? `${event.max_attendees} pessoas` : 'Ilimitado'}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
             
-            <div className="space-y-4">
-              <div>
-                <h4 className="text-sm font-medium text-muted-foreground mb-1">Tipo de Serviço</h4>
-                <p className="text-sm">{event.service_type}</p>
-              </div>
-              
-              <div>
-                <h4 className="text-sm font-medium text-muted-foreground mb-1">Descrição</h4>
-                <p className="text-sm whitespace-pre-wrap">{event.description}</p>
-              </div>
-              
-              <div className="pt-4">
-                <h4 className="text-sm font-medium text-muted-foreground mb-2">Ações</h4>
-                <div className="flex flex-wrap gap-2">
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    className="flex items-center gap-1"
-                    onClick={() => navigate(`/events/${event.id}`)}
-                  >
-                    <ArrowRight className="h-4 w-4" /> Ver página completa
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    className="flex items-center gap-1"
-                    onClick={handleEditEvent}
-                  >
-                    <Edit className="h-4 w-4" /> Editar evento
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant="destructive"
-                    className="flex items-center gap-1"
-                    onClick={() => setConfirmDeleteOpen(true)}
-                  >
-                    <Trash className="h-4 w-4" /> Excluir evento
-                  </Button>
+            {/* Lado direito: Descrição e ações */}
+            <div className="md:w-3/5 border-t md:border-t-0 md:border-l">
+              <div className="p-6">
+                <h3 className="font-semibold mb-2">Descrição</h3>
+                <p className="text-sm whitespace-pre-wrap mb-6">{event.description}</p>
+                
+                <div className="space-y-2">
+                  <h3 className="font-semibold mb-2">Ações</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <Button 
+                      variant="outline"
+                      className="flex items-center gap-2 w-full justify-center"
+                      onClick={handleViewDetails}
+                    >
+                      <ArrowRight className="h-4 w-4" /> Ver página completa
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      className="flex items-center gap-2 w-full justify-center"
+                      onClick={handleEditEvent}
+                    >
+                      <Edit className="h-4 w-4" /> Editar evento
+                    </Button>
+                    <Button 
+                      variant="destructive"
+                      className="flex items-center gap-2 w-full justify-center sm:col-span-2"
+                      onClick={() => setConfirmDeleteOpen(true)}
+                    >
+                      <Trash className="h-4 w-4" /> Excluir evento
+                    </Button>
+                  </div>
                 </div>
               </div>
+              
+              <DialogFooter className="p-4 bg-muted/10">
+                <DialogClose asChild>
+                  <Button variant="outline">Fechar</Button>
+                </DialogClose>
+              </DialogFooter>
             </div>
           </div>
-          
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">Fechar</Button>
-            </DialogClose>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
       

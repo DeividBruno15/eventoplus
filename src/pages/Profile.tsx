@@ -4,9 +4,9 @@ import { useSession } from "@/contexts/SessionContext";
 import { useNavigate } from "react-router-dom";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { User, Mail, Phone, MapPin, Edit } from "lucide-react";
+import { User, Mail, Phone, MapPin, Edit, CreditCard, Star } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Dialog, 
   DialogContent, 
@@ -18,6 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
+import { Badge } from "@/components/ui/badge";
 
 const Profile = () => {
   const { session } = useSession();
@@ -41,15 +42,29 @@ const Profile = () => {
     bio: ""
   });
 
-  // Load user data
-  const userData = {
+  // User data state
+  const [userData, setUserData] = useState({
     firstName: session?.user?.user_metadata?.first_name || 'Nome',
     lastName: session?.user?.user_metadata?.last_name || 'do Usuário',
     email: session?.user?.email || 'usuario@exemplo.com',
     phone: '(11) 98765-4321',
     address: 'Rua Exemplo, 123 - São Paulo, SP',
     bio: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-  };
+    accountType: 'Profissional',
+    plan: 'Premium'
+  });
+
+  useEffect(() => {
+    // Initialize form data with user data
+    setFormData({
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      email: userData.email,
+      phone: userData.phone,
+      address: userData.address,
+      bio: userData.bio
+    });
+  }, [userData]);
 
   if (!session) {
     navigate('/login');
@@ -76,13 +91,37 @@ const Profile = () => {
     setEditBioOpen(true);
   };
 
+  const handleInputFocus = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    // Clear example values when input is focused
+    const name = e.target.name;
+    const value = e.target.value;
+    
+    // Check if the current value is an example value
+    if (
+      (name === 'phone' && value === '(11) 98765-4321') ||
+      (name === 'address' && value === 'Rua Exemplo, 123 - São Paulo, SP') ||
+      (name === 'bio' && value === 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.')
+    ) {
+      setFormData(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSavePersonalInfo = () => {
-    // Aqui você implementaria a lógica para salvar no banco de dados
+    // Save data to user state
+    setUserData(prev => ({
+      ...prev,
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      phone: formData.phone,
+      address: formData.address
+    }));
+    
     toast({
       title: "Informações atualizadas",
       description: "Seus dados pessoais foram atualizados com sucesso."
@@ -91,7 +130,12 @@ const Profile = () => {
   };
 
   const handleSaveBio = () => {
-    // Aqui você implementaria a lógica para salvar no banco de dados
+    // Save bio to user state
+    setUserData(prev => ({
+      ...prev,
+      bio: formData.bio
+    }));
+    
     toast({
       title: "Biografia atualizada",
       description: "Sua biografia foi atualizada com sucesso."
@@ -121,6 +165,10 @@ const Profile = () => {
     if (settingType === 'email') setEmailNotificationsOpen(false);
     else if (settingType === 'visibilidade') setProfileVisibilityOpen(false);
     else if (settingType === 'SMS') setSmsNotificationsOpen(false);
+  };
+
+  const handleUpgradePlan = () => {
+    navigate('/plans');
   };
 
   return (
@@ -156,8 +204,20 @@ const Profile = () => {
                 </div>
               </Avatar>
               <div>
-                <h3 className="text-xl font-medium">{userData.firstName} {userData.lastName}</h3>
-                <p className="text-sm text-muted-foreground">Membro desde Abril 2025</p>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-xl font-medium">{userData.firstName} {userData.lastName}</h3>
+                  <Badge className="ml-2">{userData.accountType}</Badge>
+                </div>
+                <div className="flex items-center mt-1">
+                  <Badge variant="outline" className="flex items-center gap-1">
+                    <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                    Plano {userData.plan}
+                  </Badge>
+                  <Button variant="link" size="sm" className="p-0 h-auto ml-2" onClick={handleUpgradePlan}>
+                    Alterar plano
+                  </Button>
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">Membro desde Abril 2025</p>
               </div>
             </div>
             
@@ -185,6 +245,14 @@ const Profile = () => {
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Endereço</p>
                   <p>{userData.address}</p>
+                </div>
+              </div>
+
+              <div className="flex gap-3 items-center">
+                <CreditCard className="h-5 w-5 text-muted-foreground" />
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Plano de Assinatura</p>
+                  <p>{userData.plan}</p>
                 </div>
               </div>
             </div>
@@ -259,7 +327,8 @@ const Profile = () => {
                   id="firstName" 
                   name="firstName" 
                   value={formData.firstName} 
-                  onChange={handleInputChange} 
+                  onChange={handleInputChange}
+                  onFocus={handleInputFocus}
                 />
               </div>
               <div>
@@ -268,7 +337,8 @@ const Profile = () => {
                   id="lastName" 
                   name="lastName" 
                   value={formData.lastName} 
-                  onChange={handleInputChange} 
+                  onChange={handleInputChange}
+                  onFocus={handleInputFocus}
                 />
               </div>
             </div>
@@ -279,6 +349,7 @@ const Profile = () => {
                 name="email" 
                 value={formData.email}
                 onChange={handleInputChange}
+                onFocus={handleInputFocus}
               />
             </div>
             <div>
@@ -288,6 +359,7 @@ const Profile = () => {
                 name="phone" 
                 value={formData.phone} 
                 onChange={handleInputChange}
+                onFocus={handleInputFocus}
               />
             </div>
             <div>
@@ -297,6 +369,7 @@ const Profile = () => {
                 name="address" 
                 value={formData.address} 
                 onChange={handleInputChange}
+                onFocus={handleInputFocus}
               />
             </div>
           </div>
@@ -325,7 +398,8 @@ const Profile = () => {
               name="bio" 
               rows={6} 
               value={formData.bio} 
-              onChange={handleInputChange} 
+              onChange={handleInputChange}
+              onFocus={handleInputFocus}
             />
           </div>
           <DialogFooter>

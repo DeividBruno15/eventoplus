@@ -29,3 +29,16 @@ export const fetchAddressByCep = async (cep: string) => {
     return null;
   }
 };
+
+// Format CEP with hyphen
+export const formatCep = (cep: string): string => {
+  // Remove non-digit characters
+  const digits = cep.replace(/\D/g, '');
+  
+  // Apply mask when there are at least 6 digits
+  if (digits.length >= 6) {
+    return `${digits.slice(0, 5)}-${digits.slice(5, 8)}`;
+  }
+  
+  return digits;
+};
