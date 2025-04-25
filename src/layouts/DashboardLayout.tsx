@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { 
@@ -22,14 +21,11 @@ const DashboardLayout = () => {
   const location = useLocation();
   const [activePath, setActivePath] = useState(location.pathname);
 
-  // Update active path when location changes
   useEffect(() => {
     setActivePath(location.pathname);
-    // Debug: Log the current path to see if it changes correctly
     console.log('Current path:', location.pathname);
   }, [location.pathname]);
 
-  // Check authentication - redirect ONLY if session loading is complete AND there's no session
   useEffect(() => {
     console.log('Session check in DashboardLayout:', { sessionLoading, hasSession: !!session });
     
@@ -39,7 +35,6 @@ const DashboardLayout = () => {
     }
   }, [session, sessionLoading, navigate]);
 
-  // Get user initials for avatar
   const getUserInitials = () => {
     if (!user) return "?";
     const firstName = user.user_metadata?.first_name as string | undefined;
@@ -58,9 +53,7 @@ const DashboardLayout = () => {
   const userName = user?.user_metadata?.first_name || 'Usuário';
 
   const handleNavigation = (path: string) => {
-    // Just for logging purposes
     console.log('Navigation triggered to:', path);
-    // The actual navigation is handled by the Link component
   };
 
   if (sessionLoading) {
@@ -71,9 +64,6 @@ const DashboardLayout = () => {
     );
   }
 
-  // If we're not loading and have a session, render the layout
-  // No need for additional checks here since the useEffect above handles redirection
-  
   const getPageTitle = () => {
     const route = location.pathname;
     
@@ -112,11 +102,7 @@ const DashboardLayout = () => {
             
             <div className="flex items-center gap-4">
               <NotificationsMenu />
-              <UserMenu 
-                userName={userName}
-                userInitials={getUserInitials()}
-                onNavigate={handleNavigation}
-              />
+              <UserMenu />
             </div>
           </header>
 
