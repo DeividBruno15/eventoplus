@@ -1,22 +1,22 @@
 
-import { CheckCircle } from 'lucide-react';
+import { Search, MessageSquare, Star } from 'lucide-react';
 
 const FeatureSection = () => {
   const features = [
     {
       title: 'Encontre profissionais qualificados',
       description: 'Conectamos você a prestadores verificados e bem avaliados para garantir o sucesso do seu evento.',
-      icon: <CheckCircle className="w-12 h-12 text-primary mb-4" />
+      icon: <Search className="w-12 h-12 text-primary mb-4" />
     },
     {
       title: 'Solicite orçamentos personalizados',
       description: 'Descreva suas necessidades e receba propostas detalhadas dos melhores prestadores.',
-      icon: <CheckCircle className="w-12 h-12 text-primary mb-4" />
+      icon: <MessageSquare className="w-12 h-12 text-primary mb-4" />
     },
     {
       title: 'Compare e escolha a melhor opção',
       description: 'Analise perfis, avaliações e preços para tomar a decisão mais adequada ao seu evento.',
-      icon: <CheckCircle className="w-12 h-12 text-primary mb-4" />
+      icon: <Star className="w-12 h-12 text-primary mb-4" />
     }
   ];
 

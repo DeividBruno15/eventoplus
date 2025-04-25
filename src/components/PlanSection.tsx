@@ -1,4 +1,3 @@
-
 import { 
   Tabs, 
   TabsContent, 
@@ -19,7 +18,7 @@ const PlanSection = () => {
           </p>
         </div>
 
-        <Tabs defaultValue="providers" className="space-y-8">
+        <Tabs defaultValue="providers" className="space-y-12">
           <TabsList className="grid w-full grid-cols-2 max-w-[400px] mx-auto">
             <TabsTrigger value="providers">Para Prestadores</TabsTrigger>
             <TabsTrigger value="contractors">Para Contratantes</TabsTrigger>

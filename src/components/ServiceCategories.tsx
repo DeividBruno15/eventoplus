@@ -1,4 +1,3 @@
-
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
@@ -86,26 +85,15 @@ const ServiceCategories = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.05 }}
-              whileHover={{ 
-                y: -5,
-                boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
-              }}
+              className="h-full relative overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:border-primary/20"
             >
-              <Link 
-                to={`/service-providers?category=${category.name.toLowerCase()}`}
-                className="block h-full"
-              >
-                <div className="h-full relative overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:border-primary/20">
-                  <div className="p-6">
-                    <div className={`inline-flex p-3 rounded-lg bg-gradient-to-br ${category.color} mb-4`}>
-                      <category.icon className="w-6 h-6 text-primary" />
-                    </div>
-                    <h3 className="text-lg font-semibold mb-2">{category.name}</h3>
-                    <p className="text-gray-600 text-sm">{category.description}</p>
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-primary to-accent transform scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100"></div>
+              <div className="p-6">
+                <div className={`inline-flex p-3 rounded-lg bg-gradient-to-br ${category.color} mb-4`}>
+                  <category.icon className="w-6 h-6 text-primary" />
                 </div>
-              </Link>
+                <h3 className="text-lg font-semibold mb-2">{category.name}</h3>
+                <p className="text-gray-600 text-sm">{category.description}</p>
+              </div>
             </motion.div>
           ))}
         </div>

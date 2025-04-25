@@ -7,6 +7,7 @@ import { LoginDivider } from './LoginDivider';
 import { GoogleLoginButton } from './GoogleLoginButton';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { useToast } from '@/components/ui/use-toast';
 
 interface LoginFormProps {
   loading: boolean;
@@ -17,10 +18,23 @@ interface LoginFormProps {
 export const LoginForm = ({ loading, onSubmit, onGoogleLogin }: LoginFormProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(email, password);
+    setError(null);
+    
+    try {
+      await onSubmit(email, password);
+    } catch (error) {
+      setError('Email ou senha incorretos');
+      toast({
+        variant: "destructive",
+        title: "Erro ao fazer login",
+        description: "Email ou senha incorretos"
+      });
+    }
   };
 
   return (

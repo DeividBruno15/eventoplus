@@ -1,11 +1,10 @@
-
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, QuestionCircle } from "lucide-react";
 
 const FAQ = () => {
   const faqs = [
@@ -35,10 +34,10 @@ const FAQ = () => {
     <section className="py-20 bg-white">
       <div className="container mx-auto">
         <div className="text-center mb-12">
-          <div className="flex justify-center mb-4">
-            <CalendarDays className="h-12 w-12 text-primary" />
-          </div>
-          <h2 className="text-3xl font-bold mb-4">Perguntas Frequentes</h2>
+          <h2 className="text-3xl font-bold mb-4 flex items-center justify-center gap-3">
+            <QuestionCircle className="h-8 w-8 text-primary" />
+            Perguntas Frequentes
+          </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Confira as respostas para as dúvidas mais comuns sobre a plataforma Evento+
           </p>

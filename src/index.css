@@ -102,6 +102,11 @@
 
 .container {
   @apply px-4 md:px-6 max-w-7xl mx-auto;
+  
+  @screen lg {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
 }
 
 .btn-primary {

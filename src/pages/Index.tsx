@@ -4,7 +4,6 @@ import Footer from '../components/Footer';
 import Hero from '../components/Hero';
 import FeatureSection from '../components/FeatureSection';
 import ServiceCategories from '../components/ServiceCategories';
-import TestimonialSection from '../components/TestimonialSection';
 import CallToAction from '../components/CallToAction';
 import PlanSection from '../components/PlanSection';
 import FAQ from '../components/FAQ';
@@ -24,7 +23,6 @@ const Index = () => {
           <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-white to-green-50 opacity-50 z-[-1]"></div>
           <PlanSection />
         </div>
-        <TestimonialSection />
         <FAQ />
         <CallToAction />
       </main>
