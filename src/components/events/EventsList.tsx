@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Event, EventStatus } from "@/types/events";
@@ -28,36 +27,20 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
         if (error) throw error;
         
         const processedEvents: Event[] = (data || []).map(event => {
-          // Extract all fields from the database object
-          const {
-            id,
-            name,
-            description,
-            event_date,
-            location,
-            max_attendees,
-            contractor_id,
-            created_at,
-            service_type,
-            status,
-            image_url,
-            updated_at
-          } = event;
-          
-          // Create a new properly typed Event object
+          // Certifique-se de que todos os campos estejam presentes no objeto de retorno
           return {
-            id,
-            name, 
-            description,
-            event_date,
-            location,
-            max_attendees,
-            contractor_id,
-            created_at,
-            service_type,
-            status: status as EventStatus,
-            updated_at: updated_at || null,
-            image_url
+            id: event.id,
+            name: event.name, 
+            description: event.description,
+            event_date: event.event_date,
+            location: event.location,
+            max_attendees: event.max_attendees,
+            contractor_id: event.contractor_id,
+            created_at: event.created_at,
+            updated_at: event.updated_at || null,
+            service_type: event.service_type,
+            status: event.status as EventStatus,
+            image_url: event.image_url || undefined
           };
         });
         

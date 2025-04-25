@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -75,6 +76,7 @@ export const useEventDetails = ({ id, user }: UseEventDetailsProps) => {
         return undefined;
       };
       
+      // Crie explicitamente um objeto Event com todos os campos necessários
       const processedEvent: Event = {
         id: eventData.id,
         name: eventData.name,

@@ -75,10 +75,10 @@ const EventDetail = () => {
         .from('events')
         .getPublicUrl(filePath);
       
-      // Update event
+      // Update event with correct typagem
       const { error: updateError } = await supabase
         .from('events')
-        .update({ 
+        .update({
           image_url: publicUrl,
           updated_at: new Date().toISOString()
         })
@@ -117,7 +117,7 @@ const EventDetail = () => {
         ) : !event ? (
           <Card className="text-center py-16">
             <CardContent>
-              <h3 className="text-xl font-medium mb-2">Evento não encontrado</h3>
+              <h3 className="text-xl font-medium mb-2">Evento n��o encontrado</h3>
               <p className="text-muted-foreground mb-6">
                 Este evento pode ter sido removido ou você não tem permissão para acessá-lo.
               </p>
