@@ -79,42 +79,44 @@ const DashboardLayout = () => {
   };
 
   return (
-    <div className="min-h-screen flex w-full">
-      <Sidebar className="border-r border-gray-200">
-        <SidebarHeader className="px-6 py-8">
-          <div className="font-bold text-2xl text-primary">
-            Evento<span className="text-secondary">+</span>
-          </div>
-        </SidebarHeader>
-        <SidebarContent className="px-4">
-          <SidebarNavigation 
-            activePath={activePath} 
-            onNavigate={handleNavigation} 
-          />
-        </SidebarContent>
-      </Sidebar>
-
-      <SidebarInset className="flex flex-col flex-1">
-        <header className="sticky top-0 z-10 w-full bg-white border-b px-8 py-4 flex justify-between items-center">
-          <h1 className="text-xl font-semibold text-gray-900">
-            {getPageTitle()}
-          </h1>
-          
-          <div className="flex items-center gap-4">
-            <NotificationsMenu />
-            <UserMenu 
-              userName={userName}
-              userInitials={getUserInitials()}
-              onNavigate={handleNavigation}
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full">
+        <Sidebar className="border-r border-gray-200">
+          <SidebarHeader className="px-6 py-8">
+            <div className="font-bold text-2xl text-primary">
+              Evento<span className="text-secondary">+</span>
+            </div>
+          </SidebarHeader>
+          <SidebarContent className="px-4">
+            <SidebarNavigation 
+              activePath={activePath} 
+              onNavigate={handleNavigation} 
             />
-          </div>
-        </header>
+          </SidebarContent>
+        </Sidebar>
 
-        <main className="flex-1 p-8 bg-gray-50">
-          <Outlet />
-        </main>
-      </SidebarInset>
-    </div>
+        <SidebarInset className="flex flex-col flex-1">
+          <header className="sticky top-0 z-10 w-full bg-white border-b px-8 py-4 flex justify-between items-center">
+            <h1 className="text-xl font-semibold text-gray-900">
+              {getPageTitle()}
+            </h1>
+            
+            <div className="flex items-center gap-4">
+              <NotificationsMenu />
+              <UserMenu 
+                userName={userName}
+                userInitials={getUserInitials()}
+                onNavigate={handleNavigation}
+              />
+            </div>
+          </header>
+
+          <main className="flex-1 p-8 bg-gray-50">
+            <Outlet />
+          </main>
+        </SidebarInset>
+      </div>
+    </SidebarProvider>
   );
 };
 
