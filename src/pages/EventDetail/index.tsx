@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Image as ImageIcon } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { EventInfo } from './components/EventInfo';
@@ -11,11 +11,16 @@ import { ApplicationForm } from './components/ApplicationForm';
 import { ApplicationsList } from './components/ApplicationsList';
 import { useEventDetails } from './hooks/useEventDetails';
 import { useEventApplications } from './hooks/useEventApplications';
+import { useState } from 'react';
+import { useToast } from '@/components/ui/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const EventDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { toast } = useToast();
+  const [uploadingImage, setUploadingImage] = useState(false);
   
   const { 
     event, 
@@ -23,7 +28,8 @@ const EventDetail = () => {
     userRole, 
     loading, 
     userHasApplied, 
-    userApplication 
+    userApplication,
+    refetchEvent 
   } = useEventDetails({ id, user });
   
   const { 
@@ -31,6 +37,72 @@ const EventDetail = () => {
     handleApply, 
     handleApproveApplication 
   } = useEventApplications(event);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event || !user || event.contractor_id !== user.id) {
+      toast({
+        title: "Erro",
+        description: "Apenas o criador do evento pode fazer upload de imagem",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!e.target.files || e.target.files.length === 0) return;
+    
+    const file = e.target.files[0];
+    const fileExt = file.name.split('.').pop();
+    const filePath = `events/${event.id}/${Math.random().toString(36).slice(2)}.${fileExt}`;
+    
+    try {
+      setUploadingImage(true);
+      
+      // Create events bucket if it doesn't exist
+      await supabase.storage
+        .createBucket('events', { public: true })
+        .catch(() => {
+          // Bucket might already exist, continue
+        });
+      
+      // Upload image
+      const { error: uploadError } = await supabase.storage
+        .from('events')
+        .upload(filePath, file);
+        
+      if (uploadError) throw uploadError;
+      
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('events')
+        .getPublicUrl(filePath);
+      
+      // Update event
+      const { error: updateError } = await supabase
+        .from('events')
+        .update({ image_url: publicUrl })
+        .eq('id', event.id);
+        
+      if (updateError) throw updateError;
+      
+      toast({
+        title: "Sucesso",
+        description: "Imagem do evento atualizada com sucesso",
+      });
+      
+      // Refetch event to get updated data
+      refetchEvent();
+      
+    } catch (error: any) {
+      toast({
+        title: "Erro ao fazer upload",
+        description: error.message,
+        variant: "destructive"
+      });
+      console.error(error);
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-page">
@@ -54,7 +126,30 @@ const EventDetail = () => {
           </Card>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <EventInfo event={event} />
+            <div className="lg:col-span-2">
+              <EventInfo event={event} />
+              
+              {userRole === 'contractor' && event.contractor_id === user?.id && (
+                <div className="mt-4">
+                  <label htmlFor="event-image-upload" className="cursor-pointer">
+                    <div className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors">
+                      <Button variant="outline" disabled={uploadingImage} className="cursor-pointer">
+                        <ImageIcon className="mr-2 h-4 w-4" />
+                        {uploadingImage ? 'Enviando...' : 'Alterar imagem do evento'}
+                      </Button>
+                    </div>
+                    <input 
+                      id="event-image-upload" 
+                      type="file" 
+                      className="sr-only" 
+                      accept="image/*" 
+                      disabled={uploadingImage}
+                      onChange={handleImageUpload}
+                    />
+                  </label>
+                </div>
+              )}
+            </div>
             
             <div className="lg:col-span-1">
               {userRole === 'provider' && 

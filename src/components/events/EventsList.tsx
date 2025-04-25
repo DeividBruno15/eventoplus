@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Event, EventStatus } from "@/types/events";
@@ -38,7 +39,8 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
             contractor_id,
             created_at,
             service_type,
-            status
+            status,
+            image_url
           } = event;
           
           // Create a new properly typed Event object
@@ -53,7 +55,8 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
             created_at,
             service_type,
             status: status as EventStatus,
-            updated_at: null // Since it's missing from the database, provide null as default
+            updated_at: null, // Since it's missing from the database, provide null as default
+            image_url
           };
         });
         
@@ -98,7 +101,7 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {filteredEvents.map((event) => (
         <EventCard key={event.id} event={event} />
       ))}
