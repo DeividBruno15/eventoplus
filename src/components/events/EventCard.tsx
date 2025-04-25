@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface EventCardProps {
   event: Event;
@@ -27,6 +28,7 @@ export const EventCard = ({ event }: EventCardProps) => {
   const { toast } = useToast();
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Format date for display
   const formatDate = (dateString: string) => {
@@ -91,16 +93,38 @@ export const EventCard = ({ event }: EventCardProps) => {
     setDetailsOpen(false);
   };
 
-  const handleDeleteEvent = () => {
+  const handleDeleteEvent = async () => {
     // Implement deletion logic
-    setTimeout(() => {
+    setIsDeleting(true);
+    
+    try {
+      // Realizar a exclusão usando o Supabase
+      const { error } = await supabase
+        .from('events')
+        .delete()
+        .eq('id', event.id);
+        
+      if (error) throw error;
+      
       toast({
         title: "Evento excluído",
         description: `O evento "${event.name}" foi excluído com sucesso.`,
       });
+      
       setConfirmDeleteOpen(false);
       setDetailsOpen(false);
-    }, 500);
+      
+      // Recarregar a página para atualizar a lista de eventos
+      window.location.reload();
+    } catch (error: any) {
+      toast({
+        title: "Erro ao excluir evento",
+        description: error.message || "Ocorreu um erro ao tentar excluir o evento.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const handleViewDetails = () => {
@@ -194,115 +218,115 @@ export const EventCard = ({ event }: EventCardProps) => {
         </CardFooter>
       </Card>
 
-      {/* Modal de detalhes do evento - design melhorado */}
+      {/* Modal de detalhes do evento - design reajustado */}
       <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
         <DialogContent className="sm:max-w-2xl p-0 overflow-hidden">
-          <div className="flex flex-col md:flex-row">
-            {/* Lado esquerdo: Imagem e detalhes básicos */}
-            <div className="md:w-2/5">
-              <div className="relative aspect-video w-full">
-                {eventImageUrl ? (
-                  <img 
-                    src={eventImageUrl} 
-                    alt={event.name} 
-                    className="object-cover w-full h-full"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gray-100 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors">
-                    <ImageIcon className="h-12 w-12 text-gray-400 mb-2" />
-                    <p className="text-sm text-gray-500">Clique para adicionar imagem</p>
-                  </div>
-                )}
-                <Badge 
-                  className="absolute top-4 right-4"
-                  variant={getStatusBadgeVariant(event.status)}
-                >
-                  {getStatusLabel(event.status)}
-                </Badge>
-              </div>
-
-              <div className="p-4 space-y-4">
-                <div className="space-y-1">
-                  <h2 className="font-semibold text-xl">{event.name}</h2>
-                  <div className="flex flex-wrap gap-1">
-                    {event.service_type.split(',').map((service, index) => (
-                      <Badge key={index} variant="outline" className="text-xs">
-                        {service.trim()}
-                      </Badge>
-                    ))}
-                  </div>
+          <div className="flex flex-col">
+            {/* Cabeçalho e imagem */}
+            <div className="relative aspect-video w-full max-h-44">
+              {eventImageUrl ? (
+                <img 
+                  src={eventImageUrl} 
+                  alt={event.name} 
+                  className="object-cover w-full h-full"
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-100 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors">
+                  <ImageIcon className="h-12 w-12 text-gray-400 mb-2" />
+                  <p className="text-sm text-gray-500">Imagem não disponível</p>
                 </div>
-                
-                <div className="grid grid-cols-2 gap-y-4">
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Data</p>
-                    <p className="flex items-center gap-1 text-sm">
-                      <Calendar className="h-3.5 w-3.5 text-primary" /> {formatDate(event.event_date)}
-                    </p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Horário</p>
-                    <p className="flex items-center gap-1 text-sm">
-                      <Clock className="h-3.5 w-3.5 text-primary" /> {getEventTime()}
-                    </p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Local</p>
-                    <p className="flex items-center gap-1 text-sm">
-                      <MapPin className="h-3.5 w-3.5 text-primary" /> {event.location}
-                    </p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Capacidade</p>
-                    <p className="flex items-center gap-1 text-sm">
-                      <Users className="h-3.5 w-3.5 text-primary" /> 
-                      {event.max_attendees ? `${event.max_attendees} pessoas` : 'Ilimitado'}
-                    </p>
-                  </div>
+              )}
+              <Badge 
+                className="absolute top-4 right-4"
+                variant={getStatusBadgeVariant(event.status)}
+              >
+                {getStatusLabel(event.status)}
+              </Badge>
+            </div>
+
+            {/* Conteúdo principal */}
+            <div className="p-6 space-y-5">
+              {/* Título e categorias */}
+              <div className="space-y-2">
+                <h2 className="font-semibold text-xl">{event.name}</h2>
+                <div className="flex flex-wrap gap-1">
+                  {event.service_type.split(',').map((service, index) => (
+                    <Badge key={index} variant="outline" className="text-xs">
+                      {service.trim()}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Informações do evento */}
+              <div className="grid grid-cols-2 gap-y-4 border-b pb-5">
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">Data</p>
+                  <p className="flex items-center gap-1 text-sm">
+                    <Calendar className="h-3.5 w-3.5 text-primary" /> {formatDate(event.event_date)}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">Horário</p>
+                  <p className="flex items-center gap-1 text-sm">
+                    <Clock className="h-3.5 w-3.5 text-primary" /> {getEventTime()}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">Local</p>
+                  <p className="flex items-center gap-1 text-sm">
+                    <MapPin className="h-3.5 w-3.5 text-primary" /> {event.location}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">Capacidade</p>
+                  <p className="flex items-center gap-1 text-sm">
+                    <Users className="h-3.5 w-3.5 text-primary" /> 
+                    {event.max_attendees ? `${event.max_attendees} pessoas` : 'Ilimitado'}
+                  </p>
+                </div>
+              </div>
+              
+              {/* Descrição */}
+              <div className="space-y-2">
+                <h3 className="font-semibold">Descrição</h3>
+                <p className="text-sm whitespace-pre-wrap">{event.description}</p>
+              </div>
+              
+              {/* Ações */}
+              <div className="space-y-2 pt-2">
+                <h3 className="font-semibold">Ações</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <Button 
+                    variant="outline"
+                    className="flex items-center gap-2 w-full justify-center"
+                    onClick={handleViewDetails}
+                  >
+                    <ArrowRight className="h-4 w-4" /> Ver página completa
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    className="flex items-center gap-2 w-full justify-center"
+                    onClick={handleEditEvent}
+                  >
+                    <Edit className="h-4 w-4" /> Editar evento
+                  </Button>
+                  <Button 
+                    variant="destructive"
+                    className="flex items-center gap-2 w-full justify-center sm:col-span-2"
+                    onClick={() => setConfirmDeleteOpen(true)}
+                  >
+                    <Trash className="h-4 w-4" /> Excluir evento
+                  </Button>
                 </div>
               </div>
             </div>
             
-            {/* Lado direito: Descrição e ações */}
-            <div className="md:w-3/5 border-t md:border-t-0 md:border-l">
-              <div className="p-6">
-                <h3 className="font-semibold mb-2">Descrição</h3>
-                <p className="text-sm whitespace-pre-wrap mb-6">{event.description}</p>
-                
-                <div className="space-y-2">
-                  <h3 className="font-semibold mb-2">Ações</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <Button 
-                      variant="outline"
-                      className="flex items-center gap-2 w-full justify-center"
-                      onClick={handleViewDetails}
-                    >
-                      <ArrowRight className="h-4 w-4" /> Ver página completa
-                    </Button>
-                    <Button 
-                      variant="outline"
-                      className="flex items-center gap-2 w-full justify-center"
-                      onClick={handleEditEvent}
-                    >
-                      <Edit className="h-4 w-4" /> Editar evento
-                    </Button>
-                    <Button 
-                      variant="destructive"
-                      className="flex items-center gap-2 w-full justify-center sm:col-span-2"
-                      onClick={() => setConfirmDeleteOpen(true)}
-                    >
-                      <Trash className="h-4 w-4" /> Excluir evento
-                    </Button>
-                  </div>
-                </div>
-              </div>
-              
-              <DialogFooter className="p-4 bg-muted/10">
-                <DialogClose asChild>
-                  <Button variant="outline">Fechar</Button>
-                </DialogClose>
-              </DialogFooter>
-            </div>
+            <DialogFooter className="p-4 bg-muted/10">
+              <DialogClose asChild>
+                <Button variant="outline">Fechar</Button>
+              </DialogClose>
+            </DialogFooter>
           </div>
         </DialogContent>
       </Dialog>
@@ -317,11 +341,19 @@ export const EventCard = ({ event }: EventCardProps) => {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:justify-end">
-            <Button variant="outline" onClick={() => setConfirmDeleteOpen(false)}>
+            <Button 
+              variant="outline" 
+              onClick={() => setConfirmDeleteOpen(false)} 
+              disabled={isDeleting}
+            >
               Cancelar
             </Button>
-            <Button variant="destructive" onClick={handleDeleteEvent}>
-              Excluir evento
+            <Button 
+              variant="destructive" 
+              onClick={handleDeleteEvent}
+              disabled={isDeleting}
+            >
+              {isDeleting ? 'Excluindo...' : 'Excluir evento'}
             </Button>
           </DialogFooter>
         </DialogContent>

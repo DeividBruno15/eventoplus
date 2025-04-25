@@ -255,7 +255,7 @@ const EventDetail = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel disabled={deletingEvent}>Cancelar</AlertDialogCancel>
             <AlertDialogAction 
               onClick={handleDeleteEvent}
               disabled={deletingEvent}

@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Tabs, 
   TabsContent, 
@@ -14,13 +13,34 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Check } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { useSession } from '@/contexts/SessionContext';
 
 const Plans = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { session } = useSession();
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [processingPayment, setProcessingPayment] = useState(false);
+  const [userRole, setUserRole] = useState<'provider' | 'contractor' | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      const role = user.user_metadata?.role as 'provider' | 'contractor' || null;
+      setUserRole(role);
+      
+      if (role) {
+        const defaultTab = role === 'provider' ? 'providers' : 'contractors';
+        const tabsElement = document.querySelector('[role="tablist"]') as HTMLElement;
+        if (tabsElement) {
+          const tabButton = tabsElement.querySelector(`[data-value="${defaultTab}"]`) as HTMLElement;
+          if (tabButton) {
+            tabButton.click();
+          }
+        }
+      }
+    }
+  }, [user]);
 
   const handleSelectPlan = (planId: string) => {
     setSelectedPlan(planId);
@@ -38,10 +58,8 @@ const Plans = () => {
 
     setProcessingPayment(true);
     
-    // Simulando chamada para um serviço de pagamento
     try {
-      // Aqui seria integrado com API de pagamentos como o Stripe
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simular carregamento
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
       toast({
         title: "Plano atualizado",
@@ -73,87 +91,182 @@ const Plans = () => {
         </div>
 
         {!selectedPlan ? (
-          <Tabs defaultValue="providers" className="space-y-8">
-            <TabsList className="grid w-full grid-cols-2 max-w-[400px] mx-auto">
-              <TabsTrigger value="providers">Para Prestadores</TabsTrigger>
-              <TabsTrigger value="contractors">Para Contratantes</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="providers" className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {providerPlans.map((plan) => (
-                  <Card key={plan.id} className={`${plan.featured ? 'border-primary shadow-lg' : ''} flex flex-col`}>
-                    <CardHeader>
-                      <CardTitle>
-                        {plan.name}
-                        {plan.featured && <span className="ml-2 text-xs bg-primary text-white px-2 py-1 rounded">RECOMENDADO</span>}
-                      </CardTitle>
-                      <div className="mt-2">
-                        <span className="text-3xl font-bold">R$ {plan.price}</span>
-                        <span className="text-muted-foreground">/mês</span>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="flex-grow">
-                      <ul className="space-y-2">
-                        {plan.features.map((feature, i) => (
-                          <li key={i} className="flex items-start">
-                            <Check className="h-5 w-5 text-primary shrink-0 mr-2" />
-                            <span>{feature}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                    <CardFooter>
-                      <Button 
-                        className="w-full" 
-                        variant={plan.featured ? "default" : "outline"}
-                        onClick={() => handleSelectPlan(plan.id)}
-                      >
-                        Selecionar Plano
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="contractors" className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {contractorPlans.map((plan) => (
-                  <Card key={plan.id} className={`${plan.featured ? 'border-primary shadow-lg' : ''} flex flex-col`}>
-                    <CardHeader>
-                      <CardTitle>
-                        {plan.name}
-                        {plan.featured && <span className="ml-2 text-xs bg-primary text-white px-2 py-1 rounded">RECOMENDADO</span>}
-                      </CardTitle>
-                      <div className="mt-2">
-                        <span className="text-3xl font-bold">R$ {plan.price}</span>
-                        <span className="text-muted-foreground">/mês</span>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="flex-grow">
-                      <ul className="space-y-2">
-                        {plan.features.map((feature, i) => (
-                          <li key={i} className="flex items-start">
-                            <Check className="h-5 w-5 text-primary shrink-0 mr-2" />
-                            <span>{feature}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                    <CardFooter>
-                      <Button 
-                        className="w-full" 
-                        variant={plan.featured ? "default" : "outline"}
-                        onClick={() => handleSelectPlan(plan.id)}
-                      >
-                        Selecionar Plano
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
-            </TabsContent>
+          <Tabs 
+            defaultValue={userRole === 'provider' ? 'providers' : 'contractors'} 
+            className="space-y-8"
+          >
+            {userRole === 'provider' ? (
+              <>
+                <TabsList className="grid w-full grid-cols-1 max-w-[400px] mx-auto">
+                  <TabsTrigger value="providers">Para Prestadores</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="providers" className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {providerPlans.map((plan) => (
+                      <Card key={plan.id} className={`${plan.featured ? 'border-primary shadow-lg' : ''} flex flex-col`}>
+                        <CardHeader>
+                          <CardTitle>
+                            {plan.name}
+                            {plan.featured && <span className="ml-2 text-xs bg-primary text-white px-2 py-1 rounded">RECOMENDADO</span>}
+                          </CardTitle>
+                          <div className="mt-2">
+                            <span className="text-3xl font-bold">R$ {plan.price}</span>
+                            <span className="text-muted-foreground">/mês</span>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="flex-grow">
+                          <ul className="space-y-2">
+                            {plan.features.map((feature, i) => (
+                              <li key={i} className="flex items-start">
+                                <Check className="h-5 w-5 text-primary shrink-0 mr-2" />
+                                <span>{feature}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </CardContent>
+                        <CardFooter>
+                          <Button 
+                            className="w-full" 
+                            variant={plan.featured ? "default" : "outline"}
+                            onClick={() => handleSelectPlan(plan.id)}
+                          >
+                            Selecionar Plano
+                          </Button>
+                        </CardFooter>
+                      </Card>
+                    ))}
+                  </div>
+                </TabsContent>
+              </>
+            ) : userRole === 'contractor' ? (
+              <>
+                <TabsList className="grid w-full grid-cols-1 max-w-[400px] mx-auto">
+                  <TabsTrigger value="contractors">Para Contratantes</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="contractors" className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {contractorPlans.map((plan) => (
+                      <Card key={plan.id} className={`${plan.featured ? 'border-primary shadow-lg' : ''} flex flex-col`}>
+                        <CardHeader>
+                          <CardTitle>
+                            {plan.name}
+                            {plan.featured && <span className="ml-2 text-xs bg-primary text-white px-2 py-1 rounded">RECOMENDADO</span>}
+                          </CardTitle>
+                          <div className="mt-2">
+                            <span className="text-3xl font-bold">R$ {plan.price}</span>
+                            <span className="text-muted-foreground">/mês</span>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="flex-grow">
+                          <ul className="space-y-2">
+                            {plan.features.map((feature, i) => (
+                              <li key={i} className="flex items-start">
+                                <Check className="h-5 w-5 text-primary shrink-0 mr-2" />
+                                <span>{feature}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </CardContent>
+                        <CardFooter>
+                          <Button 
+                            className="w-full" 
+                            variant={plan.featured ? "default" : "outline"}
+                            onClick={() => handleSelectPlan(plan.id)}
+                          >
+                            Selecionar Plano
+                          </Button>
+                        </CardFooter>
+                      </Card>
+                    ))}
+                  </div>
+                </TabsContent>
+              </>
+            ) : (
+              <>
+                <TabsList className="grid w-full grid-cols-2 max-w-[400px] mx-auto">
+                  <TabsTrigger value="providers">Para Prestadores</TabsTrigger>
+                  <TabsTrigger value="contractors">Para Contratantes</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="providers" className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {providerPlans.map((plan) => (
+                      <Card key={plan.id} className={`${plan.featured ? 'border-primary shadow-lg' : ''} flex flex-col`}>
+                        <CardHeader>
+                          <CardTitle>
+                            {plan.name}
+                            {plan.featured && <span className="ml-2 text-xs bg-primary text-white px-2 py-1 rounded">RECOMENDADO</span>}
+                          </CardTitle>
+                          <div className="mt-2">
+                            <span className="text-3xl font-bold">R$ {plan.price}</span>
+                            <span className="text-muted-foreground">/mês</span>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="flex-grow">
+                          <ul className="space-y-2">
+                            {plan.features.map((feature, i) => (
+                              <li key={i} className="flex items-start">
+                                <Check className="h-5 w-5 text-primary shrink-0 mr-2" />
+                                <span>{feature}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </CardContent>
+                        <CardFooter>
+                          <Button 
+                            className="w-full" 
+                            variant={plan.featured ? "default" : "outline"}
+                            onClick={() => handleSelectPlan(plan.id)}
+                          >
+                            Selecionar Plano
+                          </Button>
+                        </CardFooter>
+                      </Card>
+                    ))}
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="contractors" className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {contractorPlans.map((plan) => (
+                      <Card key={plan.id} className={`${plan.featured ? 'border-primary shadow-lg' : ''} flex flex-col`}>
+                        <CardHeader>
+                          <CardTitle>
+                            {plan.name}
+                            {plan.featured && <span className="ml-2 text-xs bg-primary text-white px-2 py-1 rounded">RECOMENDADO</span>}
+                          </CardTitle>
+                          <div className="mt-2">
+                            <span className="text-3xl font-bold">R$ {plan.price}</span>
+                            <span className="text-muted-foreground">/mês</span>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="flex-grow">
+                          <ul className="space-y-2">
+                            {plan.features.map((feature, i) => (
+                              <li key={i} className="flex items-start">
+                                <Check className="h-5 w-5 text-primary shrink-0 mr-2" />
+                                <span>{feature}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </CardContent>
+                        <CardFooter>
+                          <Button 
+                            className="w-full" 
+                            variant={plan.featured ? "default" : "outline"}
+                            onClick={() => handleSelectPlan(plan.id)}
+                          >
+                            Selecionar Plano
+                          </Button>
+                        </CardFooter>
+                      </Card>
+                    ))}
+                  </div>
+                </TabsContent>
+              </>
+            )}
           </Tabs>
         ) : (
           <div className="max-w-2xl mx-auto">
