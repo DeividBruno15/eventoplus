@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import Navbar from '@/components/Navbar';
@@ -79,7 +78,10 @@ const EventDetail = () => {
       // Update event
       const { error: updateError } = await supabase
         .from('events')
-        .update({ image_url: publicUrl })
+        .update({ 
+          image_url: publicUrl,
+          updated_at: new Date().toISOString()
+        })
         .eq('id', event.id);
         
       if (updateError) throw updateError;
