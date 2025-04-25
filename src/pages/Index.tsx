@@ -6,6 +6,8 @@ import FeatureSection from '../components/FeatureSection';
 import ServiceCategories from '../components/ServiceCategories';
 import TestimonialSection from '../components/TestimonialSection';
 import CallToAction from '../components/CallToAction';
+import PlanSection from '../components/PlanSection';
+import FAQ from '../components/FAQ';
 
 const Index = () => {
   return (
@@ -15,7 +17,9 @@ const Index = () => {
         <Hero />
         <FeatureSection />
         <ServiceCategories />
+        <PlanSection />
         <TestimonialSection />
+        <FAQ />
         <CallToAction />
       </main>
       <Footer />

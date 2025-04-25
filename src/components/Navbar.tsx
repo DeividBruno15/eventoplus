@@ -57,7 +57,6 @@ const Navbar = () => {
         <div className="hidden md:flex items-center space-x-8">
           <Link to="/" className="font-medium hover:text-primary transition-colors">Home</Link>
           <Link to="/service-providers" className="font-medium hover:text-primary transition-colors">Prestadores</Link>
-          <Link to="/plans" className="font-medium hover:text-primary transition-colors">Planos e Benefícios</Link>
           <Link to="/about" className="font-medium hover:text-primary transition-colors">Sobre</Link>
           <Link to="/contact" className="font-medium hover:text-primary transition-colors">Contato</Link>
         </div>
@@ -92,14 +91,9 @@ const Navbar = () => {
               </DropdownMenu>
             </div>
           ) : (
-            <>
-              <Link to="/login">
-                <Button variant="outline" className="border-primary text-primary hover:bg-primary/5">Entrar</Button>
-              </Link>
-              <Link to="/register">
-                <Button variant="default" className="bg-primary text-white hover:bg-primary/90">Cadastrar</Button>
-              </Link>
-            </>
+            <Link to="/login">
+              <Button variant="outline" className="border-primary text-primary hover:bg-primary/5">Entrar</Button>
+            </Link>
           )}
         </div>
 
@@ -142,14 +136,9 @@ const Navbar = () => {
                   </Button>
                 </>
               ) : (
-                <>
-                  <Link to="/login" onClick={toggleMenu}>
-                    <Button variant="outline" className="w-full border-primary text-primary">Entrar</Button>
-                  </Link>
-                  <Link to="/register" onClick={toggleMenu}>
-                    <Button variant="default" className="w-full bg-primary text-white">Cadastrar</Button>
-                  </Link>
-                </>
+                <Link to="/login" onClick={toggleMenu}>
+                  <Button variant="outline" className="w-full border-primary text-primary">Entrar</Button>
+                </Link>
               )}
             </div>
           </div>

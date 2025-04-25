@@ -21,7 +21,6 @@ import EventDetail from "./pages/EventDetail";
 import CreateEvent from "./pages/CreateEvent";
 import Chat from "./pages/Chat";
 import Conversation from "./pages/Conversation";
-import Plans from "./pages/Plans";
 
 const queryClient = new QueryClient();
 
@@ -36,7 +35,6 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/plans" element={<Plans />} />
             
             {/* Rotas com o layout do dashboard */}
             <Route element={<DashboardLayout />}>

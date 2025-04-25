@@ -17,14 +17,9 @@ const Hero = () => {
               de forma rápida e personalizada.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link to="/register?type=contratante">
+              <Link to="/register">
                 <Button className="bg-primary text-white hover:bg-primary/90 px-6 py-6 text-base">
-                  Sou Contratante
-                </Button>
-              </Link>
-              <Link to="/register?type=prestador">
-                <Button className="border border-primary text-primary bg-transparent hover:bg-primary/5 px-6 py-6 text-base">
-                  Sou Prestador de Serviços
+                  Começar agora
                 </Button>
               </Link>
             </div>
