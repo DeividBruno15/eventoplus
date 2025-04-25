@@ -60,26 +60,10 @@ export const useEventDetails = ({ id, user }: UseEventDetailsProps) => {
         
       if (eventError) throw eventError;
       
-      const safeGetCreator = () => {
-        if (eventData?.creator && 
-            typeof eventData?.creator === 'object' && 
-            !('code' in (eventData?.creator || {})) &&
-            !('message' in (eventData?.creator || {})) &&
-            !('details' in (eventData?.creator || {})) &&
-            !('hint' in (eventData?.creator || {}))) {
-          return {
-            first_name: (eventData.creator as any)?.first_name ?? '',
-            last_name: (eventData.creator as any)?.last_name ?? '',
-            phone_number: (eventData.creator as any)?.phone_number ?? null
-          };
-        }
-        return undefined;
-      };
-      
       // Type assertion for eventData to handle all fields properly
       const typedEventData = eventData as any;
       
-      // Crie explicitamente um objeto Event com todos os campos necessários
+      // Create an Event object with all required fields
       const processedEvent: Event = {
         id: typedEventData.id,
         name: typedEventData.name,
@@ -92,8 +76,8 @@ export const useEventDetails = ({ id, user }: UseEventDetailsProps) => {
         updated_at: typedEventData.updated_at || null,
         service_type: typedEventData.service_type,
         status: typedEventData.status as EventStatus,
-        image_url: typedEventData.image_url ? String(typedEventData.image_url) : undefined,
-        creator: safeGetCreator()
+        image_url: typedEventData.image_url ? String(typedEventData.image_url) : null,
+        event_time: typedEventData.event_time
       };
 
       if (eventData.contractor_id === user?.id) {
@@ -109,21 +93,6 @@ export const useEventDetails = ({ id, user }: UseEventDetailsProps) => {
         if (applicationsError) throw applicationsError;
         
         const processedApplications: EventApplication[] = (applicationsData || []).map(app => {
-          const safeGetProvider = () => {
-            if (app?.provider && 
-                typeof app?.provider === 'object' && 
-                !('code' in (app?.provider || {})) &&
-                !('message' in (app?.provider || {})) &&
-                !('details' in (app?.provider || {})) &&
-                !('hint' in (app?.provider || {}))) {
-              return {
-                first_name: (app.provider as any)?.first_name ?? '',
-                last_name: (app.provider as any)?.last_name ?? ''
-              };
-            }
-            return undefined;
-          };
-          
           return {
             id: app.id,
             event_id: app.event_id,
@@ -131,7 +100,12 @@ export const useEventDetails = ({ id, user }: UseEventDetailsProps) => {
             message: app.message,
             status: app.status as ApplicationStatus,
             created_at: app.created_at,
-            provider: safeGetProvider()
+            updated_at: app.updated_at || null,
+            provider: app.provider ? {
+              first_name: (app.provider as any)?.first_name ?? '',
+              last_name: (app.provider as any)?.last_name ?? '',
+              email: ''  // Adding a default value for the required email field
+            } : undefined
           };
         });
         
@@ -165,6 +139,7 @@ export const useEventDetails = ({ id, user }: UseEventDetailsProps) => {
             message: applicationData.message,
             status: applicationData.status as ApplicationStatus,
             created_at: applicationData.created_at,
+            updated_at: applicationData.updated_at || null
           } : null,
           applications: []
         }));

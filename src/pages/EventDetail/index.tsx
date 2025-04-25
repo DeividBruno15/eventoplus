@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import Navbar from '@/components/Navbar';
@@ -217,7 +216,7 @@ const EventDetail = () => {
             {/* Painel lateral agora abaixo no layout mobile */}
             <div className="grid gap-6 lg:grid-cols-2">
               {userRole === 'provider' && 
-               (event.status === 'open' || event.status === 'published') && (
+               (event.status === 'draft' || event.status === 'published') && (
                 <div>
                   <ApplicationForm 
                     event={event}

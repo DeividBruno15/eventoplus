@@ -12,6 +12,9 @@ interface AuthContextType {
   signup: (email: string, password: string, metadata?: any) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   updatePassword: (newPassword: string) => Promise<void>;
+  register: (formData: any) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
+  updateOnboardingStatus: (status: boolean) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -83,6 +86,52 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error) throw error;
   };
 
+  const register = async (formData: any) => {
+    const { email, password, ...profileData } = formData;
+    
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: profileData,
+        },
+      });
+      
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error during registration:', error);
+      throw error;
+    }
+  };
+
+  const signInWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`
+      }
+    });
+    
+    if (error) throw error;
+  };
+
+  const updateOnboardingStatus = async (status: boolean) => {
+    try {
+      if (!user) throw new Error('User not authenticated');
+      
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({ is_onboarding_complete: status })
+        .eq('id', user.id);
+        
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error updating onboarding status:', error);
+      throw error;
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -94,6 +143,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signup,
         resetPassword,
         updatePassword,
+        register,
+        signInWithGoogle,
+        updateOnboardingStatus,
       }}
     >
       {children}

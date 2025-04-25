@@ -22,8 +22,8 @@ export const useCreateEvent = () => {
 
       if (error) throw error;
 
-      setEvent(data);
-      return data;
+      setEvent(data as Event);
+      return data as Event;
     } catch (error) {
       console.error('Error fetching event:', error);
       return null;
@@ -72,7 +72,7 @@ export const useCreateEvent = () => {
         max_attendees: eventData.max_attendees,
         image_url: imageUrl,
         contractor_id: user.id,
-        status: 'draft'
+        status: 'draft' as const
       };
 
       let response;

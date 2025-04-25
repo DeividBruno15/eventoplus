@@ -43,7 +43,7 @@ export const ApplicationsList = ({ applications, onApprove, submitting, eventSta
                     className={`${getApplicationStatusColor(app.status)} text-white`}
                   >
                     {app.status === 'pending' ? 'Pendente' : 
-                     app.status === 'approved' ? 'Aprovada' : 
+                     app.status === 'accepted' ? 'Aprovada' : 
                      app.status === 'rejected' ? 'Rejeitada' : 'Desconhecido'}
                   </Badge>
                 </div>
@@ -68,7 +68,7 @@ export const ApplicationsList = ({ applications, onApprove, submitting, eventSta
                   </Button>
                 )}
                 
-                {app.status === 'approved' && (
+                {app.status === 'accepted' && (
                   <Button 
                     onClick={() => navigate('/chat')}
                     className="w-full"

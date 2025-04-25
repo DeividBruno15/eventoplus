@@ -32,7 +32,7 @@ export const ApplicationForm = ({ event, onSubmit, userApplication, submitting }
               className={`${getApplicationStatusColor(userApplication.status)} text-white`}
             >
               {userApplication.status === 'pending' ? 'Pendente' : 
-               userApplication.status === 'approved' ? 'Aprovada' : 
+               userApplication.status === 'accepted' ? 'Aprovada' : 
                userApplication.status === 'rejected' ? 'Rejeitada' : 'Desconhecido'}
             </Badge>
           </div>
@@ -41,7 +41,7 @@ export const ApplicationForm = ({ event, onSubmit, userApplication, submitting }
             {userApplication.message}
           </p>
           
-          {userApplication.status === 'approved' && (
+          {userApplication.status === 'accepted' && (
             <>
               <Separator className="my-4" />
               <div className="text-center">

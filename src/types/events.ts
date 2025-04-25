@@ -1,5 +1,6 @@
 
 export type EventStatus = 'draft' | 'published' | 'cancelled';
+export type ApplicationStatus = 'pending' | 'accepted' | 'rejected';
 
 export interface Event {
   id: string;
@@ -21,7 +22,7 @@ export interface EventApplication {
   id: string;
   event_id: string;
   provider_id: string;
-  status: 'pending' | 'accepted' | 'rejected';
+  status: ApplicationStatus;
   created_at: string;
   updated_at: string | null;
   message?: string;
