@@ -1,5 +1,5 @@
 
-export type EventStatus = 'open' | 'closed' | 'in_progress' | 'cancelled' | 'finished';
+export type EventStatus = 'open' | 'closed' | 'in_progress' | 'cancelled' | 'finished' | 'published' | 'draft';
 
 export interface Event {
   id: string;
@@ -14,7 +14,14 @@ export interface Event {
   updated_at: string | null;
   status: EventStatus;
   image_url?: string;
+  creator?: {
+    first_name: string;
+    last_name: string;
+    phone_number: string | null;
+  };
 }
+
+export type ApplicationStatus = 'pending' | 'approved' | 'rejected';
 
 export interface EventApplication {
   id: string;
@@ -22,6 +29,10 @@ export interface EventApplication {
   provider_id: string;
   provider_name?: string;
   message: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: ApplicationStatus;
   created_at: string;
+  provider?: {
+    first_name: string;
+    last_name: string;
+  };
 }

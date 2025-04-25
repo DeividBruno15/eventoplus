@@ -40,7 +40,8 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
             created_at,
             service_type,
             status,
-            image_url
+            image_url,
+            updated_at
           } = event;
           
           // Create a new properly typed Event object
@@ -55,7 +56,7 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
             created_at,
             service_type,
             status: status as EventStatus,
-            updated_at: null, // Since it's missing from the database, provide null as default
+            updated_at: updated_at || null,
             image_url
           };
         });

@@ -1,7 +1,7 @@
 
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { EventStatus } from "@/types/events";
+import { EventStatus, ApplicationStatus } from "@/types/events";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -36,7 +36,7 @@ export const getStatusColor = (status: EventStatus) => {
   }
 };
 
-export const getApplicationStatusColor = (status: 'pending' | 'approved' | 'rejected') => {
+export const getApplicationStatusColor = (status: ApplicationStatus) => {
   switch (status) {
     case 'pending':
       return 'bg-yellow-500';
