@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Event, EventStatus } from "@/types/events";
@@ -8,7 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Plus, Loader2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
-export const EventsList = () => {
+interface EventsListProps {
+  searchQuery?: string;
+}
+
+export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
   const navigate = useNavigate();
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
@@ -73,7 +76,13 @@ export const EventsList = () => {
     );
   }
 
-  if (events.length === 0) {
+  const filteredEvents = events.filter(event => 
+    event.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    event.location.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  if (filteredEvents.length === 0) {
     return (
       <Card className="text-center py-16">
         <h3 className="text-xl font-medium mb-2">Nenhum evento encontrado</h3>
@@ -90,7 +99,7 @@ export const EventsList = () => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {events.map((event) => (
+      {filteredEvents.map((event) => (
         <EventCard key={event.id} event={event} />
       ))}
     </div>

@@ -9,13 +9,13 @@ export const EventsHeader = () => {
   return (
     <div className="flex justify-between items-center">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Eventos</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Events</h2>
         <p className="text-muted-foreground mt-2">
-          Gerencie e visualize todos os seus eventos.
+          Manage and view all your events.
         </p>
       </div>
       <Button onClick={() => navigate('/events/create')}>
-        <Plus className="mr-2 h-4 w-4" /> Criar Evento
+        <Plus className="mr-2 h-4 w-4" /> Create Event
       </Button>
     </div>
   );
