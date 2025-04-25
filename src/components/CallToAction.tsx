@@ -1,12 +1,14 @@
 
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const CallToAction = () => {
   return (
-    <section className="relative py-24 overflow-hidden">
-      {/* Fundo com gradiente */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-indigo-700 z-[-1]"></div>
+    <section className="relative py-24 overflow-hidden bg-white">
+      {/* Background com gradiente */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary to-accent opacity-95 z-0"></div>
       
       {/* Padrão decorativo */}
       <div className="absolute inset-0 opacity-10">
@@ -28,17 +30,53 @@ const CallToAction = () => {
       </div>
       
       <div className="container mx-auto text-center relative z-10">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-4xl font-bold text-white mb-6 leading-tight">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="max-w-3xl mx-auto"
+        >
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 text-white mb-6 border border-white/30 backdrop-blur-sm"
+          >
+            <span className="text-sm font-medium">Comece agora mesmo</span>
+          </motion.div>
+          
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+            className="text-4xl font-bold text-white mb-6 leading-tight"
+          >
             Pronto para simplificar o planejamento do seu evento?
-          </h2>
-          <p className="text-xl text-white/90 mb-10">
+          </motion.h2>
+          
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4 }}
+            className="text-xl text-white/90 mb-10"
+          >
             Cadastre-se gratuitamente e comece a conectar-se com os melhores profissionais para o seu evento.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-6">
+          </motion.p>
+          
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.5 }}
+            className="flex flex-col sm:flex-row justify-center gap-6"
+          >
             <Link to="/register?type=contratante">
-              <Button className="bg-white text-primary hover:bg-white/90 px-8 py-6 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+              <Button className="bg-white text-primary hover:bg-white/90 px-8 py-6 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
                 Cadastrar como Contratante
+                <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
             <Link to="/register?type=prestador">
@@ -46,8 +84,8 @@ const CallToAction = () => {
                 Cadastrar como Prestador
               </Button>
             </Link>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
     </section>
   );
