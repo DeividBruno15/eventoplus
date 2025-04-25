@@ -86,10 +86,12 @@ export const useEventDetails = ({ id, user }: UseEventDetailsProps) => {
         max_attendees: eventData.max_attendees,
         contractor_id: eventData.contractor_id,
         created_at: eventData.created_at,
-        updated_at: eventData.updated_at || null,
+        // Garantindo que updated_at é tratado corretamente como string | null
+        updated_at: 'updated_at' in eventData ? eventData.updated_at : null,
         service_type: eventData.service_type,
         status: eventData.status as EventStatus,
-        image_url: eventData.image_url,
+        // Garantindo que image_url é tratado corretamente como opcional
+        image_url: 'image_url' in eventData ? eventData.image_url : undefined,
         creator: safeGetCreator()
       };
 

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Event, EventStatus } from "@/types/events";
@@ -27,7 +28,7 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
         if (error) throw error;
         
         const processedEvents: Event[] = (data || []).map(event => {
-          // Certifique-se de que todos os campos estejam presentes no objeto de retorno
+          // Precisamos fazer um cast explícito para o tipo Event com todos os campos necessários
           return {
             id: event.id,
             name: event.name, 
@@ -40,7 +41,8 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
             updated_at: event.updated_at || null,
             service_type: event.service_type,
             status: event.status as EventStatus,
-            image_url: event.image_url || undefined
+            // Tratando explicitamente cada campo para compatibilidade com o tipo Event
+            image_url: 'image_url' in event ? event.image_url : undefined
           };
         });
         
