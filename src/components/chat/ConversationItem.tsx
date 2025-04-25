@@ -11,11 +11,16 @@ interface ConversationItemProps {
 export default function ConversationItem({ conversation: conv }: ConversationItemProps) {
   const navigate = useNavigate();
 
+  const handleConversationClick = (id: string) => {
+    // Navega para a página de conversa específica
+    navigate(`/chat/${id}`);
+  };
+
   return (
     <Button
       variant="ghost"
       className="w-full justify-start px-4 py-6 h-auto hover:bg-muted/50"
-      onClick={() => navigate(`/chat/${conv.id}`)}
+      onClick={() => handleConversationClick(conv.id)}
     >
       <div className="flex items-start w-full">
         <div className="bg-primary text-primary-foreground rounded-full w-10 h-10 flex items-center justify-center flex-shrink-0">

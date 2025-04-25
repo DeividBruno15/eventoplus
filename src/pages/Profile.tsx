@@ -6,24 +6,121 @@ import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { User, Mail, Phone, MapPin, Edit } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { useState } from "react";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogHeader, 
+  DialogTitle,
+  DialogFooter
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/components/ui/use-toast";
 
 const Profile = () => {
   const { session } = useSession();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  
+  // Dialogs state
+  const [editPersonalInfoOpen, setEditPersonalInfoOpen] = useState(false);
+  const [editBioOpen, setEditBioOpen] = useState(false);
+  const [emailNotificationsOpen, setEmailNotificationsOpen] = useState(false);
+  const [profileVisibilityOpen, setProfileVisibilityOpen] = useState(false);
+  const [smsNotificationsOpen, setSmsNotificationsOpen] = useState(false);
+  
+  // Form states
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    address: "",
+    bio: ""
+  });
+
+  // Load user data
+  const userData = {
+    firstName: session?.user?.user_metadata?.first_name || 'Nome',
+    lastName: session?.user?.user_metadata?.last_name || 'do Usuário',
+    email: session?.user?.email || 'usuario@exemplo.com',
+    phone: '(11) 98765-4321',
+    address: 'Rua Exemplo, 123 - São Paulo, SP',
+    bio: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+  };
 
   if (!session) {
     navigate('/login');
     return null;
   }
 
-  // Mock user data
-  const userData = {
-    firstName: session.user?.user_metadata?.first_name || 'Nome',
-    lastName: session.user?.user_metadata?.last_name || 'do Usuário',
-    email: session.user?.email || 'usuario@exemplo.com',
-    phone: '(11) 98765-4321',
-    address: 'Rua Exemplo, 123 - São Paulo, SP',
-    bio: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+  const handleEditPersonalInfo = () => {
+    setFormData({
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      email: userData.email,
+      phone: userData.phone,
+      address: userData.address,
+      bio: userData.bio
+    });
+    setEditPersonalInfoOpen(true);
+  };
+
+  const handleEditBio = () => {
+    setFormData({
+      ...formData,
+      bio: userData.bio
+    });
+    setEditBioOpen(true);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSavePersonalInfo = () => {
+    // Aqui você implementaria a lógica para salvar no banco de dados
+    toast({
+      title: "Informações atualizadas",
+      description: "Seus dados pessoais foram atualizados com sucesso."
+    });
+    setEditPersonalInfoOpen(false);
+  };
+
+  const handleSaveBio = () => {
+    // Aqui você implementaria a lógica para salvar no banco de dados
+    toast({
+      title: "Biografia atualizada",
+      description: "Sua biografia foi atualizada com sucesso."
+    });
+    setEditBioOpen(false);
+  };
+
+  const handleToggleEmailNotifications = () => {
+    setEmailNotificationsOpen(true);
+  };
+
+  const handleToggleProfileVisibility = () => {
+    setProfileVisibilityOpen(true);
+  };
+
+  const handleToggleSmsNotifications = () => {
+    setSmsNotificationsOpen(true);
+  };
+
+  const handleSaveSettings = (settingType: string) => {
+    toast({
+      title: "Configurações salvas",
+      description: `Suas preferências de ${settingType} foram atualizadas.`
+    });
+    
+    // Fechar o diálogo apropriado
+    if (settingType === 'email') setEmailNotificationsOpen(false);
+    else if (settingType === 'visibilidade') setProfileVisibilityOpen(false);
+    else if (settingType === 'SMS') setSmsNotificationsOpen(false);
   };
 
   return (
@@ -40,7 +137,12 @@ const Profile = () => {
           <CardHeader>
             <CardTitle className="flex justify-between items-center">
               <span>Informações Pessoais</span>
-              <Button size="sm" variant="outline" className="flex items-center gap-2">
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="flex items-center gap-2"
+                onClick={handleEditPersonalInfo}
+              >
                 <Edit className="h-4 w-4" /> Editar
               </Button>
             </CardTitle>
@@ -96,7 +198,12 @@ const Profile = () => {
           </CardHeader>
           <CardContent>
             <p>{userData.bio}</p>
-            <Button className="mt-4" variant="outline" size="sm">
+            <Button 
+              className="mt-4" 
+              variant="outline" 
+              size="sm"
+              onClick={handleEditBio}
+            >
               <Edit className="mr-2 h-4 w-4" /> Editar biografia
             </Button>
           </CardContent>
@@ -109,19 +216,228 @@ const Profile = () => {
           </CardHeader>
           <CardContent>
             <div className="grid gap-4">
-              <Button className="justify-start" variant="outline">
+              <Button 
+                className="justify-start" 
+                variant="outline"
+                onClick={handleToggleEmailNotifications}
+              >
                 <Mail className="mr-2 h-4 w-4" /> Configurar notificações por email
               </Button>
-              <Button className="justify-start" variant="outline">
+              <Button 
+                className="justify-start" 
+                variant="outline"
+                onClick={handleToggleProfileVisibility}
+              >
                 <User className="mr-2 h-4 w-4" /> Configurar visibilidade do perfil
               </Button>
-              <Button className="justify-start" variant="outline">
+              <Button 
+                className="justify-start" 
+                variant="outline"
+                onClick={handleToggleSmsNotifications}
+              >
                 <Phone className="mr-2 h-4 w-4" /> Gerenciar notificações por SMS
               </Button>
             </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* Diálogos para edição */}
+      <Dialog open={editPersonalInfoOpen} onOpenChange={setEditPersonalInfoOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Editar Informações Pessoais</DialogTitle>
+            <DialogDescription>
+              Atualize seus dados cadastrais
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="firstName" className="text-sm font-medium">Nome</label>
+                <Input 
+                  id="firstName" 
+                  name="firstName" 
+                  value={formData.firstName} 
+                  onChange={handleInputChange} 
+                />
+              </div>
+              <div>
+                <label htmlFor="lastName" className="text-sm font-medium">Sobrenome</label>
+                <Input 
+                  id="lastName" 
+                  name="lastName" 
+                  value={formData.lastName} 
+                  onChange={handleInputChange} 
+                />
+              </div>
+            </div>
+            <div>
+              <label htmlFor="email" className="text-sm font-medium">Email</label>
+              <Input 
+                id="email" 
+                name="email" 
+                value={formData.email}
+                onChange={handleInputChange}
+              />
+            </div>
+            <div>
+              <label htmlFor="phone" className="text-sm font-medium">Telefone</label>
+              <Input 
+                id="phone" 
+                name="phone" 
+                value={formData.phone} 
+                onChange={handleInputChange}
+              />
+            </div>
+            <div>
+              <label htmlFor="address" className="text-sm font-medium">Endereço</label>
+              <Input 
+                id="address" 
+                name="address" 
+                value={formData.address} 
+                onChange={handleInputChange}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setEditPersonalInfoOpen(false)}>
+              Cancelar
+            </Button>
+            <Button type="button" onClick={handleSavePersonalInfo}>
+              Salvar alterações
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={editBioOpen} onOpenChange={setEditBioOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Editar Biografia</DialogTitle>
+            <DialogDescription>
+              Atualize sua descrição pessoal
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <Textarea 
+              id="bio" 
+              name="bio" 
+              rows={6} 
+              value={formData.bio} 
+              onChange={handleInputChange} 
+            />
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setEditBioOpen(false)}>
+              Cancelar
+            </Button>
+            <Button type="button" onClick={handleSaveBio}>
+              Salvar biografia
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Diálogo para configurações de email */}
+      <Dialog open={emailNotificationsOpen} onOpenChange={setEmailNotificationsOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Notificações por Email</DialogTitle>
+            <DialogDescription>
+              Configure quando deseja receber notificações por email
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {/* Aqui você colocaria os controles de configuração */}
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-medium">Novos eventos</h4>
+                <p className="text-sm text-muted-foreground">Receber notificações sobre novos eventos</p>
+              </div>
+              <Button variant="outline" size="sm">Ativar</Button>
+            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-medium">Novas mensagens</h4>
+                <p className="text-sm text-muted-foreground">Receber notificações sobre novas mensagens</p>
+              </div>
+              <Button variant="outline" size="sm">Ativar</Button>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" onClick={() => handleSaveSettings('email')}>
+              Salvar configurações
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Diálogo para visibilidade do perfil */}
+      <Dialog open={profileVisibilityOpen} onOpenChange={setProfileVisibilityOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Visibilidade do Perfil</DialogTitle>
+            <DialogDescription>
+              Configure quem pode ver seu perfil e informações
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-medium">Perfil público</h4>
+                <p className="text-sm text-muted-foreground">Tornar seu perfil visível para todos</p>
+              </div>
+              <Button variant="outline" size="sm">Ativar</Button>
+            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-medium">Mostrar email</h4>
+                <p className="text-sm text-muted-foreground">Exibir seu email no perfil</p>
+              </div>
+              <Button variant="outline" size="sm">Desativar</Button>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" onClick={() => handleSaveSettings('visibilidade')}>
+              Salvar configurações
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Diálogo para notificações SMS */}
+      <Dialog open={smsNotificationsOpen} onOpenChange={setSmsNotificationsOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Notificações por SMS</DialogTitle>
+            <DialogDescription>
+              Configure quando deseja receber notificações por SMS
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-medium">Novas mensagens</h4>
+                <p className="text-sm text-muted-foreground">Receber SMS para novas mensagens</p>
+              </div>
+              <Button variant="outline" size="sm">Desativar</Button>
+            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-medium">Lembretes de eventos</h4>
+                <p className="text-sm text-muted-foreground">Receber SMS para lembretes de eventos</p>
+              </div>
+              <Button variant="outline" size="sm">Ativar</Button>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" onClick={() => handleSaveSettings('SMS')}>
+              Salvar configurações
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

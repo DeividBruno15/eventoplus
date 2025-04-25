@@ -1,11 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import type { CreateEventFormData } from '../schema';
 import { fetchAddressByCep } from '@/utils/cep';
 import { Loader2, MapPin } from 'lucide-react';
+import type { CreateEventFormData } from '../schema';
 
 interface LocationServiceFieldsProps {
   form: UseFormReturn<CreateEventFormData>;
@@ -15,24 +15,57 @@ export const LocationServiceFields = ({ form }: LocationServiceFieldsProps) => {
   const [fetchingCity, setFetchingCity] = useState(false);
   const [cep, setCep] = useState('');
 
-  const handleCepChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, '');
-    setCep(value);
+  // Formata o CEP enquanto o usuário digita
+  const formatCEP = (value: string): string => {
+    // Remove todos os caracteres que não são números
+    value = value.replace(/\D/g, '');
     
-    if (value.length === 8) {
-      setFetchingCity(true);
-      try {
-        const address = await fetchAddressByCep(value);
-        if (address) {
-          form.setValue('location', address.city);
-        }
-      } catch (error) {
-        console.error('Erro ao buscar CEP:', error);
-      } finally {
-        setFetchingCity(false);
-      }
+    // Aplica a máscara: 12345-678
+    if (value.length > 5) {
+      return `${value.substring(0, 5)}-${value.substring(5, 8)}`;
+    }
+    
+    return value;
+  };
+
+  const handleCepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value;
+    const formattedValue = formatCEP(rawValue);
+    setCep(formattedValue);
+    
+    // Busca o CEP quando atinge 8 dígitos (sem contar o hífen)
+    const digitsOnly = formattedValue.replace(/\D/g, '');
+    if (digitsOnly.length === 8) {
+      fetchCityByCep(digitsOnly);
     }
   };
+
+  const fetchCityByCep = async (cepValue: string) => {
+    setFetchingCity(true);
+    try {
+      const address = await fetchAddressByCep(cepValue);
+      if (address) {
+        form.setValue('location', address.city);
+        // Se você quiser preencher outros campos, pode fazer aqui
+      } else {
+        // CEP não encontrado
+        form.setValue('location', '');
+      }
+    } catch (error) {
+      console.error('Erro ao buscar CEP:', error);
+      form.setValue('location', '');
+    } finally {
+      setFetchingCity(false);
+    }
+  };
+
+  // Quando o componente montar, verifica se já existe um CEP preenchido
+  useEffect(() => {
+    const currentCep = form.getValues().location;
+    if (currentCep && currentCep.replace(/\D/g, '').length === 8) {
+      setCep(formatCEP(currentCep));
+    }
+  }, [form]);
 
   return (
     <>
@@ -40,10 +73,11 @@ export const LocationServiceFields = ({ form }: LocationServiceFieldsProps) => {
         <Label htmlFor="cep">CEP</Label>
         <Input 
           id="cep"
-          placeholder="Digite o CEP"
+          placeholder="Digite o CEP (00000-000)"
           value={cep}
           onChange={handleCepChange}
           maxLength={9}
+          className="focus:border-primary"
         />
         {fetchingCity && (
           <div className="flex items-center mt-1 text-sm text-muted-foreground">
