@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -174,12 +173,12 @@ export const useEventDetails = ({ id, user }: UseEventDetailsProps) => {
     }
   }, [id, user, navigate, toast]);
 
-  useEffect(() => {
+  const refetchEvent = useCallback(() => {
+    setState(prev => ({ ...prev, loading: true }));
     fetchEventData();
   }, [fetchEventData]);
 
-  const refetchEvent = useCallback(() => {
-    setState(prev => ({ ...prev, loading: true }));
+  useEffect(() => {
     fetchEventData();
   }, [fetchEventData]);
 
