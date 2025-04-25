@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { LoginDivider } from './LoginDivider';
 import { GoogleLoginButton } from './GoogleLoginButton';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 
 interface LoginFormProps {
   loading: boolean;
@@ -23,38 +25,43 @@ export const LoginForm = ({ loading, onSubmit, onGoogleLogin }: LoginFormProps) 
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label htmlFor="email" className="label">E-mail</label>
-        <input
+      <div className="space-y-2">
+        <Label htmlFor="email">E-mail</Label>
+        <Input
           id="email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="input"
           placeholder="seu@email.com"
           required
+          disabled={loading}
+          className="w-full"
         />
       </div>
       
-      <div>
-        <div className="flex items-center justify-between mb-1">
-          <label htmlFor="password" className="label">Senha</label>
-          <Link to="/forgot-password" className="text-sm text-primary hover:text-primary/80 transition-colors">
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <Label htmlFor="password">Senha</Label>
+          <Link 
+            to="/forgot-password" 
+            className="text-sm text-primary hover:text-primary/80 transition-colors"
+          >
             Esqueceu a senha?
           </Link>
         </div>
-        <input
+        <Input
           id="password"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="input"
           placeholder="••••••••"
           required
+          disabled={loading}
+          className="w-full"
         />
       </div>
       
-      <Button type="submit" className="w-full bg-primary" disabled={loading}>
+      <Button type="submit" className="w-full" disabled={loading}>
         {loading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -11,6 +11,8 @@ import {
   CardContent,
   CardFooter,
 } from '@/components/ui/card';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 import { useAuth } from '@/hooks/useAuth';
 import { LoginForm } from '@/components/auth/LoginForm';
 
