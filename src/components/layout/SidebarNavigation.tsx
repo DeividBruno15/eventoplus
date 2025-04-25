@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { 
   LayoutDashboard, 
   User, 
@@ -14,7 +14,7 @@ import {
   SidebarMenuButton 
 } from '@/components/ui/sidebar';
 import { Input } from '@/components/ui/input';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 type MenuItem = {
   path: string;
@@ -29,7 +29,6 @@ type SidebarNavigationProps = {
 
 export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationProps) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const navigate = useNavigate();
   
   const menuItems: MenuItem[] = [
     { path: '/dashboard', name: 'Dashboard', icon: LayoutDashboard },
@@ -42,14 +41,6 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
   const filteredItems = menuItems.filter(item =>
     item.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
-  const handleMenuItemClick = (path: string) => {
-    // Update the parent's active path state
-    onNavigate(path);
-    
-    // Navigate to the path with replace to avoid history issues
-    navigate(path, { replace: true });
-  };
 
   return (
     <div className="flex flex-col gap-4 animate-fade-in">
@@ -71,17 +62,23 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
             className="transition-all duration-200 ease-in-out"
           >
             <SidebarMenuButton
-              onClick={() => handleMenuItemClick(item.path)}
+              asChild
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ease-in-out transform hover:translate-x-1 ${
                 activePath === item.path
                   ? 'bg-primary/10 text-primary font-medium scale-105'
                   : 'hover:bg-gray-100 text-gray-600 hover:text-primary hover:scale-[1.02]'
               }`}
             >
-              <item.icon className={`h-5 w-5 transition-transform duration-200 ${
-                activePath === item.path ? 'scale-110' : ''
-              }`} />
-              <span>{item.name}</span>
+              <Link 
+                to={item.path} 
+                onClick={() => onNavigate(item.path)}
+                className="flex items-center gap-3 w-full"
+              >
+                <item.icon className={`h-5 w-5 transition-transform duration-200 ${
+                  activePath === item.path ? 'scale-110' : ''
+                }`} />
+                <span>{item.name}</span>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         ))}

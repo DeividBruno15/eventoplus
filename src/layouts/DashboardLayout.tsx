@@ -24,10 +24,8 @@ const DashboardLayout = () => {
 
   // Update active path when location changes
   useEffect(() => {
-    if (location.pathname !== activePath) {
-      setActivePath(location.pathname);
-    }
-  }, [location.pathname, activePath]);
+    setActivePath(location.pathname);
+  }, [location.pathname]);
 
   // Check authentication
   useEffect(() => {
