@@ -1,10 +1,11 @@
+
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { CalendarDays, QuestionCircle } from "lucide-react";
+import { HelpCircle } from "lucide-react";
 
 const FAQ = () => {
   const faqs = [
@@ -35,7 +36,7 @@ const FAQ = () => {
       <div className="container mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold mb-4 flex items-center justify-center gap-3">
-            <QuestionCircle className="h-8 w-8 text-primary" />
+            <HelpCircle className="h-8 w-8 text-primary" />
             Perguntas Frequentes
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
