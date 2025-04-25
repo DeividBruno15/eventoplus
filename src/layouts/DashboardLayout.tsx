@@ -25,6 +25,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [activePath, setActivePath] = useState(location.pathname);
+  const [redirected, setRedirected] = useState(false);
 
   useEffect(() => {
     setActivePath(location.pathname);
@@ -32,24 +33,32 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   }, [location.pathname]);
 
   useEffect(() => {
-    console.log('Session check in DashboardLayout:', { sessionLoading, hasSession: !!session });
-    
-    if (!sessionLoading && session === null) {
+    // Só redirecionamos uma vez para evitar loops
+    if (!redirected && !sessionLoading && !session) {
       console.log('No session found, redirecting to login');
+      setRedirected(true);
       navigate('/login');
+      return;
     }
-  }, [session, sessionLoading, navigate]);
+  }, [session, sessionLoading, navigate, redirected]);
 
   const handleNavigation = (path: string) => {
     console.log('Navigation triggered to:', path);
   };
 
-  if (sessionLoading) {
+  // Mostrar o loader apenas durante o carregamento inicial da sessão
+  if (sessionLoading && !session) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="w-6 h-6 animate-spin" />
       </div>
     );
+  }
+
+  // Se não estamos carregando mas não temos sessão, não mostramos o conteúdo
+  // O redirecionamento acima tratará disso
+  if (!sessionLoading && !session) {
+    return null;
   }
 
   const getPageTitle = () => {
