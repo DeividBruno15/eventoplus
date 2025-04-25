@@ -1,9 +1,9 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Message } from '@/types/chat';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/components/ui/use-toast';
 
 interface ConversationDetails {
   otherUser: {
@@ -153,9 +153,9 @@ export function useConversation(conversationId: string): ConversationDetails & {
 
     verifyConversation();
 
-    // Set up real-time subscription
+    // Set up real-time subscription for new messages
     const channel = supabase
-      .channel('conversation_messages')
+      .channel('chat_messages')
       .on('postgres_changes', 
         { 
           event: 'INSERT', 
@@ -163,7 +163,20 @@ export function useConversation(conversationId: string): ConversationDetails & {
           table: 'chat_messages',
           filter: `conversation_id=eq.${conversationId}`
         },
-        () => fetchMessages()
+        async (payload) => {
+          // New message received
+          const newMessage = payload.new as Message;
+          
+          // If the message is from another user, mark it as read immediately
+          if (newMessage.sender_id !== user.id) {
+            await supabase
+              .from('chat_messages')
+              .update({ read: true })
+              .eq('id', newMessage.id);
+          }
+          
+          fetchMessages();
+        }
       )
       .subscribe();
 

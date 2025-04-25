@@ -1,4 +1,3 @@
-
 import {
   BrowserRouter,
   Routes,
@@ -24,6 +23,8 @@ import NotFound from "./pages/NotFound";
 import DashboardLayout from "./layouts/DashboardLayout";
 import HelpCenter from "./pages/HelpCenter";
 import Support from "./pages/Support";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 function App() {
   return (
@@ -48,6 +49,8 @@ function App() {
         <Route path="/service-providers" element={<ServiceProviders />} />
         <Route path="/provider/:id" element={<ProviderProfile />} />
         <Route path="/request-quote/:id?" element={<RequestQuote />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
