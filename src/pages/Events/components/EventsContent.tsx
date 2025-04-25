@@ -1,7 +1,7 @@
 
 import { EventsHeader } from "./EventsHeader";
 import { EventsSearch } from "./EventsSearch";
-import { EventsList } from "./EventsList";
+import { EventsList } from "@/components/events/EventsList";
 
 interface EventsContentProps {
   searchQuery: string;
