@@ -62,7 +62,6 @@ serve(async (req) => {
     
     // Aqui você integraria com o serviço de WhatsApp (Twilio, 360dialog, Z-API, etc)
     // Este é um exemplo usando a API do Twilio WhatsApp
-    // Você precisaria configurar as variáveis de ambiente TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN e TWILIO_PHONE_NUMBER
     
     const twilioAccountSid = Deno.env.get('TWILIO_ACCOUNT_SID');
     const twilioAuthToken = Deno.env.get('TWILIO_AUTH_TOKEN');
@@ -131,3 +130,4 @@ serve(async (req) => {
     );
   }
 });
+

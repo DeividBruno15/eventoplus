@@ -16,7 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/contexts/SessionContext";
 import { useToast } from "@/components/ui/use-toast";
-import { Camera } from "lucide-react";
+import { Camera, Settings, User, LogOut } from "lucide-react";
 
 export function UserMenu() {
   const { logout } = useAuth();
@@ -47,6 +47,10 @@ export function UserMenu() {
       const fileExt = file.name.split('.').pop();
       const filePath = `${user?.id}/${Math.random().toString(36).slice(2)}.${fileExt}`;
       
+      // Create avatars bucket if it doesn't exist
+      const { error: bucketError } = await supabase.storage
+        .createBucket('avatars', { public: true });
+        
       // Upload file to Supabase storage
       const { error: uploadError } = await supabase.storage
         .from('avatars')
@@ -117,21 +121,22 @@ export function UserMenu() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem onClick={() => navigate('/profile')}>
+          <DropdownMenuItem onClick={() => navigate('/profile')} className="cursor-pointer">
+            <User className="mr-2 h-4 w-4" />
             Perfil
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => navigate('/dashboard')}>
-            Dashboard
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => navigate('/settings')}>
+          <DropdownMenuItem onClick={() => navigate('/settings')} className="cursor-pointer">
+            <Settings className="mr-2 h-4 w-4" />
             Configurações
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout}>
+        <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-500 focus:text-red-500">
+          <LogOut className="mr-2 h-4 w-4" />
           Sair
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
 }
+
