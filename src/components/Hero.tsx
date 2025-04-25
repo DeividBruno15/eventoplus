@@ -1,7 +1,6 @@
-
 import { Link } from 'react-router-dom';
 import { Button } from './ui/button';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent } from './ui/card';
 import { ArrowRight, Calendar, CheckCircle, Star, Users } from 'lucide-react';
 
@@ -16,6 +15,13 @@ const featuresData = [
   "Compare propostas e preços de diferentes prestadores",
   "Chat integrado para comunicação direta e segura",
   "Avaliações verificadas de clientes anteriores"
+];
+
+const messageAnimations = [
+  "Preciso de um fotógrafo para meu casamento!",
+  "Procuro um buffet para evento corporativo",
+  "Alguém indica DJ para festa?",
+  "Busco decorador para aniversário"
 ];
 
 const Hero = () => {
@@ -36,7 +42,6 @@ const Hero = () => {
 
   return (
     <section className="relative py-24 overflow-hidden bg-white">
-      {/* Elementos decorativos de fundo */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute w-[800px] h-[800px] bg-primary/3 rounded-full -top-40 -right-40 blur-3xl" />
         <div className="absolute w-[600px] h-[600px] bg-accent/3 rounded-full -bottom-32 -left-32 blur-3xl" />
@@ -46,7 +51,6 @@ const Hero = () => {
 
       <div className="container relative mx-auto px-4">
         <div className="flex flex-col lg:flex-row items-center gap-16">
-          {/* Conteúdo principal */}
           <motion.div 
             className="flex-1 text-center lg:text-left"
             initial={{ opacity: 0, y: 20 }}
@@ -70,11 +74,9 @@ const Hero = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6"
+              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-primary"
             >
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary to-accent">
-                Conectamos sonhos a realidade
-              </span>
+              Conectamos sonhos a realidade
             </motion.h1>
             
             <motion.p 
@@ -126,7 +128,6 @@ const Hero = () => {
             </motion.div>
           </motion.div>
 
-          {/* Cards à direita */}
           <motion.div 
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
@@ -134,74 +135,34 @@ const Hero = () => {
             className="flex-1 w-full"
           >
             <div className="relative">
-              {/* Imagem principal */}
-              <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                className="rounded-2xl overflow-hidden shadow-2xl relative z-20"
-              >
-                <img
-                  src="/hero-image.jpg"
-                  alt="Eventos memoráveis"
-                  className="w-full object-cover aspect-[4/3]"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent">
-                  <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                    <h3 className="text-xl font-bold">Eventos Incríveis</h3>
-                    <p className="text-white/80">Cada detalhe faz a diferença</p>
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Card flutuante */}
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.8 }}
-                className="absolute top-10 -right-10 z-30"
-              >
-                <Card className="shadow-lg border-0 w-64">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        <CheckCircle className="w-6 h-6 text-primary" />
-                      </div>
-                      <div>
-                        <p className="font-medium">Qualidade Garantida</p>
-                        <p className="text-xs text-gray-500">Profissionais verificados</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-              
-              {/* Card flutuante 2 */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 1 }}
-                className="absolute -bottom-10 -left-10 z-30"
-              >
-                <Card className="shadow-lg border-0">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
-                        <Star className="w-6 h-6 text-accent" />
-                      </div>
-                      <div>
-                        <p className="font-medium">4.9/5 estrelas</p>
-                        <p className="text-xs text-gray-500">Avaliação dos usuários</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
+              <div className="absolute inset-0 flex flex-col gap-4 justify-center">
+                <AnimatePresence>
+                  {messageAnimations.map((message, index) => (
+                    <motion.div
+                      key={message}
+                      initial={{ opacity: 0, x: -50 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 50 }}
+                      transition={{ delay: index * 0.2 }}
+                    >
+                      <Card className="w-full max-w-md shadow-lg border-0">
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                              <Star className="w-5 h-5 text-primary" />
+                            </div>
+                            <p className="text-gray-700">{message}</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
             </div>
           </motion.div>
         </div>
 
-        {/* Estatísticas */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

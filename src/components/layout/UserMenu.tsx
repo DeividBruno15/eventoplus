@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -68,26 +67,22 @@ export function UserMenu() {
       const fileExt = file.name.split('.').pop();
       const filePath = `${user?.id}/${Math.random().toString(36).slice(2)}.${fileExt}`;
       
-      // Create avatars bucket if it doesn't exist
       await supabase.storage
         .createBucket('avatars', { public: true })
         .catch(() => {
           // Bucket might already exist, continue
         });
         
-      // Upload file to Supabase storage
       const { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(filePath, file);
         
       if (uploadError) throw uploadError;
       
-      // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(filePath);
       
-      // Update user metadata
       const { error: updateError } = await supabase.auth.updateUser({
         data: { avatar_url: publicUrl }
       });
@@ -114,25 +109,25 @@ export function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-          <div className="relative">
-            <Avatar className="h-10 w-10">
+        <button className="relative h-10 w-10 rounded-full overflow-hidden hover:ring-2 hover:ring-primary/20 transition-all">
+          <Avatar className="h-10 w-10">
+            {avatarUrl ? (
               <AvatarImage src={avatarUrl} />
-              <AvatarFallback>{initials}</AvatarFallback>
-            </Avatar>
-            <label htmlFor="avatar-upload" className="absolute bottom-0 right-0 flex items-center justify-center w-5 h-5 bg-primary text-white rounded-full cursor-pointer hover:bg-primary/90 transition-colors">
-              <Camera className="h-3 w-3" />
-              <input 
-                id="avatar-upload" 
-                type="file" 
-                accept="image/*" 
-                className="sr-only" 
-                onChange={uploadAvatar}
-                disabled={uploading}
-              />
-            </label>
-          </div>
-        </Button>
+            ) : (
+              <User className="h-5 w-5" />
+            )}
+            <AvatarFallback>{initials}</AvatarFallback>
+          </Avatar>
+          <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 hover:opacity-100 transition-opacity cursor-pointer">
+            <input 
+              type="file" 
+              accept="image/*" 
+              className="sr-only" 
+              onChange={uploadAvatar}
+              disabled={uploading}
+            />
+          </label>
+        </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel>

@@ -14,7 +14,6 @@ export default function Conversation() {
   const { user } = useAuth();
   const { messages, loading, otherUser, sendMessage, fetchMessages } = useConversation(id || '');
 
-  // Fetch messages when the component mounts
   useEffect(() => {
     if (id) {
       fetchMessages();
@@ -34,7 +33,7 @@ export default function Conversation() {
   }
 
   return (
-    <div className="flex flex-col h-[80vh] overflow-hidden bg-white rounded-lg shadow">
+    <div className="flex flex-col h-[80vh] overflow-hidden bg-white rounded-2xl shadow-sm border border-gray-100">
       <Card className="flex flex-col flex-grow overflow-hidden border-0 shadow-none">
         <ConversationHeader 
           otherUserName={`${otherUser.first_name} ${otherUser.last_name}`}

@@ -1,4 +1,3 @@
-
 import { 
   LayoutDashboard, 
   User, 
@@ -50,7 +49,6 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
 
   const renderMenuItems = (items: MenuItem[]) => {
     return items.map((item) => {
-      // Check if the current path starts with this item's path for active state
       const isActive = 
         location.pathname === item.path || 
         (item.path !== '/dashboard' && location.pathname.startsWith(item.path));
@@ -62,10 +60,10 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
         >
           <SidebarMenuButton
             asChild
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
+            className={`w-full flex items-center gap-3 px-6 py-4 rounded-xl transition-all duration-300 ${
               isActive
-                ? 'bg-primary/10 text-primary font-medium scale-105 shadow-sm'
-                : 'hover:bg-gray-100 text-gray-600 hover:text-primary hover:translate-x-1'
+                ? 'bg-primary/10 text-primary font-medium scale-105'
+                : 'hover:bg-gray-50 text-gray-600 hover:text-primary hover:translate-x-1'
             }`}
           >
             <Link 
@@ -85,7 +83,7 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
   };
 
   return (
-    <div className="flex flex-col gap-6 animate-fade-in">
+    <div className="flex flex-col gap-8 animate-fade-in">
       <SidebarMenu>
         {renderMenuItems(mainMenuItems)}
       </SidebarMenu>

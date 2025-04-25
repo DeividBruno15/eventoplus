@@ -28,18 +28,19 @@ export default function MessageInput({ onSendMessage, disabled }: MessageInputPr
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 border-t">
-      <div className="flex gap-2">
+    <form onSubmit={handleSubmit} className="p-4 border-t bg-white">
+      <div className="flex gap-3">
         <Input
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           placeholder="Digite sua mensagem..."
-          className="flex-grow"
+          className="flex-grow bg-gray-50 border-gray-100"
           disabled={disabled || sending}
         />
         <Button 
           type="submit"
           disabled={!newMessage.trim() || sending || disabled}
+          className="px-6"
         >
           {sending ? (
             <Loader2 className="h-4 w-4 animate-spin" />

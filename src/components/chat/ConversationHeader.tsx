@@ -18,17 +18,18 @@ export default function ConversationHeader({ otherUserName, otherUserInitials }:
         variant="ghost" 
         size="sm"
         onClick={() => navigate('/chat')}
-        className="mr-2"
+        className="mr-3 hover:bg-gray-100"
       >
         <ArrowLeft className="h-5 w-5" />
       </Button>
       
       <div className="flex items-center">
-        <Avatar className="bg-primary text-primary-foreground w-10 h-10 mr-3">
+        <Avatar className="bg-primary/10 text-primary w-10 h-10 mr-3">
           <AvatarFallback>{otherUserInitials}</AvatarFallback>
         </Avatar>
         <div>
           <h3 className="font-medium">{otherUserName}</h3>
+          <p className="text-xs text-gray-500">Online agora</p>
         </div>
       </div>
     </div>

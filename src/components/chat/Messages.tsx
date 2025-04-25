@@ -54,42 +54,44 @@ export default function Messages({ messages, currentUserId }: MessagesProps) {
   }, []);
 
   return (
-    <div className="flex-grow overflow-y-auto p-4 bg-muted/30">
-      <div className="space-y-6">
+    <div className="flex-grow overflow-y-auto p-6 bg-gray-50">
+      <div className="space-y-8">
         {groupedMessages.map((group, groupIndex) => (
           <div key={groupIndex}>
-            <div className="flex justify-center mb-4">
-              <span className="bg-muted px-3 py-1 rounded-full text-xs text-muted-foreground">
+            <div className="flex justify-center mb-6">
+              <span className="bg-white px-4 py-1.5 rounded-full text-xs text-gray-500 shadow-sm border">
                 {formatMessageDate(group.date)}
               </span>
             </div>
             
-            <div className="space-y-2">
+            <div className="space-y-4">
               {group.messages.map((message) => {
                 const isMine = message.sender_id === currentUserId;
                 
                 return (
-                  <div 
+                  <motion.div 
                     key={message.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
                     className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}
                   >
                     <div 
-                      className={`max-w-[75%] px-4 py-2 rounded-lg break-words ${
+                      className={`max-w-[75%] px-4 py-3 rounded-2xl break-words shadow-sm ${
                         isMine 
-                          ? 'bg-primary text-primary-foreground rounded-br-none' 
-                          : 'bg-muted rounded-bl-none'
+                          ? 'bg-primary text-primary-foreground rounded-br-sm' 
+                          : 'bg-white rounded-bl-sm border border-gray-100'
                       }`}
                     >
-                      <p className="whitespace-pre-line">{message.message}</p>
+                      <p className="whitespace-pre-line text-[15px]">{message.message}</p>
                       <div 
-                        className={`text-xs mt-1 ${
-                          isMine ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                        className={`text-[11px] mt-1 ${
+                          isMine ? 'text-primary-foreground/70' : 'text-gray-400'
                         }`}
                       >
                         {formatMessageTime(message.created_at)}
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>

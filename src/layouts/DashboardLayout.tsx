@@ -1,4 +1,3 @@
-
 import { useState, useEffect, ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
@@ -33,7 +32,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   }, [location.pathname]);
 
   useEffect(() => {
-    // Só redirecionamos uma vez para evitar loops e apenas se o usuário não estiver no chat
     if (!redirected && !sessionLoading && !session && !location.pathname.startsWith('/chat')) {
       console.log('No session found, redirecting to login');
       setRedirected(true);
@@ -46,7 +44,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     console.log('Navigation triggered to:', path);
   };
 
-  // Mostrar o loader apenas durante o carregamento inicial da sessão
   if (sessionLoading && !session) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5">
@@ -58,8 +55,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     );
   }
 
-  // Se não estamos carregando mas não temos sessão, não mostramos o conteúdo
-  // O redirecionamento acima tratará disso
   if (!sessionLoading && !session) {
     return null;
   }
@@ -82,7 +77,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gray-50">
-        <Sidebar className="border-r border-gray-200 shadow-sm bg-white">
+        <Sidebar className="border-r border-gray-100 shadow-sm bg-white">
           <SidebarHeader className="px-6 py-8">
             <div className="font-bold text-2xl bg-gradient-to-r from-primary to-indigo-600 bg-clip-text text-transparent">
               Evento<span className="text-accent">+</span>
