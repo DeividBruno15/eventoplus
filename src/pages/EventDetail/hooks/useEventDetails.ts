@@ -128,21 +128,24 @@ export const useEventDetails = ({ id, user }: UseEventDetailsProps) => {
           
         if (applicationError) throw applicationError;
         
+        // Type assertion for applicationData to handle the price property
+        const typedApplicationData = applicationData as any;
+        
         setState(prev => ({
           ...prev,
           event: processedEvent,
           userRole: userProfile.role,
           loading: false,
           userHasApplied: !!applicationData,
-          userApplication: applicationData ? {
-            id: applicationData.id,
-            event_id: applicationData.event_id,
-            provider_id: applicationData.provider_id,
-            message: applicationData.message || "",
-            status: applicationData.status as ApplicationStatus,
-            created_at: applicationData.created_at,
+          userApplication: typedApplicationData ? {
+            id: typedApplicationData.id,
+            event_id: typedApplicationData.event_id,
+            provider_id: typedApplicationData.provider_id,
+            message: typedApplicationData.message || "",
+            status: typedApplicationData.status as ApplicationStatus,
+            created_at: typedApplicationData.created_at,
             updated_at: null, // Set default value since it might not exist in the fetched data
-            price: applicationData.price !== undefined ? applicationData.price : null
+            price: typedApplicationData.price !== undefined ? typedApplicationData.price : null
           } : null,
           applications: []
         }));
