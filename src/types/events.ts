@@ -11,9 +11,9 @@ export interface Event {
   max_attendees: number | null;
   contractor_id: string;
   created_at: string;
-  updated_at: string | null;
+  updated_at: string | null; // Added this field
   status: EventStatus;
-  image_url?: string;
+  image_url?: string; // Added this field as optional
   creator?: {
     first_name: string;
     last_name: string;
