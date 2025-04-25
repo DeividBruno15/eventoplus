@@ -48,13 +48,13 @@ const Hero = () => {
           >
             <Link 
               to="/register" 
-              className="btn-primary text-center px-8 py-3 rounded-xl bg-primary hover:bg-primary/90 text-white font-medium transition-colors shadow-lg shadow-primary/20"
+              className="btn-primary text-center px-8 py-3 rounded-xl bg-primary hover:bg-primary/90 text-white font-medium transition-colors shadow-lg shadow-primary/20 animate-scale-in"
             >
               Começar agora
             </Link>
             <Link 
               to="/about" 
-              className="btn-outline text-center px-8 py-3 rounded-xl border-2 border-primary text-primary hover:bg-primary/5 font-medium transition-colors"
+              className="btn-outline text-center px-8 py-3 rounded-xl border-2 border-primary text-primary hover:bg-primary/5 font-medium transition-colors animate-scale-in"
             >
               Saiba mais
             </Link>

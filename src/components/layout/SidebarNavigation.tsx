@@ -6,7 +6,8 @@ import {
   MessagesSquare, 
   Settings,
   HelpCircle,
-  LifeBuoy
+  LifeBuoy,
+  LogOut
 } from 'lucide-react';
 import { 
   SidebarMenu, 
@@ -16,7 +17,9 @@ import {
 import { Link, useLocation } from 'react-router-dom';
 import { useSession } from '@/contexts/SessionContext';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/components/ui/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 type MenuItem = {
   path: string;
@@ -32,12 +35,14 @@ type SidebarNavigationProps = {
 export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationProps) => {
   const location = useLocation();
   const { session } = useSession();
+  const { logout } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
   
   const user = session?.user;
   const firstName = user?.user_metadata?.first_name || '';
   const lastName = user?.user_metadata?.last_name || '';
   const avatarUrl = user?.user_metadata?.avatar_url;
-  const userRole = user?.user_metadata?.role === 'provider' ? 'Prestador' : 'Contratante';
   const initials = firstName && lastName ? `${firstName[0]}${lastName[0]}` : 'U';
 
   const mainMenuItems: MenuItem[] = [
@@ -56,6 +61,23 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
   const handleLinkClick = (path: string) => {
     console.log('Sidebar item clicked:', path);
     onNavigate(path);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast({
+        title: "Logout realizado",
+        description: "Você foi desconectado com sucesso."
+      });
+      navigate('/');
+    } catch (error: any) {
+      toast({
+        title: "Erro ao fazer logout",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
   };
 
   const renderMenuItems = (items: MenuItem[]) => {
@@ -105,9 +127,6 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
             )}
           </Avatar>
           <h3 className="font-medium text-gray-900">{firstName} {lastName}</h3>
-          <Badge variant="secondary" className="mt-1">
-            {userRole}
-          </Badge>
         </div>
       </div>
 
@@ -125,6 +144,22 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
       
       <SidebarMenu>
         {renderMenuItems(supportMenuItems)}
+      </SidebarMenu>
+
+      <div className="px-3 py-2">
+        <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
+      </div>
+
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-6 py-4 rounded-xl hover:bg-gray-50 text-red-500 hover:text-red-600 hover:translate-x-1 transition-all duration-300"
+          >
+            <LogOut className="h-5 w-5" />
+            <span>Sair</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
       </SidebarMenu>
     </div>
   );

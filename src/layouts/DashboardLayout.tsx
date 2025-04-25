@@ -1,3 +1,4 @@
+
 import { useState, useEffect, ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
@@ -12,6 +13,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Loader2 } from 'lucide-react';
 import { NotificationsMenu } from '@/components/layout/NotificationsMenu';
 import { SidebarNavigation } from '@/components/layout/SidebarNavigation';
+import { UserMenu } from '@/components/layout/UserMenu';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -98,6 +100,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             
             <div className="flex items-center gap-4">
               <NotificationsMenu />
+              <UserMenu />
             </div>
           </header>
 
