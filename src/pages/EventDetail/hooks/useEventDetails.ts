@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Event, EventApplication, ApplicationStatus } from '@/types/events';
+import { Event, EventApplication, ApplicationStatus, EventStatus } from '@/types/events';
 import { User } from '@supabase/supabase-js';
 
 interface UseEventDetailsProps {
@@ -93,18 +93,19 @@ export const useEventDetails = ({ id, user }: UseEventDetailsProps) => {
         if (applicationsError) throw applicationsError;
         
         const processedApplications: EventApplication[] = (applicationsData || []).map(app => {
+          const appData = app as any; // Type assertion to avoid TypeScript errors
           return {
-            id: app.id,
-            event_id: app.event_id,
-            provider_id: app.provider_id,
-            message: app.message || "",
-            status: app.status as ApplicationStatus,
-            created_at: app.created_at,
+            id: appData.id,
+            event_id: appData.event_id,
+            provider_id: appData.provider_id,
+            message: appData.message || "",
+            status: appData.status as ApplicationStatus,
+            created_at: appData.created_at,
             updated_at: null, // Set default value since it might not exist in the fetched data
-            price: app.price || null,
-            provider: app.provider ? {
-              first_name: (app.provider as any)?.first_name ?? '',
-              last_name: (app.provider as any)?.last_name ?? '',
+            price: appData.price !== undefined ? appData.price : null,
+            provider: appData.provider ? {
+              first_name: (appData.provider as any)?.first_name ?? '',
+              last_name: (appData.provider as any)?.last_name ?? '',
               email: ''  // Adding a default value for the required email field
             } : undefined
           };
@@ -141,7 +142,7 @@ export const useEventDetails = ({ id, user }: UseEventDetailsProps) => {
             status: applicationData.status as ApplicationStatus,
             created_at: applicationData.created_at,
             updated_at: null, // Set default value since it might not exist in the fetched data
-            price: applicationData.price || null
+            price: applicationData.price !== undefined ? applicationData.price : null
           } : null,
           applications: []
         }));
