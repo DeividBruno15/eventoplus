@@ -13,7 +13,8 @@ import {
   BookOpen, 
   VideoIcon,
   ChevronRight,
-  MessageCircle 
+  MessageCircle,
+  Calendar as CalendarIcon
 } from "lucide-react";
 
 const HelpCenter = () => {
@@ -37,7 +38,7 @@ const HelpCenter = () => {
 
   const categories = [
     { id: 1, title: "Primeiros passos", description: "Aprenda a configurar sua conta e entender as funcionalidades básicas", icon: BookOpen },
-    { id: 2, title: "Eventos", description: "Como criar, gerenciar e promover seus eventos", icon: Calendar },
+    { id: 2, title: "Eventos", description: "Como criar, gerenciar e promover seus eventos", icon: CalendarIcon },
     { id: 3, title: "Mensagens", description: "Tudo sobre o sistema de chat e comunicação", icon: MessageCircle },
     { id: 4, title: "Tutoriais em vídeo", description: "Assista nossos vídeos passo a passo", icon: VideoIcon }
   ];

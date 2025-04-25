@@ -1,3 +1,4 @@
+
 import {
   BrowserRouter,
   Routes,
@@ -20,7 +21,7 @@ import ServiceProviders from "./pages/ServiceProviders";
 import ProviderProfile from "./pages/ProviderProfile";
 import RequestQuote from "./pages/RequestQuote";
 import NotFound from "./pages/NotFound";
-import DashboardLayout from "./components/layout/DashboardLayout";
+import DashboardLayout from "./layouts/DashboardLayout";
 import HelpCenter from "./pages/HelpCenter";
 import Support from "./pages/Support";
 
