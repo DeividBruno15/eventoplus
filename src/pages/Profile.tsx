@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useSession } from "@/contexts/SessionContext";
 import { useNavigate } from "react-router-dom";
@@ -19,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
 
 const Profile = () => {
   const { session } = useSession();
@@ -50,11 +50,17 @@ const Profile = () => {
     phone: '(11) 98765-4321',
     address: 'Rua Exemplo, 123 - São Paulo, SP',
     bio: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-    accountType: 'Profissional',
+    accountType: session?.user?.user_metadata?.role || 'Contratante',
     plan: 'Premium'
   });
 
+  // Carrega os dados do usuário do localStorage, se existirem
   useEffect(() => {
+    const savedUserData = localStorage.getItem('userData');
+    if (savedUserData) {
+      setUserData({...userData, ...JSON.parse(savedUserData)});
+    }
+    
     // Initialize form data with user data
     setFormData({
       firstName: userData.firstName,
@@ -64,7 +70,7 @@ const Profile = () => {
       address: userData.address,
       bio: userData.bio
     });
-  }, [userData]);
+  }, [session]);
 
   if (!session) {
     navigate('/login');
@@ -113,14 +119,29 @@ const Profile = () => {
 
   const handleSavePersonalInfo = () => {
     // Save data to user state
-    setUserData(prev => ({
-      ...prev,
+    const updatedUserData = {
+      ...userData,
       firstName: formData.firstName,
       lastName: formData.lastName,
       email: formData.email,
       phone: formData.phone,
       address: formData.address
-    }));
+    };
+    
+    setUserData(updatedUserData);
+    
+    // Save to localStorage to persist between page refreshes
+    localStorage.setItem('userData', JSON.stringify(updatedUserData));
+    
+    // Update user metadata in Supabase if available
+    if (session?.user) {
+      supabase.auth.updateUser({
+        data: {
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+        }
+      }).catch(console.error);
+    }
     
     toast({
       title: "Informações atualizadas",
@@ -131,10 +152,15 @@ const Profile = () => {
 
   const handleSaveBio = () => {
     // Save bio to user state
-    setUserData(prev => ({
-      ...prev,
+    const updatedUserData = {
+      ...userData,
       bio: formData.bio
-    }));
+    };
+    
+    setUserData(updatedUserData);
+    
+    // Save to localStorage for persistence
+    localStorage.setItem('userData', JSON.stringify(updatedUserData));
     
     toast({
       title: "Biografia atualizada",
@@ -217,7 +243,6 @@ const Profile = () => {
                     Alterar plano
                   </Button>
                 </div>
-                <p className="text-sm text-muted-foreground mt-1">Membro desde Abril 2025</p>
               </div>
             </div>
             

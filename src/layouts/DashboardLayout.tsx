@@ -33,14 +33,14 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   }, [location.pathname]);
 
   useEffect(() => {
-    // Só redirecionamos uma vez para evitar loops
-    if (!redirected && !sessionLoading && !session) {
+    // Só redirecionamos uma vez para evitar loops e apenas se o usuário não estiver no chat
+    if (!redirected && !sessionLoading && !session && !location.pathname.startsWith('/chat')) {
       console.log('No session found, redirecting to login');
       setRedirected(true);
       navigate('/login');
       return;
     }
-  }, [session, sessionLoading, navigate, redirected]);
+  }, [session, sessionLoading, navigate, redirected, location.pathname]);
 
   const handleNavigation = (path: string) => {
     console.log('Navigation triggered to:', path);
