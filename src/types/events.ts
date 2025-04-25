@@ -1,5 +1,5 @@
 
-export type EventStatus = 'open' | 'closed' | 'in_progress' | 'cancelled' | 'finished' | 'published' | 'draft';
+export type EventStatus = 'draft' | 'published' | 'cancelled';
 
 export interface Event {
   id: string;
@@ -7,32 +7,30 @@ export interface Event {
   description: string;
   event_date: string;
   location: string;
-  service_type: string;
   max_attendees: number | null;
   contractor_id: string;
   created_at: string;
-  updated_at: string | null; // Added this field
+  updated_at: string | null;
+  service_type: string;
   status: EventStatus;
-  image_url?: string; // Added this field as optional
-  creator?: {
-    first_name: string;
-    last_name: string;
-    phone_number: string | null;
-  };
+  event_time?: string;
+  image_url?: string | null;
 }
-
-export type ApplicationStatus = 'pending' | 'approved' | 'rejected';
 
 export interface EventApplication {
   id: string;
   event_id: string;
   provider_id: string;
-  provider_name?: string;
-  message: string;
-  status: ApplicationStatus;
+  status: 'pending' | 'accepted' | 'rejected';
   created_at: string;
+  updated_at: string | null;
+  message?: string;
+  price?: number;
   provider?: {
     first_name: string;
     last_name: string;
+    email: string;
+    avatar_url?: string;
+    rating?: number;
   };
 }

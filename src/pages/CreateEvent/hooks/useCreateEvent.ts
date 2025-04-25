@@ -1,67 +1,105 @@
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { CreateEventFormData } from '../schema';
+import { Event } from '@/types/events';
 import { useAuth } from '@/hooks/useAuth';
-import type { CreateEventFormData } from '../schema';
+import { v4 as uuidv4 } from 'uuid';
 
 export const useCreateEvent = () => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [event, setEvent] = useState<Event | null>(null);
+  const { user } = useAuth();
 
-  const createEvent = async (data: CreateEventFormData) => {
-    if (!user) {
-      toast({
-        title: "Você precisa estar logado",
-        description: "Faça login para criar um evento",
-        variant: "destructive",
-      });
-      navigate('/login');
-      return;
-    }
-
+  const fetchEvent = async (id: string): Promise<Event | null> => {
     try {
       setLoading(true);
-      const eventDate = new Date(`${data.event_date}T${data.event_time}`);
-      
-      const { data: eventData, error } = await supabase
+      const { data, error } = await supabase
         .from('events')
-        .insert({
-          name: data.name,
-          description: data.description,
-          event_date: eventDate.toISOString(),
-          location: data.location,
-          service_type: data.service_type,
-          max_attendees: data.max_attendees ?? null,
-          contractor_id: user.id,
-          status: 'open'
-        })
         .select('*')
+        .eq('id', id)
         .single();
-      
+
       if (error) throw error;
 
-      toast({
-        title: "Evento criado com sucesso!",
-        description: "Seu evento foi publicado e já está disponível para candidaturas.",
-      });
-
-      const eventId = (eventData as { id: string }).id;
-      navigate(`/events/${eventId}`);
-    } catch (error: any) {
-      console.error('Erro ao criar evento:', error);
-      toast({
-        title: "Erro ao criar evento",
-        description: error.message || 'Ocorreu um erro ao criar seu evento',
-        variant: "destructive",
-      });
+      setEvent(data);
+      return data;
+    } catch (error) {
+      console.error('Error fetching event:', error);
+      return null;
     } finally {
       setLoading(false);
     }
   };
 
-  return { createEvent, loading };
+  const uploadEventImage = async (file: File): Promise<string> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${uuidv4()}.${fileExt}`;
+    const filePath = `event-images/${fileName}`;
+    
+    const { error } = await supabase.storage
+      .from('events')
+      .upload(filePath, file);
+      
+    if (error) throw error;
+    
+    const { data } = supabase.storage
+      .from('events')
+      .getPublicUrl(filePath);
+      
+    return data.publicUrl;
+  };
+
+  const createEvent = async (eventData: CreateEventFormData, eventId?: string) => {
+    try {
+      if (!user) throw new Error('User not authenticated');
+      
+      setLoading(true);
+      let imageUrl = event?.image_url || null;
+      
+      // Handle image upload if provided
+      if (eventData.image instanceof File) {
+        imageUrl = await uploadEventImage(eventData.image);
+      }
+      
+      const eventToSave = {
+        name: eventData.name,
+        description: eventData.description,
+        event_date: eventData.event_date,
+        event_time: eventData.event_time,
+        location: eventData.location,
+        service_type: eventData.service_type,
+        max_attendees: eventData.max_attendees,
+        image_url: imageUrl,
+        contractor_id: user.id,
+        status: 'draft'
+      };
+
+      let response;
+      
+      if (eventId) {
+        // Update existing event
+        response = await supabase
+          .from('events')
+          .update(eventToSave)
+          .eq('id', eventId);
+      } else {
+        // Create new event
+        response = await supabase
+          .from('events')
+          .insert([eventToSave]);
+      }
+
+      if (response.error) throw response.error;
+      
+      return true;
+    } catch (error) {
+      console.error('Error creating/updating event:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { createEvent, loading, event, fetchEvent };
 };

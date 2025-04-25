@@ -1,8 +1,8 @@
+
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSession } from "@/contexts/SessionContext";
 import ConversationList from "@/components/chat/ConversationList";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MessageSquare } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
@@ -118,6 +118,8 @@ const Chat = () => {
     setConversations([newConversation, ...conversations]);
     setNewConversationOpen(false);
     setNewConversationName("");
+    
+    // Use push instead of navigate to ensure a full navigation
     navigate(`/chat/${newId}`);
     
     toast({
@@ -126,38 +128,55 @@ const Chat = () => {
     });
   };
 
-  if (loading || !session) {
+  if (loading) {
+    return <div className="flex justify-center items-center h-64">Carregando...</div>;
+  }
+
+  if (!session) {
     navigate('/login');
     return null;
   }
 
   return (
-    <Card className="h-[calc(100vh-12rem)] flex flex-col">
-      <div className="p-4 border-b flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Mensagens</h2>
-        <Button 
-          size="sm" 
-          className="gap-2" 
-          onClick={() => setNewConversationOpen(true)}
-        >
-          <MessageSquare className="h-4 w-4" />
-          Nova Conversa
-        </Button>
+    <div className="space-y-6 animate-fade-in">
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight">Chat</h2>
+        <p className="text-muted-foreground mt-2">
+          Comunique-se com outros usuários da plataforma.
+        </p>
       </div>
       
-      {conversations.length > 0 ? (
-        <ConversationList 
-          loading={isLoading} 
-          conversations={conversations} 
-          filteredConversations={filteredConversations} 
-          searchQuery={searchQuery} 
-          onSearchChange={handleSearchChange} 
-        />
-      ) : (
-        <div className="flex-1">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-1">
+          <div className="bg-white border rounded-lg shadow-sm overflow-hidden flex flex-col h-[calc(100vh-15rem)]">
+            <div className="p-4 border-b flex justify-between items-center">
+              <h3 className="font-medium">Conversas</h3>
+              <Button 
+                size="sm" 
+                className="gap-2" 
+                onClick={() => setNewConversationOpen(true)}
+              >
+                <MessageSquare className="h-4 w-4" />
+                Nova
+              </Button>
+            </div>
+            
+            <div className="flex-1 overflow-hidden">
+              <ConversationList 
+                loading={isLoading} 
+                conversations={conversations} 
+                filteredConversations={filteredConversations} 
+                searchQuery={searchQuery} 
+                onSearchChange={handleSearchChange} 
+              />
+            </div>
+          </div>
+        </div>
+        
+        <div className="lg:col-span-2">
           <ChatEmptyState />
         </div>
-      )}
+      </div>
       
       <NewConversationDialog
         open={newConversationOpen}
@@ -166,7 +185,7 @@ const Chat = () => {
         onConversationNameChange={setNewConversationName}
         onCreateConversation={handleCreateConversation}
       />
-    </Card>
+    </div>
   );
 };
 

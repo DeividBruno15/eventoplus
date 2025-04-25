@@ -1,224 +1,110 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
-import { useToast } from '@/components/ui/use-toast';
-import { RegisterFormData } from '@/pages/Register/types';
-import { Session, User } from '@supabase/supabase-js';
 
-export const useAuth = () => {
-  const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
+import { useState, useEffect, createContext, useContext } from 'react';
+import { Session, User } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
+
+interface AuthContextType {
+  session: Session | null;
+  user: User | null;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  signup: (email: string, password: string, metadata?: any) => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+  updatePassword: (newPassword: string) => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
-  const navigate = useNavigate();
-  const { toast } = useToast();
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log('useAuth: Setting up auth state listener');
-    
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, currentSession) => {
-      console.log('useAuth: Auth state changed:', event, currentSession?.user?.email);
-      setSession(currentSession);
-      setUser(currentSession?.user || null);
-      
-      // Only handle sign in/out events with navigation
-      if (event === 'SIGNED_IN') {
-        toast({
-          title: "Login realizado com sucesso!",
-          description: "Bem-vindo de volta.",
-        });
-
-        // Avoid immediate navigation to avoid race conditions with router
-        setTimeout(() => {
-          // Only navigate if we're not already on the dashboard
-          if (window.location.pathname === '/login' || window.location.pathname === '/register') {
-            navigate('/dashboard');
-          }
-        }, 100);
-      } else if (event === 'SIGNED_OUT') {
-        toast({
-          title: "Logout realizado",
-          description: "Você saiu da sua conta.",
-        });
-        navigate('/');
+    // First setup the auth state change listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
       }
-    });
+    );
 
-    // THEN check for existing session - but don't navigate automatically here
-    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
-      console.log('useAuth: Initial session check:', currentSession?.user?.email);
-      setSession(currentSession);
-      setUser(currentSession?.user || null);
+    // Then check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate, toast]);
-
-  const register = async (data: RegisterFormData) => {
-    try {
-      setLoading(true);
-      
-      // Update user fields to include all needed data from the beginning
-      const { error: signUpError } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-        options: {
-          data: {
-            first_name: data.first_name,
-            last_name: data.last_name,
-            person_type: data.person_type,
-            document_number: data.document_number,
-            role: data.role,
-            phone_number: data.phone_number,
-            street: data.street,
-            neighborhood: data.neighborhood,
-            city: data.city,
-            state: data.state,
-            zipcode: data.zipcode,
-            is_onboarding_complete: true, // Mark onboarding as complete during registration
-          },
-        },
-      });
-
-      if (signUpError) throw signUpError;
-
-      toast({
-        title: "Cadastro realizado com sucesso!",
-        description: "Verifique seu email para confirmar seu cadastro.",
-      });
-      
-    } catch (error: any) {
-      console.error('Erro no cadastro:', error);
-      toast({
-        title: "Erro no cadastro",
-        description: error.message || 'Ocorreu um erro durante o cadastro',
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, []);
 
   const login = async (email: string, password: string) => {
-    try {
-      setLoading(true);
-      
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-      
-      if (error) throw error;
-      
-      // Let the onAuthStateChange handler handle the navigation
-      
-    } catch (error: any) {
-      console.error('Erro no login:', error);
-      toast({
-        title: "Erro no login",
-        description: error.message || 'Credenciais inválidas',
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const signInWithGoogle = async () => {
-    try {
-      setLoading(true);
-      console.log("Iniciando login com Google...");
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/dashboard`,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          }
-        }
-      });
-      
-      if (error) throw error;
-      console.log("Redirecionando para Google:", data);
-      
-    } catch (error: any) {
-      console.error('Erro ao iniciar login com Google:', error);
-      toast({
-        title: "Erro ao entrar com Google",
-        description: error.message || 'Não foi possível conectar ao Google',
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const updateOnboardingStatus = async (isComplete: boolean) => {
-    try {
-      setLoading(true);
-      
-      if (!user) {
-        throw new Error('Usuário não autenticado');
-      }
-      
-      // Update user metadata
-      const { error } = await supabase.auth.updateUser({
-        data: { is_onboarding_complete: isComplete }
-      });
-      
-      if (error) throw error;
-      
-      toast({
-        title: "Perfil atualizado!",
-        description: "Seu cadastro foi finalizado com sucesso."
-      });
-      
-      // Redirect to dashboard after completing onboarding
-      navigate('/dashboard');
-      
-    } catch (error: any) {
-      console.error('Erro ao atualizar status de onboarding:', error);
-      toast({
-        title: "Erro ao finalizar cadastro",
-        description: error.message || 'Ocorreu um erro ao atualizar seu perfil',
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
   };
 
   const logout = async () => {
-    try {
-      setLoading(true);
-      console.log("Iniciando logout...");
-      const { error } = await supabase.auth.signOut();
-      
-      if (error) throw error;
-      
-    } catch (error: any) {
-      console.error('Erro ao fazer logout:', error);
-      toast({
-        title: "Erro ao fazer logout",
-        description: error.message || 'Ocorreu um erro ao tentar sair',
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+    
+    // Clear local session state
+    setSession(null);
+    setUser(null);
   };
 
-  return {
-    register,
-    login,
-    signInWithGoogle,
-    logout,
-    updateOnboardingStatus,
-    loading,
-    session,
-    user
+  const signup = async (email: string, password: string, metadata?: any) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: metadata,
+      },
+    });
+
+    if (error) throw error;
   };
-};
+
+  const resetPassword = async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    
+    if (error) throw error;
+  };
+
+  const updatePassword = async (newPassword: string) => {
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    
+    if (error) throw error;
+  };
+
+  return (
+    <AuthContext.Provider
+      value={{
+        session,
+        user,
+        loading,
+        login,
+        logout,
+        signup,
+        resetPassword,
+        updatePassword,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}

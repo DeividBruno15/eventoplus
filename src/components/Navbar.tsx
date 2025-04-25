@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, LogOut, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
@@ -13,17 +13,34 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useToast } from "@/components/ui/use-toast";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { session, user, logout, loading } = useAuth();
+  const { session, user, logout } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast({
+        title: "Logout realizado",
+        description: "Você saiu da sua conta com sucesso."
+      });
+      navigate('/');
+    } catch (error) {
+      console.error("Erro ao fazer logout:", error);
+      toast({
+        title: "Erro ao sair",
+        description: "Ocorreu um erro ao tentar sair da sua conta.",
+        variant: "destructive"
+      });
+    }
     setIsMenuOpen(false);
   };
 
@@ -56,7 +73,6 @@ const Navbar = () => {
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-8">
           <Link to="/" className="font-medium hover:text-primary transition-colors">Home</Link>
-          <Link to="/service-providers" className="font-medium hover:text-primary transition-colors">Prestadores</Link>
           <Link to="/about" className="font-medium hover:text-primary transition-colors">Sobre</Link>
           <Link to="/contact" className="font-medium hover:text-primary transition-colors">Contato</Link>
         </div>
@@ -83,7 +99,7 @@ const Navbar = () => {
                       Perfil
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleLogout} disabled={loading} className="cursor-pointer text-red-500 focus:text-red-500">
+                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-500 focus:text-red-500">
                     <LogOut className="mr-2 h-4 w-4" />
                     Sair
                   </DropdownMenuItem>
@@ -110,7 +126,6 @@ const Navbar = () => {
         <div className="md:hidden bg-white shadow-md absolute w-full py-4 animate-fade-in">
           <div className="container mx-auto flex flex-col space-y-4">
             <Link to="/" className="font-medium hover:text-primary transition-colors py-2" onClick={toggleMenu}>Home</Link>
-            <Link to="/service-providers" className="font-medium hover:text-primary transition-colors py-2" onClick={toggleMenu}>Prestadores</Link>
             <Link to="/about" className="font-medium hover:text-primary transition-colors py-2" onClick={toggleMenu}>Sobre</Link>
             <Link to="/contact" className="font-medium hover:text-primary transition-colors py-2" onClick={toggleMenu}>Contato</Link>
             <div className="flex flex-col space-y-2 pt-2 border-t">
@@ -127,8 +142,7 @@ const Navbar = () => {
                   </Link>
                   <Button 
                     variant="ghost" 
-                    onClick={handleLogout} 
-                    disabled={loading}
+                    onClick={handleLogout}
                     className="w-full flex items-center justify-center gap-2 text-red-500"
                   >
                     <LogOut className="h-4 w-4" />
