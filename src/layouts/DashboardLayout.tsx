@@ -25,6 +25,8 @@ const DashboardLayout = () => {
   // Update active path when location changes
   useEffect(() => {
     setActivePath(location.pathname);
+    // Debug: Log the current path to see if it changes correctly
+    console.log('Current path:', location.pathname);
   }, [location.pathname]);
 
   // Check authentication
@@ -32,6 +34,8 @@ const DashboardLayout = () => {
     if (!sessionLoading && !session) {
       navigate('/login');
     }
+    // Only redirect to dashboard if we're at the root of the dashboard layout
+    // and not if we're already on a specific route
   }, [session, sessionLoading, navigate]);
 
   // Get user initials for avatar
@@ -54,6 +58,8 @@ const DashboardLayout = () => {
 
   const handleNavigation = (path: string) => {
     setActivePath(path);
+    // Debug: Log when navigation is triggered manually
+    console.log('Navigation triggered to:', path);
   };
 
   if (sessionLoading) {
