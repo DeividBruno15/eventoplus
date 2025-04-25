@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
@@ -14,22 +13,28 @@ export const useAuth = () => {
   const { toast } = useToast();
 
   useEffect(() => {
+    console.log('useAuth: Setting up auth state listener');
+    
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, currentSession) => {
-      console.log('Auth state changed:', event, currentSession?.user?.email);
+      console.log('useAuth: Auth state changed:', event, currentSession?.user?.email);
       setSession(currentSession);
       setUser(currentSession?.user || null);
       
+      // Only handle sign in/out events with navigation
       if (event === 'SIGNED_IN') {
         toast({
           title: "Login realizado com sucesso!",
           description: "Bem-vindo de volta.",
         });
 
-        // Navigation should happen after state update to avoid race conditions
+        // Avoid immediate navigation to avoid race conditions with router
         setTimeout(() => {
-          navigate('/dashboard');
-        }, 0);
+          // Only navigate if we're not already on the dashboard
+          if (window.location.pathname === '/login' || window.location.pathname === '/register') {
+            navigate('/dashboard');
+          }
+        }, 100);
       } else if (event === 'SIGNED_OUT') {
         toast({
           title: "Logout realizado",
@@ -39,16 +44,11 @@ export const useAuth = () => {
       }
     });
 
-    // THEN check for existing session
+    // THEN check for existing session - but don't navigate automatically here
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
-      console.log('Initial session check:', currentSession?.user?.email);
+      console.log('useAuth: Initial session check:', currentSession?.user?.email);
       setSession(currentSession);
       setUser(currentSession?.user || null);
-      
-      if (currentSession?.user) {
-        // Navigate to dashboard if user is already logged in
-        navigate('/dashboard');
-      }
     });
 
     return () => {

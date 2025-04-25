@@ -44,10 +44,9 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
   );
 
   const handleLinkClick = (path: string) => {
-    // Just call the onNavigate callback for logging purposes
-    onNavigate(path);
-    // Log active path immediately after navigation attempt
+    // Only log for debugging purposes
     console.log('Sidebar item clicked:', path);
+    onNavigate(path);
   };
 
   return (
@@ -84,7 +83,7 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
                 }`}
               >
                 <Link 
-                  to={item.path} 
+                  to={item.path}
                   onClick={() => handleLinkClick(item.path)}
                   className="flex items-center gap-3 w-full"
                 >

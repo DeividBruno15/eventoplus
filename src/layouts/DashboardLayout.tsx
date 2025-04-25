@@ -29,12 +29,14 @@ const DashboardLayout = () => {
     console.log('Current path:', location.pathname);
   }, [location.pathname]);
 
-  // Check authentication - ONLY redirect to login if not authenticated
+  // Check authentication - redirect ONLY if session loading is complete AND there's no session
   useEffect(() => {
-    if (!sessionLoading && !session) {
+    console.log('Session check in DashboardLayout:', { sessionLoading, hasSession: !!session });
+    
+    if (!sessionLoading && session === null) {
+      console.log('No session found, redirecting to login');
       navigate('/login');
     }
-    // Removed any automatic redirect to dashboard
   }, [session, sessionLoading, navigate]);
 
   // Get user initials for avatar
@@ -56,10 +58,9 @@ const DashboardLayout = () => {
   const userName = user?.user_metadata?.first_name || 'Usuário';
 
   const handleNavigation = (path: string) => {
-    // Remove setActivePath since it will be handled by the useEffect above
-    // Just log for debugging
+    // Just for logging purposes
     console.log('Navigation triggered to:', path);
-    // Do not navigate programmatically here - the Link component will handle it
+    // The actual navigation is handled by the Link component
   };
 
   if (sessionLoading) {
@@ -70,6 +71,9 @@ const DashboardLayout = () => {
     );
   }
 
+  // If we're not loading and have a session, render the layout
+  // No need for additional checks here since the useEffect above handles redirection
+  
   const getPageTitle = () => {
     const route = location.pathname;
     
