@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Conversation } from '@/types/chat';
 import { formatTime } from './utils';
+import { toast } from '@/components/ui/sonner';
 
 interface ConversationItemProps {
   conversation: Conversation;
@@ -12,8 +13,13 @@ export default function ConversationItem({ conversation: conv }: ConversationIte
   const navigate = useNavigate();
 
   const handleConversationClick = (id: string) => {
-    // Navigate to the conversation page with the conversation ID
-    navigate(`/conversation/${id}`);
+    try {
+      // Navigate to the conversation page with the conversation ID
+      navigate(`/chat/${id}`);
+    } catch (error) {
+      console.error('Navigation error:', error);
+      toast.error('Erro ao abrir a conversa');
+    }
   };
 
   return (

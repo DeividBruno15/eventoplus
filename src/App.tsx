@@ -12,7 +12,7 @@ import Profile from "./pages/Profile";
 import Events from "./pages/Events";
 import CreateEvent from "./pages/CreateEvent";
 import EventDetail from "./pages/EventDetail";
-import Chat from "./pages/Chat/index";
+import Chat from "./pages/Chat";
 import Conversation from "./pages/Conversation";
 import Settings from "./pages/Settings";
 import Plans from "./pages/Plans";
@@ -27,7 +27,7 @@ import Support from "./pages/Support";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import About from "./pages/About";
-import { Toaster } from "./components/ui/toaster";
+import { Toaster } from "./components/ui/sonner";
 
 function App() {
   return (
@@ -46,6 +46,7 @@ function App() {
           <Route path="/events/:id/edit" element={<DashboardLayout><CreateEvent /></DashboardLayout>} />
           <Route path="/chat" element={<DashboardLayout><Chat /></DashboardLayout>} />
           <Route path="/chat/:id" element={<DashboardLayout><Conversation /></DashboardLayout>} />
+          <Route path="/conversation/:id" element={<DashboardLayout><Conversation /></DashboardLayout>} />
           <Route path="/settings" element={<DashboardLayout><Settings /></DashboardLayout>} />
           <Route path="/help-center" element={<DashboardLayout><HelpCenter /></DashboardLayout>} />
           <Route path="/support" element={<DashboardLayout><Support /></DashboardLayout>} />
@@ -59,7 +60,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
-      <Toaster />
+      <Toaster position="top-right" />
     </>
   );
 }

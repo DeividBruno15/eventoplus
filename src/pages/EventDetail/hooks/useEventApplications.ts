@@ -66,6 +66,7 @@ export const useEventApplications = (event: Event | null) => {
         
       if (error) throw error;
       
+      // Mark other applications as rejected for this service type
       await supabase
         .from('event_applications')
         .update({ status: 'rejected' })
