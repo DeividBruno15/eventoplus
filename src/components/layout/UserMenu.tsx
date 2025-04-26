@@ -16,7 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/contexts/SessionContext";
 import { useToast } from "@/components/ui/use-toast";
-import { Camera, Settings, User, LogOut } from "lucide-react";
+import { LogOut, Settings, User } from "lucide-react";
 
 export function UserMenu() {
   const { logout } = useAuth();
@@ -115,9 +115,8 @@ export function UserMenu() {
             {avatarUrl ? (
               <AvatarImage src={avatarUrl} />
             ) : (
-              <User className="h-5 w-5" />
+              <AvatarFallback>{initials}</AvatarFallback>
             )}
-            <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
           <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 hover:opacity-100 transition-opacity cursor-pointer">
             <input 

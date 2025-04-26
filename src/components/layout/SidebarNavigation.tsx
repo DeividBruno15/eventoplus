@@ -20,6 +20,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/ui/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { Badge } from '@/components/ui/badge';
 
 type MenuItem = {
   path: string;
@@ -44,6 +45,29 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
   const lastName = user?.user_metadata?.last_name || '';
   const avatarUrl = user?.user_metadata?.avatar_url;
   const initials = firstName && lastName ? `${firstName[0]}${lastName[0]}` : 'U';
+  const userRole = user?.user_metadata?.role || 'contractor';
+
+  const getRoleLabel = (role: string) => {
+    switch(role) {
+      case 'contractor':
+        return 'Contratante';
+      case 'provider':
+        return 'Prestador';
+      default:
+        return 'Usuário';
+    }
+  };
+
+  const getRoleColor = (role: string) => {
+    switch(role) {
+      case 'contractor':
+        return 'bg-blue-100 text-blue-800';
+      case 'provider':
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
 
   const mainMenuItems: MenuItem[] = [
     { path: '/dashboard', name: 'Dashboard', icon: LayoutDashboard },
@@ -127,6 +151,9 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
             )}
           </Avatar>
           <h3 className="font-medium text-gray-900">{firstName} {lastName}</h3>
+          <Badge className={`mt-1.5 ${getRoleColor(userRole)}`}>
+            {getRoleLabel(userRole)}
+          </Badge>
         </div>
       </div>
 

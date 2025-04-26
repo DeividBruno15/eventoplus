@@ -15,10 +15,22 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/ui/use-toast';
 import { RoleCard } from './RoleCard';
 import { ServiceCategoriesField } from './ServiceCategoriesField';
+import { useState, useEffect } from 'react';
+import { PasswordStrengthMeter } from './PasswordStrengthMeter';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 export const RegisterForm = () => {
   const { register: signUp, signInWithGoogle, loading } = useAuth();
   const { toast } = useToast();
+  const [password, setPassword] = useState('');
+  const [passwordRequirements, setPasswordRequirements] = useState({
+    length: false,
+    uppercase: false,
+    lowercase: false,
+    number: false,
+    special: false
+  });
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerFormSchema),
@@ -29,14 +41,52 @@ export const RegisterForm = () => {
   });
 
   const selectedRole = form.watch('role');
+  const watchPassword = form.watch('password', '');
+
+  useEffect(() => {
+    setPassword(watchPassword);
+    
+    // Check password requirements
+    setPasswordRequirements({
+      length: watchPassword.length >= 8,
+      uppercase: /[A-Z]/.test(watchPassword),
+      lowercase: /[a-z]/.test(watchPassword),
+      number: /[0-9]/.test(watchPassword),
+      special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(watchPassword),
+    });
+  }, [watchPassword]);
+
+  const allRequirementsMet = Object.values(passwordRequirements).every(req => req === true);
 
   const onSubmit = async (values: RegisterFormData) => {
+    if (!allRequirementsMet) {
+      toast({
+        title: "Senha não atende aos requisitos",
+        description: "Por favor, verifique os critérios de segurança da senha.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     // Complete form submission with is_onboarding_complete set to true
     const completeFormData = {
       ...values,
       is_onboarding_complete: true,
     };
-    await signUp(completeFormData as RegisterFormData);
+    
+    try {
+      await signUp(completeFormData as RegisterFormData);
+      toast({
+        title: "Cadastro realizado",
+        description: "Seu cadastro foi realizado com sucesso!"
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro ao cadastrar",
+        description: error.message || "Ocorreu um erro ao processar seu cadastro",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -59,6 +109,41 @@ export const RegisterForm = () => {
         </div>
         
         <BasicInfoFields form={form} />
+        
+        <div className="space-y-2">
+          <h3 className="text-base font-medium">Senha</h3>
+          <Alert className="bg-blue-50 border-blue-200">
+            <AlertCircle className="h-4 w-4 text-blue-500" />
+            <AlertDescription className="text-sm text-blue-700">
+              Sua senha deve conter:
+            </AlertDescription>
+            <ul className="mt-2 text-sm space-y-1">
+              <li className={`flex items-center ${passwordRequirements.length ? 'text-green-600' : 'text-gray-600'}`}>
+                <span className={`mr-2 text-lg ${passwordRequirements.length ? '✓' : '•'}`}></span>
+                Pelo menos 8 caracteres
+              </li>
+              <li className={`flex items-center ${passwordRequirements.uppercase ? 'text-green-600' : 'text-gray-600'}`}>
+                <span className={`mr-2 text-lg ${passwordRequirements.uppercase ? '✓' : '•'}`}></span>
+                Uma letra maiúscula
+              </li>
+              <li className={`flex items-center ${passwordRequirements.lowercase ? 'text-green-600' : 'text-gray-600'}`}>
+                <span className={`mr-2 text-lg ${passwordRequirements.lowercase ? '✓' : '•'}`}></span>
+                Uma letra minúscula
+              </li>
+              <li className={`flex items-center ${passwordRequirements.number ? 'text-green-600' : 'text-gray-600'}`}>
+                <span className={`mr-2 text-lg ${passwordRequirements.number ? '✓' : '•'}`}></span>
+                Um número
+              </li>
+              <li className={`flex items-center ${passwordRequirements.special ? 'text-green-600' : 'text-gray-600'}`}>
+                <span className={`mr-2 text-lg ${passwordRequirements.special ? '✓' : '•'}`}></span>
+                Um caractere especial (!@#$%^&*()_+...)
+              </li>
+            </ul>
+          </Alert>
+          
+          <PasswordStrengthMeter password={password} />
+        </div>
+        
         <PersonTypeSelector form={form} />
         <DocumentFields form={form} />
         <AddressFields form={form} />
@@ -70,7 +155,7 @@ export const RegisterForm = () => {
         <Button
           type="submit"
           className="w-full"
-          disabled={loading}
+          disabled={loading || !allRequirementsMet}
         >
           {loading ? 'Cadastrando...' : 'Finalizar Cadastro'}
         </Button>

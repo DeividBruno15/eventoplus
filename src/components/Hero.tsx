@@ -32,7 +32,7 @@ const Hero = () => {
 
   return (
     <div className="bg-gradient-to-br from-indigo-50/80 via-white to-blue-50/80 pt-20 pb-16 lg:pt-28 lg:pb-24 overflow-hidden">
-      <div className="container grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+      <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-[1400px] grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
         <HeroContent />
         
         <div className="relative">
