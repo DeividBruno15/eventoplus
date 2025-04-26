@@ -61,8 +61,8 @@ export const RegisterForm = () => {
   const onSubmit = async (values: RegisterFormData) => {
     if (!allRequirementsMet) {
       toast({
-        title: "Senha não atende aos requisitos",
-        description: "Por favor, verifique os critérios de segurança da senha.",
+        title: "Requisitos não atendidos",
+        description: "Por favor, verifique os critérios de segurança.",
         variant: "destructive"
       });
       return;
@@ -111,11 +111,10 @@ export const RegisterForm = () => {
         <BasicInfoFields form={form} />
         
         <div className="space-y-2">
-          <h3 className="text-base font-medium">Senha</h3>
           <Alert className="bg-blue-50 border-blue-200">
             <AlertCircle className="h-4 w-4 text-blue-500" />
-            <AlertDescription className="text-sm text-blue-700">
-              Sua senha deve conter:
+            <AlertDescription className="text-sm text-blue-700 font-medium">
+              Requisitos de segurança
             </AlertDescription>
             <ul className="mt-2 text-sm space-y-1">
               <li className={`flex items-center ${passwordRequirements.length ? 'text-green-600' : 'text-gray-600'}`}>

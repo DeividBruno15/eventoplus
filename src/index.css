@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
 
 @tailwind base;
@@ -101,11 +102,16 @@
 }
 
 .container {
-  @apply px-4 md:px-6 max-w-7xl mx-auto;
+  @apply px-4 md:px-6 max-w-[1440px] mx-auto;
   
   @screen lg {
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+  
+  @screen xl {
+    padding-left: 60px;
+    padding-right: 60px;
   }
 }
 

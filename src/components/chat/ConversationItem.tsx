@@ -12,7 +12,7 @@ export default function ConversationItem({ conversation: conv }: ConversationIte
   const navigate = useNavigate();
 
   const handleConversationClick = (id: string) => {
-    // Navigate to the conversation page directly with the conversation ID
+    // Navigate to the conversation page with the conversation ID
     navigate(`/conversation/${id}`);
   };
 
