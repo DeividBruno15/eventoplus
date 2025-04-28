@@ -27,7 +27,7 @@ const EventDetail = () => {
     userHasApplied, 
     userApplication,
     refetchEvent 
-  } = useEventDetails({ id, user });
+  } = useEventDetails({ id });
   
   const { 
     submitting, 
