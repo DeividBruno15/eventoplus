@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { 
   Tabs, 
@@ -15,12 +16,14 @@ import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useSession } from '@/contexts/SessionContext';
 import { PaymentForm } from '@/components/payment/PaymentForm';
+import { useSubscription } from '@/hooks/useSubscription';
 
 const Plans = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
   const { session } = useSession();
+  const { subscription, subscribeToPlan, isSubscribing } = useSubscription();
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [processingPayment, setProcessingPayment] = useState(false);
   const [userRole, setUserRole] = useState<'provider' | 'contractor' | null>(null);
@@ -29,17 +32,6 @@ const Plans = () => {
     if (user) {
       const role = user.user_metadata?.role as 'provider' | 'contractor' || null;
       setUserRole(role);
-      
-      if (role) {
-        const defaultTab = role === 'provider' ? 'providers' : 'contractors';
-        const tabsElement = document.querySelector('[role="tablist"]') as HTMLElement;
-        if (tabsElement) {
-          const tabButton = tabsElement.querySelector(`[data-value="${defaultTab}"]`) as HTMLElement;
-          if (tabButton) {
-            tabButton.click();
-          }
-        }
-      }
     }
   }, [user]);
 
@@ -47,23 +39,39 @@ const Plans = () => {
     setSelectedPlan(planId);
   };
 
-  const handleCheckout = async () => {
-    if (!selectedPlan) {
+  const handleSubscribe = async (planId: string) => {
+    if (!userRole) {
       toast({
-        title: "Selecione um plano",
-        description: "Por favor, selecione um plano para continuar.",
+        title: "Erro",
+        description: "Seu tipo de conta não está definido. Por favor, atualize seu perfil.",
         variant: "destructive"
       });
       return;
     }
 
-    const plan = userRole === 'provider' 
-      ? providerPlans.find(p => p.id === selectedPlan)
-      : contractorPlans.find(p => p.id === selectedPlan);
+    // Find plan details
+    const plans = userRole === 'provider' ? providerPlans : contractorPlans;
+    const plan = plans.find(p => p.id === planId);
+    
+    if (!plan) {
+      toast({
+        title: "Erro",
+        description: "Plano não encontrado",
+        variant: "destructive"
+      });
+      return;
+    }
 
-    if (!plan) return;
-
-    setProcessingPayment(true);
+    // Process subscription
+    const result = await subscribeToPlan(planId, plan.name, userRole);
+    
+    if (result) {
+      toast({
+        title: "Assinatura realizada",
+        description: `Você assinou o plano ${plan.name} com sucesso!`
+      });
+      navigate('/profile');
+    }
   };
 
   return (
@@ -76,186 +84,104 @@ const Plans = () => {
           <p className="text-lg text-muted-foreground">
             Escolha o plano ideal para suas necessidades e comece a crescer conosco
           </p>
+          {subscription && (
+            <div className="mt-4">
+              <div className="inline-block bg-green-100 text-green-800 px-4 py-2 rounded-md">
+                Você já possui o plano <strong>{subscription.plan_name}</strong> ativo até {new Date(subscription.expires_at).toLocaleDateString('pt-BR')}
+              </div>
+            </div>
+          )}
         </div>
 
         {!selectedPlan ? (
-          <Tabs 
-            defaultValue={userRole === 'provider' ? 'providers' : 'contractors'} 
-            className="space-y-8"
-          >
+          <div className="space-y-8">
             {userRole === 'provider' ? (
               <>
-                <TabsList className="grid w-full grid-cols-1 max-w-[400px] mx-auto">
-                  <TabsTrigger value="providers">Para Prestadores</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="providers" className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {providerPlans.map((plan) => (
-                      <Card key={plan.id} className={`${plan.featured ? 'border-primary shadow-lg' : ''} flex flex-col`}>
-                        <CardHeader>
-                          <CardTitle>
-                            {plan.name}
-                            {plan.featured && <span className="ml-2 text-xs bg-primary text-white px-2 py-1 rounded">RECOMENDADO</span>}
-                          </CardTitle>
-                          <div className="mt-2">
-                            <span className="text-3xl font-bold">R$ {plan.price}</span>
-                            <span className="text-muted-foreground">/mês</span>
-                          </div>
-                        </CardHeader>
-                        <CardContent className="flex-grow">
-                          <ul className="space-y-2">
-                            {plan.features.map((feature, i) => (
-                              <li key={i} className="flex items-start">
-                                <Check className="h-5 w-5 text-primary shrink-0 mr-2" />
-                                <span>{feature}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </CardContent>
-                        <CardFooter>
-                          <Button 
-                            className="w-full" 
-                            variant={plan.featured ? "default" : "outline"}
-                            onClick={() => handleSelectPlan(plan.id)}
-                          >
-                            Selecionar Plano
-                          </Button>
-                        </CardFooter>
-                      </Card>
-                    ))}
-                  </div>
-                </TabsContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {providerPlans.map((plan) => (
+                    <Card key={plan.id} className={`${plan.featured ? 'border-primary shadow-lg' : ''} flex flex-col`}>
+                      <CardHeader>
+                        <CardTitle>
+                          {plan.name}
+                          {plan.featured && <span className="ml-2 text-xs bg-primary text-white px-2 py-1 rounded">RECOMENDADO</span>}
+                        </CardTitle>
+                        <div className="mt-2">
+                          <span className="text-3xl font-bold">R$ {plan.price}</span>
+                          <span className="text-muted-foreground">/mês</span>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="flex-grow">
+                        <ul className="space-y-2">
+                          {plan.features.map((feature, i) => (
+                            <li key={i} className="flex items-start">
+                              <Check className="h-5 w-5 text-primary shrink-0 mr-2" />
+                              <span>{feature}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </CardContent>
+                      <CardFooter>
+                        <Button 
+                          className="w-full" 
+                          variant={plan.featured ? "default" : "outline"}
+                          onClick={() => handleSubscribe(plan.id)}
+                          disabled={isSubscribing}
+                        >
+                          {isSubscribing ? "Processando..." : "Assinar Plano"}
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  ))}
+                </div>
               </>
             ) : userRole === 'contractor' ? (
               <>
-                <TabsList className="grid w-full grid-cols-1 max-w-[400px] mx-auto">
-                  <TabsTrigger value="contractors">Para Contratantes</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="contractors" className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {contractorPlans.map((plan) => (
-                      <Card key={plan.id} className={`${plan.featured ? 'border-primary shadow-lg' : ''} flex flex-col`}>
-                        <CardHeader>
-                          <CardTitle>
-                            {plan.name}
-                            {plan.featured && <span className="ml-2 text-xs bg-primary text-white px-2 py-1 rounded">RECOMENDADO</span>}
-                          </CardTitle>
-                          <div className="mt-2">
-                            <span className="text-3xl font-bold">R$ {plan.price}</span>
-                            <span className="text-muted-foreground">/mês</span>
-                          </div>
-                        </CardHeader>
-                        <CardContent className="flex-grow">
-                          <ul className="space-y-2">
-                            {plan.features.map((feature, i) => (
-                              <li key={i} className="flex items-start">
-                                <Check className="h-5 w-5 text-primary shrink-0 mr-2" />
-                                <span>{feature}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </CardContent>
-                        <CardFooter>
-                          <Button 
-                            className="w-full" 
-                            variant={plan.featured ? "default" : "outline"}
-                            onClick={() => handleSelectPlan(plan.id)}
-                          >
-                            Selecionar Plano
-                          </Button>
-                        </CardFooter>
-                      </Card>
-                    ))}
-                  </div>
-                </TabsContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {contractorPlans.map((plan) => (
+                    <Card key={plan.id} className={`${plan.featured ? 'border-primary shadow-lg' : ''} flex flex-col`}>
+                      <CardHeader>
+                        <CardTitle>
+                          {plan.name}
+                          {plan.featured && <span className="ml-2 text-xs bg-primary text-white px-2 py-1 rounded">RECOMENDADO</span>}
+                        </CardTitle>
+                        <div className="mt-2">
+                          <span className="text-3xl font-bold">R$ {plan.price}</span>
+                          <span className="text-muted-foreground">/mês</span>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="flex-grow">
+                        <ul className="space-y-2">
+                          {plan.features.map((feature, i) => (
+                            <li key={i} className="flex items-start">
+                              <Check className="h-5 w-5 text-primary shrink-0 mr-2" />
+                              <span>{feature}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </CardContent>
+                      <CardFooter>
+                        <Button 
+                          className="w-full" 
+                          variant={plan.featured ? "default" : "outline"}
+                          onClick={() => handleSubscribe(plan.id)}
+                          disabled={isSubscribing}
+                        >
+                          {isSubscribing ? "Processando..." : "Assinar Plano"}
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  ))}
+                </div>
               </>
             ) : (
-              <>
-                <TabsList className="grid w-full grid-cols-2 max-w-[400px] mx-auto">
-                  <TabsTrigger value="providers">Para Prestadores</TabsTrigger>
-                  <TabsTrigger value="contractors">Para Contratantes</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="providers" className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {providerPlans.map((plan) => (
-                      <Card key={plan.id} className={`${plan.featured ? 'border-primary shadow-lg' : ''} flex flex-col`}>
-                        <CardHeader>
-                          <CardTitle>
-                            {plan.name}
-                            {plan.featured && <span className="ml-2 text-xs bg-primary text-white px-2 py-1 rounded">RECOMENDADO</span>}
-                          </CardTitle>
-                          <div className="mt-2">
-                            <span className="text-3xl font-bold">R$ {plan.price}</span>
-                            <span className="text-muted-foreground">/mês</span>
-                          </div>
-                        </CardHeader>
-                        <CardContent className="flex-grow">
-                          <ul className="space-y-2">
-                            {plan.features.map((feature, i) => (
-                              <li key={i} className="flex items-start">
-                                <Check className="h-5 w-5 text-primary shrink-0 mr-2" />
-                                <span>{feature}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </CardContent>
-                        <CardFooter>
-                          <Button 
-                            className="w-full" 
-                            variant={plan.featured ? "default" : "outline"}
-                            onClick={() => handleSelectPlan(plan.id)}
-                          >
-                            Selecionar Plano
-                          </Button>
-                        </CardFooter>
-                      </Card>
-                    ))}
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="contractors" className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {contractorPlans.map((plan) => (
-                      <Card key={plan.id} className={`${plan.featured ? 'border-primary shadow-lg' : ''} flex flex-col`}>
-                        <CardHeader>
-                          <CardTitle>
-                            {plan.name}
-                            {plan.featured && <span className="ml-2 text-xs bg-primary text-white px-2 py-1 rounded">RECOMENDADO</span>}
-                          </CardTitle>
-                          <div className="mt-2">
-                            <span className="text-3xl font-bold">R$ {plan.price}</span>
-                            <span className="text-muted-foreground">/mês</span>
-                          </div>
-                        </CardHeader>
-                        <CardContent className="flex-grow">
-                          <ul className="space-y-2">
-                            {plan.features.map((feature, i) => (
-                              <li key={i} className="flex items-start">
-                                <Check className="h-5 w-5 text-primary shrink-0 mr-2" />
-                                <span>{feature}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </CardContent>
-                        <CardFooter>
-                          <Button 
-                            className="w-full" 
-                            variant={plan.featured ? "default" : "outline"}
-                            onClick={() => handleSelectPlan(plan.id)}
-                          >
-                            Selecionar Plano
-                          </Button>
-                        </CardFooter>
-                      </Card>
-                    ))}
-                  </div>
-                </TabsContent>
-              </>
+              <div className="text-center py-10">
+                <p className="text-lg text-muted-foreground mb-4">
+                  Você precisa estar logado e ter um tipo de conta definido para ver os planos disponíveis.
+                </p>
+                <Button onClick={() => navigate('/login')}>Fazer Login</Button>
+              </div>
             )}
-          </Tabs>
+          </div>
         ) : (
           <div className="max-w-2xl mx-auto">
             <PaymentForm 

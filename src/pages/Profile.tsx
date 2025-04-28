@@ -3,17 +3,22 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { useSubscription } from '@/hooks/useSubscription';
 import { supabase } from '@/integrations/supabase/client';
-import { Camera, PlusCircle, Edit } from 'lucide-react';
+import { Camera, PlusCircle, Edit, CreditCard } from 'lucide-react';
 import { EditProfileModal } from '@/components/profile/EditProfileModal';
 import { EditAddressModal } from '@/components/profile/EditAddressModal';
 import { ServiceCategoriesModal } from '@/components/profile/ServiceCategoriesModal';
+import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { subscription, isLoading: isLoadingSubscription } = useSubscription();
   const [userProfile, setUserProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [userServices, setUserServices] = useState<string[]>([]);
@@ -120,6 +125,10 @@ const Profile = () => {
     }
   };
 
+  const handleUpdatePlan = () => {
+    navigate('/plans');
+  };
+
   if (loading) {
     return (
       <div className="container py-8">
@@ -140,6 +149,12 @@ const Profile = () => {
   const hasServices = userServices.length > 0;
   const buttonText = hasServices ? 'Atualizar Serviços' : 'Adicionar Serviços';
   const bio = userMetadata.bio || '';
+
+  // Format subscription name/date for display
+  const subscriptionInfo = subscription ? {
+    name: subscription.plan_name,
+    date: new Date(subscription.expires_at).toLocaleDateString('pt-BR'),
+  } : null;
 
   return (
     <div className="container py-8 space-y-6">
@@ -179,6 +194,15 @@ const Profile = () => {
               <div>
                 <h3 className="font-semibold text-lg">{userMetadata.first_name} {userMetadata.last_name}</h3>
                 <p className="text-muted-foreground text-sm">{user?.email}</p>
+                {subscription ? (
+                  <Badge variant="subscription" className="mt-2">
+                    Plano: {subscription.plan_name}
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="mt-2">
+                    Plano: Gratuito
+                  </Badge>
+                )}
               </div>
             </div>
 
@@ -204,6 +228,18 @@ const Profile = () => {
               <div>
                 <p className="text-sm text-muted-foreground">Biografia</p>
                 <p className="whitespace-pre-wrap">{bio || 'Sem biografia.'}</p>
+              </div>
+              {subscription && (
+                <div>
+                  <p className="text-sm text-muted-foreground">Validade do plano</p>
+                  <p>Válido até {new Date(subscription.expires_at).toLocaleDateString('pt-BR')}</p>
+                </div>
+              )}
+              <div className="pt-4">
+                <Button onClick={handleUpdatePlan} variant="outline" className="w-full">
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  Atualizar Plano
+                </Button>
               </div>
             </div>
           </CardContent>
