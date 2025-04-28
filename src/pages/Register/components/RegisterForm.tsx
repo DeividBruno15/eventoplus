@@ -150,7 +150,7 @@ export const RegisterForm = () => {
           name="phone_number"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Telefone</FormLabel>
+              <FormLabel>Telefone Whatsapp</FormLabel>
               <FormControl>
                 <Input 
                   placeholder="(00) 00000-0000" 

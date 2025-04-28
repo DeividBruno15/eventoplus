@@ -18,25 +18,42 @@ serve(async (req) => {
 
   try {
     const { amount, planId } = await req.json()
+    
+    // Get origin for success/cancel URLs
+    const origin = req.headers.get('origin') || 'http://localhost:3000';
 
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: amount * 100, // Convert to cents
-      currency: 'brl',
-      automatic_payment_methods: {
-        enabled: true,
-      },
+    // Create a checkout session instead of a payment intent
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price_data: {
+            currency: 'brl',
+            product_data: {
+              name: 'Assinatura de Plano',
+              description: `Plano ${planId}`,
+            },
+            unit_amount: amount, // Already in cents
+          },
+          quantity: 1,
+        },
+      ],
+      mode: 'payment',
+      success_url: `${origin}/plans?success=true`,
+      cancel_url: `${origin}/plans?canceled=true`,
       metadata: {
         planId,
       },
-    })
+    });
 
     return new Response(
-      JSON.stringify({ clientSecret: paymentIntent.client_secret }),
+      JSON.stringify({ url: session.url }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     )
   } catch (error) {
+    console.error('Error creating payment:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       {

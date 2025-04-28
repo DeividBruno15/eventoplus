@@ -62,7 +62,8 @@ export const useSubscription = () => {
         role
       });
       
-      const response = await fetch('/api/create-subscription', {
+      // First create the subscription in the database
+      const response = await fetch(`${window.location.origin}/api/create-subscription`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -81,18 +82,43 @@ export const useSubscription = () => {
         throw new Error(errorData.error || 'Erro ao processar assinatura');
       }
       
-      const result = await response.json();
-      console.log("Subscription result:", result);
+      const subscriptionResult = await response.json();
+      console.log("Subscription result:", subscriptionResult);
+      
+      // Now create a payment intent with Stripe
+      const paymentResponse = await fetch(`${window.location.origin}/api/create-payment-intent`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${clientToken.session?.access_token}`
+        },
+        body: JSON.stringify({
+          amount: getPlanPrice(planId),
+          planId
+        })
+      });
+
+      if (!paymentResponse.ok) {
+        const errorData = await paymentResponse.json();
+        console.error("Payment error:", errorData);
+        throw new Error(errorData.error || 'Erro ao processar pagamento');
+      }
+      
+      const paymentResult = await paymentResponse.json();
+      console.log("Payment result:", paymentResult);
+      
+      // Redirect to Stripe Checkout
+      window.location.href = paymentResult.url;
       
       toast({
-        title: "Assinatura realizada",
-        description: `Você assinou o plano ${planName} com sucesso!`,
+        title: "Redirecionando para o pagamento",
+        description: "Você será redirecionado para a página de pagamento do Stripe.",
       });
       
       // Refresh subscription data
       await subscriptionQuery.refetch();
       
-      return result.subscription;
+      return subscriptionResult.subscription;
     } catch (error: any) {
       console.error("Subscription error:", error);
       toast({
@@ -104,6 +130,22 @@ export const useSubscription = () => {
     } finally {
       setIsSubscribing(false);
     }
+  };
+
+  // Helper function to get the price of a plan based on its ID
+  const getPlanPrice = (planId: string): number => {
+    // Provider plans
+    if (planId === 'provider-essential') return 0;
+    if (planId === 'provider-professional') return 1490; // R$ 14.90
+    if (planId === 'provider-premium') return 2990; // R$ 29.90
+    
+    // Contractor plans
+    if (planId === 'contractor-discover') return 0;
+    if (planId === 'contractor-connect') return 1490; // R$ 14.90
+    if (planId === 'contractor-management') return 2990; // R$ 29.90
+    
+    // Default price for unknown plans
+    return 0;
   };
 
   return {

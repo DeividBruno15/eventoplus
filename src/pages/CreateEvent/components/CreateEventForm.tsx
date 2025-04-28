@@ -10,8 +10,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { BasicEventFields } from './BasicEventFields';
 import { LocationServiceFields } from './LocationServiceFields';
 import { ImageUploadField } from './ImageUploadField';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/components/ui/toast';
 import { ServiceSelectionField } from './ServiceSelectionField';
+import { DescriptionField } from './DescriptionField';
 
 export const CreateEventForm = () => {
   const navigate = useNavigate();
@@ -95,6 +96,7 @@ export const CreateEventForm = () => {
   return (
     <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
       <BasicEventFields form={form} />
+      <DescriptionField form={form} />
       <LocationServiceFields form={form} />
       <ServiceSelectionField form={form} />
       <ImageUploadField 

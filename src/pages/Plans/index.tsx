@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -36,31 +35,18 @@ const Plans = () => {
       return;
     }
 
-    // Find plan details
-    const plans = userRole === 'provider' ? providerPlans : contractorPlans;
-    const plan = plans.find(p => p.id === planId);
-    
-    if (!plan) {
+    if (planId.includes('essential') || planId.includes('discover')) {
       toast({
-        title: "Erro",
-        description: "Plano não encontrado",
-        variant: "destructive"
+        title: "Plano Gratuito",
+        description: "Você selecionou um plano gratuito. Não é necessário pagamento.",
       });
+      await subscribeToPlan(planId, getPlanName(planId), userRole);
       return;
     }
 
-    // Process subscription
     try {
       console.log("Subscribing to plan:", planId);
-      const result = await subscribeToPlan(planId, plan.name, userRole);
-      
-      if (result) {
-        toast({
-          title: "Assinatura realizada",
-          description: `Você assinou o plano ${plan.name} com sucesso!`
-        });
-        navigate('/profile');
-      }
+      await subscribeToPlan(planId, getPlanName(planId), userRole);
     } catch (error) {
       console.error("Subscription error:", error);
       toast({
@@ -69,6 +55,12 @@ const Plans = () => {
         variant: "destructive"
       });
     }
+  };
+
+  const getPlanName = (planId: string): string => {
+    const allPlans = [...providerPlans, ...contractorPlans];
+    const plan = allPlans.find(p => p.id === planId);
+    return plan ? plan.name : "Plano";
   };
 
   return (
