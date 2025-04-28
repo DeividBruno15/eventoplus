@@ -66,11 +66,15 @@ const Profile = () => {
   };
 
   const handleEditProfile = () => {
-    navigate('/settings');
+    navigate('/settings/account');
+  };
+  
+  const handleEditAddress = () => {
+    navigate('/settings/address');
   };
   
   const handleAddServices = () => {
-    navigate('/settings');
+    navigate('/settings/services');
   };
 
   const uploadAvatar = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -148,6 +152,7 @@ const Profile = () => {
   const isProvider = userMetadata.role === 'provider';
   const hasServices = userServices.length > 0;
   const buttonText = hasServices ? 'Atualizar Serviços' : 'Adicionar Serviços';
+  const currentPlan = userMetadata.plan || 'Gratuito';
 
   return (
     <div className="container py-8 space-y-6">
@@ -187,6 +192,19 @@ const Profile = () => {
               <div>
                 <h3 className="font-semibold text-lg">{userMetadata.first_name} {userMetadata.last_name}</h3>
                 <p className="text-muted-foreground text-sm">{user?.email}</p>
+                <div className="mt-2">
+                  <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full">
+                    Plano: {currentPlan}
+                  </span>
+                  <Button 
+                    variant="link" 
+                    size="sm" 
+                    className="text-xs pl-1" 
+                    onClick={() => navigate('/plans')}
+                  >
+                    Atualizar plano
+                  </Button>
+                </div>
               </div>
             </div>
 
@@ -217,7 +235,7 @@ const Profile = () => {
         <Card className="w-full md:w-1/2">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xl">Endereço</CardTitle>
-            <Button variant="outline" size="sm" onClick={handleEditProfile}>
+            <Button variant="outline" size="sm" onClick={handleEditAddress}>
               <Edit className="h-4 w-4 mr-2" />
               Editar Endereço
             </Button>

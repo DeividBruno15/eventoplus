@@ -45,6 +45,8 @@ const Navbar = () => {
   };
 
   const avatarUrl = user?.user_metadata?.avatar_url;
+  const firstName = user?.user_metadata?.first_name || "";
+  const lastName = user?.user_metadata?.last_name || "";
 
   return (
     <nav className="bg-white shadow-sm sticky top-0 z-50">
@@ -74,8 +76,8 @@ const Navbar = () => {
                       {avatarUrl ? (
                         <AvatarImage src={avatarUrl} />
                       ) : (
-                        <AvatarFallback className="bg-muted">
-                          <Camera className="h-5 w-5 text-muted-foreground" />
+                        <AvatarFallback>
+                          {firstName && lastName ? `${firstName[0]}${lastName[0]}` : <Camera className="h-5 w-5 text-muted-foreground" />}
                         </AvatarFallback>
                       )}
                     </Avatar>
