@@ -40,27 +40,31 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          
+          {/* Dashboard routes nested under DashboardLayout */}
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<Dashboard />} />
-            <Route path="/dashboard/profile" element={<Profile />} />
-            <Route path="/dashboard/events" element={<Events />} />
-            <Route path="/dashboard/chat" element={<Chat />} />
-            <Route path="/dashboard/chat/:id" element={<Conversation />} />
-            <Route path="/dashboard/conversation/:id" element={<Conversation />} />
-            <Route path="/dashboard/settings" element={<Settings />} />
-            <Route path="/dashboard/help-center" element={<HelpCenter />} />
-            <Route path="/dashboard/support" element={<Support />} />
-            <Route path="/dashboard/plans" element={<Plans />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="events" element={<Events />} />
+            <Route path="chat" element={<Chat />} />
+            <Route path="chat/:id" element={<Conversation />} />
+            <Route path="settings" element={<Settings />} />
+            <Route path="help-center" element={<HelpCenter />} />
+            <Route path="support" element={<Support />} />
+            <Route path="plans" element={<Plans />} />
           </Route>
-          <Route path="/events/create" element={<CreateEvent />} />
+          
+          {/* Routes that should show DashboardLayout */}
+          <Route path="/events/create" element={<DashboardLayout><CreateEvent /></DashboardLayout>} />
           <Route path="/events/:id" element={<EventDetail />} />
           <Route path="/events/:id/edit" element={<CreateEvent />} />
-          <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/service-providers" element={<ServiceProviders />} />
           <Route path="/provider/:id" element={<ProviderProfile />} />
           <Route path="/request-quote/:id?" element={<RequestQuote />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
+          
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

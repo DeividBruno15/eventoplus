@@ -1,4 +1,3 @@
-
 import { 
   LayoutDashboard, 
   User, 
@@ -71,15 +70,15 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
 
   const mainMenuItems: MenuItem[] = [
     { path: '/dashboard', name: 'Dashboard', icon: LayoutDashboard },
-    { path: '/profile', name: 'Perfil', icon: User },
-    { path: '/events', name: 'Eventos', icon: Calendar },
-    { path: '/chat', name: 'Chat', icon: MessagesSquare },
-    { path: '/settings', name: 'Configurações', icon: Settings },
+    { path: '/dashboard/profile', name: 'Perfil', icon: User },
+    { path: '/dashboard/events', name: 'Eventos', icon: Calendar },
+    { path: '/dashboard/chat', name: 'Chat', icon: MessagesSquare },
+    { path: '/dashboard/settings', name: 'Configurações', icon: Settings },
   ];
 
   const supportMenuItems: MenuItem[] = [
-    { path: '/help-center', name: 'Central de Ajuda', icon: HelpCircle },
-    { path: '/support', name: 'Suporte', icon: LifeBuoy },
+    { path: '/dashboard/help-center', name: 'Central de Ajuda', icon: HelpCircle },
+    { path: '/dashboard/support', name: 'Suporte', icon: LifeBuoy },
   ];
 
   const handleLinkClick = (path: string) => {

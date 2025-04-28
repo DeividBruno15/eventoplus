@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -47,11 +46,11 @@ export function UserMenu() {
   };
 
   const handleProfileClick = () => {
-    navigate('/profile');
+    navigate('/dashboard/profile');
   };
 
   const handleSettingsClick = () => {
-    navigate('/settings');
+    navigate('/dashboard/settings');
   };
 
   const uploadAvatar = async (event: React.ChangeEvent<HTMLInputElement>) => {

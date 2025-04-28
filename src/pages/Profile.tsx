@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,7 +8,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { Camera, PlusCircle, Edit } from 'lucide-react';
 
-// Mock service categories data (replace with actual data from API)
 const serviceCategories = [
   'Buffet', 'Música', 'Decoração', 'Fotografia', 'Bebidas', 'Local', 'Bolos e doces'
 ];
@@ -32,7 +30,6 @@ const Profile = () => {
   const fetchUserProfile = async () => {
     setLoading(true);
     try {
-      // Fetch user profile data
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
@@ -42,7 +39,6 @@ const Profile = () => {
       if (error) throw error;
       setUserProfile(data);
       
-      // If user is a provider, fetch their services
       if (user?.user_metadata?.role === 'provider') {
         const { data: servicesData, error: servicesError } = await supabase
           .from('provider_services')
@@ -66,15 +62,15 @@ const Profile = () => {
   };
 
   const handleEditProfile = () => {
-    navigate('/settings/account');
+    navigate('/dashboard/settings');
   };
   
   const handleEditAddress = () => {
-    navigate('/settings/address');
+    navigate('/dashboard/settings');
   };
   
   const handleAddServices = () => {
-    navigate('/settings/services');
+    navigate('/dashboard/settings');
   };
 
   const uploadAvatar = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -116,7 +112,6 @@ const Profile = () => {
         description: "Sua imagem de perfil foi atualizada com sucesso."
       });
       
-      // Force refresh to show new avatar
       setTimeout(() => {
         window.location.reload();
       }, 1000);
@@ -157,7 +152,6 @@ const Profile = () => {
   return (
     <div className="container py-8 space-y-6">
       <div className="flex flex-col md:flex-row gap-6">
-        {/* Informações Pessoais */}
         <Card className="w-full md:w-1/2">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xl">Informações Pessoais</CardTitle>
@@ -174,7 +168,10 @@ const Profile = () => {
                     <AvatarImage src={avatarUrl} />
                   ) : (
                     <AvatarFallback className="bg-muted">
-                      <Camera className="h-8 w-8 text-muted-foreground" />
+                      {userMetadata.first_name && userMetadata.last_name ? 
+                        `${userMetadata.first_name[0]}${userMetadata.last_name[0]}` : 
+                        <Camera className="h-8 w-8 text-muted-foreground" />
+                      }
                     </AvatarFallback>
                   )}
                 </Avatar>
@@ -200,7 +197,7 @@ const Profile = () => {
                     variant="link" 
                     size="sm" 
                     className="text-xs pl-1" 
-                    onClick={() => navigate('/plans')}
+                    onClick={() => navigate('/dashboard/plans')}
                   >
                     Atualizar plano
                   </Button>
@@ -231,7 +228,6 @@ const Profile = () => {
           </CardContent>
         </Card>
 
-        {/* Endereço */}
         <Card className="w-full md:w-1/2">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xl">Endereço</CardTitle>
@@ -271,7 +267,6 @@ const Profile = () => {
         </Card>
       </div>
 
-      {/* Serviços (apenas para prestadores) */}
       {isProvider && (
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
