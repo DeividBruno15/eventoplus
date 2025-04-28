@@ -6,22 +6,23 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
 import { Camera, PlusCircle, Edit } from 'lucide-react';
-
-// Mock service categories data (replace with actual data from API)
-const serviceCategories = [
-  'Buffet', 'Música', 'Decoração', 'Fotografia', 'Bebidas', 'Local', 'Bolos e doces'
-];
+import { EditProfileModal } from '@/components/profile/EditProfileModal';
+import { EditAddressModal } from '@/components/profile/EditAddressModal';
+import { ServiceCategoriesModal } from '@/components/profile/ServiceCategoriesModal';
 
 const Profile = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const navigate = useNavigate();
   const [userProfile, setUserProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [userServices, setUserServices] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
+  
+  // Modal states
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const [isEditAddressOpen, setIsEditAddressOpen] = useState(false);
+  const [isEditServicesOpen, setIsEditServicesOpen] = useState(false);
   
   useEffect(() => {
     if (user) {
@@ -64,15 +65,7 @@ const Profile = () => {
       setLoading(false);
     }
   };
-
-  const handleEditProfile = () => {
-    navigate('/settings');
-  };
   
-  const handleAddServices = () => {
-    navigate('/settings');
-  };
-
   const uploadAvatar = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
       setUploading(true);
@@ -113,9 +106,7 @@ const Profile = () => {
       });
       
       // Force refresh to show new avatar
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      fetchUserProfile();
       
     } catch (error: any) {
       toast({
@@ -148,6 +139,7 @@ const Profile = () => {
   const isProvider = userMetadata.role === 'provider';
   const hasServices = userServices.length > 0;
   const buttonText = hasServices ? 'Atualizar Serviços' : 'Adicionar Serviços';
+  const bio = userMetadata.bio || '';
 
   return (
     <div className="container py-8 space-y-6">
@@ -156,7 +148,7 @@ const Profile = () => {
         <Card className="w-full md:w-1/2">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xl">Informações Pessoais</CardTitle>
-            <Button variant="outline" size="sm" onClick={handleEditProfile}>
+            <Button variant="outline" size="sm" onClick={() => setIsEditProfileOpen(true)}>
               <Edit className="h-4 w-4 mr-2" />
               Editar Perfil
             </Button>
@@ -209,6 +201,10 @@ const Profile = () => {
                 <p className="text-sm text-muted-foreground">CPF/CNPJ</p>
                 <p>{userMetadata.document_number || '-'}</p>
               </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Biografia</p>
+                <p className="whitespace-pre-wrap">{bio || 'Sem biografia.'}</p>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -217,7 +213,7 @@ const Profile = () => {
         <Card className="w-full md:w-1/2">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xl">Endereço</CardTitle>
-            <Button variant="outline" size="sm" onClick={handleEditProfile}>
+            <Button variant="outline" size="sm" onClick={() => setIsEditAddressOpen(true)}>
               <Edit className="h-4 w-4 mr-2" />
               Editar Endereço
             </Button>
@@ -258,7 +254,7 @@ const Profile = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xl">Meus Serviços</CardTitle>
-            <Button variant="outline" size="sm" onClick={handleAddServices}>
+            <Button variant="outline" size="sm" onClick={() => setIsEditServicesOpen(true)}>
               <PlusCircle className="h-4 w-4 mr-2" />
               {buttonText}
             </Button>
@@ -280,7 +276,7 @@ const Profile = () => {
                 <p className="text-muted-foreground mb-4">
                   Você ainda não adicionou nenhum serviço ao seu perfil.
                 </p>
-                <Button onClick={handleAddServices}>
+                <Button onClick={() => setIsEditServicesOpen(true)}>
                   <PlusCircle className="h-4 w-4 mr-2" />
                   Adicionar Serviços
                 </Button>
@@ -289,6 +285,29 @@ const Profile = () => {
           </CardContent>
         </Card>
       )}
+
+      {/* Modals */}
+      <EditProfileModal 
+        isOpen={isEditProfileOpen}
+        onClose={() => setIsEditProfileOpen(false)}
+        userData={user}
+        onProfileUpdate={fetchUserProfile}
+      />
+
+      <EditAddressModal
+        isOpen={isEditAddressOpen}
+        onClose={() => setIsEditAddressOpen(false)}
+        userData={user}
+        onAddressUpdate={fetchUserProfile}
+      />
+
+      <ServiceCategoriesModal
+        isOpen={isEditServicesOpen}
+        onClose={() => setIsEditServicesOpen(false)}
+        userData={user}
+        userServices={userServices}
+        onServicesUpdate={fetchUserProfile}
+      />
     </div>
   );
 };
