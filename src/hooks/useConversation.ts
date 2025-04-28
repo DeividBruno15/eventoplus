@@ -35,32 +35,22 @@ export function useConversation(conversationId: string): ConversationDetails & {
 
   // For demo/mock conversations with numeric IDs
   const getMockConversation = (id: string) => {
-    // Mock conversation data for demo purposes
-    const mockConversations = {
-      '1': {
-        otherUser: { first_name: 'Maria', last_name: 'Silva' },
-        messages: [
-          { id: '1', message: 'Olá, gostaria de saber mais detalhes sobre seu serviço', created_at: new Date(Date.now() - 60 * 60000).toISOString(), read: true, sender_id: 'other-user' },
-          { id: '2', message: 'Claro! Como posso ajudar?', created_at: new Date(Date.now() - 50 * 60000).toISOString(), read: true, sender_id: user?.id || '' }
-        ]
-      },
-      '2': {
-        otherUser: { first_name: 'João', last_name: 'Santos' },
-        messages: [
-          { id: '3', message: 'Você está disponível para um evento no próximo final de semana?', created_at: new Date(Date.now() - 2 * 60 * 60000).toISOString(), read: true, sender_id: 'other-user' },
-          { id: '4', message: 'Sim, estou disponível. Que horas seria?', created_at: new Date(Date.now() - 1 * 60 * 60000).toISOString(), read: true, sender_id: user?.id || '' }
-        ]
-      },
-      '3': {
-        otherUser: { first_name: 'Ana', last_name: 'Pereira' },
-        messages: [
-          { id: '5', message: 'Obrigada pelo orçamento', created_at: new Date(Date.now() - 24 * 60 * 60000).toISOString(), read: true, sender_id: 'other-user' },
-          { id: '6', message: 'De nada! Se precisar de mais informações, estou à disposição.', created_at: new Date(Date.now() - 23 * 60 * 60000).toISOString(), read: true, sender_id: user?.id || '' }
-        ]
-      }
-    } as Record<string, { otherUser: any, messages: any[] }>;
+    const userId = user?.id || 'current-user';
     
-    return mockConversations[id] || null;
+    // Only create mock data if we explicitly have a temporary ID format
+    if (id.startsWith('new-')) {
+      // Extract the name from the ID or use a default
+      const nameParts = id.split('-');
+      const firstName = nameParts.length > 2 ? nameParts[1] : 'Unnamed';
+      const lastName = nameParts.length > 3 ? nameParts[2] : 'User';
+      
+      return {
+        otherUser: { first_name: firstName, last_name: lastName },
+        messages: []
+      };
+    }
+    
+    return null;
   };
 
   const fetchMessages = async () => {
@@ -71,7 +61,7 @@ export function useConversation(conversationId: string): ConversationDetails & {
       
       // Handle mock conversations with non-UUID IDs
       if (!isValidUUID(conversationId)) {
-        console.log('Using mock conversation data for demo purposes');
+        console.log('Using temporary conversation data');
         const mockData = getMockConversation(conversationId);
         
         if (mockData) {
@@ -120,7 +110,12 @@ export function useConversation(conversationId: string): ConversationDetails & {
 
   const verifyConversation = async () => {
     try {
-      // For mock data, use the mock conversation data
+      if (!user) {
+        navigate('/login');
+        return;
+      }
+      
+      // For temporary conversations, use mock data
       if (!isValidUUID(conversationId)) {
         const mockData = getMockConversation(conversationId);
         if (mockData) {
@@ -217,18 +212,20 @@ export function useConversation(conversationId: string): ConversationDetails & {
     if (!conversationId || !user) return;
     
     try {
-      // Handle mock conversations
+      // Handle temporary conversations
       if (!isValidUUID(conversationId)) {
-        // For mock conversations, just add the message to the local state
+        // For temporary conversations, just add the message to the local state
         const newMessage = {
-          id: `mock-${Date.now()}`,
+          id: `temp-${Date.now()}`,
           message,
           created_at: new Date().toISOString(),
           read: false,
-          sender_id: user.id
+          sender_id: user.id,
+          conversation_id: conversationId,
+          receiver_id: 'temp-user'
         };
         
-        setMessages([...messages, newMessage]);
+        setMessages(prev => [...prev, newMessage]);
         return;
       }
       
@@ -274,11 +271,8 @@ export function useConversation(conversationId: string): ConversationDetails & {
   };
 
   useEffect(() => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
-
+    if (!conversationId) return;
+    
     verifyConversation();
 
     // Set up real-time subscription for new messages for real conversations
@@ -297,7 +291,7 @@ export function useConversation(conversationId: string): ConversationDetails & {
             const newMessage = payload.new as Message;
             
             // If the message is from another user, mark it as read immediately
-            if (newMessage.sender_id !== user.id) {
+            if (newMessage.sender_id !== user?.id) {
               await supabase
                 .from('chat_messages')
                 .update({ read: true })
@@ -313,7 +307,7 @@ export function useConversation(conversationId: string): ConversationDetails & {
         supabase.removeChannel(channel);
       };
     }
-  }, [conversationId, user, navigate]);
+  }, [conversationId, user]);
 
   return {
     messages,

@@ -1,7 +1,6 @@
 
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSession } from "@/contexts/SessionContext";
 import ConversationList from "@/components/chat/ConversationList";
 import { Button } from "@/components/ui/button";
 import { MessageSquare } from "lucide-react";
@@ -9,9 +8,11 @@ import { useToast } from "@/components/ui/use-toast";
 import { NewConversationDialog } from "./components/NewConversationDialog";
 import { ChatEmptyState } from "./components/ChatEmptyState";
 import { useChatState } from "./hooks/useChatState";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 const Chat = () => {
-  const { session, loading } = useSession();
+  const { session, user, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const {
@@ -30,66 +31,98 @@ const Chat = () => {
 
   useEffect(() => {
     const fetchConversations = async () => {
+      if (!user) return;
+      
       setIsLoading(true);
-      setTimeout(() => {
-        // Simulação de carregamento de conversas
-        setConversations([
-          {
-            id: "1",
-            updated_at: new Date().toISOString(),
-            otherUser: {
-              id: "user1",
-              first_name: "Maria",
-              last_name: "Silva"
-            },
-            lastMessage: {
-              message: "Olá, gostaria de saber mais sobre seus serviços",
-              created_at: new Date(Date.now() - 25 * 60000).toISOString(),
-              is_read: false,
-              is_mine: false
-            }
-          },
-          {
-            id: "2",
-            updated_at: new Date(Date.now() - 60 * 60000).toISOString(),
-            otherUser: {
-              id: "user2",
-              first_name: "João",
-              last_name: "Santos"
-            },
-            lastMessage: {
-              message: "Tudo confirmado para o evento",
-              created_at: new Date(Date.now() - 60 * 60000).toISOString(),
-              is_read: true,
-              is_mine: true
-            }
-          },
-          {
-            id: "3",
-            updated_at: new Date(Date.now() - 24 * 60 * 60000).toISOString(),
-            otherUser: {
-              id: "user3",
-              first_name: "Ana",
-              last_name: "Pereira"
-            },
-            lastMessage: {
-              message: "Você pode enviar um orçamento atualizado?",
-              created_at: new Date(Date.now() - 24 * 60 * 60000).toISOString(),
-              is_read: true,
-              is_mine: false
+      try {
+        // Attempt to fetch real conversations from Supabase
+        const { data, error } = await supabase
+          .from('conversation_participants')
+          .select('conversation_id')
+          .eq('user_id', user.id);
+        
+        if (error) {
+          console.error('Error fetching conversations:', error);
+          setIsLoading(false);
+          return;
+        }
+        
+        if (data && data.length > 0) {
+          // If we have real conversations, fetch their details
+          const conversationIds = data.map(cp => cp.conversation_id);
+          
+          // For each conversation, get details, other user, last message
+          // This is simplified - in a real app you'd likely use a join or function
+          const conversationsWithDetails = [];
+          
+          for (const convId of conversationIds) {
+            const { data: convData } = await supabase
+              .from('conversations')
+              .select('id, updated_at')
+              .eq('id', convId)
+              .single();
+              
+            if (convData) {
+              // Get the other participant
+              const { data: participants } = await supabase
+                .from('conversation_participants')
+                .select('user_id')
+                .eq('conversation_id', convId)
+                .neq('user_id', user.id);
+                
+              if (participants && participants.length > 0) {
+                const otherUserId = participants[0].user_id;
+                
+                // Get other user details
+                const { data: userData } = await supabase
+                  .from('user_profiles')
+                  .select('id, first_name, last_name')
+                  .eq('id', otherUserId)
+                  .single();
+                  
+                // Get last message
+                const { data: messages } = await supabase
+                  .from('chat_messages')
+                  .select('message, created_at, sender_id, read')
+                  .eq('conversation_id', convId)
+                  .order('created_at', { ascending: false })
+                  .limit(1);
+                  
+                let lastMessage = null;
+                if (messages && messages.length > 0) {
+                  lastMessage = {
+                    message: messages[0].message,
+                    created_at: messages[0].created_at,
+                    is_read: messages[0].read,
+                    is_mine: messages[0].sender_id === user.id
+                  };
+                }
+                
+                conversationsWithDetails.push({
+                  id: convData.id,
+                  updated_at: convData.updated_at,
+                  otherUser: userData,
+                  lastMessage
+                });
+              }
             }
           }
-        ]);
+          
+          setConversations(conversationsWithDetails);
+        }
+      } catch (e) {
+        console.error('Error in conversation fetching:', e);
+      } finally {
         setIsLoading(false);
-      }, 1000);
+      }
     };
 
-    if (session) {
+    if (session && user) {
       fetchConversations();
     }
-  }, [session, setConversations, setIsLoading]);
+  }, [session, user, setConversations, setIsLoading]);
 
-  const handleCreateConversation = () => {
+  const handleCreateConversation = async () => {
     if (!newConversationName.trim()) {
       toast({
         title: "Nome necessário",
@@ -99,33 +132,57 @@ const Chat = () => {
       return;
     }
 
-    const newId = `new-${Date.now()}`;
-    const names = newConversationName.split(' ');
-    const firstName = names[0] || '';
-    const lastName = names.slice(1).join(' ') || '';
+    if (!user) {
+      toast({
+        title: "Erro",
+        description: "Você precisa estar logado para criar uma conversa",
+        variant: "destructive"
+      });
+      return;
+    }
 
-    const newConversation = {
-      id: newId,
-      updated_at: new Date().toISOString(),
-      otherUser: {
-        id: `user-${Date.now()}`,
-        first_name: firstName,
-        last_name: lastName
-      },
-      lastMessage: null
-    };
+    try {
+      const names = newConversationName.split(' ');
+      const firstName = names[0] || '';
+      const lastName = names.slice(1).join(' ') || '';
 
-    setConversations([newConversation, ...conversations]);
-    setNewConversationOpen(false);
-    setNewConversationName("");
-    
-    // Use the correct navigation path
-    navigate(`/chat/${newId}`);
-    
-    toast({
-      title: "Conversa criada",
-      description: `Conversa iniciada com ${newConversationName}`
-    });
+      // In a real implementation, you would:
+      // 1. Find or create the user with this name
+      // 2. Create a conversation
+      // 3. Add both users as participants
+      
+      // For now, we'll create a temporary ID
+      const newId = `new-${Date.now()}`;
+      
+      const newConversation = {
+        id: newId,
+        updated_at: new Date().toISOString(),
+        otherUser: {
+          id: `user-${Date.now()}`,
+          first_name: firstName,
+          last_name: lastName
+        },
+        lastMessage: null
+      };
+
+      setConversations([newConversation, ...conversations]);
+      setNewConversationOpen(false);
+      setNewConversationName("");
+      
+      navigate(`/chat/${newId}`);
+      
+      toast({
+        title: "Conversa criada",
+        description: `Conversa iniciada com ${newConversationName}`
+      });
+    } catch (error) {
+      console.error('Error creating conversation:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao criar conversa",
+        variant: "destructive"
+      });
+    }
   };
 
   if (loading) {
