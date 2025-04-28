@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useConversation } from "@/hooks/useConversation";
@@ -77,9 +77,7 @@ const Conversation = () => {
         
         <div className="p-4 border-t">
           <MessageInput
-            value={message}
-            onChange={setMessage}
-            onSend={handleSendMessage}
+            onSendMessage={handleSendMessage}
             placeholder="Digite sua mensagem..."
           />
         </div>

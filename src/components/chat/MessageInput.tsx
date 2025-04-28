@@ -4,12 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Loader2, Send } from 'lucide-react';
 
-interface MessageInputProps {
+export interface MessageInputProps {
   onSendMessage: (message: string) => Promise<void>;
   disabled?: boolean;
+  placeholder?: string;
 }
 
-export default function MessageInput({ onSendMessage, disabled }: MessageInputProps) {
+export default function MessageInput({ onSendMessage, disabled, placeholder = "Digite sua mensagem..." }: MessageInputProps) {
   const [newMessage, setNewMessage] = useState('');
   const [sending, setSending] = useState(false);
 
@@ -33,7 +34,7 @@ export default function MessageInput({ onSendMessage, disabled }: MessageInputPr
         <Input
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          placeholder="Digite sua mensagem..."
+          placeholder={placeholder}
           className="flex-grow bg-gray-50 border-gray-100"
           disabled={disabled || sending}
         />
