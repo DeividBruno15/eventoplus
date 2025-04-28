@@ -16,7 +16,8 @@ export const createEventSchema = z.object({
   service_requests: z.array(
     z.object({
       category: z.string(),
-      count: z.number().min(1, "A quantidade deve ser pelo menos 1")
+      count: z.number().min(1, "A quantidade deve ser pelo menos 1"),
+      filled: z.number().optional().default(0)
     })
   ).optional(),
   image: z.any().optional()

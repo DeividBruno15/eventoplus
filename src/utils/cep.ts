@@ -35,8 +35,8 @@ export const formatCep = (cep: string): string => {
   // Remove non-digit characters
   const digits = cep.replace(/\D/g, '');
   
-  // Apply mask when there are at least 6 digits
-  if (digits.length >= 6) {
+  // Apply mask when there are 5 or more digits
+  if (digits.length > 5) {
     return `${digits.slice(0, 5)}-${digits.slice(5, 8)}`;
   }
   
@@ -46,7 +46,10 @@ export const formatCep = (cep: string): string => {
 // This is the function referenced in LocationServiceFields
 export const fetchLocationFromCEP = async (cep: string) => {
   try {
-    const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+    const cleanCep = cep.replace(/\D/g, '');
+    if (cleanCep.length !== 8) return null;
+
+    const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
     
     if (!response.ok) {
       throw new Error('Erro ao buscar CEP');

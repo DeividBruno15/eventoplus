@@ -1,147 +1,159 @@
 
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
+import { useEffect } from 'react';
 import { UseFormReturn } from 'react-hook-form';
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { fetchLocationFromCEP, formatCep } from '@/utils/cep';
 import { CreateEventFormData } from '@/types/events';
-import { useState } from 'react';
-import { fetchAddressByCep } from '@/utils/cep';
-import { Loader2 } from 'lucide-react';
 
 interface LocationServiceFieldsProps {
   form: UseFormReturn<CreateEventFormData>;
 }
 
 export const LocationServiceFields = ({ form }: LocationServiceFieldsProps) => {
-  const [loading, setLoading] = useState(false);
+  const cepValue = form.watch('zipcode');
 
-  const handleCepBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
-    const cep = e.target.value.replace(/\D/g, '');
-    
-    if (cep.length !== 8) return;
-    
-    try {
-      setLoading(true);
-      const addressData = await fetchAddressByCep(cep);
-      
-      if (addressData) {
-        form.setValue('street', addressData.street);
-        form.setValue('neighborhood', addressData.neighborhood);
-        form.setValue('city', addressData.city);
-        form.setValue('state', addressData.state);
-        form.setValue('number', '');
-        
-        // Update the location field with the complete address
-        const formattedAddress = `${addressData.street} - ${addressData.neighborhood}, ${addressData.city}-${addressData.state}`;
-        form.setValue('location', formattedAddress);
+  useEffect(() => {
+    const fetchAddressData = async () => {
+      if (cepValue && cepValue.replace(/\D/g, '').length === 8) {
+        try {
+          const data = await fetchLocationFromCEP(cepValue.replace(/\D/g, ''));
+          if (data && !data.erro) {
+            form.setValue('street', data.logradouro || '');
+            form.setValue('neighborhood', data.bairro || '');
+            form.setValue('city', data.localidade || '');
+            form.setValue('state', data.uf || '');
+          }
+        } catch (error) {
+          console.error('Erro ao buscar CEP:', error);
+        }
       }
-    } catch (error) {
-      console.error('Error fetching address from CEP:', error);
-    } finally {
-      setLoading(false);
-    }
+    };
+
+    fetchAddressData();
+  }, [cepValue, form]);
+
+  const handleCepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const formattedCep = formatCep(value);
+    form.setValue('zipcode', formattedCep);
   };
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <div>
-          <Label htmlFor="zipcode">CEP*</Label>
-          <Input
-            id="zipcode"
-            placeholder="Ex: 00000-000"
-            {...form.register('zipcode')}
-            onBlur={handleCepBlur}
-            disabled={loading}
-          />
-          {form.formState.errors.zipcode && (
-            <p className="text-sm text-red-500 mt-1">{form.formState.errors.zipcode.message}</p>
+    <div className="space-y-4">
+      <h3 className="text-lg font-medium">Localização e Serviços</h3>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FormField
+          control={form.control}
+          name="location"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Nome do Local*</FormLabel>
+              <FormControl>
+                <Input placeholder="Ex: Salão de Festas, Residência..." {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
           )}
-        </div>
-        <div>
-          <Label htmlFor="state">Estado*</Label>
-          <Input
-            id="state"
-            placeholder="Ex: SP"
-            {...form.register('state')}
-            disabled={loading}
-          />
-          {form.formState.errors.state && (
-            <p className="text-sm text-red-500 mt-1">{form.formState.errors.state.message}</p>
-          )}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <div>
-          <Label htmlFor="city">Cidade*</Label>
-          <Input
-            id="city"
-            placeholder="Ex: São Paulo"
-            {...form.register('city')}
-            disabled={loading}
-          />
-          {form.formState.errors.city && (
-            <p className="text-sm text-red-500 mt-1">{form.formState.errors.city.message}</p>
-          )}
-        </div>
-        <div>
-          <Label htmlFor="neighborhood">Bairro*</Label>
-          <Input
-            id="neighborhood"
-            placeholder="Ex: Centro"
-            {...form.register('neighborhood')}
-            disabled={loading}
-          />
-          {form.formState.errors.neighborhood && (
-            <p className="text-sm text-red-500 mt-1">{form.formState.errors.neighborhood.message}</p>
-          )}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <div>
-          <Label htmlFor="street">Rua*</Label>
-          <Input
-            id="street"
-            placeholder="Ex: Av. Paulista"
-            {...form.register('street')}
-            disabled={loading}
-          />
-          {form.formState.errors.street && (
-            <p className="text-sm text-red-500 mt-1">{form.formState.errors.street.message}</p>
-          )}
-        </div>
-        <div>
-          <Label htmlFor="number">Número*</Label>
-          <Input
-            id="number"
-            placeholder="Ex: 1000"
-            {...form.register('number')}
-            disabled={loading}
-          />
-          {form.formState.errors.number && (
-            <p className="text-sm text-red-500 mt-1">{form.formState.errors.number.message}</p>
-          )}
-        </div>
-      </div>
-
-      <div>
-        <Label htmlFor="location">Endereço completo do evento*</Label>
-        <Input
-          id="location"
-          placeholder="Ex: Salão de festas, endereço completo"
-          {...form.register('location')}
-          disabled={loading}
         />
-        {form.formState.errors.location && (
-          <p className="text-sm text-red-500 mt-1">{form.formState.errors.location.message}</p>
-        )}
-        {loading && (
-          <div className="flex items-center mt-2 text-sm text-muted-foreground">
-            <Loader2 className="h-3 w-3 animate-spin mr-1" />
-            <span>Buscando endereço...</span>
-          </div>
-        )}
+
+        <FormField
+          control={form.control}
+          name="zipcode"
+          render={({ field: { value, onChange, ...rest } }) => (
+            <FormItem>
+              <FormLabel>CEP*</FormLabel>
+              <FormControl>
+                <Input 
+                  placeholder="00000-000" 
+                  value={value} 
+                  onChange={(e) => {
+                    handleCepChange(e);
+                    onChange(e);
+                  }}
+                  maxLength={9}
+                  {...rest} 
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FormField
+          control={form.control}
+          name="street"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Rua*</FormLabel>
+              <FormControl>
+                <Input placeholder="Nome da rua" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="number"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Número*</FormLabel>
+              <FormControl>
+                <Input placeholder="Ex: 123" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <FormField
+          control={form.control}
+          name="neighborhood"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Bairro*</FormLabel>
+              <FormControl>
+                <Input placeholder="Nome do bairro" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="city"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Cidade*</FormLabel>
+              <FormControl>
+                <Input placeholder="Nome da cidade" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="state"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Estado*</FormLabel>
+              <FormControl>
+                <Input placeholder="UF" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </div>
     </div>
   );

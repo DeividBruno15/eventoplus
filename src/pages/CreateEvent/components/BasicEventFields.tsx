@@ -1,63 +1,90 @@
 
-import { useState } from "react";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { UseFormReturn } from "react-hook-form";
-import type { CreateEventFormData } from "../schema";
+import { useState } from 'react';
+import { UseFormReturn } from 'react-hook-form';
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { CreateEventFormData } from '@/types/events';
 
 interface BasicEventFieldsProps {
   form: UseFormReturn<CreateEventFormData>;
 }
 
 export const BasicEventFields = ({ form }: BasicEventFieldsProps) => {
-  const [eventDate, setEventDate] = useState<string>('');
-  const [eventTime, setEventTime] = useState<string>('');
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, '');
+    
+    if (value.length > 0) {
+      // Format to dd/mm/yyyy
+      if (value.length <= 2) {
+        // Just day
+      } else if (value.length <= 4) {
+        // Day and month
+        value = value.replace(/(\d{2})(\d{0,2})/, '$1/$2');
+      } else {
+        // Day, month and year
+        value = value.replace(/(\d{2})(\d{2})(\d{0,4})/, '$1/$2/$3');
+      }
+    }
+    
+    form.setValue('event_date', value);
+  };
 
   return (
     <div className="space-y-4">
-      <div>
-        <Label htmlFor="name">Nome do Evento*</Label>
-        <Input
-          id="name"
-          placeholder="Ex.: Casamento Ana e João"
-          {...form.register('name')}
-        />
-        {form.formState.errors.name && (
-          <p className="text-sm text-red-500 mt-1">{form.formState.errors.name.message}</p>
-        )}
-      </div>
+      <h3 className="text-lg font-medium">Informações Básicas</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="event_date">Data do Evento*</Label>
-          <Input 
-            id="event_date"
-            type="date"
-            {...form.register('event_date')}
-            onChange={(e) => {
-              setEventDate(e.target.value);
-              form.setValue('event_date', e.target.value);
-            }}
-          />
-          {form.formState.errors.event_date && (
-            <p className="text-sm text-red-500 mt-1">{form.formState.errors.event_date.message}</p>
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Nome do Evento*</FormLabel>
+              <FormControl>
+                <Input placeholder="Ex: Aniversário de 15 Anos" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
           )}
-        </div>
-        
-        <div>
-          <Label htmlFor="event_time">Horário do Evento*</Label>
-          <Input 
-            id="event_time"
-            type="time"
-            {...form.register('event_time')}
-            onChange={(e) => {
-              setEventTime(e.target.value);
-              form.setValue('event_time', e.target.value);
-            }}
+        />
+
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="event_date"
+            render={({ field: { value, onChange, ...rest } }) => (
+              <FormItem>
+                <FormLabel>Data*</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="DD/MM/AAAA" 
+                    value={value} 
+                    onChange={(e) => {
+                      handleDateChange(e);
+                      onChange(e);
+                    }}
+                    maxLength={10}
+                    {...rest} 
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-          {form.formState.errors.event_time && (
-            <p className="text-sm text-red-500 mt-1">{form.formState.errors.event_time.message}</p>
-          )}
+
+          <FormField
+            control={form.control}
+            name="event_time"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Horário*</FormLabel>
+                <FormControl>
+                  <Input type="time" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
       </div>
     </div>
