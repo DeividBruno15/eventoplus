@@ -1,7 +1,8 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Event, EventApplication } from '@/types/events';
+import { Event, EventApplication, ServiceRequest } from '@/types/events';
+import { Json } from '@/integrations/supabase/types';
 
 interface EventDetailsProps {
   id?: string;
@@ -26,18 +27,36 @@ export const useEventDetails = ({ id, user }: EventDetailsProps): EventDetailsSt
   const [userHasApplied, setUserHasApplied] = useState(false);
   const [userApplication, setUserApplication] = useState<EventApplication | null>(null);
 
+  const parseServiceRequests = (jsonData: any): ServiceRequest[] => {
+    if (!jsonData) return [];
+    
+    try {
+      if (Array.isArray(jsonData)) {
+        return jsonData.map(item => ({
+          category: typeof item.category === 'string' ? item.category : '',
+          count: typeof item.count === 'number' ? item.count : 0,
+          filled: typeof item.filled === 'number' ? item.filled : 0
+        }));
+      }
+      return [];
+    } catch (e) {
+      console.error("Error parsing service requests:", e);
+      return [];
+    }
+  };
+
   const fetchData = async () => {
     try {
       // Get user role
       if (user) {
-        const { data: userProfile } = await supabase
+        const { data: userProfileData } = await supabase
           .from('user_profiles')
           .select('role')
           .eq('id', user.id)
           .single();
         
-        if (userProfile) {
-          setUserRole(userProfile.role as 'provider' | 'contractor');
+        if (userProfileData) {
+          setUserRole(userProfileData.role as 'provider' | 'contractor');
         }
       }
       
@@ -54,25 +73,15 @@ export const useEventDetails = ({ id, user }: EventDetailsProps): EventDetailsSt
         }
         
         if (eventData) {
-          // Parse service requests if they exist
-          if (eventData.service_requests) {
-            try {
-              const parsedServiceRequests = Array.isArray(eventData.service_requests)
-                ? eventData.service_requests.map(req => ({
-                    category: typeof req === 'object' && req !== null ? String(req.category || '') : '',
-                    count: typeof req === 'object' && req !== null ? Number(req.count || 0) : 0,
-                    filled: typeof req === 'object' && req !== null ? Number(req.filled || 0) : 0
-                  }))
-                : [];
-                
-              eventData.service_requests = parsedServiceRequests;
-            } catch (e) {
-              console.error("Error parsing service requests:", e);
-              eventData.service_requests = [];
-            }
-          }
+          // Parse service requests
+          const parsedServiceRequests = parseServiceRequests(eventData.service_requests);
           
-          setEvent(eventData as Event);
+          const typedEvent: Event = {
+            ...eventData,
+            service_requests: parsedServiceRequests
+          } as Event;
+          
+          setEvent(typedEvent);
         }
         
         // Fetch applications for this event
@@ -91,12 +100,12 @@ export const useEventDetails = ({ id, user }: EventDetailsProps): EventDetailsSt
           }
           
           // For contractors, fetch all applications for this event
-          if (userProfile?.role === 'contractor' && eventData?.contractor_id === user.id) {
+          if (userRole === 'contractor' && eventData?.contractor_id === user.id) {
             const { data: appsData } = await supabase
               .from('event_applications')
               .select(`
                 *,
-                provider:provider_id (
+                provider:user_profiles!provider_id (
                   first_name, 
                   last_name,
                   email
@@ -106,7 +115,12 @@ export const useEventDetails = ({ id, user }: EventDetailsProps): EventDetailsSt
               .order('created_at', { ascending: false });
               
             if (appsData) {
-              setApplications(appsData as EventApplication[]);
+              const typedApplications = appsData.map(app => ({
+                ...app,
+                provider: app.provider || { first_name: '', last_name: '' }
+              })) as EventApplication[];
+              
+              setApplications(typedApplications);
             }
           }
         }

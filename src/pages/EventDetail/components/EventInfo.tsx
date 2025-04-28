@@ -4,7 +4,7 @@ import { ptBR } from "date-fns/locale";
 import { CalendarIcon, Clock, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Event } from "@/types/events";
-import { getEventStatusColor } from "@/lib/utils";
+import { getStatusColor } from "@/lib/utils";
 
 interface EventInfoProps {
   event: Event;
@@ -40,7 +40,7 @@ export const EventInfo = ({ event }: EventInfoProps) => {
           <div className="absolute bottom-0 left-0 p-6 text-white">
             <Badge 
               variant="outline"
-              className={`mb-2 ${getEventStatusColor(event.status)} border-white/20 text-white`}
+              className={`mb-2 ${getStatusColor(event.status)} border-white/20 text-white`}
             >
               {event.status === 'draft' ? 'Rascunho' : 
                event.status === 'published' ? 'Publicado' : 
@@ -59,7 +59,7 @@ export const EventInfo = ({ event }: EventInfoProps) => {
           <div className="mb-4">
             <Badge 
               variant="outline"
-              className={`${getEventStatusColor(event.status)}`}
+              className={`${getStatusColor(event.status)}`}
             >
               {event.status === 'draft' ? 'Rascunho' : 
                event.status === 'published' ? 'Publicado' : 
@@ -107,7 +107,7 @@ export const EventInfo = ({ event }: EventInfoProps) => {
                 <div key={index} className="border rounded-md p-3 bg-slate-50">
                   <div className="flex justify-between items-center">
                     <span className="font-medium">{service.category}</span>
-                    <Badge variant={service.filled === service.count ? "success" : "outline"}>
+                    <Badge variant={service.filled === service.count ? "subscription" : "outline"}>
                       {service.filled || 0}/{service.count} preenchido
                     </Badge>
                   </div>
