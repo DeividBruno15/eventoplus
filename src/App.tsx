@@ -1,6 +1,6 @@
 
 import {
-  Router,
+  BrowserRouter,
   Routes,
   Route,
 } from "react-router-dom";
@@ -35,7 +35,7 @@ function App() {
   return (
     <>
       <AuthProvider>
-        <Router>
+        <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
@@ -62,7 +62,7 @@ function App() {
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </Router>
+        </BrowserRouter>
         <Toaster position="top-right" />
       </AuthProvider>
     </>
