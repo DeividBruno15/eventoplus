@@ -1,13 +1,10 @@
 
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CreateEventForm } from './components/CreateEventForm';
 
 const CreateEvent = () => {
   return (
     <div className="min-h-screen flex flex-col bg-page">
-      <Navbar />
       <div className="container mx-auto px-4 py-8 flex-grow">
         <div className="max-w-2xl mx-auto">
           <Card>
@@ -23,7 +20,6 @@ const CreateEvent = () => {
           </Card>
         </div>
       </div>
-      <Footer />
     </div>
   );
 };

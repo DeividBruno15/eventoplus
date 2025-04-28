@@ -43,9 +43,9 @@ function App() {
           <Route path="/dashboard" element={<DashboardLayout><Dashboard /></DashboardLayout>} />
           <Route path="/profile" element={<DashboardLayout><Profile /></DashboardLayout>} />
           <Route path="/events" element={<DashboardLayout><Events /></DashboardLayout>} />
-          <Route path="/events/create" element={<CreateEvent />} />
-          <Route path="/events/:id" element={<EventDetail />} />
-          <Route path="/events/:id/edit" element={<CreateEvent />} />
+          <Route path="/events/create" element={<DashboardLayout><CreateEvent /></DashboardLayout>} />
+          <Route path="/events/:id" element={<DashboardLayout><EventDetail /></DashboardLayout>} />
+          <Route path="/events/:id/edit" element={<DashboardLayout><CreateEvent /></DashboardLayout>} />
           <Route path="/chat" element={<DashboardLayout><Chat /></DashboardLayout>} />
           <Route path="/chat/:id" element={<DashboardLayout><Conversation /></DashboardLayout>} />
           <Route path="/conversation/:id" element={<DashboardLayout><Conversation /></DashboardLayout>} />
