@@ -19,7 +19,7 @@ interface BasicEventFieldsProps {
 }
 
 export const BasicEventFields = ({ form }: BasicEventFieldsProps) => {
-  const { data: categories, isLoading } = useServiceCategories();
+  const { categories, isLoading } = useServiceCategories();
   const [eventDate, setEventDate] = useState<string>('');
   const [eventTime, setEventTime] = useState<string>('');
 
