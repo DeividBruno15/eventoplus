@@ -1,5 +1,6 @@
 
 import { cn } from '@/lib/utils';
+import { Check } from 'lucide-react';
 
 interface RoleCardProps {
   role: 'contractor' | 'provider';
@@ -22,19 +23,20 @@ export const RoleCard = ({ role, selected, onClick }: RoleCardProps) => {
     <div
       onClick={onClick}
       className={cn(
-        'border rounded-lg p-4 cursor-pointer transition-colors',
+        'border rounded-lg p-6 cursor-pointer transition-colors relative',
         selected ? 'bg-primary/5 border-primary' : 'border-gray-200 hover:bg-gray-50'
       )}
     >
-      <div className="flex justify-between items-start mb-3">
+      <div className="flex flex-col space-y-2">
         <h3 className="font-semibold text-lg">{titles[role]}</h3>
-        {selected && (
-          <span className="px-2 py-0.5 bg-primary text-primary-foreground text-xs rounded-full">
-            Selecionado
-          </span>
-        )}
+        <p className="text-sm text-muted-foreground">{descriptions[role]}</p>
       </div>
-      <p className="text-sm text-muted-foreground">{descriptions[role]}</p>
+      
+      {selected && (
+        <div className="absolute top-3 right-3 bg-primary text-white rounded-full p-1">
+          <Check className="h-4 w-4" />
+        </div>
+      )}
     </div>
   );
 };

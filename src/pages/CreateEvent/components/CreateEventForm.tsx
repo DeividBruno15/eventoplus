@@ -9,9 +9,9 @@ import { useCreateEvent } from '../hooks/useCreateEvent';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BasicEventFields } from './BasicEventFields';
 import { LocationServiceFields } from './LocationServiceFields';
-import { DescriptionField } from './DescriptionField';
 import { ImageUploadField } from './ImageUploadField';
 import { useToast } from '@/components/ui/use-toast';
+import { ServiceSelectionField } from './ServiceSelectionField';
 
 export const CreateEventForm = () => {
   const navigate = useNavigate();
@@ -29,6 +29,7 @@ export const CreateEventForm = () => {
       location: '',
       service_type: '',
       max_attendees: null,
+      service_requests: [],
       image: null
     },
   });
@@ -46,6 +47,7 @@ export const CreateEventForm = () => {
             location: eventData.location || '',
             service_type: eventData.service_type || '',
             max_attendees: eventData.max_attendees || null,
+            service_requests: eventData.service_requests || [],
             image: null  // Can't directly set File objects, we'll handle the preview separately
           });
           
@@ -68,12 +70,18 @@ export const CreateEventForm = () => {
   
   const handleSubmit = async (data: CreateEventFormData) => {
     try {
-      await createEvent(data, id);
-      toast({
-        title: id ? "Evento atualizado" : "Evento criado",
-        description: id ? "Seu evento foi atualizado com sucesso." : "Seu evento foi criado com sucesso."
-      });
-      navigate('/events');
+      console.log("Submitting event data:", data);
+      const result = await createEvent(data, id);
+      
+      if (result) {
+        toast({
+          title: id ? "Evento atualizado" : "Evento criado",
+          description: id ? "Seu evento foi atualizado com sucesso." : "Seu evento foi criado com sucesso."
+        });
+        navigate('/events');
+      } else {
+        throw new Error("Falha ao salvar o evento");
+      }
     } catch (error) {
       console.error("Error creating/updating event:", error);
       toast({
@@ -88,11 +96,11 @@ export const CreateEventForm = () => {
     <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
       <BasicEventFields form={form} />
       <LocationServiceFields form={form} />
+      <ServiceSelectionField form={form} />
       <ImageUploadField 
         form={form} 
         defaultImage={event?.image_url}
       />
-      <DescriptionField form={form} />
       
       <div className="flex gap-4 pt-2">
         <Button 

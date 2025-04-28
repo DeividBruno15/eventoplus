@@ -56,6 +56,12 @@ export const useSubscription = () => {
     try {
       const { data: clientToken } = await supabase.auth.getSession();
       
+      console.log("Creating subscription with:", {
+        planId,
+        planName,
+        role
+      });
+      
       const response = await fetch('/api/create-subscription', {
         method: 'POST',
         headers: {
@@ -69,12 +75,15 @@ export const useSubscription = () => {
         })
       });
 
-      const result = await response.json();
-      
       if (!response.ok) {
-        throw new Error(result.error || 'Erro ao processar assinatura');
+        const errorData = await response.json();
+        console.error("Subscription error:", errorData);
+        throw new Error(errorData.error || 'Erro ao processar assinatura');
       }
-
+      
+      const result = await response.json();
+      console.log("Subscription result:", result);
+      
       toast({
         title: "Assinatura realizada",
         description: `Você assinou o plano ${planName} com sucesso!`,
@@ -85,6 +94,7 @@ export const useSubscription = () => {
       
       return result.subscription;
     } catch (error: any) {
+      console.error("Subscription error:", error);
       toast({
         title: "Erro na assinatura",
         description: error.message || "Não foi possível processar sua assinatura",

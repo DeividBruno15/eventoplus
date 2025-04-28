@@ -50,7 +50,7 @@ export const useCreateEvent = () => {
     return data.publicUrl;
   };
 
-  const createEvent = async (eventData: CreateEventFormData, eventId?: string) => {
+  const createEvent = async (eventData: CreateEventFormData, eventId?: string): Promise<boolean> => {
     try {
       if (!user) throw new Error('User not authenticated');
       
@@ -68,13 +68,16 @@ export const useCreateEvent = () => {
         event_date: eventData.event_date,
         event_time: eventData.event_time,
         location: eventData.location,
-        service_type: eventData.service_type,
+        service_type: eventData.service_type || null,
         max_attendees: eventData.max_attendees,
+        service_requests: eventData.service_requests || [],
         image_url: imageUrl,
         contractor_id: user.id,
         status: 'draft' as const
       };
 
+      console.log("Saving event:", eventToSave);
+      
       let response;
       
       if (eventId) {
@@ -90,7 +93,10 @@ export const useCreateEvent = () => {
           .insert([eventToSave]);
       }
 
-      if (response.error) throw response.error;
+      if (response.error) {
+        console.error("Supabase error:", response.error);
+        throw response.error;
+      }
       
       return true;
     } catch (error) {

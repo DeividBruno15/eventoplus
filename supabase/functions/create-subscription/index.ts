@@ -1,6 +1,5 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.23.0";
 
 const corsHeaders = {
@@ -20,15 +19,6 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Initialize Stripe
-  const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-  if (!stripeKey) {
-    return new Response(
-      JSON.stringify({ error: "Stripe key not configured" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
-  }
-  
   // Initialize Supabase with service role key for admin operations
   const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
   const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
@@ -66,38 +56,62 @@ serve(async (req) => {
     
     logStep("Request data", { planId, planName, role });
     
-    // Initialize Stripe
-    const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
-
-    // Look for existing customer
-    logStep("Looking for existing Stripe customer");
-    const customers = await stripe.customers.list({
-      email: user.email,
-      limit: 1
-    });
-    
-    let customerId;
-    if (customers.data.length > 0) {
-      customerId = customers.data[0].id;
-      logStep("Found existing customer", { customerId });
-    } else {
-      // Create new customer
-      logStep("Creating new customer");
-      const newCustomer = await stripe.customers.create({
-        email: user.email,
-        name: user.user_metadata?.first_name 
-          ? `${user.user_metadata.first_name} ${user.user_metadata.last_name || ""}`
-          : undefined,
-      });
-      customerId = newCustomer.id;
-      logStep("Created new customer", { customerId });
-    }
-    
     // Create a subscription expiring in 30 days
     const expiryDate = new Date();
     expiryDate.setDate(expiryDate.getDate() + 30);
     
-    // Record subscription in database
+    // Check for existing subscription
+    logStep("Checking for existing subscription");
+    const { data: existingSubscription, error: subCheckError } = await supabase
+      .from('subscriptions')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('status', 'active')
+      .single();
+    
+    if (subCheckError && subCheckError.code !== 'PGRST116') { // PGRST116 is "no rows returned"
+      throw new Error(`Failed to check existing subscription: ${subCheckError.message}`);
+    }
+    
+    if (existingSubscription) {
+      logStep("Found existing subscription - updating it", { 
+        subscriptionId: existingSubscription.id
+      });
+      
+      // Update existing subscription
+      const { data: updatedSub, error: updateError } = await supabase
+        .from('subscriptions')
+        .update({
+          plan_id: planId,
+          plan_name: planName,
+          expires_at: expiryDate.toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', existingSubscription.id)
+        .select()
+        .single();
+      
+      if (updateError) {
+        throw new Error(`Failed to update subscription: ${updateError.message}`);
+      }
+      
+      logStep("Existing subscription updated", { 
+        subscriptionId: updatedSub.id 
+      });
+      
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          subscription: updatedSub
+        }),
+        { 
+          status: 200, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
+      );
+    }
+    
+    // Record new subscription in database
     logStep("Creating subscription record");
     const { data: subscription, error: subscriptionError } = await supabase
       .from('subscriptions')

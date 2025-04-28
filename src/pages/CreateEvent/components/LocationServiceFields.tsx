@@ -4,12 +4,12 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { UseFormReturn } from "react-hook-form";
 import { Map, MapPin } from "lucide-react";
 import { useDebouncedCallback } from "use-debounce";
 import { fetchLocationFromCEP } from "@/utils/cep";
 import { toast } from "sonner";
 import type { CreateEventFormData } from "../schema";
+import { UseFormReturn } from "react-hook-form";
 
 interface LocationServiceFieldsProps {
   form: UseFormReturn<CreateEventFormData>;
@@ -79,19 +79,6 @@ export const LocationServiceFields = ({ form }: LocationServiceFieldsProps) => {
         </div>
         {form.formState.errors.location && (
           <p className="text-sm text-red-500 mt-1">{form.formState.errors.location.message}</p>
-        )}
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="description">Descrição do Evento*</Label>
-        <Textarea 
-          id="description"
-          placeholder="Descreva detalhes sobre o evento..."
-          className="min-h-[120px]"
-          {...form.register('description')}
-        />
-        {form.formState.errors.description && (
-          <p className="text-sm text-red-500 mt-1">{form.formState.errors.description.message}</p>
         )}
       </div>
     </div>

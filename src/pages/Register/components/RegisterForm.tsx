@@ -1,7 +1,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
-import { useForm } from 'react-hook-form';
+import { useForm, FormField, FormItem, FormLabel, FormControl, FormMessage } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'react-router-dom';
 import { BasicInfoFields } from './BasicInfoFields';
@@ -16,9 +16,10 @@ import { useState, useEffect } from 'react';
 import { PasswordStrengthMeter } from './PasswordStrengthMeter';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { GoogleLoginButton } from '@/components/auth/GoogleLoginButton';
 import { PersonTypeSelector } from './PersonTypeSelector';
+import { RoleCard } from './RoleCard';
+import { Input } from '@/components/ui/input';
 
 export const RegisterForm = () => {
   const { register: signUp, signInWithGoogle, loading } = useAuth();
@@ -93,18 +94,19 @@ export const RegisterForm = () => {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="mb-6">
-          <p className="text-sm text-muted-foreground mb-2">Selecione seu perfil</p>
-          <Tabs 
-            defaultValue="contractor"
-            onValueChange={(value) => form.setValue('role', value as 'contractor' | 'provider')}
-            value={selectedRole}
-            className="w-full"
-          >
-            <TabsList className="grid grid-cols-2 w-full">
-              <TabsTrigger value="contractor">Contratante</TabsTrigger>
-              <TabsTrigger value="provider">Prestador</TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <p className="text-sm text-muted-foreground mb-4">Selecione seu perfil</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <RoleCard
+              role="contractor"
+              selected={selectedRole === 'contractor'}
+              onClick={() => form.setValue('role', 'contractor')}
+            />
+            <RoleCard
+              role="provider"
+              selected={selectedRole === 'provider'}
+              onClick={() => form.setValue('role', 'provider')}
+            />
+          </div>
         </div>
         
         <BasicInfoFields form={form} />
@@ -141,6 +143,23 @@ export const RegisterForm = () => {
           
           <PasswordStrengthMeter password={password} />
         </div>
+
+        <FormField
+          control={form.control}
+          name="phone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Telefone</FormLabel>
+              <FormControl>
+                <Input 
+                  placeholder="(00) 00000-0000" 
+                  {...field} 
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         
         <PersonTypeSelector form={form} />
         <DocumentFields form={form} />
