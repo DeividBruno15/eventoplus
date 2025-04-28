@@ -28,7 +28,6 @@ export const CreateEventForm = () => {
       event_date: '',
       event_time: '',
       location: '',
-      service_type: '',
       max_attendees: null,
       service_requests: [],
       image: null
@@ -39,17 +38,16 @@ export const CreateEventForm = () => {
     if (id) {
       fetchEvent(id).then(eventData => {
         if (eventData) {
-          // Set form values from event data
+          // Configurar valores do formulário com os dados do evento
           form.reset({
             name: eventData.name || '',
             description: eventData.description || '',
             event_date: eventData.event_date ? new Date(eventData.event_date).toISOString().split('T')[0] : '',
             event_time: eventData.event_time || '',
             location: eventData.location || '',
-            service_type: eventData.service_type || '',
             max_attendees: eventData.max_attendees || null,
             service_requests: eventData.service_requests || [],
-            image: null  // Can't directly set File objects, we'll handle the preview separately
+            image: null  // Não podemos definir objetos File diretamente
           });
           
           toast({

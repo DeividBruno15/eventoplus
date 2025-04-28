@@ -62,63 +62,59 @@ export const useSubscription = () => {
         role
       });
       
-      // First create the subscription in the database
-      const response = await fetch(`${window.location.origin}/api/create-subscription`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${clientToken.session?.access_token}`
-        },
-        body: JSON.stringify({
-          planId,
-          planName,
-          role
-        })
-      });
+      // Usar diretamente as funções do Supabase em vez de chamar endpoints via fetch
+      const { data: subscriptionResult, error: subscriptionError } = await supabase.functions.invoke(
+        'create-subscription',
+        {
+          body: {
+            planId,
+            planName,
+            role
+          }
+        }
+      );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Subscription error:", errorData);
-        throw new Error(errorData.error || 'Erro ao processar assinatura');
+      if (subscriptionError) {
+        console.error("Subscription error:", subscriptionError);
+        throw new Error(subscriptionError.message || 'Erro ao processar assinatura');
       }
       
-      const subscriptionResult = await response.json();
       console.log("Subscription result:", subscriptionResult);
       
-      // Now create a payment intent with Stripe
-      const paymentResponse = await fetch(`${window.location.origin}/api/create-payment-intent`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${clientToken.session?.access_token}`
-        },
-        body: JSON.stringify({
-          amount: getPlanPrice(planId),
-          planId
-        })
-      });
+      // Agora criar o intent de pagamento usando a Edge Function
+      const { data: paymentResult, error: paymentError } = await supabase.functions.invoke(
+        'create-payment-intent',
+        {
+          body: {
+            amount: getPlanPrice(planId),
+            planId
+          }
+        }
+      );
 
-      if (!paymentResponse.ok) {
-        const errorData = await paymentResponse.json();
-        console.error("Payment error:", errorData);
-        throw new Error(errorData.error || 'Erro ao processar pagamento');
+      if (paymentError) {
+        console.error("Payment error:", paymentError);
+        throw new Error(paymentError.message || 'Erro ao processar pagamento');
       }
       
-      const paymentResult = await paymentResponse.json();
       console.log("Payment result:", paymentResult);
       
-      // Redirect to Stripe Checkout
-      window.location.href = paymentResult.url;
+      // Redirecionar para o Stripe Checkout
+      if (paymentResult.url) {
+        window.location.href = paymentResult.url;
+      } else {
+        throw new Error('URL de checkout não retornada');
+      }
       
       toast({
         title: "Redirecionando para o pagamento",
         description: "Você será redirecionado para a página de pagamento do Stripe.",
       });
       
-      // Refresh subscription data
+      // Atualizar dados da assinatura
       await subscriptionQuery.refetch();
       
-      return subscriptionResult.subscription;
+      return subscriptionResult?.subscription || null;
     } catch (error: any) {
       console.error("Subscription error:", error);
       toast({
@@ -132,19 +128,19 @@ export const useSubscription = () => {
     }
   };
 
-  // Helper function to get the price of a plan based on its ID
+  // Helper function para obter o preço de um plano baseado no seu ID
   const getPlanPrice = (planId: string): number => {
-    // Provider plans
+    // Planos para prestadores
     if (planId === 'provider-essential') return 0;
     if (planId === 'provider-professional') return 1490; // R$ 14.90
     if (planId === 'provider-premium') return 2990; // R$ 29.90
     
-    // Contractor plans
+    // Planos para contratantes
     if (planId === 'contractor-discover') return 0;
     if (planId === 'contractor-connect') return 1490; // R$ 14.90
     if (planId === 'contractor-management') return 2990; // R$ 29.90
     
-    // Default price for unknown plans
+    // Preço padrão para planos desconhecidos
     return 0;
   };
 

@@ -1,6 +1,6 @@
 
 import { useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useSession } from "@/contexts/SessionContext";
 import ConversationList from "@/components/chat/ConversationList";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,6 @@ import { useChatState } from "./hooks/useChatState";
 const Chat = () => {
   const { session, loading } = useSession();
   const navigate = useNavigate();
-  const location = useLocation();
   const { toast } = useToast();
   const {
     conversations,
@@ -120,7 +119,7 @@ const Chat = () => {
     setNewConversationOpen(false);
     setNewConversationName("");
     
-    // Navigate to the conversation
+    // Navegação corrigida: agora navegando para conversation/[id]
     navigate(`/conversation/${newId}`);
     
     toast({
