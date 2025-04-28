@@ -46,12 +46,12 @@ const Profile = () => {
       if (user?.user_metadata?.role === 'provider') {
         const { data: servicesData, error: servicesError } = await supabase
           .from('provider_services')
-          .select('service_category')
+          .select('category')
           .eq('provider_id', user.id);
           
         if (servicesError) throw servicesError;
         
-        setUserServices(servicesData.map(item => item.service_category));
+        setUserServices(servicesData.map(item => item.category));
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
