@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -144,6 +145,8 @@ const Profile = () => {
 
   const userMetadata = user?.user_metadata || {};
   const avatarUrl = userMetadata.avatar_url;
+  const firstName = userMetadata.first_name || "";
+  const lastName = userMetadata.last_name || "";
   const isProvider = userMetadata.role === 'provider';
   const hasServices = userServices.length > 0;
   const buttonText = hasServices ? 'Atualizar Serviços' : 'Adicionar Serviços';
@@ -168,10 +171,7 @@ const Profile = () => {
                     <AvatarImage src={avatarUrl} />
                   ) : (
                     <AvatarFallback className="bg-muted">
-                      {userMetadata.first_name && userMetadata.last_name ? 
-                        `${userMetadata.first_name[0]}${userMetadata.last_name[0]}` : 
-                        <Camera className="h-8 w-8 text-muted-foreground" />
-                      }
+                      <Camera className="h-8 w-8 text-muted-foreground" />
                     </AvatarFallback>
                   )}
                 </Avatar>
@@ -187,7 +187,7 @@ const Profile = () => {
                 </label>
               </div>
               <div>
-                <h3 className="font-semibold text-lg">{userMetadata.first_name} {userMetadata.last_name}</h3>
+                <h3 className="font-semibold text-lg">{firstName} {lastName}</h3>
                 <p className="text-muted-foreground text-sm">{user?.email}</p>
                 <div className="mt-2">
                   <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full">
@@ -209,7 +209,7 @@ const Profile = () => {
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <p className="text-sm text-muted-foreground">Nome</p>
-                  <p>{userMetadata.first_name} {userMetadata.last_name}</p>
+                  <p>{firstName} {lastName}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Telefone</p>

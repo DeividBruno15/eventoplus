@@ -59,13 +59,7 @@ function App() {
           </Route>
           
           {/* Routes that should show DashboardLayout */}
-          <Route path="/events/create" element={
-            <SidebarProvider>
-              <DashboardLayout>
-                <CreateEvent />
-              </DashboardLayout>
-            </SidebarProvider>
-          } />
+          <Route path="/events/create" element={<CreateEvent />} />
           <Route path="/events/:id" element={<EventDetail />} />
           <Route path="/events/:id/edit" element={<CreateEvent />} />
           <Route path="/service-providers" element={<ServiceProviders />} />
