@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useSession } from "@/contexts/SessionContext";
+import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Event, ServiceRequest } from "@/types/events";
@@ -20,7 +20,7 @@ export const ProviderEventsContent: React.FC<ProviderEventsContentProps> = ({
   setSearchQuery,
 }) => {
   const navigate = useNavigate();
-  const { session } = useSession();
+  const { session, user } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [availableEvents, setAvailableEvents] = useState<Event[]>([]);
@@ -56,13 +56,13 @@ export const ProviderEventsContent: React.FC<ProviderEventsContentProps> = ({
 
   useEffect(() => {
     const fetchProviderServices = async () => {
-      if (!session?.user) return;
+      if (!user) return;
 
       try {
         const { data, error } = await supabase
           .from('provider_services')
           .select('category')
-          .eq('provider_id', session.user.id);
+          .eq('provider_id', user.id);
 
         if (error) throw error;
         
@@ -75,7 +75,7 @@ export const ProviderEventsContent: React.FC<ProviderEventsContentProps> = ({
     };
 
     fetchProviderServices();
-  }, [session]);
+  }, [user]);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -98,7 +98,7 @@ export const ProviderEventsContent: React.FC<ProviderEventsContentProps> = ({
         const { data: applications, error: appError } = await supabase
           .from('event_applications')
           .select('event_id')
-          .eq('provider_id', session?.user?.id);
+          .eq('provider_id', user?.id);
 
         if (appError) throw appError;
 
@@ -134,10 +134,10 @@ export const ProviderEventsContent: React.FC<ProviderEventsContentProps> = ({
       }
     };
 
-    if (session?.user) {
+    if (user) {
       fetchEvents();
     }
-  }, [providerServices, session?.user, toast]);
+  }, [providerServices, user, toast]);
 
   return (
     <div className="space-y-6 animate-fade-in">

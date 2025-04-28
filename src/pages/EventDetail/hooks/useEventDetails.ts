@@ -1,12 +1,11 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Event, EventApplication, ServiceRequest } from '@/types/events';
 import { Json } from '@/integrations/supabase/types';
+import { useAuth } from '@/hooks/useAuth';
 
 interface EventDetailsProps {
   id?: string;
-  user: any | null;
 }
 
 interface EventDetailsState {
@@ -19,7 +18,8 @@ interface EventDetailsState {
   refetchEvent: () => Promise<void>;
 }
 
-export const useEventDetails = ({ id, user }: EventDetailsProps): EventDetailsState => {
+export const useEventDetails = ({ id }: EventDetailsProps): EventDetailsState => {
+  const { user } = useAuth();
   const [event, setEvent] = useState<Event | null>(null);
   const [applications, setApplications] = useState<EventApplication[]>([]);
   const [loading, setLoading] = useState(true);
@@ -137,7 +137,9 @@ export const useEventDetails = ({ id, user }: EventDetailsProps): EventDetailsSt
   };
 
   useEffect(() => {
-    fetchData();
+    if (id) {
+      fetchData();
+    }
   }, [id, user]);
 
   return {

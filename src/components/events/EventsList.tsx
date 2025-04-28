@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Event, EventStatus } from "@/types/events";
@@ -8,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Loader2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 
 interface EventsListProps {
   searchQuery?: string;
@@ -18,22 +18,27 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const fetchEvents = async () => {
     try {
       setLoading(true);
+      
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+      
       const { data, error } = await supabase
         .from('events')
         .select('*')
+        .eq('contractor_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
       
       const processedEvents: Event[] = (data || []).map(event => {
-        // Type assertion to handle the properties that TypeScript doesn't recognize
         const eventData = event as any;
-        
-        // Precisamos fazer um cast explícito para o tipo Event com todos os campos necessários
         return {
           id: eventData.id,
           name: eventData.name, 
@@ -47,7 +52,6 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
           service_type: eventData.service_type,
           status: eventData.status as EventStatus,
           event_time: eventData.event_time,
-          // Tratando explicitamente cada campo para compatibilidade com o tipo Event
           image_url: eventData.image_url ? String(eventData.image_url) : undefined
         };
       });
@@ -68,7 +72,6 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
   useEffect(() => {
     fetchEvents();
     
-    // Set up realtime subscription for events
     const channel = supabase
       .channel('events-changes')
       .on('postgres_changes', 
@@ -79,17 +82,14 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
         }, 
         payload => {
           if (payload.eventType === 'INSERT') {
-            // Add new event
             setEvents(prevEvents => [payload.new as Event, ...prevEvents]);
           } else if (payload.eventType === 'UPDATE') {
-            // Update existing event
             setEvents(prevEvents => 
               prevEvents.map(event => 
                 event.id === payload.new.id ? payload.new as Event : event
               )
             );
           } else if (payload.eventType === 'DELETE') {
-            // Remove deleted event
             setEvents(prevEvents => 
               prevEvents.filter(event => event.id !== payload.old.id)
             );
@@ -101,7 +101,7 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [toast]);
+  }, [toast, user]);
 
   if (loading) {
     return (
