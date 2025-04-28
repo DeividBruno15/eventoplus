@@ -1,26 +1,21 @@
 
-import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { BasicInfoFields } from './BasicInfoFields';
 import { AddressFields } from '@/components/address/AddressFields';
 import { DocumentFields } from './DocumentFields';
-import { Card, CardContent } from '@/components/ui/card';
 import { registerFormSchema, RegisterFormData } from '../types';
 import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { ServiceCategoriesField } from './ServiceCategoriesField';
-import { useState, useEffect } from 'react';
 import { PasswordStrengthMeter } from './PasswordStrengthMeter';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
-import { GoogleLoginButton } from '@/components/auth/GoogleLoginButton';
+import { PasswordRequirements } from './PasswordRequirements';
+import { RegistrationButtons } from './RegistrationButtons';
 import { PersonTypeSelector } from './PersonTypeSelector';
-import { RoleCard } from './RoleCard';
-import { Input } from '@/components/ui/input';
+import { RoleSelector } from './RoleSelector';
+import { PhoneField } from './PhoneField';
 
 export const RegisterForm = () => {
   const { register: signUp, signInWithGoogle, loading } = useAuth();
@@ -86,7 +81,7 @@ export const RegisterForm = () => {
       toast({
         title: "Erro ao cadastrar",
         description: error.message || "Ocorreu um erro ao processar seu cadastro",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
@@ -94,73 +89,16 @@ export const RegisterForm = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="mb-6">
-          <p className="text-sm text-muted-foreground mb-4">Selecione seu perfil</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <RoleCard
-              role="contractor"
-              selected={selectedRole === 'contractor'}
-              onClick={() => form.setValue('role', 'contractor')}
-            />
-            <RoleCard
-              role="provider"
-              selected={selectedRole === 'provider'}
-              onClick={() => form.setValue('role', 'provider')}
-            />
-          </div>
-        </div>
+        <RoleSelector form={form} selectedRole={selectedRole} />
         
         <BasicInfoFields form={form} />
         
         <div className="space-y-2">
-          <Alert className="bg-blue-50 border-blue-200">
-            <AlertCircle className="h-4 w-4 text-blue-500" />
-            <AlertDescription className="text-sm text-blue-700 font-medium">
-              Requisitos de segurança
-            </AlertDescription>
-            <ul className="mt-2 text-sm space-y-1">
-              <li className={`flex items-center ${passwordRequirements.length ? 'text-green-600' : 'text-gray-600'}`}>
-                <span className={`mr-2 text-lg ${passwordRequirements.length ? '✓' : '•'}`}></span>
-                Pelo menos 8 caracteres
-              </li>
-              <li className={`flex items-center ${passwordRequirements.uppercase ? 'text-green-600' : 'text-gray-600'}`}>
-                <span className={`mr-2 text-lg ${passwordRequirements.uppercase ? '✓' : '•'}`}></span>
-                Uma letra maiúscula
-              </li>
-              <li className={`flex items-center ${passwordRequirements.lowercase ? 'text-green-600' : 'text-gray-600'}`}>
-                <span className={`mr-2 text-lg ${passwordRequirements.lowercase ? '✓' : '•'}`}></span>
-                Uma letra minúscula
-              </li>
-              <li className={`flex items-center ${passwordRequirements.number ? 'text-green-600' : 'text-gray-600'}`}>
-                <span className={`mr-2 text-lg ${passwordRequirements.number ? '✓' : '•'}`}></span>
-                Um número
-              </li>
-              <li className={`flex items-center ${passwordRequirements.special ? 'text-green-600' : 'text-gray-600'}`}>
-                <span className={`mr-2 text-lg ${passwordRequirements.special ? '✓' : '•'}`}></span>
-                Um caractere especial (!@#$%^&*()_+...)
-              </li>
-            </ul>
-          </Alert>
-          
+          <PasswordRequirements passwordRequirements={passwordRequirements} />
           <PasswordStrengthMeter password={password} />
         </div>
 
-        <FormField
-          control={form.control}
-          name="phone_number"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Telefone Whatsapp</FormLabel>
-              <FormControl>
-                <Input 
-                  placeholder="(00) 00000-0000" 
-                  {...field} 
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <PhoneField form={form} />
         
         <PersonTypeSelector form={form} />
         <DocumentFields form={form} />
@@ -170,33 +108,10 @@ export const RegisterForm = () => {
           <ServiceCategoriesField form={form} />
         )}
 
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={loading || !allRequirementsMet}
-        >
-          {loading ? 'Cadastrando...' : 'Finalizar Cadastro'}
-        </Button>
-
-        <Card className="mt-6">
-          <CardContent className="pt-6">
-            <GoogleLoginButton 
-              loading={loading} 
-              onLogin={signInWithGoogle} 
-              text="Cadastrar com Google"
-            />
-            
-            <div className="text-center text-sm mt-4">
-              Já tem uma conta?{' '}
-              <Link
-                to="/login"
-                className="font-semibold text-primary hover:text-primary/80"
-              >
-                Faça login
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
+        <RegistrationButtons 
+          isSubmitting={loading} 
+          onGoogleLogin={signInWithGoogle} 
+        />
       </form>
     </Form>
   );

@@ -10,7 +10,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { BasicEventFields } from './BasicEventFields';
 import { LocationServiceFields } from './LocationServiceFields';
 import { ImageUploadField } from './ImageUploadField';
-import { useToast } from '@/components/ui/toast';
+import { useToast } from '@/hooks/use-toast';
 import { ServiceSelectionField } from './ServiceSelectionField';
 import { DescriptionField } from './DescriptionField';
 
