@@ -147,7 +147,7 @@ export const RegisterForm = () => {
 
         <FormField
           control={form.control}
-          name="phone"
+          name="phone_number"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Telefone</FormLabel>
