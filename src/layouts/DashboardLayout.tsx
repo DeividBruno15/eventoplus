@@ -8,7 +8,6 @@ import {
   SidebarHeader,
   SidebarInset
 } from '@/components/ui/sidebar';
-import { useSession } from '@/contexts/SessionContext';
 import { useAuth } from '@/hooks/useAuth';
 import { Loader2 } from 'lucide-react';
 import { NotificationsMenu } from '@/components/layout/NotificationsMenu';
@@ -20,8 +19,7 @@ interface DashboardLayoutProps {
 }
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
-  const { session, loading: sessionLoading } = useSession();
-  const { user } = useAuth();
+  const { session, user, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [activePath, setActivePath] = useState(location.pathname);
@@ -34,19 +32,19 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   useEffect(() => {
     // Only redirect to login if there's no session and not already redirected
-    if (!redirected && !sessionLoading && !session) {
+    if (!redirected && !loading && !session) {
       console.log('No session found, redirecting to login');
       setRedirected(true);
       navigate('/login');
       return;
     }
-  }, [session, sessionLoading, navigate, redirected]);
+  }, [session, loading, navigate, redirected]);
 
   const handleNavigation = (path: string) => {
     console.log('Navigation triggered to:', path);
   };
 
-  if (sessionLoading && !session) {
+  if (loading && !session) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5">
         <div className="text-center">
@@ -57,7 +55,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     );
   }
 
-  if (!sessionLoading && !session) {
+  if (!loading && !session) {
     return null;
   }
 
