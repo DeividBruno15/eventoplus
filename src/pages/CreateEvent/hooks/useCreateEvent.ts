@@ -68,12 +68,12 @@ export const useCreateEvent = () => {
         event_date: eventData.event_date,
         event_time: eventData.event_time,
         location: eventData.location,
-        service_type: eventData.service_type || null,
         max_attendees: eventData.max_attendees,
         service_requests: eventData.service_requests || [],
         image_url: imageUrl,
         contractor_id: user.id,
-        status: 'draft' as const
+        status: 'draft' as const,
+        service_type: '' // Adding empty string to satisfy DB schema
       };
 
       console.log("Saving event:", eventToSave);
