@@ -1,5 +1,7 @@
 
-export type EventStatus = 'draft' | 'published' | 'closed' | 'completed';
+export type EventStatus = 'draft' | 'published' | 'closed' | 'completed' | 'cancelled';
+
+export type ApplicationStatus = 'pending' | 'accepted' | 'rejected';
 
 export interface ServiceRequest {
   category: string;
@@ -28,7 +30,11 @@ export interface EventApplication {
   id: string;
   provider_id: string;
   event_id: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: ApplicationStatus;
   message: string;
   created_at: string;
+  provider?: {
+    first_name: string;
+    last_name: string;
+  };
 }

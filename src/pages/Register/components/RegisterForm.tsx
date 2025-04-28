@@ -1,7 +1,8 @@
 
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
-import { useForm, FormField, FormItem, FormLabel, FormControl, FormMessage } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'react-router-dom';
 import { BasicInfoFields } from './BasicInfoFields';
