@@ -3,13 +3,15 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Event, EventApplication } from '@/types/events';
+import { useAuth } from '@/hooks/useAuth';
 
 export const useEventApplications = (event: Event | null) => {
   const { toast } = useToast();
   const [submitting, setSubmitting] = useState(false);
+  const { user } = useAuth();
 
   const handleApply = async (message: string): Promise<void> => {
-    if (!event) return;
+    if (!event || !user) return;
     
     try {
       setSubmitting(true);
@@ -18,7 +20,7 @@ export const useEventApplications = (event: Event | null) => {
         .from('event_applications')
         .insert({
           event_id: event.id,
-          provider_id: event.contractor_id,
+          provider_id: user.id, // Use the current user's ID instead of contractor_id
           message: message,
           status: 'pending'
         })
@@ -41,6 +43,9 @@ export const useEventApplications = (event: Event | null) => {
           type: "new_application",
           link: `/events/${event.id}`
         });
+        
+      // Refresh the page to see the application
+      window.location.reload();
     } catch (error: any) {
       console.error('Erro ao enviar candidatura:', error);
       toast({

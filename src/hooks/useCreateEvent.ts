@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { CreateEventFormData, Event, ServiceRequest } from '@/types/events';
@@ -22,7 +21,6 @@ export const useCreateEvent = () => {
 
       if (error) throw error;
 
-      // Transform the data to match the Event type
       const eventData: Event = {
         ...data,
         service_requests: data.service_requests ? parseServiceRequests(data.service_requests as Json) : null
@@ -38,7 +36,6 @@ export const useCreateEvent = () => {
     }
   };
 
-  // Helper function to parse service_requests from Json to ServiceRequest[]
   const parseServiceRequests = (jsonData: Json): ServiceRequest[] => {
     if (Array.isArray(jsonData)) {
       return jsonData.map(item => {
@@ -56,7 +53,6 @@ export const useCreateEvent = () => {
     return [];
   };
 
-  // Helper function to convert ServiceRequest[] to Json for database storage
   const prepareServiceRequestsForStorage = (requests: ServiceRequest[] | undefined): Json => {
     if (!requests || !Array.isArray(requests)) return [];
     return requests as unknown as Json;
@@ -102,22 +98,28 @@ export const useCreateEvent = () => {
         imageUrl = await uploadEventImage(eventData.image);
       }
       
-      // Convert ServiceRequest[] to Json for database storage
+      const formattedAddress = `${eventData.street}, ${eventData.number} - ${eventData.neighborhood}, ${eventData.city}-${eventData.state}`;
+      
       const eventToSave = {
         name: eventData.name,
         description: eventData.description,
         event_date: eventData.event_date,
         event_time: eventData.event_time,
-        location: eventData.location,
+        location: formattedAddress,
         zipcode: eventData.zipcode,
+        street: eventData.street,
+        number: eventData.number,
+        neighborhood: eventData.neighborhood,
+        city: eventData.city,
+        state: eventData.state,
         service_requests: prepareServiceRequestsForStorage(eventData.service_requests),
         image_url: imageUrl,
         contractor_id: user.id,
-        status: 'published' as const, // Changed from 'draft' to 'published'
-        service_type: eventData.service_requests?.[0]?.category || '' // Use a primeira categoria de serviço ou vazio
+        status: 'published' as const,
+        service_type: eventData.service_requests?.[0]?.category || ''
       };
 
-      console.log("Salvando evento:", eventToSave);
+      console.log("Saving event:", eventToSave);
       
       let response;
       
@@ -133,13 +135,13 @@ export const useCreateEvent = () => {
       }
 
       if (response.error) {
-        console.error("Erro no Supabase:", response.error);
+        console.error("Supabase error:", response.error);
         throw response.error;
       }
       
       return true;
     } catch (error) {
-      console.error('Erro ao criar/atualizar evento:', error);
+      console.error('Error creating/updating event:', error);
       throw error;
     } finally {
       setLoading(false);

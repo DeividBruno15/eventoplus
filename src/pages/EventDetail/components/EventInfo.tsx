@@ -1,8 +1,9 @@
 
 import { Event } from "@/types/events";
-import { Calendar, MapPin, Users, Clock } from "lucide-react";
+import { Calendar, MapPin, Users, Clock, List } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 interface EventInfoProps {
   event: Event;
@@ -22,7 +23,7 @@ export const EventInfo = ({ event }: EventInfoProps) => {
   // Get status badge variant based on status
   const getStatusBadgeVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
     switch (status) {
-      case 'open':
+      case 'published':
         return 'default';
       case 'closed':
         return 'destructive';
@@ -36,8 +37,8 @@ export const EventInfo = ({ event }: EventInfoProps) => {
   // Get human-readable status label
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'open':
-        return 'Aberto';
+      case 'published':
+        return 'Publicado';
       case 'closed':
         return 'Fechado';
       case 'in_progress':
@@ -53,15 +54,11 @@ export const EventInfo = ({ event }: EventInfoProps) => {
 
   // Extract time from date if available
   const getEventTime = () => {
-    if (!event.event_date) return "Horário não definido";
-    const date = new Date(event.event_date);
-    return date.toLocaleTimeString('pt-BR', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    if (!event.event_time) return "Horário não definido";
+    return event.event_time;
   };
 
-  const eventImageUrl = event.image_url || "https://plus.unsplash.com/premium_photo-1681582960531-73493d0a95a5?q=80&w=1470&auto=format&fit=crop";
+  const eventImageUrl = event.image_url || "https://plus.unsplash.com/premium-photo-1681582960531-73493d0a95a5?q=80&w=1470&auto=format&fit=crop";
 
   return (
     <Card>
@@ -105,7 +102,7 @@ export const EventInfo = ({ event }: EventInfoProps) => {
           <div className="flex items-center">
             <MapPin className="mr-2 h-5 w-5 text-primary" />
             <div>
-              <p className="text-sm text-muted-foreground">Cidade</p>
+              <p className="text-sm text-muted-foreground">Local</p>
               <p>{event.location}</p>
             </div>
           </div>
@@ -117,6 +114,30 @@ export const EventInfo = ({ event }: EventInfoProps) => {
             </div>
           </div>
         </div>
+        
+        {/* Services Requested Section */}
+        {event.service_requests && event.service_requests.length > 0 && (
+          <div>
+            <h3 className="text-lg font-medium mb-2 flex items-center">
+              <List className="mr-2 h-5 w-5 text-primary" />
+              Serviços Necessários
+            </h3>
+            <div className="bg-secondary/20 rounded-md p-3">
+              <ul className="space-y-2">
+                {event.service_requests.map((service, index) => (
+                  <li key={index} className="flex justify-between items-center">
+                    <span className="font-medium">{service.category}</span>
+                    <Badge variant="outline">
+                      Qtd: {service.count} {service.filled ? `(${service.filled} preenchidos)` : ''}
+                    </Badge>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
+        
+        <Separator />
         
         <div>
           <h3 className="text-lg font-medium mb-2">Descrição</h3>

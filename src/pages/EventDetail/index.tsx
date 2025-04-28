@@ -37,25 +37,35 @@ const EventDetail = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="min-h-screen flex flex-col bg-page">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8 flex-grow flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+        <Footer />
       </div>
     );
   }
 
   if (!event) {
     return (
-      <Card className="text-center py-16">
-        <CardContent>
-          <h3 className="text-xl font-medium mb-2">Evento não encontrado</h3>
-          <p className="text-muted-foreground mb-6">
-            Este evento pode ter sido removido ou você não tem permissão para acessá-lo.
-          </p>
-          <Button onClick={() => navigate('/events')}>
-            Voltar para eventos
-          </Button>
-        </CardContent>
-      </Card>
+      <div className="min-h-screen flex flex-col bg-page">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8 flex-grow">
+          <Card className="text-center py-16">
+            <CardContent>
+              <h3 className="text-xl font-medium mb-2">Evento não encontrado</h3>
+              <p className="text-muted-foreground mb-6">
+                Este evento pode ter sido removido ou você não tem permissão para acessá-lo.
+              </p>
+              <Button onClick={() => navigate('/events')}>
+                Voltar para eventos
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+        <Footer />
+      </div>
     );
   }
 
@@ -80,8 +90,7 @@ const EventDetail = () => {
           </div>
           
           <div className="grid gap-6 lg:grid-cols-2">
-            {userRole === 'provider' && 
-             (event.status === 'draft' || event.status === 'published') && (
+            {userRole === 'provider' && (
               <div>
                 <ApplicationForm 
                   event={event}

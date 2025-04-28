@@ -28,6 +28,11 @@ export const CreateEventForm = () => {
       event_date: '',
       event_time: '',
       zipcode: '',
+      street: '',
+      number: '',
+      neighborhood: '',
+      city: '',
+      state: '',
       location: '',
       service_requests: [],
       image: null
@@ -44,6 +49,11 @@ export const CreateEventForm = () => {
             event_date: eventData.event_date ? new Date(eventData.event_date).toISOString().split('T')[0] : '',
             event_time: eventData.event_time || '',
             zipcode: eventData.zipcode || '',
+            street: eventData.street || '',
+            number: eventData.number || '',
+            neighborhood: eventData.neighborhood || '',
+            city: eventData.city || '',
+            state: eventData.state || '',
             location: eventData.location || '',
             service_requests: eventData.service_requests || [],
             image: null
