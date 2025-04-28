@@ -119,7 +119,7 @@ const Chat = () => {
     setNewConversationOpen(false);
     setNewConversationName("");
     
-    // Navegação corrigida: agora navegando para conversation/[id]
+    // Fixed navigation path to be /conversation/[id] instead of /chat/[id]
     navigate(`/conversation/${newId}`);
     
     toast({

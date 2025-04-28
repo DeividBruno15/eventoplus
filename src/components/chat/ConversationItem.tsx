@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Conversation } from '@/types/chat';
 import { formatTime } from './utils';
-import { toast } from '@/components/ui/sonner';
+import { toast } from '@/components/ui/use-toast';
 
 interface ConversationItemProps {
   conversation: Conversation;
@@ -14,7 +14,7 @@ export default function ConversationItem({ conversation: conv }: ConversationIte
 
   const handleConversationClick = (id: string) => {
     try {
-      // Navegação corrigida para conversation/[id] conforme configurado no App.tsx
+      // Fixed navigation path to be /conversation/[id] instead of /chat/[id]
       navigate(`/conversation/${id}`);
     } catch (error) {
       console.error('Navigation error:', error);

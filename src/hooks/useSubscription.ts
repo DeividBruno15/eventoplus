@@ -54,15 +54,14 @@ export const useSubscription = () => {
 
     setIsSubscribing(true);
     try {
-      const { data: clientToken } = await supabase.auth.getSession();
-      
+      // First, create the subscription record in the database
       console.log("Creating subscription with:", {
         planId,
         planName,
         role
       });
       
-      // Usar diretamente as funções do Supabase em vez de chamar endpoints via fetch
+      // Use Supabase edge function to create subscription
       const { data: subscriptionResult, error: subscriptionError } = await supabase.functions.invoke(
         'create-subscription',
         {
@@ -81,7 +80,7 @@ export const useSubscription = () => {
       
       console.log("Subscription result:", subscriptionResult);
       
-      // Agora criar o intent de pagamento usando a Edge Function
+      // Create payment intent using the Edge Function
       const { data: paymentResult, error: paymentError } = await supabase.functions.invoke(
         'create-payment-intent',
         {
@@ -99,7 +98,7 @@ export const useSubscription = () => {
       
       console.log("Payment result:", paymentResult);
       
-      // Redirecionar para o Stripe Checkout
+      // Redirect to Stripe Checkout
       if (paymentResult.url) {
         window.location.href = paymentResult.url;
       } else {
@@ -111,7 +110,7 @@ export const useSubscription = () => {
         description: "Você será redirecionado para a página de pagamento do Stripe.",
       });
       
-      // Atualizar dados da assinatura
+      // Update subscription data
       await subscriptionQuery.refetch();
       
       return subscriptionResult?.subscription || null;
@@ -128,19 +127,19 @@ export const useSubscription = () => {
     }
   };
 
-  // Helper function para obter o preço de um plano baseado no seu ID
+  // Helper function to get price based on plan ID
   const getPlanPrice = (planId: string): number => {
-    // Planos para prestadores
+    // Provider plans
     if (planId === 'provider-essential') return 0;
     if (planId === 'provider-professional') return 1490; // R$ 14.90
     if (planId === 'provider-premium') return 2990; // R$ 29.90
     
-    // Planos para contratantes
+    // Contractor plans
     if (planId === 'contractor-discover') return 0;
     if (planId === 'contractor-connect') return 1490; // R$ 14.90
     if (planId === 'contractor-management') return 2990; // R$ 29.90
     
-    // Preço padrão para planos desconhecidos
+    // Default price for unknown plans
     return 0;
   };
 

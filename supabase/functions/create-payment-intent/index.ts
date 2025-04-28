@@ -30,7 +30,7 @@ serve(async (req) => {
           price_data: {
             currency: 'brl',
             product_data: { name: 'Assinatura de Plano' },
-            unit_amount: amount, // Já em centavos
+            unit_amount: amount, // Already in cents
             unit_amount_decimal: amount.toString(),
           },
           quantity: 1,
