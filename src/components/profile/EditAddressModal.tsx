@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
-import { fetchAddressFromCep } from '@/utils/cep';
+import { fetchAddressByCep } from '@/utils/cep';
 
 interface EditAddressModalProps {
   isOpen: boolean;
@@ -50,9 +50,9 @@ export const EditAddressModal = ({ isOpen, onClose, userData, onAddressUpdate }:
     
     try {
       setSearchingCep(true);
-      const address = await fetchAddressFromCep(formData.zipcode);
+      const address = await fetchAddressByCep(formData.zipcode);
       
-      if (address.erro) {
+      if (!address) {
         toast({
           title: "CEP não encontrado",
           description: "O CEP informado não foi encontrado.",
@@ -62,11 +62,11 @@ export const EditAddressModal = ({ isOpen, onClose, userData, onAddressUpdate }:
       }
       
       setFormData({
-        ...formData,
-        street: address.logradouro || '',
-        neighborhood: address.bairro || '',
-        city: address.localidade || '',
-        state: address.uf || '',
+        street: address.street,
+        neighborhood: address.neighborhood,
+        city: address.city,
+        state: address.state,
+        zipcode: address.zipcode,
       });
       
       toast({

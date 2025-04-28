@@ -1,4 +1,5 @@
 
+
 import { useState, useEffect } from 'react';
 import { 
   Dialog, 
@@ -118,21 +119,21 @@ export const ServiceCategoriesModal = ({
             ) : (
               <div className="grid grid-cols-1 gap-3">
                 {categories.map((category) => (
-                  <div key={category} className="flex items-center space-x-2">
+                  <div key={category.name} className="flex items-center space-x-2">
                     <Checkbox 
-                      id={`category-${category}`}
-                      checked={selectedCategories.includes(category)}
-                      onCheckedChange={() => handleCategoryToggle(category)}
+                      id={`category-${category.name}`}
+                      checked={selectedCategories.includes(category.name)}
+                      onCheckedChange={() => handleCategoryToggle(category.name)}
                       disabled={
-                        !selectedCategories.includes(category) && 
+                        !selectedCategories.includes(category.name) && 
                         selectedCategories.length >= 3
                       }
                     />
                     <Label 
-                      htmlFor={`category-${category}`}
+                      htmlFor={`category-${category.name}`}
                       className="text-sm font-normal cursor-pointer"
                     >
-                      {category}
+                      {category.name}
                     </Label>
                   </div>
                 ))}

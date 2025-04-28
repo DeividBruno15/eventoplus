@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Camera } from 'lucide-react';
 
 interface EditProfileModalProps {
@@ -25,8 +25,8 @@ interface EditProfileModalProps {
 
 export const EditProfileModal = ({ isOpen, onClose, userData, onProfileUpdate }: EditProfileModalProps) => {
   const { toast } = useToast();
-  const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     first_name: userData?.user_metadata?.first_name || '',
     last_name: userData?.user_metadata?.last_name || '',
@@ -35,61 +35,11 @@ export const EditProfileModal = ({ isOpen, onClose, userData, onProfileUpdate }:
     bio: userData?.user_metadata?.bio || '',
   });
   
-  const avatarUrl = userData?.user_metadata?.avatar_url;
+  const [avatarUrl, setAvatarUrl] = useState(userData?.user_metadata?.avatar_url || '');
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-  };
-  
-  const uploadAvatar = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    try {
-      setUploading(true);
-      
-      if (!event.target.files || event.target.files.length === 0) {
-        return;
-      }
-      
-      const file = event.target.files[0];
-      const fileExt = file.name.split('.').pop();
-      const filePath = `${userData?.id}/${Math.random().toString(36).slice(2)}.${fileExt}`;
-      
-      await supabase.storage
-        .createBucket('avatars', { public: true })
-        .catch(() => {
-          // Bucket might already exist
-        });
-        
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file);
-        
-      if (uploadError) throw uploadError;
-      
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath);
-      
-      toast({
-        title: "Avatar atualizado",
-        description: "Sua imagem de perfil foi carregada com sucesso."
-      });
-      
-      // Save to metadata when uploading
-      setFormData(prev => ({
-        ...prev,
-        avatar_url: publicUrl
-      }));
-      
-    } catch (error: any) {
-      toast({
-        title: "Erro ao atualizar avatar",
-        description: error.message,
-        variant: "destructive"
-      });
-    } finally {
-      setUploading(false);
-    }
   };
   
   const handleSubmit = async (e: React.FormEvent) => {
@@ -104,7 +54,7 @@ export const EditProfileModal = ({ isOpen, onClose, userData, onProfileUpdate }:
           phone_number: formData.phone_number,
           document_number: formData.document_number,
           bio: formData.bio,
-          ...(formData.avatar_url && { avatar_url: formData.avatar_url }),
+          avatar_url: avatarUrl,
         }
       });
       
@@ -128,6 +78,52 @@ export const EditProfileModal = ({ isOpen, onClose, userData, onProfileUpdate }:
     }
   };
   
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      setUploading(true);
+      
+      if (!event.target.files || event.target.files.length === 0) {
+        return;
+      }
+      
+      const file = event.target.files[0];
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${userData?.id}/${Math.random().toString(36).slice(2)}.${fileExt}`;
+      
+      await supabase.storage
+        .createBucket('avatars', { public: true })
+        .catch(() => {
+          // Bucket might already exist, continue
+        });
+        
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file);
+        
+      if (uploadError) throw uploadError;
+      
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+      
+      setAvatarUrl(publicUrl);
+      
+      toast({
+        title: "Avatar carregado",
+        description: "A imagem foi carregada com sucesso."
+      });
+      
+    } catch (error: any) {
+      toast({
+        title: "Erro ao carregar avatar",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+  
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
@@ -138,9 +134,9 @@ export const EditProfileModal = ({ isOpen, onClose, userData, onProfileUpdate }:
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex justify-center mb-4">
             <div className="relative">
-              <Avatar className="h-20 w-20">
-                {avatarUrl || formData.avatar_url ? (
-                  <AvatarImage src={formData.avatar_url || avatarUrl} />
+              <Avatar className="h-24 w-24">
+                {avatarUrl ? (
+                  <AvatarImage src={avatarUrl} />
                 ) : (
                   <AvatarFallback className="bg-muted">
                     <Camera className="h-8 w-8 text-muted-foreground" />
@@ -153,7 +149,7 @@ export const EditProfileModal = ({ isOpen, onClose, userData, onProfileUpdate }:
                   type="file" 
                   className="hidden" 
                   accept="image/*"
-                  onChange={uploadAvatar}
+                  onChange={handleAvatarUpload}
                   disabled={uploading}
                 />
               </label>
@@ -168,7 +164,7 @@ export const EditProfileModal = ({ isOpen, onClose, userData, onProfileUpdate }:
                 name="first_name"
                 value={formData.first_name}
                 onChange={handleInputChange}
-                required
+                placeholder="Seu nome"
               />
             </div>
             
@@ -179,7 +175,7 @@ export const EditProfileModal = ({ isOpen, onClose, userData, onProfileUpdate }:
                 name="last_name"
                 value={formData.last_name}
                 onChange={handleInputChange}
-                required
+                placeholder="Seu sobrenome"
               />
             </div>
           </div>
@@ -191,7 +187,7 @@ export const EditProfileModal = ({ isOpen, onClose, userData, onProfileUpdate }:
               name="phone_number"
               value={formData.phone_number}
               onChange={handleInputChange}
-              placeholder="(00) 00000-0000"
+              placeholder="Seu número de telefone"
             />
           </div>
           
@@ -202,7 +198,8 @@ export const EditProfileModal = ({ isOpen, onClose, userData, onProfileUpdate }:
               name="document_number"
               value={formData.document_number}
               onChange={handleInputChange}
-              disabled
+              placeholder="Seu CPF ou CNPJ"
+              disabled={!!formData.document_number}
             />
           </div>
           
@@ -213,17 +210,17 @@ export const EditProfileModal = ({ isOpen, onClose, userData, onProfileUpdate }:
               name="bio"
               value={formData.bio}
               onChange={handleInputChange}
-              placeholder="Fale um pouco sobre você..."
-              rows={3}
+              placeholder="Conte um pouco sobre você"
+              rows={4}
             />
           </div>
           
           <DialogFooter className="mt-6">
-            <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
+            <Button type="button" variant="outline" onClick={onClose} disabled={loading || uploading}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? "Salvando..." : "Salvar alterações"}
+            <Button type="submit" disabled={loading || uploading}>
+              {loading ? "Salvando..." : "Salvar perfil"}
             </Button>
           </DialogFooter>
         </form>
