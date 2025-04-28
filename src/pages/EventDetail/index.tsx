@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import Navbar from '@/components/Navbar';
@@ -27,7 +26,7 @@ const EventDetail = () => {
     userHasApplied, 
     userApplication,
     refetchEvent 
-  } = useEventDetails({ id });
+  } = useEventDetails({ id, user });
   
   const { 
     submitting, 
