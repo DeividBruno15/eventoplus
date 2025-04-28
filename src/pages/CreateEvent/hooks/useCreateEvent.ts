@@ -1,10 +1,10 @@
 
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { CreateEventFormData } from '../schema';
-import { Event } from '@/types/events';
+import { CreateEventFormData, Event, ServiceRequest } from '@/types/events';
 import { useAuth } from '@/hooks/useAuth';
 import { v4 as uuidv4 } from 'uuid';
+import { Json } from '@/integrations/supabase/types';
 
 export const useCreateEvent = () => {
   const [loading, setLoading] = useState(false);
@@ -21,9 +21,15 @@ export const useCreateEvent = () => {
         .single();
 
       if (error) throw error;
+      
+      // Transform the data to match the Event type
+      const eventData: Event = {
+        ...data,
+        service_requests: data.service_requests ? parseServiceRequests(data.service_requests as Json) : null
+      } as Event;
 
-      setEvent(data as Event);
-      return data as Event;
+      setEvent(eventData);
+      return eventData;
     } catch (error) {
       console.error('Error fetching event:', error);
       return null;
@@ -31,11 +37,33 @@ export const useCreateEvent = () => {
       setLoading(false);
     }
   };
+  
+  // Helper function to parse service_requests from Json to ServiceRequest[]
+  const parseServiceRequests = (jsonData: Json): ServiceRequest[] => {
+    if (Array.isArray(jsonData)) {
+      return jsonData.map(item => ({
+        category: String(item.category || ''),
+        count: Number(item.count || 0),
+        filled: Number(item.filled || 0)
+      }));
+    }
+    return [];
+  };
 
   const uploadEventImage = async (file: File): Promise<string> => {
     const fileExt = file.name.split('.').pop();
     const fileName = `${uuidv4()}.${fileExt}`;
     const filePath = `event-images/${fileName}`;
+    
+    // Try to create bucket if it doesn't exist
+    try {
+      await supabase.storage.createBucket('events', { 
+        public: true,
+        fileSizeLimit: 10485760 // 10MB
+      });
+    } catch (error) {
+      // Bucket might already exist, continue
+    }
     
     const { error } = await supabase.storage
       .from('events')
@@ -74,7 +102,7 @@ export const useCreateEvent = () => {
         image_url: imageUrl,
         contractor_id: user.id,
         status: 'draft' as const,
-        service_type: '' // Adding empty string to satisfy the database schema requirement
+        service_type: eventData.service_requests?.[0]?.category || '' // Add the service type from the first service request
       };
 
       console.log("Saving event:", eventToSave);

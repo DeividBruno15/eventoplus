@@ -1,5 +1,6 @@
 
 import { z } from "zod";
+import { CreateEventFormData } from "@/types/events";
 
 export const createEventSchema = z.object({
   name: z.string().min(3, "O nome do evento é obrigatório e deve ter pelo menos 3 caracteres"),
@@ -17,4 +18,5 @@ export const createEventSchema = z.object({
   image: z.any().optional()
 });
 
-export type CreateEventFormData = z.infer<typeof createEventSchema>;
+// Re-export the type for compatibility
+export type { CreateEventFormData };

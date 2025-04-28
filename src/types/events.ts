@@ -14,17 +14,29 @@ export interface Event {
   name: string;
   description: string;
   event_date: string;
-  event_time: string;
+  event_time?: string | null;
   location: string;
-  zipcode?: string;
+  zipcode?: string | null;
   service_type?: string;
   max_attendees?: number | null;
-  service_requests?: ServiceRequest[];
+  service_requests?: ServiceRequest[] | null;
   created_at: string;
   updated_at?: string;
   contractor_id: string;
-  image_url?: string;
+  image_url?: string | null;
   status: EventStatus;
+}
+
+// Adding the CreateEventFormData export
+export interface CreateEventFormData {
+  name: string;
+  description: string;
+  event_date: string;
+  event_time: string;
+  zipcode: string;
+  location: string;
+  service_requests?: ServiceRequest[];
+  image: File | null | string;
 }
 
 export interface EventApplication {

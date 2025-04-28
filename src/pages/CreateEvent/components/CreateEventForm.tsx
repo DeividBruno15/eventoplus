@@ -1,10 +1,9 @@
-
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { createEventSchema, type CreateEventFormData } from '../schema';
+import { createEventSchema } from '../schema';
 import { useCreateEvent } from '@/hooks/useCreateEvent';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BasicEventFields } from './BasicEventFields';
@@ -13,6 +12,7 @@ import { ImageUploadField } from './ImageUploadField';
 import { useToast } from '@/hooks/use-toast';
 import { ServiceSelectionField } from './ServiceSelectionField';
 import { DescriptionField } from './DescriptionField';
+import { CreateEventFormData } from '@/types/events';
 
 export const CreateEventForm = () => {
   const navigate = useNavigate();

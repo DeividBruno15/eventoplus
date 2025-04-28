@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
@@ -6,9 +5,10 @@ import { Input } from "@/components/ui/input";
 import { useSession } from "@/contexts/SessionContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Event } from "@/types/events";
+import { Event, ServiceRequest } from "@/types/events";
 import { NoServicesWarning } from "./NoServicesWarning";
 import { ProviderEventsList } from "./ProviderEventsList";
+import { Json } from "@/integrations/supabase/types";
 
 interface ProviderEventsContentProps {
   searchQuery: string;
@@ -26,6 +26,19 @@ export const ProviderEventsContent: React.FC<ProviderEventsContentProps> = ({
   const [availableEvents, setAvailableEvents] = useState<Event[]>([]);
   const [appliedEvents, setAppliedEvents] = useState<Event[]>([]);
   const [providerServices, setProviderServices] = useState<string[]>([]);
+
+  const parseServiceRequests = (jsonData: Json | null): ServiceRequest[] => {
+    if (!jsonData) return [];
+    
+    if (Array.isArray(jsonData)) {
+      return jsonData.map(item => ({
+        category: String(item.category || ''),
+        count: Number(item.count || 0),
+        filled: Number(item.filled || 0)
+      }));
+    }
+    return [];
+  };
 
   useEffect(() => {
     const fetchProviderServices = async () => {
@@ -81,10 +94,15 @@ export const ProviderEventsContent: React.FC<ProviderEventsContentProps> = ({
         const applied: Event[] = [];
         
         events?.forEach(event => {
+          const eventData: Event = {
+            ...event,
+            service_requests: parseServiceRequests(event.service_requests as Json)
+          } as Event;
+          
           if (appliedEventIds.includes(event.id)) {
-            applied.push(event as Event);
+            applied.push(eventData);
           } else {
-            available.push(event as Event);
+            available.push(eventData);
           }
         });
 

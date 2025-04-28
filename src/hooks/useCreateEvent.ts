@@ -1,9 +1,10 @@
+
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { CreateEventFormData } from '@/types/events';
-import { Event } from '@/types/events';
+import { CreateEventFormData, Event, ServiceRequest } from '@/types/events';
 import { useAuth } from '@/hooks/useAuth';
 import { v4 as uuidv4 } from 'uuid';
+import { Json } from '@/integrations/supabase/types';
 
 export const useCreateEvent = () => {
   const [loading, setLoading] = useState(false);
@@ -21,14 +22,32 @@ export const useCreateEvent = () => {
 
       if (error) throw error;
 
-      setEvent(data as Event);
-      return data as Event;
+      // Transform the data to match the Event type
+      const eventData: Event = {
+        ...data,
+        service_requests: data.service_requests ? parseServiceRequests(data.service_requests as Json) : null
+      } as Event;
+
+      setEvent(eventData);
+      return eventData;
     } catch (error) {
       console.error('Error fetching event:', error);
       return null;
     } finally {
       setLoading(false);
     }
+  };
+
+  // Helper function to parse service_requests from Json to ServiceRequest[]
+  const parseServiceRequests = (jsonData: Json): ServiceRequest[] => {
+    if (Array.isArray(jsonData)) {
+      return jsonData.map(item => ({
+        category: String(item.category || ''),
+        count: Number(item.count || 0),
+        filled: Number(item.filled || 0)
+      }));
+    }
+    return [];
   };
 
   const uploadEventImage = async (file: File): Promise<string> => {
