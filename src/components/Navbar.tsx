@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X, LogOut, User } from 'lucide-react';
+import { Menu, X, LogOut, User, Camera } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { 
@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/components/ui/use-toast";
 
 const Navbar = () => {
@@ -44,24 +44,7 @@ const Navbar = () => {
     setIsMenuOpen(false);
   };
 
-  // Função para obter as iniciais do nome do usuário
-  const getUserInitials = () => {
-    if (!user) return "";
-    
-    // Tenta obter o nome dos metadados de usuário
-    const firstName = user.user_metadata?.first_name as string | undefined;
-    const lastName = user.user_metadata?.last_name as string | undefined;
-    
-    if (firstName && lastName) {
-      return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
-    } else if (firstName) {
-      return firstName.charAt(0).toUpperCase();
-    } else if (user.email) {
-      return user.email.charAt(0).toUpperCase();
-    }
-    
-    return "";
-  };
+  const avatarUrl = user?.user_metadata?.avatar_url;
 
   return (
     <nav className="bg-white shadow-sm sticky top-0 z-50">
@@ -87,8 +70,14 @@ const Navbar = () => {
                 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Avatar className="cursor-pointer h-10 w-10 bg-primary text-primary-foreground">
-                      <AvatarFallback>{getUserInitials()}</AvatarFallback>
+                    <Avatar className="cursor-pointer h-10 w-10 bg-muted">
+                      {avatarUrl ? (
+                        <AvatarImage src={avatarUrl} />
+                      ) : (
+                        <AvatarFallback className="bg-muted">
+                          <Camera className="h-5 w-5 text-muted-foreground" />
+                        </AvatarFallback>
+                      )}
                     </Avatar>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">

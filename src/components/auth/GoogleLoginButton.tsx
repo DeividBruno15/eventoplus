@@ -6,9 +6,10 @@ import { FcGoogle } from 'react-icons/fc';
 interface GoogleLoginButtonProps {
   loading: boolean;
   onLogin: () => void;
+  text?: string;
 }
 
-export const GoogleLoginButton = ({ loading, onLogin }: GoogleLoginButtonProps) => {
+export const GoogleLoginButton = ({ loading, onLogin, text = "Entrar com Google" }: GoogleLoginButtonProps) => {
   return (
     <Button 
       type="button" 
@@ -25,7 +26,7 @@ export const GoogleLoginButton = ({ loading, onLogin }: GoogleLoginButtonProps) 
       ) : (
         <>
           <FcGoogle className="w-5 h-5 mr-2" />
-          Entrar com Google
+          {text}
         </>
       )}
     </Button>

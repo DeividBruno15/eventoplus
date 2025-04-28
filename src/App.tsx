@@ -27,6 +27,7 @@ import Support from "./pages/Support";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import About from "./pages/About";
+import Contact from "./pages/Contact";
 import { Toaster } from "./components/ui/sonner";
 
 function App() {
@@ -38,12 +39,13 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/dashboard" element={<DashboardLayout><Dashboard /></DashboardLayout>} />
           <Route path="/profile" element={<DashboardLayout><Profile /></DashboardLayout>} />
           <Route path="/events" element={<DashboardLayout><Events /></DashboardLayout>} />
-          <Route path="/events/create" element={<DashboardLayout><CreateEvent /></DashboardLayout>} />
+          <Route path="/events/create" element={<CreateEvent />} />
           <Route path="/events/:id" element={<EventDetail />} />
-          <Route path="/events/:id/edit" element={<DashboardLayout><CreateEvent /></DashboardLayout>} />
+          <Route path="/events/:id/edit" element={<CreateEvent />} />
           <Route path="/chat" element={<DashboardLayout><Chat /></DashboardLayout>} />
           <Route path="/chat/:id" element={<DashboardLayout><Conversation /></DashboardLayout>} />
           <Route path="/conversation/:id" element={<DashboardLayout><Conversation /></DashboardLayout>} />

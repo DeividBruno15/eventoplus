@@ -1,24 +1,32 @@
 
-import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { AlertCircle } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { AlertTriangle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export const NoServicesWarning = () => {
   const navigate = useNavigate();
   
+  const handleAddServices = () => {
+    // Redirecionar para a página de configurações onde podem adicionar serviços
+    navigate('/settings');
+  };
+  
   return (
-    <Card>
-      <CardContent className="flex flex-col items-center justify-center h-40 text-center p-6">
-        <AlertCircle className="h-8 w-8 text-amber-500 mb-2" />
-        <h3 className="text-lg font-medium mb-2">Adicione categorias de serviços ao seu perfil</h3>
-        <p className="text-muted-foreground text-sm">
-          Para ver eventos disponíveis, você precisa adicionar as categorias de serviços que oferece.
-        </p>
-        <Button className="mt-4" onClick={() => navigate('/profile')}>
-          Atualizar Perfil
-        </Button>
+    <Card className="border-yellow-200 bg-yellow-50">
+      <CardContent className="pt-6">
+        <div className="flex items-start">
+          <AlertTriangle className="h-5 w-5 text-yellow-500 mr-3 mt-0.5" />
+          <div className="space-y-2">
+            <h3 className="font-medium">Você não possui serviços cadastrados</h3>
+            <p className="text-sm text-muted-foreground">
+              Para visualizar eventos compatíveis, é necessário cadastrar os serviços que você oferece.
+            </p>
+            <Button onClick={handleAddServices} variant="default" className="mt-2">
+              Adicionar Serviços
+            </Button>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

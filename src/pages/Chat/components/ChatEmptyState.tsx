@@ -1,23 +1,38 @@
 
-import { Card } from "@/components/ui/card";
-import { MessageSquare } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { MessageSquarePlus } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-export const ChatEmptyState = () => {
+interface ChatEmptyStateProps {
+  onNewMessage?: () => void;
+}
+
+export function ChatEmptyState({ onNewMessage }: ChatEmptyStateProps) {
+  const navigate = useNavigate();
+
+  const handleNewMessage = () => {
+    if (onNewMessage) {
+      onNewMessage();
+    } else {
+      navigate('/chat');
+    }
+  };
+
   return (
-    <Card className="lg:col-span-2 h-[calc(100vh-15rem)] flex flex-col">
-      <div className="flex items-center justify-center h-20 text-muted-foreground p-6">
-        <div className="text-center">
-          <MessageSquare className="h-10 w-10 mx-auto mb-2" />
-          Selecione uma conversa para começar
+    <div className="flex flex-col items-center justify-center h-full py-12 px-4">
+      <div className="flex flex-col items-center text-center max-w-md">
+        <div className="bg-primary/10 p-4 rounded-full mb-6">
+          <MessageSquarePlus className="h-10 w-10 text-primary" />
         </div>
+        <h2 className="text-2xl font-semibold mb-3">Suas mensagens</h2>
+        <p className="text-muted-foreground mb-6">
+          Comece uma conversa com prestadores de serviços ou veja suas mensagens anteriores
+        </p>
+        <Button onClick={handleNewMessage} className="flex items-center gap-2">
+          <MessageSquarePlus className="h-4 w-4" />
+          Nova mensagem
+        </Button>
       </div>
-      
-      <div className="flex-1 flex items-center justify-center text-muted-foreground text-center">
-        <div>
-          <p>Nenhuma conversa selecionada.</p>
-          <p>Clique em uma conversa da lista ou inicie uma nova.</p>
-        </div>
-      </div>
-    </Card>
+    </div>
   );
-};
+}

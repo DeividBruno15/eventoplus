@@ -1,4 +1,3 @@
-
 import { 
   LayoutDashboard, 
   User, 
@@ -151,9 +150,9 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
             )}
           </Avatar>
           <h3 className="font-medium text-gray-900">{firstName} {lastName}</h3>
-          <Badge className={`mt-1.5 ${getRoleColor(userRole)}`}>
+          <span className="inline-flex items-center px-2 py-0.5 bg-primary/10 text-primary text-xs font-medium rounded">
             {getRoleLabel(userRole)}
-          </Badge>
+          </span>
         </div>
       </div>
 

@@ -1,7 +1,6 @@
 
 import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/contexts/SessionContext";
 import { useToast } from "@/components/ui/use-toast";
-import { LogOut, Settings, User } from "lucide-react";
+import { Camera, LogOut, Settings, User } from "lucide-react";
 
 export function UserMenu() {
   const { logout } = useAuth();
@@ -29,7 +28,6 @@ export function UserMenu() {
   const firstName = user?.user_metadata?.first_name || "";
   const lastName = user?.user_metadata?.last_name || "";
   const avatarUrl = user?.user_metadata?.avatar_url;
-  const initials = firstName && lastName ? `${firstName[0]}${lastName[0]}` : "U";
 
   const handleLogout = async () => {
     try {
@@ -115,7 +113,9 @@ export function UserMenu() {
             {avatarUrl ? (
               <AvatarImage src={avatarUrl} />
             ) : (
-              <AvatarFallback>{initials}</AvatarFallback>
+              <AvatarFallback className="bg-muted">
+                <Camera className="h-5 w-5 text-muted-foreground" />
+              </AvatarFallback>
             )}
           </Avatar>
           <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 hover:opacity-100 transition-opacity cursor-pointer">
@@ -126,6 +126,7 @@ export function UserMenu() {
               onChange={uploadAvatar}
               disabled={uploading}
             />
+            <Camera className="h-5 w-5 text-white" />
           </label>
         </button>
       </DropdownMenuTrigger>

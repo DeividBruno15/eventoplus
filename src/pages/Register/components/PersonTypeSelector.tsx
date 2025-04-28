@@ -1,8 +1,8 @@
 
-import { Button } from '@/components/ui/button';
 import { FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { UseFormReturn } from 'react-hook-form';
 import { RegisterFormData } from '../types';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface PersonTypeSelectorProps {
   form: UseFormReturn<RegisterFormData>;
@@ -16,24 +16,17 @@ export const PersonTypeSelector = ({ form }: PersonTypeSelectorProps) => {
       render={({ field }) => (
         <FormItem>
           <FormLabel>Tipo de pessoa</FormLabel>
-          <div className="grid grid-cols-2 gap-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => form.setValue('person_type', 'fisica')}
-              className={field.value === 'fisica' ? 'bg-secondary text-secondary-foreground hover:bg-secondary/80' : ''}
-            >
-              Pessoa Física
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => form.setValue('person_type', 'juridica')}
-              className={field.value === 'juridica' ? 'bg-secondary text-secondary-foreground hover:bg-secondary/80' : ''}
-            >
-              Pessoa Jurídica
-            </Button>
-          </div>
+          <Tabs 
+            defaultValue="fisica"
+            onValueChange={(value) => form.setValue('person_type', value as 'fisica' | 'juridica')}
+            value={field.value}
+            className="w-full"
+          >
+            <TabsList className="grid grid-cols-2 w-full">
+              <TabsTrigger value="fisica">Pessoa Física</TabsTrigger>
+              <TabsTrigger value="juridica">Pessoa Jurídica</TabsTrigger>
+            </TabsList>
+          </Tabs>
           <FormMessage />
         </FormItem>
       )}
