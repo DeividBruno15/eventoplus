@@ -1,6 +1,6 @@
 
 import {
-  BrowserRouter,
+  BrowserRouter as Router,
   Routes,
   Route,
 } from "react-router-dom";
@@ -33,7 +33,7 @@ import { Toaster } from "./components/ui/sonner";
 function App() {
   return (
     <>
-      <BrowserRouter>
+      <Router>
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
@@ -60,7 +60,7 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </BrowserRouter>
+      </Router>
       <Toaster position="top-right" />
     </>
   );
