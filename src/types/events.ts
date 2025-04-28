@@ -27,7 +27,6 @@ export interface Event {
   status: EventStatus;
 }
 
-// Adding the CreateEventFormData export
 export interface CreateEventFormData {
   name: string;
   description: string;

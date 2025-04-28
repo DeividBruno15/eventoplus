@@ -42,12 +42,18 @@ export const useCreateEvent = () => {
   const parseServiceRequests = (jsonData: Json): ServiceRequest[] => {
     if (Array.isArray(jsonData)) {
       return jsonData.map(item => ({
-        category: String(item.category || ''),
-        count: Number(item.count || 0),
-        filled: Number(item.filled || 0)
+        category: typeof item === 'object' && item !== null ? String(item.category || '') : '',
+        count: typeof item === 'object' && item !== null ? Number(item.count || 0) : 0,
+        filled: typeof item === 'object' && item !== null ? Number(item.filled || 0) : 0
       }));
     }
     return [];
+  };
+
+  // Helper function to convert ServiceRequest[] to Json for database storage
+  const prepareServiceRequestsForStorage = (requests: ServiceRequest[] | undefined): Json => {
+    if (!requests || !Array.isArray(requests)) return [];
+    return requests as unknown as Json;
   };
 
   const uploadEventImage = async (file: File): Promise<string> => {
@@ -90,6 +96,7 @@ export const useCreateEvent = () => {
         imageUrl = await uploadEventImage(eventData.image);
       }
       
+      // Convert ServiceRequest[] to Json for database storage
       const eventToSave = {
         name: eventData.name,
         description: eventData.description,
@@ -97,7 +104,7 @@ export const useCreateEvent = () => {
         event_time: eventData.event_time,
         location: eventData.location,
         zipcode: eventData.zipcode,
-        service_requests: eventData.service_requests || [],
+        service_requests: prepareServiceRequestsForStorage(eventData.service_requests),
         image_url: imageUrl,
         contractor_id: user.id,
         status: 'draft' as const,

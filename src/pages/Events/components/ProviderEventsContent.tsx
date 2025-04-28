@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
@@ -32,9 +33,9 @@ export const ProviderEventsContent: React.FC<ProviderEventsContentProps> = ({
     
     if (Array.isArray(jsonData)) {
       return jsonData.map(item => ({
-        category: String(item.category || ''),
-        count: Number(item.count || 0),
-        filled: Number(item.filled || 0)
+        category: typeof item === 'object' && item !== null ? String(item.category || '') : '',
+        count: typeof item === 'object' && item !== null ? Number(item.count || 0) : 0,
+        filled: typeof item === 'object' && item !== null ? Number(item.filled || 0) : 0
       }));
     }
     return [];

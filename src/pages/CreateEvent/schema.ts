@@ -18,5 +18,5 @@ export const createEventSchema = z.object({
   image: z.any().optional()
 });
 
-// Re-export the type for compatibility
-export type { CreateEventFormData };
+// Re-export the type from the centralized location
+export type { CreateEventFormData } from "@/types/events";
