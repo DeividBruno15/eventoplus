@@ -113,7 +113,7 @@ export const useCreateEvent = () => {
         service_requests: prepareServiceRequestsForStorage(eventData.service_requests),
         image_url: imageUrl,
         contractor_id: user.id,
-        status: 'draft' as const,
+        status: 'published' as const, // Changed from 'draft' to 'published'
         service_type: eventData.service_requests?.[0]?.category || '' // Add the service type from the first service request
       };
 

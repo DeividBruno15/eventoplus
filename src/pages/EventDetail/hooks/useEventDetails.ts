@@ -3,8 +3,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Event, EventApplication, ApplicationStatus, EventStatus } from '@/types/events';
+import { Event, EventApplication, ApplicationStatus, EventStatus, ServiceRequest } from '@/types/events';
 import { User } from '@supabase/supabase-js';
+import { Json } from '@/integrations/supabase/types';
 
 interface UseEventDetailsProps {
   id: string | undefined;
@@ -34,6 +35,26 @@ export const useEventDetails = ({ id, user }: UseEventDetailsProps) => {
     refetchEvent: () => {}, // Will be overridden later
   });
 
+  // Helper function to parse service_requests from Json to ServiceRequest[]
+  const parseServiceRequests = (jsonData: Json): ServiceRequest[] | null => {
+    if (!jsonData) return null;
+    
+    if (Array.isArray(jsonData)) {
+      return jsonData.map(item => {
+        if (typeof item === 'object' && item !== null) {
+          const jsonObj = item as Record<string, Json>;
+          return {
+            category: typeof jsonObj.category === 'string' ? jsonObj.category : '',
+            count: typeof jsonObj.count === 'number' ? jsonObj.count : 0,
+            filled: typeof jsonObj.filled === 'number' ? jsonObj.filled : 0
+          };
+        }
+        return { category: '', count: 0, filled: 0 };
+      });
+    }
+    return [];
+  };
+
   const fetchEventData = useCallback(async () => {
     if (!user) {
       navigate('/login');
@@ -49,12 +70,10 @@ export const useEventDetails = ({ id, user }: UseEventDetailsProps) => {
         
       if (userError) throw userError;
       
+      // Removendo a relação creator:user_profiles que está causando o erro
       const { data: eventData, error: eventError } = await supabase
         .from('events')
-        .select(`
-          *,
-          creator:user_profiles(first_name, last_name, phone_number)
-        `)
+        .select('*')
         .eq('id', id)
         .single();
         
@@ -77,7 +96,9 @@ export const useEventDetails = ({ id, user }: UseEventDetailsProps) => {
         service_type: typedEventData.service_type,
         status: typedEventData.status as EventStatus,
         image_url: typedEventData.image_url ? String(typedEventData.image_url) : null,
-        event_time: typedEventData.event_time
+        event_time: typedEventData.event_time,
+        service_requests: parseServiceRequests(typedEventData.service_requests as Json),
+        zipcode: typedEventData.zipcode || null
       };
 
       if (eventData.contractor_id === user?.id) {
