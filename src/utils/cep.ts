@@ -42,3 +42,25 @@ export const formatCep = (cep: string): string => {
   
   return digits;
 };
+
+// This is the function referenced in LocationServiceFields
+export const fetchLocationFromCEP = async (cep: string) => {
+  try {
+    const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+    
+    if (!response.ok) {
+      throw new Error('Erro ao buscar CEP');
+    }
+    
+    const data = await response.json();
+    
+    if (data.erro) {
+      return null;
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Erro ao buscar CEP:', error);
+    return null;
+  }
+};
