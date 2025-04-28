@@ -132,36 +132,48 @@ export type Database = {
           created_at: string | null
           description: string
           event_date: string
+          event_time: string | null
           id: string
+          image_url: string | null
           location: string
           max_attendees: number | null
           name: string
+          service_requests: Json | null
           service_type: string
           status: string
+          zipcode: string | null
         }
         Insert: {
           contractor_id: string
           created_at?: string | null
           description: string
           event_date: string
+          event_time?: string | null
           id?: string
+          image_url?: string | null
           location: string
           max_attendees?: number | null
           name: string
+          service_requests?: Json | null
           service_type: string
           status?: string
+          zipcode?: string | null
         }
         Update: {
           contractor_id?: string
           created_at?: string | null
           description?: string
           event_date?: string
+          event_time?: string | null
           id?: string
+          image_url?: string | null
           location?: string
           max_attendees?: number | null
           name?: string
+          service_requests?: Json | null
           service_type?: string
           status?: string
+          zipcode?: string | null
         }
         Relationships: []
       }

@@ -1,7 +1,6 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { CreateEventFormData } from '@/pages/CreateEvent/schema';
+import { CreateEventFormData } from '@/types/events';
 import { Event } from '@/types/events';
 import { useAuth } from '@/hooks/useAuth';
 import { v4 as uuidv4 } from 'uuid';
@@ -33,21 +32,32 @@ export const useCreateEvent = () => {
   };
 
   const uploadEventImage = async (file: File): Promise<string> => {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${uuidv4()}.${fileExt}`;
-    const filePath = `event-images/${fileName}`;
-    
-    const { error } = await supabase.storage
-      .from('events')
-      .upload(filePath, file);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${uuidv4()}.${fileExt}`;
+      const filePath = `event-images/${fileName}`;
       
-    if (error) throw error;
-    
-    const { data } = supabase.storage
-      .from('events')
-      .getPublicUrl(filePath);
+      const { error: bucketError } = await supabase.storage
+        .createBucket('events', {
+          public: true,
+          fileSizeLimit: 10485760, // 10MB
+        }).catch(() => ({ error: null })); // Ignora erro se o bucket já existir
       
-    return data.publicUrl;
+      const { error } = await supabase.storage
+        .from('events')
+        .upload(filePath, file);
+        
+      if (error) throw error;
+      
+      const { data } = supabase.storage
+        .from('events')
+        .getPublicUrl(filePath);
+        
+      return data.publicUrl;
+    } catch (error) {
+      console.error('Erro ao fazer upload da imagem:', error);
+      throw error;
+    }
   };
 
   const createEvent = async (eventData: CreateEventFormData, eventId?: string): Promise<boolean> => {
@@ -57,7 +67,6 @@ export const useCreateEvent = () => {
       setLoading(true);
       let imageUrl = event?.image_url || null;
       
-      // Handle image upload if provided
       if (eventData.image instanceof File) {
         imageUrl = await uploadEventImage(eventData.image);
       }
@@ -73,34 +82,32 @@ export const useCreateEvent = () => {
         image_url: imageUrl,
         contractor_id: user.id,
         status: 'draft' as const,
-        service_type: '' // Adding empty string to satisfy DB schema
+        service_type: eventData.service_requests?.[0]?.category || '' // Use a primeira categoria de serviço ou vazio
       };
 
-      console.log("Saving event:", eventToSave);
+      console.log("Salvando evento:", eventToSave);
       
       let response;
       
       if (eventId) {
-        // Update existing event
         response = await supabase
           .from('events')
           .update(eventToSave)
           .eq('id', eventId);
       } else {
-        // Create new event
         response = await supabase
           .from('events')
           .insert([eventToSave]);
       }
 
       if (response.error) {
-        console.error("Supabase error:", response.error);
+        console.error("Erro no Supabase:", response.error);
         throw response.error;
       }
       
       return true;
     } catch (error) {
-      console.error('Error creating/updating event:', error);
+      console.error('Erro ao criar/atualizar evento:', error);
       throw error;
     } finally {
       setLoading(false);

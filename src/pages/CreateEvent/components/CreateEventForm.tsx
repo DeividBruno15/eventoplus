@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { createEventSchema, type CreateEventFormData } from '../schema';
-import { useCreateEvent } from '../hooks/useCreateEvent';
+import { useCreateEvent } from '@/hooks/useCreateEvent';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BasicEventFields } from './BasicEventFields';
 import { LocationServiceFields } from './LocationServiceFields';
@@ -38,7 +38,6 @@ export const CreateEventForm = () => {
     if (id) {
       fetchEvent(id).then(eventData => {
         if (eventData) {
-          // Configurar valores do formulário com os dados do evento
           form.reset({
             name: eventData.name || '',
             description: eventData.description || '',
@@ -47,7 +46,7 @@ export const CreateEventForm = () => {
             zipcode: eventData.zipcode || '',
             location: eventData.location || '',
             service_requests: eventData.service_requests || [],
-            image: null  // Não podemos definir objetos File diretamente
+            image: null
           });
           
           toast({
@@ -56,7 +55,7 @@ export const CreateEventForm = () => {
           });
         }
       }).catch(error => {
-        console.error("Error fetching event:", error);
+        console.error("Erro ao carregar evento:", error);
         toast({
           title: "Erro",
           description: "Não foi possível carregar o evento.",
@@ -69,7 +68,7 @@ export const CreateEventForm = () => {
   
   const handleSubmit = async (data: CreateEventFormData) => {
     try {
-      console.log("Submitting event data:", data);
+      console.log("Enviando dados do evento:", data);
       const result = await createEvent(data, id);
       
       if (result) {
@@ -82,10 +81,10 @@ export const CreateEventForm = () => {
         throw new Error("Falha ao salvar o evento");
       }
     } catch (error) {
-      console.error("Error creating/updating event:", error);
+      console.error("Erro ao criar/atualizar evento:", error);
       toast({
         title: "Erro",
-        description: `Não foi possível ${id ? 'atualizar' : 'criar'} o evento.`,
+        description: `Não foi possível ${id ? 'atualizar' : 'criar'} o evento. Verifique os dados e tente novamente.`,
         variant: "destructive"
       });
     }
