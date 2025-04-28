@@ -1,5 +1,10 @@
 
 project_id = "euktkuqjadepwwsnrdsl"
-[functions.send-whatsapp-notification]
-verify_jwt = true
 
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage"]
+
+[functions.create-payment-intent]
+verify_jwt = true
