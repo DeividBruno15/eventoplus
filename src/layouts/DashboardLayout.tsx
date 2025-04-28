@@ -11,11 +11,14 @@ import {
   SidebarHeader,
   SidebarContent,
   SidebarFooter,
-  useSidebar,
   SidebarProvider,
 } from "@/components/ui/sidebar";
 
-export default function DashboardLayout() {
+interface DashboardLayoutProps {
+  children?: React.ReactNode;
+}
+
+export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { session } = useSession();
   const isMobile = useIsMobile();
   const [activePath, setActivePath] = useState("/dashboard");
@@ -26,6 +29,8 @@ export default function DashboardLayout() {
   if (!session) {
     return null; // Handled by route protection
   }
+
+  const content = children || <Outlet />;
 
   return (
     <SidebarProvider>
@@ -70,7 +75,7 @@ export default function DashboardLayout() {
           </header>
           <main className="flex-1 bg-slate-50 overflow-auto">
             <div className="h-full">
-              <Outlet />
+              {content}
             </div>
           </main>
         </div>

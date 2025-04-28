@@ -29,6 +29,7 @@ import ResetPassword from "./pages/ResetPassword";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import { Toaster } from "./components/ui/sonner";
+import { SidebarProvider } from "./components/ui/sidebar";
 
 function App() {
   return (
@@ -58,7 +59,13 @@ function App() {
           </Route>
           
           {/* Routes that should show DashboardLayout */}
-          <Route path="/events/create" element={<DashboardLayout><CreateEvent /></DashboardLayout>} />
+          <Route path="/events/create" element={
+            <SidebarProvider>
+              <DashboardLayout>
+                <CreateEvent />
+              </DashboardLayout>
+            </SidebarProvider>
+          } />
           <Route path="/events/:id" element={<EventDetail />} />
           <Route path="/events/:id/edit" element={<CreateEvent />} />
           <Route path="/service-providers" element={<ServiceProviders />} />
