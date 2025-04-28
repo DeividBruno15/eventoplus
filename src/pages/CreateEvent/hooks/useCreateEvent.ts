@@ -41,11 +41,17 @@ export const useCreateEvent = () => {
   // Helper function to parse service_requests from Json to ServiceRequest[]
   const parseServiceRequests = (jsonData: Json): ServiceRequest[] => {
     if (Array.isArray(jsonData)) {
-      return jsonData.map(item => ({
-        category: typeof item === 'object' && item !== null ? String(item.category || '') : '',
-        count: typeof item === 'object' && item !== null ? Number(item.count || 0) : 0,
-        filled: typeof item === 'object' && item !== null ? Number(item.filled || 0) : 0
-      }));
+      return jsonData.map(item => {
+        if (typeof item === 'object' && item !== null) {
+          const jsonObj = item as Record<string, Json>;
+          return {
+            category: typeof jsonObj.category === 'string' ? jsonObj.category : '',
+            count: typeof jsonObj.count === 'number' ? jsonObj.count : 0,
+            filled: typeof jsonObj.filled === 'number' ? jsonObj.filled : 0
+          };
+        }
+        return { category: '', count: 0, filled: 0 };
+      });
     }
     return [];
   };
