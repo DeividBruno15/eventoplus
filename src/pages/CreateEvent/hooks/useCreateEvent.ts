@@ -62,7 +62,7 @@ export const useCreateEvent = () => {
         imageUrl = await uploadEventImage(eventData.image);
       }
       
-      // Create the event object to save (without service_type which was removed)
+      // Create the event object to save with the required service_type field
       const eventToSave = {
         name: eventData.name,
         description: eventData.description,
@@ -74,7 +74,7 @@ export const useCreateEvent = () => {
         image_url: imageUrl,
         contractor_id: user.id,
         status: 'draft' as const,
-        // No service_type field anymore
+        service_type: '' // Adding empty string to satisfy the database schema requirement
       };
 
       console.log("Saving event:", eventToSave);
