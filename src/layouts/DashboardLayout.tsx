@@ -1,4 +1,3 @@
-
 import { useState, useEffect, ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
@@ -33,7 +32,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (!redirected && !sessionLoading && !session && !location.pathname.startsWith('/chat')) {
+    if (!redirected && !sessionLoading && !session) {
       console.log('No session found, redirecting to login');
       setRedirected(true);
       navigate('/login');

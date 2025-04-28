@@ -14,8 +14,8 @@ export default function ConversationItem({ conversation: conv }: ConversationIte
 
   const handleConversationClick = (id: string) => {
     try {
-      // Fixed navigation path to be /conversation/[id]
-      navigate(`/conversation/${id}`);
+      // Navigate to /chat/[id] instead of /conversation/[id]
+      navigate(`/chat/${id}`);
     } catch (error) {
       console.error('Navigation error:', error);
       toast({

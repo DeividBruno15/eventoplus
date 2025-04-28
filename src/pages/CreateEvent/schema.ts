@@ -6,8 +6,8 @@ export const createEventSchema = z.object({
   description: z.string().min(10, "A descrição é obrigatória e deve ter pelo menos 10 caracteres"),
   event_date: z.string().min(1, "A data do evento é obrigatória"),
   event_time: z.string().min(1, "A hora do evento é obrigatória"),
+  zipcode: z.string().min(8, "O CEP é obrigatório").max(9, "CEP inválido"),
   location: z.string().min(5, "O local do evento é obrigatório"),
-  max_attendees: z.number().nullable(),
   service_requests: z.array(
     z.object({
       category: z.string(),

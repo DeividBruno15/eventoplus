@@ -69,7 +69,7 @@ export const useCreateEvent = () => {
         event_date: eventData.event_date,
         event_time: eventData.event_time,
         location: eventData.location,
-        max_attendees: eventData.max_attendees,
+        zipcode: eventData.zipcode,
         service_requests: eventData.service_requests || [],
         image_url: imageUrl,
         contractor_id: user.id,
@@ -91,7 +91,7 @@ export const useCreateEvent = () => {
         // Create new event
         response = await supabase
           .from('events')
-          .insert(eventToSave);
+          .insert([eventToSave]);
       }
 
       if (response.error) {

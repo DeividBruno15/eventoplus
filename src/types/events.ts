@@ -16,6 +16,7 @@ export interface Event {
   event_date: string;
   event_time: string;
   location: string;
+  zipcode?: string;
   service_type?: string;
   max_attendees?: number | null;
   service_requests?: ServiceRequest[];

@@ -67,20 +67,8 @@ export const BasicInfoFields = ({ form }: BasicInfoFieldsProps) => {
           </FormItem>
         )}
       />
-
-      <FormField
-        control={form.control}
-        name="phone_number"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Telefone (WhatsApp)</FormLabel>
-            <FormControl>
-              <Input {...field} placeholder="(00) 00000-0000" />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      
+      {/* Phone field removed - now only in PhoneField.tsx */}
     </>
   );
 };

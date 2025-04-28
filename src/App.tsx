@@ -48,7 +48,6 @@ function App() {
           <Route path="/events/:id/edit" element={<DashboardLayout><CreateEvent /></DashboardLayout>} />
           <Route path="/chat" element={<DashboardLayout><Chat /></DashboardLayout>} />
           <Route path="/chat/:id" element={<DashboardLayout><Conversation /></DashboardLayout>} />
-          <Route path="/conversation/:id" element={<DashboardLayout><Conversation /></DashboardLayout>} />
           <Route path="/settings" element={<DashboardLayout><Settings /></DashboardLayout>} />
           <Route path="/help-center" element={<DashboardLayout><HelpCenter /></DashboardLayout>} />
           <Route path="/support" element={<DashboardLayout><Support /></DashboardLayout>} />

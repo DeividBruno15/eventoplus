@@ -27,8 +27,8 @@ export const CreateEventForm = () => {
       description: '',
       event_date: '',
       event_time: '',
+      zipcode: '',
       location: '',
-      max_attendees: null,
       service_requests: [],
       image: null
     },
@@ -44,8 +44,8 @@ export const CreateEventForm = () => {
             description: eventData.description || '',
             event_date: eventData.event_date ? new Date(eventData.event_date).toISOString().split('T')[0] : '',
             event_time: eventData.event_time || '',
+            zipcode: eventData.zipcode || '',
             location: eventData.location || '',
-            max_attendees: eventData.max_attendees || null,
             service_requests: eventData.service_requests || [],
             image: null  // Não podemos definir objetos File diretamente
           });
