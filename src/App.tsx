@@ -40,19 +40,21 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/dashboard" element={<DashboardLayout><Dashboard /></DashboardLayout>} />
-          <Route path="/profile" element={<DashboardLayout><Profile /></DashboardLayout>} />
-          <Route path="/events" element={<DashboardLayout><Events /></DashboardLayout>} />
+          <Route path="/dashboard" element={<DashboardLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="/dashboard/profile" element={<Profile />} />
+            <Route path="/dashboard/events" element={<Events />} />
+            <Route path="/dashboard/chat" element={<Chat />} />
+            <Route path="/dashboard/chat/:id" element={<Conversation />} />
+            <Route path="/dashboard/conversation/:id" element={<Conversation />} />
+            <Route path="/dashboard/settings" element={<Settings />} />
+            <Route path="/dashboard/help-center" element={<HelpCenter />} />
+            <Route path="/dashboard/support" element={<Support />} />
+            <Route path="/dashboard/plans" element={<Plans />} />
+          </Route>
           <Route path="/events/create" element={<CreateEvent />} />
           <Route path="/events/:id" element={<EventDetail />} />
           <Route path="/events/:id/edit" element={<CreateEvent />} />
-          <Route path="/chat" element={<DashboardLayout><Chat /></DashboardLayout>} />
-          <Route path="/chat/:id" element={<DashboardLayout><Conversation /></DashboardLayout>} />
-          <Route path="/conversation/:id" element={<DashboardLayout><Conversation /></DashboardLayout>} />
-          <Route path="/settings" element={<DashboardLayout><Settings /></DashboardLayout>} />
-          <Route path="/help-center" element={<DashboardLayout><HelpCenter /></DashboardLayout>} />
-          <Route path="/support" element={<DashboardLayout><Support /></DashboardLayout>} />
-          <Route path="/plans" element={<DashboardLayout><Plans /></DashboardLayout>} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/service-providers" element={<ServiceProviders />} />
           <Route path="/provider/:id" element={<ProviderProfile />} />

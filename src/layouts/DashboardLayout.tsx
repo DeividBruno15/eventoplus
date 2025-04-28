@@ -5,7 +5,7 @@ import { SidebarNavigation } from "@/components/layout/SidebarNavigation";
 import { NotificationsMenu } from "@/components/layout/NotificationsMenu";
 import { UserMenu } from "@/components/layout/UserMenu";
 import { useSession } from "@/contexts/SessionContext";
-import { useMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Sidebar,
   SidebarHeader,
@@ -16,7 +16,7 @@ import {
 
 export default function DashboardLayout() {
   const { session } = useSession();
-  const { isMobile } = useMobile();
+  const isMobile = useIsMobile();
   const { state: sidebarState } = useSidebar();
   const [activePath, setActivePath] = useState("/dashboard");
   const location = useLocation();
