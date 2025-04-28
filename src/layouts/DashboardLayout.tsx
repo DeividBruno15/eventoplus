@@ -1,3 +1,4 @@
+
 import { useState, useEffect, ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
@@ -32,13 +33,14 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   }, [location.pathname]);
 
   useEffect(() => {
+    // Only redirect to login if there's no session and not already redirected
     if (!redirected && !sessionLoading && !session) {
       console.log('No session found, redirecting to login');
       setRedirected(true);
       navigate('/login');
       return;
     }
-  }, [session, sessionLoading, navigate, redirected, location.pathname]);
+  }, [session, sessionLoading, navigate, redirected]);
 
   const handleNavigation = (path: string) => {
     console.log('Navigation triggered to:', path);
