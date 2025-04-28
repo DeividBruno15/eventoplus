@@ -1,5 +1,5 @@
 
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { UseFormReturn } from 'react-hook-form';
 import { CreateEventFormData } from '../schema';
@@ -11,38 +11,33 @@ interface LocationServiceFieldsProps {
 export const LocationServiceFields = ({ form }: LocationServiceFieldsProps) => {
   return (
     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-      <FormField
-        control={form.control}
-        name="location"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Local do evento</FormLabel>
-            <FormControl>
-              <Input placeholder="Ex: Salão de festas, endereço completo" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
+      <div>
+        <Label htmlFor="location">Local do evento*</Label>
+        <Input
+          id="location"
+          placeholder="Ex: Salão de festas, endereço completo"
+          {...form.register('location')}
+        />
+        {form.formState.errors.location && (
+          <p className="text-sm text-red-500 mt-1">{form.formState.errors.location.message}</p>
         )}
-      />
+      </div>
       
-      <FormField
-        control={form.control}
-        name="max_attendees"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Número máximo de convidados</FormLabel>
-            <FormControl>
-              <Input 
-                type="number" 
-                placeholder="Ex: 100" 
-                {...field} 
-                onChange={(e) => field.onChange(e.target.value === '' ? null : parseInt(e.target.value, 10))}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
+      <div>
+        <Label htmlFor="max_attendees">Número máximo de convidados</Label>
+        <Input 
+          id="max_attendees"
+          type="number" 
+          placeholder="Ex: 100" 
+          {...form.register('max_attendees', {
+            valueAsNumber: true,
+            setValueAs: (value) => value === '' ? null : parseInt(value, 10)
+          })}
+        />
+        {form.formState.errors.max_attendees && (
+          <p className="text-sm text-red-500 mt-1">{form.formState.errors.max_attendees.message}</p>
         )}
-      />
+      </div>
     </div>
   );
 };

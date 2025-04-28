@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 import type { CreateEventFormData } from "../schema";
 

@@ -98,6 +98,7 @@ export const RegisterForm = () => {
           <PasswordStrengthMeter password={password} />
         </div>
 
+        {/* Phone field moved below password requirements */}
         <PhoneField form={form} />
         
         <PersonTypeSelector form={form} />

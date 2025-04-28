@@ -1,9 +1,9 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 interface Subscription {
   id: string;
@@ -54,66 +54,46 @@ export const useSubscription = () => {
 
     setIsSubscribing(true);
     try {
-      // First, create the subscription record in the database
       console.log("Creating subscription with:", {
         planId,
         planName,
         role
       });
       
-      // Use Supabase edge function to create subscription
-      const { data: subscriptionResult, error: subscriptionError } = await supabase.functions.invoke(
-        'create-subscription',
+      // Create payment checkout session using the edge function
+      const { data: checkoutData, error: checkoutError } = await supabase.functions.invoke(
+        'create-checkout',
         {
           body: {
             planId,
-            planName,
             role
           }
         }
       );
 
-      if (subscriptionError) {
-        console.error("Subscription error:", subscriptionError);
-        throw new Error(subscriptionError.message || 'Erro ao processar assinatura');
+      if (checkoutError) {
+        console.error("Checkout error:", checkoutError);
+        throw new Error(checkoutError.message || 'Erro ao processar checkout');
       }
       
-      console.log("Subscription result:", subscriptionResult);
-      
-      // Create payment intent using the Edge Function
-      const { data: paymentResult, error: paymentError } = await supabase.functions.invoke(
-        'create-payment-intent',
-        {
-          body: {
-            amount: getPlanPrice(planId),
-            planId
-          }
-        }
-      );
-
-      if (paymentError) {
-        console.error("Payment error:", paymentError);
-        throw new Error(paymentError.message || 'Erro ao processar pagamento');
-      }
-      
-      console.log("Payment result:", paymentResult);
+      console.log("Checkout result:", checkoutData);
       
       // Redirect to Stripe Checkout
-      if (paymentResult.url) {
-        window.location.href = paymentResult.url;
+      if (checkoutData.url) {
+        window.location.href = checkoutData.url;
       } else {
         throw new Error('URL de checkout não retornada');
       }
       
       toast({
         title: "Redirecionando para o pagamento",
-        description: "Você será redirecionado para a página de pagamento do Stripe.",
+        description: "Você será redirecionado para a página de pagamento.",
       });
       
       // Update subscription data
       await subscriptionQuery.refetch();
       
-      return subscriptionResult?.subscription || null;
+      return true;
     } catch (error: any) {
       console.error("Subscription error:", error);
       toast({
@@ -125,22 +105,6 @@ export const useSubscription = () => {
     } finally {
       setIsSubscribing(false);
     }
-  };
-
-  // Helper function to get price based on plan ID
-  const getPlanPrice = (planId: string): number => {
-    // Provider plans
-    if (planId === 'provider-essential') return 0;
-    if (planId === 'provider-professional') return 1490; // R$ 14.90
-    if (planId === 'provider-premium') return 2990; // R$ 29.90
-    
-    // Contractor plans
-    if (planId === 'contractor-discover') return 0;
-    if (planId === 'contractor-connect') return 1490; // R$ 14.90
-    if (planId === 'contractor-management') return 2990; // R$ 29.90
-    
-    // Default price for unknown plans
-    return 0;
   };
 
   return {
