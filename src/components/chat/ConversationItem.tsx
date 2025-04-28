@@ -18,7 +18,11 @@ export default function ConversationItem({ conversation: conv }: ConversationIte
       navigate(`/conversation/${id}`);
     } catch (error) {
       console.error('Navigation error:', error);
-      toast.error('Erro ao abrir a conversa');
+      toast({
+        title: "Erro",
+        description: "Erro ao abrir a conversa",
+        variant: "destructive"
+      });
     }
   };
 
