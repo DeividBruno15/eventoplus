@@ -14,6 +14,7 @@ import { Check } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useSession } from '@/contexts/SessionContext';
+import { PaymentForm } from '@/components/payment/PaymentForm';
 
 const Plans = () => {
   const navigate = useNavigate();
