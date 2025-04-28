@@ -1,4 +1,3 @@
-
 import { 
   LayoutDashboard, 
   User, 
@@ -58,17 +57,28 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
     }
   };
 
+  const getRoleColor = (role: string) => {
+    switch(role) {
+      case 'contractor':
+        return 'bg-blue-100 text-blue-800';
+      case 'provider':
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
   const mainMenuItems: MenuItem[] = [
     { path: '/dashboard', name: 'Dashboard', icon: LayoutDashboard },
-    { path: '/dashboard/profile', name: 'Perfil', icon: User },
-    { path: '/dashboard/events', name: 'Eventos', icon: Calendar },
-    { path: '/dashboard/chat', name: 'Chat', icon: MessagesSquare },
-    { path: '/dashboard/settings', name: 'Configurações', icon: Settings },
+    { path: '/profile', name: 'Perfil', icon: User },
+    { path: '/events', name: 'Eventos', icon: Calendar },
+    { path: '/chat', name: 'Chat', icon: MessagesSquare },
+    { path: '/settings', name: 'Configurações', icon: Settings },
   ];
 
   const supportMenuItems: MenuItem[] = [
-    { path: '/dashboard/help-center', name: 'Central de Ajuda', icon: HelpCircle },
-    { path: '/dashboard/support', name: 'Suporte', icon: LifeBuoy },
+    { path: '/help-center', name: 'Central de Ajuda', icon: HelpCircle },
+    { path: '/support', name: 'Suporte', icon: LifeBuoy },
   ];
 
   const handleLinkClick = (path: string) => {
@@ -140,7 +150,7 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
             )}
           </Avatar>
           <h3 className="font-medium text-gray-900">{firstName} {lastName}</h3>
-          <span className="inline-flex px-2 py-0.5 bg-primary/10 text-primary text-xs font-medium rounded">
+          <span className="inline-flex items-center px-2 py-0.5 bg-primary/10 text-primary text-xs font-medium rounded">
             {getRoleLabel(userRole)}
           </span>
         </div>

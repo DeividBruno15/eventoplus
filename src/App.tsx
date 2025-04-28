@@ -29,7 +29,6 @@ import ResetPassword from "./pages/ResetPassword";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import { Toaster } from "./components/ui/sonner";
-import { SidebarProvider } from "./components/ui/sidebar";
 
 function App() {
   return (
@@ -41,31 +40,25 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          
-          {/* Dashboard routes nested under DashboardLayout */}
-          <Route path="/dashboard" element={<DashboardLayout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="profile" element={<Profile />} />
-            <Route path="events" element={<Events />} />
-            <Route path="chat" element={<Chat />} />
-            <Route path="chat/:id" element={<Conversation />} />
-            <Route path="settings" element={<Settings />} />
-            <Route path="help-center" element={<HelpCenter />} />
-            <Route path="support" element={<Support />} />
-            <Route path="plans" element={<Plans />} />
-          </Route>
-          
-          {/* Routes that should show DashboardLayout */}
+          <Route path="/dashboard" element={<DashboardLayout><Dashboard /></DashboardLayout>} />
+          <Route path="/profile" element={<DashboardLayout><Profile /></DashboardLayout>} />
+          <Route path="/events" element={<DashboardLayout><Events /></DashboardLayout>} />
           <Route path="/events/create" element={<CreateEvent />} />
           <Route path="/events/:id" element={<EventDetail />} />
           <Route path="/events/:id/edit" element={<CreateEvent />} />
+          <Route path="/chat" element={<DashboardLayout><Chat /></DashboardLayout>} />
+          <Route path="/chat/:id" element={<DashboardLayout><Conversation /></DashboardLayout>} />
+          <Route path="/conversation/:id" element={<DashboardLayout><Conversation /></DashboardLayout>} />
+          <Route path="/settings" element={<DashboardLayout><Settings /></DashboardLayout>} />
+          <Route path="/help-center" element={<DashboardLayout><HelpCenter /></DashboardLayout>} />
+          <Route path="/support" element={<DashboardLayout><Support /></DashboardLayout>} />
+          <Route path="/plans" element={<DashboardLayout><Plans /></DashboardLayout>} />
+          <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/service-providers" element={<ServiceProviders />} />
           <Route path="/provider/:id" element={<ProviderProfile />} />
           <Route path="/request-quote/:id?" element={<RequestQuote />} />
-          
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

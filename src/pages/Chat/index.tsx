@@ -120,8 +120,8 @@ const Chat = () => {
     setNewConversationOpen(false);
     setNewConversationName("");
     
-    // Corrigindo a navegação para o caminho correto do dashboard
-    navigate(`/dashboard/chat/${newId}`);
+    // Navigate to the conversation
+    navigate(`/conversation/${newId}`);
     
     toast({
       title: "Conversa criada",

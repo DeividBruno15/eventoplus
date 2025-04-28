@@ -14,8 +14,8 @@ export default function ConversationItem({ conversation: conv }: ConversationIte
 
   const handleConversationClick = (id: string) => {
     try {
-      // Navigate to the conversation page with the correct path
-      navigate(`/dashboard/chat/${id}`);
+      // Navigate to the conversation page with the conversation ID
+      navigate(`/chat/${id}`);
     } catch (error) {
       console.error('Navigation error:', error);
       toast.error('Erro ao abrir a conversa');

@@ -102,14 +102,8 @@ export const RegisterForm = () => {
           >
             <TabsList className="grid grid-cols-2 w-full">
               <TabsTrigger value="contractor">Contratante</TabsTrigger>
-              <TabsTrigger value="provider">Prestador de Serviços</TabsTrigger>
+              <TabsTrigger value="provider">Prestador</TabsTrigger>
             </TabsList>
-            <TabsContent value="contractor" className="mt-2 text-sm text-muted-foreground">
-              Estou procurando profissionais para organizar meus eventos
-            </TabsContent>
-            <TabsContent value="provider" className="mt-2 text-sm text-muted-foreground">
-              Ofereço serviços e quero ser encontrado por potenciais clientes
-            </TabsContent>
           </Tabs>
         </div>
         

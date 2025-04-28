@@ -1,43 +1,29 @@
 
-import { CreateEventForm } from './components/CreateEventForm';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useSession } from '@/contexts/SessionContext';
-import { Navigate } from 'react-router-dom';
+import { CreateEventForm } from './components/CreateEventForm';
 
 const CreateEvent = () => {
-  const { session } = useSession();
-  
-  // Redirect if not authenticated
-  if (!session) {
-    return <Navigate to="/login" replace />;
-  }
-
-  // Check if user is a contractor
-  const userRole = session?.user?.user_metadata?.role;
-  if (userRole !== 'contractor') {
-    return <Navigate to="/dashboard" replace />;
-  }
-
   return (
-    <div className="container max-w-4xl py-8 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Criar novo evento</h1>
-        <p className="text-muted-foreground mt-2">
-          Preencha os detalhes do seu novo evento
-        </p>
+    <div className="min-h-screen flex flex-col bg-page">
+      <Navbar />
+      <div className="container mx-auto px-4 py-8 flex-grow">
+        <div className="max-w-2xl mx-auto">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-2xl font-bold">Criar Novo Evento</CardTitle>
+              <CardDescription>
+                Preencha os detalhes do seu evento para encontrar prestadores de serviço qualificados
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <CreateEventForm />
+            </CardContent>
+          </Card>
+        </div>
       </div>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Informações do evento</CardTitle>
-          <CardDescription>
-            Preencha todas as informações necessárias para criar seu evento
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <CreateEventForm />
-        </CardContent>
-      </Card>
+      <Footer />
     </div>
   );
 };

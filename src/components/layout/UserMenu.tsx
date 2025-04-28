@@ -47,11 +47,11 @@ export function UserMenu() {
   };
 
   const handleProfileClick = () => {
-    navigate('/dashboard/profile');
+    navigate('/profile');
   };
 
   const handleSettingsClick = () => {
-    navigate('/dashboard/settings');
+    navigate('/settings');
   };
 
   const uploadAvatar = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -113,8 +113,8 @@ export function UserMenu() {
             {avatarUrl ? (
               <AvatarImage src={avatarUrl} />
             ) : (
-              <AvatarFallback>
-                {firstName && lastName ? `${firstName[0]}${lastName[0]}` : <Camera className="h-5 w-5 text-muted-foreground" />}
+              <AvatarFallback className="bg-muted">
+                <Camera className="h-5 w-5 text-muted-foreground" />
               </AvatarFallback>
             )}
           </Avatar>

@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { Camera, PlusCircle, Edit } from 'lucide-react';
 
+// Mock service categories data (replace with actual data from API)
 const serviceCategories = [
   'Buffet', 'Música', 'Decoração', 'Fotografia', 'Bebidas', 'Local', 'Bolos e doces'
 ];
@@ -31,6 +32,7 @@ const Profile = () => {
   const fetchUserProfile = async () => {
     setLoading(true);
     try {
+      // Fetch user profile data
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
@@ -40,6 +42,7 @@ const Profile = () => {
       if (error) throw error;
       setUserProfile(data);
       
+      // If user is a provider, fetch their services
       if (user?.user_metadata?.role === 'provider') {
         const { data: servicesData, error: servicesError } = await supabase
           .from('provider_services')
@@ -63,15 +66,11 @@ const Profile = () => {
   };
 
   const handleEditProfile = () => {
-    navigate('/dashboard/settings');
-  };
-  
-  const handleEditAddress = () => {
-    navigate('/dashboard/settings');
+    navigate('/settings');
   };
   
   const handleAddServices = () => {
-    navigate('/dashboard/settings');
+    navigate('/settings');
   };
 
   const uploadAvatar = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -113,6 +112,7 @@ const Profile = () => {
         description: "Sua imagem de perfil foi atualizada com sucesso."
       });
       
+      // Force refresh to show new avatar
       setTimeout(() => {
         window.location.reload();
       }, 1000);
@@ -145,16 +145,14 @@ const Profile = () => {
 
   const userMetadata = user?.user_metadata || {};
   const avatarUrl = userMetadata.avatar_url;
-  const firstName = userMetadata.first_name || "";
-  const lastName = userMetadata.last_name || "";
   const isProvider = userMetadata.role === 'provider';
   const hasServices = userServices.length > 0;
   const buttonText = hasServices ? 'Atualizar Serviços' : 'Adicionar Serviços';
-  const currentPlan = userMetadata.plan || 'Gratuito';
 
   return (
     <div className="container py-8 space-y-6">
       <div className="flex flex-col md:flex-row gap-6">
+        {/* Informações Pessoais */}
         <Card className="w-full md:w-1/2">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xl">Informações Pessoais</CardTitle>
@@ -187,21 +185,8 @@ const Profile = () => {
                 </label>
               </div>
               <div>
-                <h3 className="font-semibold text-lg">{firstName} {lastName}</h3>
+                <h3 className="font-semibold text-lg">{userMetadata.first_name} {userMetadata.last_name}</h3>
                 <p className="text-muted-foreground text-sm">{user?.email}</p>
-                <div className="mt-2">
-                  <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full">
-                    Plano: {currentPlan}
-                  </span>
-                  <Button 
-                    variant="link" 
-                    size="sm" 
-                    className="text-xs pl-1" 
-                    onClick={() => navigate('/dashboard/plans')}
-                  >
-                    Atualizar plano
-                  </Button>
-                </div>
               </div>
             </div>
 
@@ -209,7 +194,7 @@ const Profile = () => {
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <p className="text-sm text-muted-foreground">Nome</p>
-                  <p>{firstName} {lastName}</p>
+                  <p>{userMetadata.first_name} {userMetadata.last_name}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Telefone</p>
@@ -228,10 +213,11 @@ const Profile = () => {
           </CardContent>
         </Card>
 
+        {/* Endereço */}
         <Card className="w-full md:w-1/2">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xl">Endereço</CardTitle>
-            <Button variant="outline" size="sm" onClick={handleEditAddress}>
+            <Button variant="outline" size="sm" onClick={handleEditProfile}>
               <Edit className="h-4 w-4 mr-2" />
               Editar Endereço
             </Button>
@@ -267,6 +253,7 @@ const Profile = () => {
         </Card>
       </div>
 
+      {/* Serviços (apenas para prestadores) */}
       {isProvider && (
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
