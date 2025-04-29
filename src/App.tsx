@@ -41,11 +41,16 @@ function App() {
         <AuthProvider>
           <BrowserRouter>
             <Routes>
+              {/* Public routes */}
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              
+              {/* Dashboard routes */}
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/events" element={<Events />} />
@@ -62,8 +67,8 @@ function App() {
               <Route path="/service-providers" element={<ServiceProviders />} />
               <Route path="/provider/:id" element={<ProviderProfile />} />
               <Route path="/request-quote/:id?" element={<RequestQuote />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
+              
+              {/* 404 route */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
