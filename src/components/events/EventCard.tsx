@@ -22,10 +22,12 @@ export const EventCard = ({ event }: EventCardProps) => {
     switch(event.status) {
       case 'published':
         return <span className="absolute top-3 right-3 text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">Publicado</span>;
-      case 'cancelled':
-        return <span className="absolute top-3 right-3 text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-medium">Cancelado</span>;
+      case 'closed':
+        return <span className="absolute top-3 right-3 text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-medium">Fechado</span>;
       case 'draft':
         return <span className="absolute top-3 right-3 text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium">Rascunho</span>;
+      case 'open':
+        return <span className="absolute top-3 right-3 text-xs bg-green-100 text-green-600 px-2 py-0.5 rounded-full font-medium">Aberto</span>;
       default:
         return <span className="absolute top-3 right-3 text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium">{event.status}</span>;
     }

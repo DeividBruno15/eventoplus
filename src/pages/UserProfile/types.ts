@@ -34,4 +34,5 @@ export interface Event {
   event_date: string;
   location: string;
   image_url?: string;
+  status?: 'open' | 'closed' | 'published' | 'draft';
 }
