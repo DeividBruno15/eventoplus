@@ -47,17 +47,15 @@ export const ApplicationForm = ({ event, onSubmit, userApplication, submitting }
         }
         
         console.log('Fetched provider services:', data);
-        setUserServices(data || []);
         
-        // If there's only one service, select it by default
-        if (data && data.length === 1) {
-          // We'll handle this in the child component
-        }
+        // Filter services to match event service type if specified
+        const filteredServices = event.service_type 
+          ? (data || []).filter(service => service.category === event.service_type)
+          : data || [];
         
-        // If we have event service_type, try to match with provider services
-        if (event.service_type && data) {
-          // We'll handle this in the child component
-        }
+        setUserServices(filteredServices);
+        
+        console.log('Filtered services:', filteredServices);
       } catch (err) {
         console.error('Failed to fetch provider services:', err);
       } finally {

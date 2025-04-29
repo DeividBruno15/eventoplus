@@ -98,6 +98,7 @@ export type Database = {
           id: string
           message: string
           provider_id: string
+          service_category: string | null
           status: string
         }
         Insert: {
@@ -106,6 +107,7 @@ export type Database = {
           id?: string
           message: string
           provider_id: string
+          service_category?: string | null
           status?: string
         }
         Update: {
@@ -114,6 +116,7 @@ export type Database = {
           id?: string
           message?: string
           provider_id?: string
+          service_category?: string | null
           status?: string
         }
         Relationships: [

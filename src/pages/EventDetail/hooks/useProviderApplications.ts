@@ -58,10 +58,11 @@ export const useProviderApplications = (event: Event | null) => {
       // Log what we're trying to insert for debugging
       console.log('Attempting to insert application data:', applicationData);
       
+      // Explicitly define the return type with service_category
       const { data, error } = await supabase
         .from('event_applications')
         .insert(applicationData)
-        .select();
+        .select('id, event_id, provider_id, message, status, service_category');
         
       if (error) {
         console.error('Application submission error:', error);
@@ -79,6 +80,7 @@ export const useProviderApplications = (event: Event | null) => {
           `Você recebeu uma nova candidatura para o evento "${event.name}"`,
           "new_application"
         );
+        console.log('Notification sent to contractor:', event.contractor_id);
       } catch (notificationError) {
         console.error('Error sending notification:', notificationError);
         // Don't throw here, application was successful

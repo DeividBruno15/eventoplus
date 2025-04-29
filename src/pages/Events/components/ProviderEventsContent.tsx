@@ -63,16 +63,16 @@ export const ProviderEventsContent = () => {
 
         if (error) throw error;
 
-        // Fetch events user has already applied to
+        // Fetch ALL applications by this provider
         const { data: applications, error: appError } = await supabase
           .from('event_applications')
-          .select('event_id')
+          .select('event_id, status')
           .eq('provider_id', user.id);
 
         if (appError) throw appError;
 
         // Log for debugging
-        console.log('Fetched applications:', applications);
+        console.log('Fetched applications:', applications?.length || 0, 'applications');
         
         const appliedEventIds = applications ? applications.map(app => app.event_id) : [];
         

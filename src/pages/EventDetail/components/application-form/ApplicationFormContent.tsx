@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Loader2 } from 'lucide-react';
@@ -21,6 +21,13 @@ interface ApplicationFormContentProps {
 export const ApplicationFormContent = ({ userServices, submitting, onSubmit }: ApplicationFormContentProps) => {
   const [applicationMessage, setApplicationMessage] = useState('');
   const [selectedService, setSelectedService] = useState<string>('');
+  
+  // Auto-select the service if there's only one available
+  useEffect(() => {
+    if (userServices.length === 1) {
+      setSelectedService(userServices[0].category);
+    }
+  }, [userServices]);
   
   const handleSubmitApplication = async () => {
     try {
