@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -16,7 +15,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Loader2 } from 'lucide-react';
-import { Input } from '@/components/ui/input';
 import { createEventSchema } from '../schema';
 import { CreateEventFormData } from '@/types/events';
 import { useCreateEvent } from '../hooks/useCreateEvent';
