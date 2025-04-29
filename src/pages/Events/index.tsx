@@ -8,7 +8,6 @@ import { ProviderEventsContent } from "./components/ProviderEventsContent";
 const Events = () => {
   const { session, user } = useAuth();
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState('');
 
   if (!session) {
     navigate('/login');
@@ -21,9 +20,9 @@ const Events = () => {
   return (
     <>
       {userRole === 'provider' ? (
-        <ProviderEventsContent searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+        <ProviderEventsContent />
       ) : (
-        <EventsContent searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+        <EventsContent />
       )}
     </>
   );

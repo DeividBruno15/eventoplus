@@ -75,7 +75,15 @@ export const ProviderEventsContent = () => {
 
         // Separate applied and available events
         if (events) {
-          setAvailableEvents(events.filter(event => !appliedEventIds.includes(event.id)));
+          // Need to cast the JSON data to match our Event type
+          const typedEvents = events.map((event: any) => ({
+            ...event,
+            service_requests: event.service_requests as unknown as Event['service_requests']
+          }));
+          
+          setAvailableEvents(typedEvents.filter((event) => 
+            !appliedEventIds.includes(event.id)
+          ));
           
           // For applied events, fetch them by IDs
           if (appliedEventIds.length > 0) {
@@ -86,7 +94,14 @@ export const ProviderEventsContent = () => {
               .order('created_at', { ascending: false });
               
             if (appliedError) throw appliedError;
-            setAppliedEvents(appliedEventsData || []);
+            
+            // Cast the applied events data too
+            const typedAppliedEvents = appliedEventsData ? appliedEventsData.map((event: any) => ({
+              ...event,
+              service_requests: event.service_requests as unknown as Event['service_requests']
+            })) : [];
+            
+            setAppliedEvents(typedAppliedEvents);
           }
         }
       } catch (error) {
@@ -126,7 +141,10 @@ export const ProviderEventsContent = () => {
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between gap-4">
-        <EventsSearch value={searchQuery} onChange={setSearchQuery} />
+        <EventsSearch 
+          value={searchQuery} 
+          onChange={setSearchQuery} 
+        />
         <Button onClick={() => navigate('/profile')}>
           Gerenciar Serviços
         </Button>
