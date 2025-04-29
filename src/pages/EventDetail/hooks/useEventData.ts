@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Event, ServiceRequest } from '@/types/events';
+import { Event, ServiceRequest, EventStatus } from '@/types/events';
 import { User } from '@supabase/supabase-js';
 import { toast } from 'sonner';
 
@@ -77,10 +77,11 @@ export const useEventData = (id?: string) => {
           contractorData = eventData.contractor;
         }
         
-        // Create properly typed Event object
+        // Create properly typed Event object with status explicitly cast as EventStatus
         const typedEvent: Event = {
           ...eventData,
           service_requests: parsedServiceRequests,
+          status: eventData.status as EventStatus,
           contractor: {
             id: contractorData.id,
             first_name: contractorData.first_name,
