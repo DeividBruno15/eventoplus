@@ -26,6 +26,7 @@ export const useChatState = () => {
     isLoading,
     setIsLoading,
     searchQuery,
+    setSearchQuery,
     newConversationOpen,
     setNewConversationOpen,
     newConversationName,

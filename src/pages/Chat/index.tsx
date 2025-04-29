@@ -10,26 +10,38 @@ import ConversationList from "@/components/chat/ConversationList";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useChatState } from "./hooks/useChatState";
-import ChatEmptyState from "./components/ChatEmptyState";
-import NewConversationDialog from "./components/NewConversationDialog";
+import { ChatEmptyState } from "./components/ChatEmptyState";
+import { NewConversationDialog } from "./components/NewConversationDialog";
 
 const Chat = () => {
   const { session, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [conversationName, setConversationName] = useState("");
   const {
     conversations,
     filteredConversations,
     searchQuery,
-    loading,
+    isLoading,
     setSearchQuery,
+    handleSearchChange,
   } = useChatState();
 
   if (!session) {
     navigate('/login');
     return null;
   }
+
+  const handleCreateConversation = () => {
+    // Implement conversation creation logic
+    toast({
+      title: "Conversa criada",
+      description: `Nova conversa iniciada com ${conversationName}`,
+    });
+    setIsDialogOpen(false);
+    setConversationName("");
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -50,18 +62,18 @@ const Chat = () => {
                 placeholder="Buscar conversa..." 
                 className="pl-10" 
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => handleSearchChange(e.target.value)}
               />
             </div>
           </CardHeader>
           
           <CardContent className="flex-1 overflow-auto py-2">
             <ConversationList
-              loading={loading}
+              loading={isLoading}
               conversations={conversations}
               filteredConversations={filteredConversations}
               searchQuery={searchQuery}
-              onSearchChange={setSearchQuery}
+              onSearchChange={handleSearchChange}
             />
           </CardContent>
           
@@ -73,13 +85,16 @@ const Chat = () => {
         </Card>
         
         <Card className="lg:col-span-2 h-[calc(100vh-15rem)] flex flex-col">
-          <ChatEmptyState />
+          <ChatEmptyState onNewMessage={() => setIsDialogOpen(true)} />
         </Card>
       </div>
 
       <NewConversationDialog 
         open={isDialogOpen} 
         onOpenChange={setIsDialogOpen}
+        conversationName={conversationName}
+        onConversationNameChange={setConversationName}
+        onCreateConversation={handleCreateConversation}
       />
     </div>
   );

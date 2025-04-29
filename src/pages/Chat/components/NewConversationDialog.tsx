@@ -18,13 +18,13 @@ interface NewConversationDialogProps {
   onCreateConversation: () => void;
 }
 
-export const NewConversationDialog = ({
+export function NewConversationDialog({
   open,
   onOpenChange,
   conversationName,
   onConversationNameChange,
   onCreateConversation,
-}: NewConversationDialogProps) => {
+}: NewConversationDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -53,4 +53,4 @@ export const NewConversationDialog = ({
       </DialogContent>
     </Dialog>
   );
-};
+}
