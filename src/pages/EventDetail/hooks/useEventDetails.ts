@@ -102,9 +102,24 @@ export const useEventDetails = ({ id, user: passedUser }: EventDetailsProps): Ev
           // Parse service requests
           const parsedServiceRequests = parseServiceRequests(eventData.service_requests);
           
+          // Make sure contractor field exists and has the right shape
+          const contractorData = eventData.contractor || {
+            id: '',
+            first_name: '',
+            last_name: '',
+            avatar_url: null
+          };
+          
+          // Create properly typed Event object
           const typedEvent: Event = {
             ...eventData,
-            service_requests: parsedServiceRequests
+            service_requests: parsedServiceRequests,
+            contractor: {
+              id: contractorData.id,
+              first_name: contractorData.first_name,
+              last_name: contractorData.last_name,
+              avatar_url: contractorData.avatar_url
+            }
           } as Event;
           
           setEvent(typedEvent);
@@ -199,3 +214,4 @@ export const useEventDetails = ({ id, user: passedUser }: EventDetailsProps): Ev
     refetchEvent
   };
 };
+

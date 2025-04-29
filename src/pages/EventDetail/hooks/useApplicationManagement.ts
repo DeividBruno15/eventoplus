@@ -1,9 +1,10 @@
 
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Event } from '@/types/events';
+import { Event, ServiceRequest } from '@/types/events';
 import { toast } from 'sonner';
 import { sendProviderNotification } from './useEventNotifications';
+import { Json } from '@/integrations/supabase/types';
 
 export const useApplicationManagement = (event: Event | null) => {
   const [submitting, setSubmitting] = useState(false);
@@ -172,10 +173,18 @@ export const useApplicationManagement = (event: Event | null) => {
           return req;
         });
         
+        // Convert ServiceRequest[] to Json for database storage
+        const serviceRequestsJson: Json = updatedServiceRequests.map(req => ({
+          category: req.category,
+          count: req.count,
+          price: req.price,
+          filled: req.filled
+        })) as unknown as Json;
+        
         // Update the event with the new filled count
         await supabase
           .from('events')
-          .update({ service_requests: updatedServiceRequests })
+          .update({ service_requests: serviceRequestsJson })
           .eq('id', event.id);
           
         console.log('Updated service request filled count for category:', applicationData.service_category);
@@ -197,3 +206,4 @@ export const useApplicationManagement = (event: Event | null) => {
     handleRejectApplication
   };
 };
+
