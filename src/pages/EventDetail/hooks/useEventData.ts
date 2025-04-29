@@ -73,8 +73,14 @@ export const useEventData = (id?: string) => {
         };
         
         // Check if contractor exists and is a valid object before accessing its properties
-        if (eventData.contractor && typeof eventData.contractor === 'object' && !('error' in eventData.contractor)) {
-          contractorData = eventData.contractor;
+        if (eventData.contractor && typeof eventData.contractor === 'object') {
+          // Safely check and unwrap the contractor data
+          contractorData = {
+            id: eventData.contractor.id || '',
+            first_name: eventData.contractor.first_name || '',
+            last_name: eventData.contractor.last_name || '',
+            avatar_url: eventData.contractor.avatar_url
+          };
         }
         
         // Create properly typed Event object with status explicitly cast as EventStatus
@@ -82,12 +88,7 @@ export const useEventData = (id?: string) => {
           ...eventData,
           service_requests: parsedServiceRequests,
           status: eventData.status as EventStatus,
-          contractor: {
-            id: contractorData.id,
-            first_name: contractorData.first_name,
-            last_name: contractorData.last_name,
-            avatar_url: contractorData.avatar_url
-          }
+          contractor: contractorData
         };
         
         setEvent(typedEvent);
