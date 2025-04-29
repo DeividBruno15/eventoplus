@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { 
@@ -9,7 +8,7 @@ import {
 } from '@/components/ui/sidebar';
 import { useAuth } from '@/hooks/useAuth';
 import { Loader2 } from 'lucide-react';
-import { NotificationsMenu } from '@/components/layout/NotificationsMenu';
+import { NotificationsMenu } from '@/components/layout/notifications/NotificationsMenu';
 import { SidebarNavigation } from '@/components/layout/SidebarNavigation';
 import { UserMenu } from '@/components/layout/UserMenu';
 

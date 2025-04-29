@@ -1,59 +1,86 @@
 
 import { useState } from 'react';
-import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { Event } from '@/types/events';
-import { createConversation } from '@/services/conversations';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/components/ui/use-toast';
+import { notificationsService } from '@/services/notifications';
 
-export const useApplicationApproval = (event: Event | null, updateStatus?: (id: string) => void) => {
-  const [approving, setApproving] = useState(false);
+export const useApplicationApproval = () => {
+  const [isApproving, setIsApproving] = useState(false);
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const handleApproveApplication = async (applicationId: string, providerId: string) => {
-    if (!event) {
-      toast.error("Dados do evento não disponíveis");
-      return;
-    }
-
+  const approve = async (applicationId: string, providerId: string, contractorId: string, eventId: string) => {
+    setIsApproving(true);
     try {
-      setApproving(true);
-      
-      // Update application status in database
+      // 1. Update application status
       const { error } = await supabase
         .from('event_applications')
-        .update({ status: 'accepted' })
+        .update({ status: 'approved' })
         .eq('id', applicationId);
-      
+
       if (error) throw error;
-      
-      // Create or get conversation between contractor and provider
-      const { error: convError, data: conversation } = await supabase.rpc(
-        'get_or_create_conversation',
-        { 
-          user1_id: event.contractor_id, 
-          user2_id: providerId 
-        }
-      );
-      
-      if (convError) throw convError;
-      
-      // Notify user of successful approval
-      toast.success("Aplicação aprovada com sucesso!");
-      
-      // Update local state if callback provided
-      if (updateStatus) {
-        updateStatus(applicationId);
-      }
-      
+
+      // 2. Create or get conversation
+      const { data: userData, error: userError } = await supabase
+        .from('user_profiles')
+        .select('first_name, last_name')
+        .eq('id', contractorId)
+        .single();
+
+      if (userError) throw userError;
+
+      // Create a conversation between provider and contractor
+      const { data: conversationData, error: conversationError } = await supabase
+        .rpc('create_conversation', {
+          user_id_one: providerId,
+          user_id_two: contractorId
+        });
+
+      if (conversationError) throw conversationError;
+
+      const conversationId = conversationData;
+
+      // 3. Update event application with conversation_id
+      const { error: updateError } = await supabase
+        .from('event_applications')
+        .update({ conversation_id: conversationId })
+        .eq('id', applicationId);
+
+      if (updateError) throw updateError;
+
+      // 4. Send notification to provider
+      await notificationsService.sendNotification({
+        userId: providerId,
+        title: 'Proposta aceita!',
+        content: `Sua proposta para um evento foi aceita por ${userData.first_name} ${userData.last_name}.`,
+        type: 'application_approved',
+        link: `/events/${eventId}`
+      });
+
+      toast({
+        title: "Proposta aceita",
+        description: "O prestador de serviço foi notificado e um chat foi criado para vocês conversarem.",
+      });
+
+      return { success: true, conversationId };
     } catch (error: any) {
       console.error('Error approving application:', error);
-      toast.error(`Erro ao aprovar aplicação: ${error.message}`);
+      toast({
+        title: "Erro ao aprovar proposta",
+        description: error.message,
+        variant: "destructive"
+      });
+      return { success: false, conversationId: null };
     } finally {
-      setApproving(false);
+      setIsApproving(false);
     }
   };
 
-  return {
-    approving,
-    handleApproveApplication
+  const openChat = (conversationId: string) => {
+    if (!conversationId) return;
+    navigate(`/chat/${conversationId}`);
   };
+
+  return { approve, isApproving, openChat };
 };
