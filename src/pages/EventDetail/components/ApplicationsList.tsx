@@ -1,3 +1,4 @@
+
 import { useNavigate } from 'react-router-dom'; 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,22 +10,30 @@ import { Separator } from '@/components/ui/separator';
 import { getApplicationStatusColor } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 
 interface ApplicationsListProps {
   applications: EventApplication[];
   onApprove: (applicationId: string, providerId: string) => Promise<void>;
+  onReject?: (applicationId: string, providerId: string) => Promise<void>;
   submitting: boolean;
   eventStatus: string;
 }
 
-interface ProviderProfile {
-  avatar_url?: string | null;
-  service_categories?: string[] | null;
-}
-
-export const ApplicationsList = ({ applications, onApprove, submitting, eventStatus }: ApplicationsListProps) => {
+export const ApplicationsList = ({ 
+  applications, 
+  onApprove, 
+  onReject, 
+  submitting, 
+  eventStatus 
+}: ApplicationsListProps) => {
   const navigate = useNavigate();
-  const [providerProfiles, setProviderProfiles] = useState<Record<string, ProviderProfile>>({});
+  const [providerProfiles, setProviderProfiles] = useState<Record<string, {
+    avatar_url?: string | null;
+    service_categories?: string[] | null;
+  }>>({});
+  
+  console.log("Applications in ApplicationsList:", applications);
   
   // Fetch provider profiles with avatars
   useEffect(() => {
@@ -48,7 +57,10 @@ export const ApplicationsList = ({ applications, onApprove, submitting, eventSta
           avatar_url: profile.avatar_url,
         };
         return acc;
-      }, {} as Record<string, ProviderProfile>);
+      }, {} as Record<string, {
+        avatar_url?: string | null;
+        service_categories?: string[] | null;
+      }>);
       
       setProviderProfiles(profiles);
     };
@@ -57,12 +69,15 @@ export const ApplicationsList = ({ applications, onApprove, submitting, eventSta
   }, [applications]);
   
   const handleViewProfile = (providerId: string) => {
-    navigate(`/provider/${providerId}`);
+    navigate(`/provider-profile/${providerId}`);
   };
   
-  const handleRejectApplication = (applicationId: string) => {
-    // Implement rejection logic here
-    console.log('Rejecting application:', applicationId);
+  const handleRejectApplication = async (applicationId: string, providerId: string) => {
+    if (onReject) {
+      await onReject(applicationId, providerId);
+    } else {
+      toast.error("Função de rejeição não implementada");
+    }
   };
   
   const getProviderInitials = (app: EventApplication) => {
@@ -100,10 +115,11 @@ export const ApplicationsList = ({ applications, onApprove, submitting, eventSta
                     </Avatar>
                     <div>
                       <span className="font-medium">
-                        {app.provider ? `${app.provider.first_name} ${app.provider.last_name}` : 'Usuário'}
+                        {app.provider ? `${app.provider.first_name} ${app.provider.last_name || ''}` : 'Usuário'}
                       </span>
                       <p className="text-xs text-muted-foreground">
                         {app.provider?.email || 'Sem email'}
+                        {app.service_category && <span className="ml-2 px-1.5 py-0.5 bg-primary/10 text-primary rounded-full text-xs">{app.service_category}</span>}
                       </p>
                     </div>
                   </div>
@@ -153,7 +169,7 @@ export const ApplicationsList = ({ applications, onApprove, submitting, eventSta
                       </Button>
                       
                       <Button 
-                        onClick={() => handleRejectApplication(app.id)}
+                        onClick={() => handleRejectApplication(app.id, app.provider_id)}
                         disabled={submitting}
                         size="sm"
                         variant="destructive"

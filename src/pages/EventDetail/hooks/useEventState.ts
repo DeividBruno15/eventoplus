@@ -26,6 +26,8 @@ export const useEventState = () => {
     handleCancelApplication,
     handleRejectApplication
   } = useEventApplications(event);
+  
+  console.log("Applications in useEventState:", applications);
 
   return {
     id,

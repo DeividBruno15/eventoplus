@@ -12,6 +12,7 @@ interface EventActionPanelProps {
   submitting: boolean;
   handleApply: (message: string, serviceCategory?: string) => Promise<void>;
   handleApproveApplication: (applicationId: string, providerId: string) => Promise<void>;
+  handleRejectApplication: (applicationId: string, providerId: string) => Promise<void>;
   handleCancelApplication: (applicationId: string) => Promise<void>;
 }
 
@@ -24,8 +25,14 @@ export const EventActionPanel = ({
   submitting,
   handleApply,
   handleApproveApplication,
+  handleRejectApplication,
   handleCancelApplication
 }: EventActionPanelProps) => {
+  console.log("Applications in EventActionPanel:", applications);
+  console.log("Current user role:", userRole);
+  console.log("Event contractor ID:", event.contractor_id);
+  console.log("Current user ID:", userId);
+  
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       {userRole === 'provider' && (
@@ -45,6 +52,7 @@ export const EventActionPanel = ({
           <ApplicationsList 
             applications={applications}
             onApprove={handleApproveApplication}
+            onReject={handleRejectApplication}
             submitting={submitting}
             eventStatus={event.status}
           />

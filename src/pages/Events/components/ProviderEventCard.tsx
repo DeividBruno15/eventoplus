@@ -38,6 +38,9 @@ export const ProviderEventCard = ({
     ? format(new Date(event.event_date), "dd 'de' MMMM, yyyy", { locale: ptBR })
     : 'Data não definida';
 
+  console.log("Event contractor info:", contractorInfo);
+  console.log("Event data in card:", event);
+
   return (
     <Card className="overflow-hidden hover:shadow-md transition-shadow duration-300">
       <div className="relative">
@@ -94,6 +97,19 @@ export const ProviderEventCard = ({
                   className="hover:text-primary hover:underline transition-colors"
                 >
                   {contractorInfo.company_name || contractorInfo.name}
+                </Link>
+              </div>
+            )}
+            
+            {/* Show contractor info from event object if available */}
+            {!contractorInfo && event.contractor && (
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <User className="h-4 w-4 flex-shrink-0 text-primary" />
+                <Link 
+                  to={`/provider-profile/${event.contractor_id}`} 
+                  className="hover:text-primary hover:underline transition-colors"
+                >
+                  {event.contractor.first_name} {event.contractor.last_name}
                 </Link>
               </div>
             )}

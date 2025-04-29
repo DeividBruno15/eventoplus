@@ -6,6 +6,7 @@ import { Event } from "@/types/events";
 import { ProviderEventCard } from "./ProviderEventCard";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 
 interface ProviderEventsListProps {
   loading: boolean;
@@ -41,13 +42,20 @@ export const ProviderEventsList = ({
       if (uniqueContractorIds.length === 0) return;
       
       try {
+        console.log("Fetching contractor info for IDs:", uniqueContractorIds);
+        
         // Get all user profiles
         const { data: userProfileData, error: profileError } = await supabase
           .from('user_profiles')
           .select('id, first_name, last_name')
           .in('id', uniqueContractorIds);
           
-        if (profileError) throw profileError;
+        if (profileError) {
+          console.error('Error fetching contractor profiles:', profileError);
+          throw profileError;
+        }
+        
+        console.log("Contractor profiles fetched:", userProfileData);
         
         // Get all companies 
         const { data: companiesData, error: companiesError } = await supabase
@@ -55,7 +63,12 @@ export const ProviderEventsList = ({
           .select('user_id, name')
           .in('user_id', uniqueContractorIds);
           
-        if (companiesError) throw companiesError;
+        if (companiesError) {
+          console.error('Error fetching contractor companies:', companiesError);
+          throw companiesError;
+        }
+        
+        console.log("Contractor companies fetched:", companiesData);
         
         // Create a map of companies by user_id
         const companyMap: Record<string, string> = {};
@@ -76,10 +89,12 @@ export const ProviderEventsList = ({
             return acc;
           }, {});
           
+          console.log("Processed contractor info map:", nameMap);
           setContractorNames(nameMap);
         }
       } catch (error) {
         console.error('Error fetching contractor names:', error);
+        toast.error("Erro ao carregar informações dos contratantes");
       }
     };
     

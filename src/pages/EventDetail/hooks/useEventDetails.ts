@@ -5,6 +5,7 @@ import { Event, EventApplication, ServiceRequest } from '@/types/events';
 import { Json } from '@/integrations/supabase/types';
 import { useAuth } from '@/hooks/useAuth';
 import { User } from '@supabase/supabase-js';
+import { toast } from 'sonner';
 
 interface EventDetailsProps {
   id?: string;
@@ -76,13 +77,24 @@ export const useEventDetails = ({ id, user: passedUser }: EventDetailsProps): Ev
       
       // Fetch event details
       if (id) {
+        // Fetch event details with contractor information joined
         const { data: eventData, error: eventError } = await supabase
           .from('events')
-          .select('*')
+          .select(`
+            *,
+            contractor:user_profiles!contractor_id(
+              id,
+              first_name,
+              last_name,
+              avatar_url
+            )
+          `)
           .eq('id', id)
           .single();
           
         if (eventError) {
+          console.error('Error fetching event details:', eventError);
+          toast.error("Erro ao carregar detalhes do evento");
           throw eventError;
         }
         
@@ -102,42 +114,60 @@ export const useEventDetails = ({ id, user: passedUser }: EventDetailsProps): Ev
         // Fetch applications for this event
         if (user) {
           // Get current user's application if any
-          const { data: userAppData } = await supabase
+          const { data: userAppData, error: userAppError } = await supabase
             .from('event_applications')
             .select('*')
             .eq('event_id', id)
             .eq('provider_id', user.id)
-            .single();
+            .limit(1);
             
-          if (userAppData) {
+          if (userAppError) {
+            console.error('Error fetching user application:', userAppError);
+          }
+            
+          if (userAppData && userAppData.length > 0) {
             setUserHasApplied(true);
-            setUserApplication(userAppData as EventApplication);
-            console.log("User has applied to this event:", userAppData);
+            setUserApplication(userAppData[0] as EventApplication);
+            console.log("User has applied to this event:", userAppData[0]);
           }
           
           // For contractors, fetch all applications for this event
           if ((userRole === 'contractor' || user.user_metadata?.role === 'contractor') && eventData?.contractor_id === user.id) {
-            const { data: appsData } = await supabase
+            console.log("Fetching applications for contractor:", user.id);
+            const { data: appsData, error: appsError } = await supabase
               .from('event_applications')
               .select(`
                 *,
                 provider:user_profiles!provider_id (
+                  id,
                   first_name, 
                   last_name,
-                  email
+                  email,
+                  avatar_url
                 )
               `)
               .eq('event_id', id)
               .order('created_at', { ascending: false });
               
+            if (appsError) {
+              console.error('Error fetching applications:', appsError);
+              toast.error("Erro ao carregar candidaturas");
+            }
+            
             if (appsData) {
               const typedApplications = appsData.map(app => ({
                 ...app,
-                provider: app.provider || { first_name: '', last_name: '' }
+                provider: app.provider || { 
+                  id: '',
+                  first_name: '', 
+                  last_name: '',
+                  email: '',
+                  avatar_url: null
+                }
               })) as EventApplication[];
               
               setApplications(typedApplications);
-              console.log("Applications fetched:", typedApplications.length);
+              console.log("Applications fetched:", typedApplications);
             }
           }
         }
@@ -157,7 +187,7 @@ export const useEventDetails = ({ id, user: passedUser }: EventDetailsProps): Ev
     if (id) {
       fetchData();
     }
-  }, [id, user]);
+  }, [id, user, userRole]);
 
   return {
     event,

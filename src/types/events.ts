@@ -10,6 +10,14 @@ export interface ServiceRequest {
   filled?: number;
 }
 
+export interface ContractorProfile {
+  id: string;
+  first_name: string;
+  last_name: string;
+  avatar_url?: string | null;
+  email?: string;
+}
+
 export interface Event {
   id: string;
   name: string;
@@ -29,6 +37,7 @@ export interface Event {
   created_at: string;
   updated_at?: string | null;
   contractor_id: string;
+  contractor?: ContractorProfile;
   image_url?: string | null;
   status: EventStatus;
 }
@@ -59,8 +68,10 @@ export interface EventApplication {
   updated_at?: string | null;
   service_category?: string | null;
   provider?: {
+    id: string;
     first_name: string;
     last_name: string;
     email?: string;
+    avatar_url?: string | null;
   };
 }

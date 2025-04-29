@@ -17,9 +17,11 @@ const EventDetail = () => {
     submitting,
     handleApply,
     handleApproveApplication,
-    handleCancelApplication,
-    handleRejectApplication
+    handleRejectApplication,
+    handleCancelApplication
   } = useEventState();
+
+  console.log("Applications in EventDetail:", applications);
 
   return (
     <div className="space-y-6">
@@ -47,6 +49,7 @@ const EventDetail = () => {
             submitting={submitting}
             handleApply={handleApply}
             handleApproveApplication={handleApproveApplication}
+            handleRejectApplication={handleRejectApplication}
             handleCancelApplication={handleCancelApplication}
           />
         </>
