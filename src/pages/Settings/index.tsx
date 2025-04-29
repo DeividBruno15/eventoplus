@@ -15,7 +15,7 @@ const Settings = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [username, setUsername] = useState(session?.user?.user_metadata?.username || "");
+  const [username, setUsername] = useState(user?.user_metadata?.username || "");
   const [language, setLanguage] = useState("pt-BR");
   const [darkMode, setDarkMode] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(true);

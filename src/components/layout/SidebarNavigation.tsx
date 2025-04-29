@@ -1,4 +1,3 @@
-
 import { 
   LayoutDashboard, 
   User, 
@@ -41,7 +40,6 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
   const lastName = user?.user_metadata?.last_name || '';
   const avatarUrl = user?.user_metadata?.avatar_url;
   
-  // Fix: Generate initials correctly from first and last name
   const initials = firstName && lastName 
     ? `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase() 
     : firstName 
@@ -96,7 +94,6 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
     }
   };
 
-  // Render menu items helper function
   const renderMenuItems = (items: MenuItem[]) => {
     return items.map((item) => {
       const isActive = 

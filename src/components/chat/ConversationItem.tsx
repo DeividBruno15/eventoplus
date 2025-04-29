@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Conversation } from '@/types/chat';
 import { formatTime } from './utils';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 interface ConversationItemProps {
   conversation: Conversation;
@@ -11,6 +11,7 @@ interface ConversationItemProps {
 
 export default function ConversationItem({ conversation: conv }: ConversationItemProps) {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleConversationClick = (id: string) => {
     try {
