@@ -1,5 +1,5 @@
 
-import { useSession } from "@/contexts/SessionContext";
+import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { Loader2, ArrowRight, Calendar, Users, MessageSquare, BarChart4, CheckCircle, Clock, X, ExternalLink, Briefcase, Settings } from "lucide-react";
@@ -11,10 +11,10 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 
 const Dashboard = () => {
-  const { session, loading } = useSession();
+  const { session, user, loading } = useAuth();
   const navigate = useNavigate();
-  const userRole = session?.user?.user_metadata?.role;
-  const userName = session?.user?.user_metadata?.first_name || 'Usuário';
+  const userRole = user?.user_metadata?.role;
+  const userName = user?.user_metadata?.first_name || 'Usuário';
 
   useEffect(() => {
     if (!loading && !session) {

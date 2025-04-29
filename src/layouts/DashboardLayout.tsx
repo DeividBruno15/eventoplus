@@ -27,24 +27,22 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   useEffect(() => {
     setActivePath(location.pathname);
-    console.log('Current path:', location.pathname);
   }, [location.pathname]);
 
   useEffect(() => {
-    // Only redirect to login if there's no session and not already redirected
-    if (!redirected && !loading && !session) {
+    // Only redirect to login if there's no session and loading is complete
+    if (!loading && !session) {
       console.log('No session found, redirecting to login');
-      setRedirected(true);
       navigate('/login');
       return;
     }
-  }, [session, loading, navigate, redirected]);
+  }, [session, loading, navigate]);
 
   const handleNavigation = (path: string) => {
     console.log('Navigation triggered to:', path);
   };
 
-  if (loading && !session) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5">
         <div className="text-center">
@@ -55,7 +53,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     );
   }
 
-  if (!loading && !session) {
+  if (!session) {
     return null;
   }
 
