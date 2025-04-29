@@ -3,7 +3,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
-import { OnboardingCard } from "@/components/dashboard/OnboardingCard";
 import ContractorDashboard from "@/components/dashboard/ContractorDashboard";
 import ProviderDashboardContent from "@/components/dashboard/ProviderDashboardContent";
 import DashboardLayout from "@/layouts/DashboardLayout";
@@ -28,7 +27,7 @@ const Dashboard = () => {
     );
   }
 
-  // Different data based on user role
+  // Different content based on user role
   if (userRole === 'provider') {
     return (
       <DashboardLayout>

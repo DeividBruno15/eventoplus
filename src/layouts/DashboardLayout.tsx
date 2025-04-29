@@ -5,8 +5,7 @@ import {
   SidebarProvider, 
   Sidebar,
   SidebarContent,
-  SidebarHeader,
-  SidebarInset
+  SidebarHeader
 } from '@/components/ui/sidebar';
 import { useAuth } from '@/hooks/useAuth';
 import { Loader2 } from 'lucide-react';
@@ -23,7 +22,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [activePath, setActivePath] = useState(location.pathname);
-  const [redirected, setRedirected] = useState(false);
 
   useEffect(() => {
     setActivePath(location.pathname);
@@ -34,12 +32,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     if (!loading && !session) {
       console.log('No session found, redirecting to login');
       navigate('/login');
-      return;
     }
   }, [session, loading, navigate]);
 
   const handleNavigation = (path: string) => {
-    console.log('Navigation triggered to:', path);
+    navigate(path);
   };
 
   if (loading) {
@@ -73,7 +70,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   };
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full bg-gray-50">
         <Sidebar className="border-r border-gray-100 shadow-sm bg-white">
           <SidebarHeader className="px-6 py-8">
@@ -89,8 +86,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </SidebarContent>
         </Sidebar>
 
-        <SidebarInset className="flex flex-col flex-1">
-          <header className="sticky top-0 z-10 w-full bg-white border-b px-8 py-4 flex justify-between items-center">
+        <div className="flex flex-col flex-1 min-w-0">
+          <header className="sticky top-0 z-40 w-full bg-white border-b px-8 py-4 flex justify-between items-center">
             <h1 className="text-xl font-semibold text-gray-900">
               {getPageTitle()}
             </h1>
@@ -106,7 +103,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               {children}
             </div>
           </main>
-        </SidebarInset>
+        </div>
       </div>
     </SidebarProvider>
   );

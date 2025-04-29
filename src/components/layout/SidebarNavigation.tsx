@@ -1,3 +1,4 @@
+
 import { 
   LayoutDashboard, 
   User, 
@@ -13,16 +14,15 @@ import {
   SidebarMenuItem, 
   SidebarMenuButton 
 } from '@/components/ui/sidebar';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/components/ui/use-toast';
 
 type MenuItem = {
   path: string;
   name: string;
-  icon: any;
+  icon: React.ElementType;
 }
 
 type SidebarNavigationProps = {
@@ -31,10 +31,9 @@ type SidebarNavigationProps = {
 }
 
 export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationProps) => {
-  const location = useLocation();
+  const navigate = useNavigate();
   const { session, user, logout } = useAuth();
   const { toast } = useToast();
-  const navigate = useNavigate();
   
   const firstName = user?.user_metadata?.first_name || '';
   const lastName = user?.user_metadata?.last_name || '';
@@ -73,7 +72,6 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
   ];
 
   const handleLinkClick = (path: string) => {
-    console.log('Sidebar item clicked:', path);
     onNavigate(path);
   };
 
@@ -97,32 +95,31 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
   const renderMenuItems = (items: MenuItem[]) => {
     return items.map((item) => {
       const isActive = 
-        location.pathname === item.path || 
-        (item.path !== '/dashboard' && location.pathname.startsWith(item.path));
+        activePath === item.path || 
+        (item.path !== '/dashboard' && activePath.startsWith(item.path));
       
+      const Icon = item.icon;
+
       return (
         <SidebarMenuItem 
           key={item.path}
           className="transition-all duration-200 ease-in-out"
         >
           <SidebarMenuButton
-            asChild
+            aria-current={isActive ? 'page' : undefined}
+            onClick={() => handleLinkClick(item.path)}
             className={`w-full flex items-center gap-3 px-6 py-4 rounded-xl transition-all duration-300 ${
               isActive
                 ? 'bg-primary/10 text-primary font-medium scale-105'
                 : 'hover:bg-gray-50 text-gray-600 hover:text-primary hover:translate-x-1'
             }`}
           >
-            <Link 
-              to={item.path}
-              onClick={() => handleLinkClick(item.path)}
-              className="flex items-center gap-3 w-full"
-            >
-              <item.icon className={`h-5 w-5 transition-transform duration-300 ${
+            <div className="flex items-center gap-3 w-full">
+              <Icon className={`h-5 w-5 transition-transform duration-300 ${
                 isActive ? 'scale-110 text-primary' : 'text-gray-500'
               }`} />
               <span>{item.name}</span>
-            </Link>
+            </div>
           </SidebarMenuButton>
         </SidebarMenuItem>
       );
