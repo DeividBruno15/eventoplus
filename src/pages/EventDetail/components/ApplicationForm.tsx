@@ -15,6 +15,7 @@ interface ApplicationFormProps {
   onSubmit: (message: string, serviceCategory?: string) => Promise<void>;
   userApplication: EventApplication | null;
   submitting: boolean;
+  onCancelApplication: (applicationId: string) => Promise<void>; // Added missing prop
 }
 
 interface UserService {
@@ -23,7 +24,7 @@ interface UserService {
   description?: string | null;
 }
 
-export const ApplicationForm = ({ event, onSubmit, userApplication, submitting }: ApplicationFormProps) => {
+export const ApplicationForm = ({ event, onSubmit, userApplication, submitting, onCancelApplication }: ApplicationFormProps) => {
   const { user } = useAuth();
   const [showSuccess, setShowSuccess] = useState(false);
   const [userServices, setUserServices] = useState<UserService[]>([]);
@@ -81,11 +82,7 @@ export const ApplicationForm = ({ event, onSubmit, userApplication, submitting }
     if (!userApplication) return;
     
     try {
-      // We'll implement this in the parent component
-      toast.info("Cancelando candidatura...");
-      // In a real implementation, we would call a function passed as prop to cancel the application
-      // For now, just reload after 1 second
-      setTimeout(() => window.location.reload(), 1000);
+      await onCancelApplication(userApplication.id);
     } catch (error) {
       toast.error("Erro ao cancelar candidatura");
     }
