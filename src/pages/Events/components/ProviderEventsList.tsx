@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Event } from "@/types/events";
 import { ProviderEventCard } from "./ProviderEventCard";
 import { supabase } from "@/integrations/supabase/client";
+import { Link } from "react-router-dom";
 
 interface ProviderEventsListProps {
   loading: boolean;
@@ -18,6 +19,7 @@ interface ProviderEventsListProps {
 interface ContractorInfo {
   id: string;
   name: string;
+  company_name?: string;
 }
 
 export const ProviderEventsList = ({
@@ -28,7 +30,7 @@ export const ProviderEventsList = ({
   onApply,
   onViewDetails,
 }: ProviderEventsListProps) => {
-  const [contractorNames, setContractorNames] = useState<Record<string, string>>({});
+  const [contractorNames, setContractorNames] = useState<Record<string, ContractorInfo>>({});
   
   // Fetch contractor names for all events
   useEffect(() => {
@@ -39,16 +41,38 @@ export const ProviderEventsList = ({
       if (uniqueContractorIds.length === 0) return;
       
       try {
-        const { data, error } = await supabase
+        // Get all user profiles
+        const { data: userProfileData, error: profileError } = await supabase
           .from('user_profiles')
           .select('id, first_name, last_name')
           .in('id', uniqueContractorIds);
           
-        if (error) throw error;
+        if (profileError) throw profileError;
         
-        if (data) {
-          const nameMap = data.reduce((acc: Record<string, string>, contractor) => {
-            acc[contractor.id] = `${contractor.first_name} ${contractor.last_name || ''}`.trim();
+        // Get all companies 
+        const { data: companiesData, error: companiesError } = await supabase
+          .from('user_companies')
+          .select('user_id, name')
+          .in('user_id', uniqueContractorIds);
+          
+        if (companiesError) throw companiesError;
+        
+        // Create a map of companies by user_id
+        const companyMap: Record<string, string> = {};
+        if (companiesData) {
+          companiesData.forEach(company => {
+            companyMap[company.user_id] = company.name;
+          });
+        }
+        
+        if (userProfileData) {
+          const nameMap = userProfileData.reduce((acc: Record<string, ContractorInfo>, contractor) => {
+            const displayName = `${contractor.first_name} ${contractor.last_name || ''}`.trim();
+            acc[contractor.id] = {
+              id: contractor.id,
+              name: displayName,
+              company_name: companyMap[contractor.id] // Add company name if available
+            };
             return acc;
           }, {});
           
@@ -107,7 +131,7 @@ export const ProviderEventsList = ({
                 event={event}
                 onApply={onApply}
                 onViewDetails={onViewDetails}
-                contractorName={contractorNames[event.contractor_id]}
+                contractorInfo={contractorNames[event.contractor_id]}
               />
             ))}
           </div>
@@ -133,7 +157,7 @@ export const ProviderEventsList = ({
                 isApplied
                 onApply={onApply}
                 onViewDetails={onViewDetails}
-                contractorName={contractorNames[event.contractor_id]}
+                contractorInfo={contractorNames[event.contractor_id]}
               />
             ))}
           </div>

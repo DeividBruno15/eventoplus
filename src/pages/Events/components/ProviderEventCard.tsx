@@ -3,18 +3,25 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Users, CheckCircle, Clock, User } from "lucide-react";
+import { Calendar, MapPin, Users, CheckCircle, Clock, User, Building } from "lucide-react";
 import { Event } from "@/types/events";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { Link } from "react-router-dom";
+
+interface ContractorInfo {
+  id: string;
+  name: string;
+  company_name?: string;
+}
 
 interface ProviderEventCardProps {
   event: Event;
   isApplied?: boolean;
   onApply: (eventId: string) => void;
   onViewDetails: (eventId: string) => void;
-  contractorName?: string;
+  contractorInfo?: ContractorInfo;
 }
 
 export const ProviderEventCard = ({
@@ -22,7 +29,7 @@ export const ProviderEventCard = ({
   isApplied = false,
   onApply,
   onViewDetails,
-  contractorName,
+  contractorInfo,
 }: ProviderEventCardProps) => {
   const navigate = useNavigate();
   
@@ -75,10 +82,19 @@ export const ProviderEventCard = ({
               <span className="truncate">{event.location}</span>
             </div>
             
-            {contractorName && (
+            {contractorInfo && (
               <div className="flex items-center gap-2 text-sm text-gray-600">
-                <User className="h-4 w-4 flex-shrink-0 text-primary" />
-                <span>Contratante: {contractorName}</span>
+                {contractorInfo.company_name ? (
+                  <Building className="h-4 w-4 flex-shrink-0 text-primary" />
+                ) : (
+                  <User className="h-4 w-4 flex-shrink-0 text-primary" />
+                )}
+                <Link 
+                  to={`/provider-profile/${contractorInfo.id}`} 
+                  className="hover:text-primary hover:underline transition-colors"
+                >
+                  {contractorInfo.company_name || contractorInfo.name}
+                </Link>
               </div>
             )}
             
