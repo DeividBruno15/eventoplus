@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Event, EventApplication } from '@/types/events';
 import { User } from '@supabase/supabase-js';
@@ -6,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useEventData } from './useEventData';
 import { useEventUserRole } from './useEventUserRole';
 import { useUserApplication } from './useUserApplication';
-import { useEventApplicationsList } from './useEventApplicationsList';
+import { useEventApplicationsList } from './applications-list';
 
 interface EventDetailsProps {
   id?: string;
