@@ -87,7 +87,7 @@ export const useEventData = (id?: string) => {
             last_name: contractorData.last_name,
             avatar_url: contractorData.avatar_url
           }
-        } as Event;
+        };
         
         setEvent(typedEvent);
         console.log("Event data fetched:", typedEvent);
