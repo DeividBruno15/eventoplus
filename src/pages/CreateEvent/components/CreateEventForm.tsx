@@ -70,7 +70,8 @@ export function CreateEventForm() {
       try {
         setLoadingCompanies(true);
         
-        const { data, error } = await supabase
+        // Cast to any to workaround type incompatibility until types are updated
+        const { data, error } = await (supabase as any)
           .from('user_companies')
           .select('*')
           .eq('user_id', user.id)

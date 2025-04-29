@@ -78,7 +78,8 @@ export const UserCompanies = () => {
     try {
       setLoading(true);
       
-      const { data, error } = await supabase
+      // Cast to any to workaround type incompatibility until types are updated
+      const { data, error } = await (supabase as any)
         .from('user_companies')
         .select('*')
         .eq('user_id', user.id)
@@ -86,7 +87,8 @@ export const UserCompanies = () => {
       
       if (error) throw error;
       
-      setCompanies(data || []);
+      // Cast the result to UserCompany[] since we know the structure
+      setCompanies(data || [] as UserCompany[]);
     } catch (error) {
       console.error('Error fetching companies:', error);
       toast.error('Erro ao carregar empresas');
@@ -135,12 +137,14 @@ export const UserCompanies = () => {
       let response;
       
       if (editingCompany) {
-        response = await supabase
+        // Cast to any to workaround type incompatibility until types are updated
+        response = await (supabase as any)
           .from('user_companies')
           .update(companyData)
           .eq('id', editingCompany.id);
       } else {
-        response = await supabase
+        // Cast to any to workaround type incompatibility until types are updated
+        response = await (supabase as any)
           .from('user_companies')
           .insert([companyData]);
       }
@@ -185,7 +189,8 @@ export const UserCompanies = () => {
     try {
       setSubmitting(true);
       
-      const { error } = await supabase
+      // Cast to any to workaround type incompatibility until types are updated
+      const { error } = await (supabase as any)
         .from('user_companies')
         .delete()
         .eq('id', companyToDelete.id);
