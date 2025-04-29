@@ -20,7 +20,7 @@ export interface Event {
   event_time?: string;
   image_url?: string;
   service_requests?: ServiceRequest[];
-  // Additional fields for address
+  // Address fields
   zipcode?: string;
   street?: string;
   number?: string;
@@ -29,7 +29,7 @@ export interface Event {
   state?: string;
 }
 
-export type EventStatus = 'open' | 'closed' | 'published' | 'draft';
+export type EventStatus = 'open' | 'closed' | 'published' | 'draft' | 'cancelled';
 
 export interface ServiceRequest {
   id?: string;

@@ -1,178 +1,215 @@
 
 import { useState } from 'react';
-import { EventApplication, EventStatus } from '@/types/events';
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardHeader, 
+  CardTitle 
+} from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { User, CheckCircle, XCircle } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import { Link } from 'react-router-dom';
+import { EventApplication, EventStatus } from '@/types/events';
+import { AlertCircle, CheckCircle, Clock, XCircle } from 'lucide-react';
 
 interface ApplicationsListProps {
   applications: EventApplication[];
-  onApprove: (applicationId: string, providerId: string) => void;
-  onReject: (applicationId: string, providerId: string) => void;
+  onApprove: (applicationId: string, providerId: string) => Promise<void>;
+  onReject: (applicationId: string, providerId: string) => Promise<void>;
   submitting: boolean;
-  eventStatus?: EventStatus;
+  eventStatus: EventStatus;
 }
 
 export const ApplicationsList = ({ 
   applications, 
   onApprove, 
-  onReject, 
+  onReject,
   submitting,
   eventStatus
 }: ApplicationsListProps) => {
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [expandedIds, setExpandedIds] = useState<Record<string, boolean>>({});
   
   const toggleExpand = (id: string) => {
-    setExpandedId(expandedId === id ? null : id);
+    setExpandedIds(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
+
+  const getProviderInitials = (application: EventApplication) => {
+    if (!application.provider) return 'U';
+    
+    const { first_name, last_name } = application.provider;
+    return `${first_name?.charAt(0) || ''}${last_name?.charAt(0) || ''}`.toUpperCase() || 'U';
   };
   
-  const renderProviderInfo = (providerId: string, providerName: string, avatar?: string | null) => (
-    <div className="flex items-center">
-      <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 mr-3">
-        {avatar ? (
-          <img src={avatar} alt={providerName} className="w-full h-full object-cover" />
-        ) : (
-          <div className="w-full h-full bg-primary/10 flex items-center justify-center">
-            <User className="text-primary/60 w-5 h-5" />
-          </div>
-        )}
-      </div>
-      <div>
-        <Link 
-          to={`/user-profile/${providerId}`} 
-          className="font-medium hover:text-primary hover:underline"
-        >
-          {providerName}
-        </Link>
-        <p className="text-xs text-gray-500">Prestador de serviços</p>
-      </div>
-    </div>
-  );
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return <Badge variant="outline" className="flex gap-1 items-center"><Clock className="h-3 w-3" /> Pendente</Badge>;
+      case 'accepted':
+        return <Badge variant="default" className="bg-green-500 flex gap-1 items-center"><CheckCircle className="h-3 w-3" /> Aceito</Badge>;
+      case 'rejected':
+        return <Badge variant="destructive" className="flex gap-1 items-center"><XCircle className="h-3 w-3" /> Recusado</Badge>;
+      default:
+        return <Badge variant="outline" className="flex gap-1 items-center"><AlertCircle className="h-3 w-3" /> {status}</Badge>;
+    }
+  };
   
-  if (applications.length === 0) {
-    return (
-      <Card>
-        <CardContent className="p-6 text-center">
-          <p className="text-muted-foreground">
-            Ainda não há candidaturas para este evento.
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
+  // Separate applications by status
+  const pendingApplications = applications.filter(app => app.status === 'pending');
+  const acceptedApplications = applications.filter(app => app.status === 'accepted');
+  const rejectedApplications = applications.filter(app => app.status === 'rejected');
   
   return (
-    <div className="space-y-4">
-      {applications.map((application) => {
-        const isExpanded = expandedId === application.id;
-        const providerName = application.provider ? 
-          `${application.provider.first_name} ${application.provider.last_name}` : 
-          'Prestador';
-        
-        // Adjust badge variant to use valid variants only
-        const getBadgeVariant = (status: string) => {
-          switch(status) {
-            case 'accepted': return 'default' as const;
-            case 'rejected': return 'destructive' as const;
-            default: return 'outline' as const;
-          }
-        };
-        
-        // Define badge text based on status
-        const getBadgeText = (status: string) => {
-          switch(status) {
-            case 'accepted': return 'Aprovado';
-            case 'rejected': return 'Recusado';
-            default: return 'Pendente';
-          }
-        };
-        
-        return (
-          <Card key={application.id} className="overflow-hidden">
-            <CardContent className="p-0">
-              <div className="p-4 flex justify-between items-center">
-                {application.provider && renderProviderInfo(
-                  application.provider.id,
-                  providerName,
-                  application.provider.avatar_url
-                )}
-                
-                <div className="flex items-center">
-                  <Badge 
-                    variant={getBadgeVariant(application.status)}
-                    className="mr-4"
-                  >
-                    {getBadgeText(application.status)}
-                  </Badge>
-                  
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => toggleExpand(application.id)}
-                  >
-                    {isExpanded ? 'Menos detalhes' : 'Ver detalhes'}
-                  </Button>
-                </div>
-              </div>
-              
-              {isExpanded && (
-                <div className="border-t p-4">
-                  <div className="mb-4">
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium">Categoria:</span>
-                      <span className="text-sm">{application.service_category}</span>
+    <Card>
+      <CardHeader>
+        <CardTitle>Candidaturas ao Evento</CardTitle>
+        <CardDescription>
+          Gerencie candidaturas de prestadores para seu evento
+        </CardDescription>
+      </CardHeader>
+      
+      <CardContent className="space-y-6">
+        {applications.length === 0 ? (
+          <div className="text-center py-4 text-muted-foreground">
+            Nenhuma candidatura recebida ainda
+          </div>
+        ) : (
+          <>
+            {pendingApplications.length > 0 && (
+              <div className="space-y-4">
+                <h3 className="font-medium">Candidaturas Pendentes</h3>
+                {pendingApplications.map(application => (
+                  <div key={application.id} className="border rounded-md p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-8 w-8">
+                          {application.provider?.avatar_url ? (
+                            <AvatarImage src={application.provider.avatar_url} />
+                          ) : (
+                            <AvatarFallback>{getProviderInitials(application)}</AvatarFallback>
+                          )}
+                        </Avatar>
+                        <span className="font-medium">
+                          {application.provider ? 
+                            `${application.provider.first_name} ${application.provider.last_name || ''}` : 
+                            'Usuário'}
+                        </span>
+                      </div>
+                      {getStatusBadge(application.status)}
                     </div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium">Data da candidatura:</span>
-                      <span className="text-sm">
-                        {formatDistanceToNow(new Date(application.created_at), { 
-                          addSuffix: true,
-                          locale: ptBR
-                        })}
-                      </span>
+                    
+                    <div className="text-sm text-gray-500 mb-2">
+                      Categoria: {application.service_category || "Não especificada"}
                     </div>
-                  </div>
-                  
-                  <div className="mb-4">
-                    <h4 className="text-sm font-medium mb-2">Mensagem:</h4>
-                    <p className="text-sm bg-gray-50 p-3 rounded-md">
-                      {application.message || "Nenhuma mensagem fornecida."}
-                    </p>
-                  </div>
-                  
-                  {application.status === 'pending' && (
-                    <div className="flex justify-end gap-2 mt-4">
+                    
+                    <div className="mb-4">
+                      <div 
+                        className={`text-sm ${expandedIds[application.id] ? '' : 'line-clamp-2'}`}
+                      >
+                        {application.message}
+                      </div>
+                      {application.message.length > 100 && (
+                        <button 
+                          onClick={() => toggleExpand(application.id)} 
+                          className="text-xs text-primary mt-1"
+                        >
+                          {expandedIds[application.id] ? 'Mostrar menos' : 'Mostrar mais'}
+                        </button>
+                      )}
+                    </div>
+                    
+                    <div className="flex gap-2 justify-end">
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => application.provider && onReject(application.id, application.provider.id)}
-                        disabled={submitting}
-                        className="flex items-center"
+                        onClick={() => onReject(application.id, application.provider_id)}
+                        disabled={submitting || eventStatus !== 'open'}
                       >
-                        <XCircle className="mr-1 h-4 w-4" />
                         Recusar
                       </Button>
+                      
                       <Button
+                        variant="default"
                         size="sm"
-                        onClick={() => application.provider && onApprove(application.id, application.provider.id)}
-                        disabled={submitting}
-                        className="flex items-center"
+                        className="bg-green-500 hover:bg-green-600"
+                        onClick={() => onApprove(application.id, application.provider_id)}
+                        disabled={submitting || eventStatus !== 'open'}
                       >
-                        <CheckCircle className="mr-1 h-4 w-4" />
                         Aprovar
                       </Button>
                     </div>
-                  )}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        );
-      })}
-    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {acceptedApplications.length > 0 && (
+              <div className="space-y-4">
+                <h3 className="font-medium">Candidaturas Aceitas</h3>
+                {acceptedApplications.map(application => (
+                  <div key={application.id} className="border rounded-md p-4 border-green-200 bg-green-50">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-8 w-8">
+                          {application.provider?.avatar_url ? (
+                            <AvatarImage src={application.provider.avatar_url} />
+                          ) : (
+                            <AvatarFallback>{getProviderInitials(application)}</AvatarFallback>
+                          )}
+                        </Avatar>
+                        <span className="font-medium">
+                          {application.provider ? 
+                            `${application.provider.first_name} ${application.provider.last_name || ''}` : 
+                            'Usuário'}
+                        </span>
+                      </div>
+                      {getStatusBadge(application.status)}
+                    </div>
+                    
+                    <div className="text-sm text-gray-500">
+                      Categoria: {application.service_category || "Não especificada"}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {rejectedApplications.length > 0 && (
+              <div className="space-y-4">
+                <h3 className="font-medium">Candidaturas Recusadas</h3>
+                {rejectedApplications.map(application => (
+                  <div key={application.id} className="border rounded-md p-4 border-gray-200 bg-gray-50">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-8 w-8">
+                          {application.provider?.avatar_url ? (
+                            <AvatarImage src={application.provider.avatar_url} />
+                          ) : (
+                            <AvatarFallback>{getProviderInitials(application)}</AvatarFallback>
+                          )}
+                        </Avatar>
+                        <span className="font-medium">
+                          {application.provider ? 
+                            `${application.provider.first_name} ${application.provider.last_name || ''}` : 
+                            'Usuário'}
+                        </span>
+                      </div>
+                      {getStatusBadge(application.status)}
+                    </div>
+                    
+                    <div className="text-sm text-gray-500">
+                      Categoria: {application.service_category || "Não especificada"}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+      </CardContent>
+    </Card>
   );
 };

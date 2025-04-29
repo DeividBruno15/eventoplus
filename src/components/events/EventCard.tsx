@@ -1,8 +1,9 @@
+
 import { useNavigate } from 'react-router-dom';
 import { Calendar, MapPin, Users } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Event } from '@/types/events';
+import { Event, EventStatus } from '@/types/events';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -19,7 +20,7 @@ export const EventCard = ({ event }: EventCardProps) => {
     : 'Data não definida';
   
   const getStatusBadge = () => {
-    switch(event.status) {
+    switch(event.status as EventStatus) {
       case 'published':
         return <span className="absolute top-3 right-3 text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">Publicado</span>;
       case 'closed':
@@ -28,6 +29,8 @@ export const EventCard = ({ event }: EventCardProps) => {
         return <span className="absolute top-3 right-3 text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium">Rascunho</span>;
       case 'open':
         return <span className="absolute top-3 right-3 text-xs bg-green-100 text-green-600 px-2 py-0.5 rounded-full font-medium">Aberto</span>;
+      case 'cancelled':
+        return <span className="absolute top-3 right-3 text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-medium">Cancelado</span>;
       default:
         return <span className="absolute top-3 right-3 text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium">{event.status}</span>;
     }
