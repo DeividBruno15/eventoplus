@@ -74,12 +74,14 @@ export const useEventData = (id?: string) => {
         
         // Check if contractor exists and is a valid object before accessing its properties
         if (eventData.contractor && typeof eventData.contractor === 'object') {
+          const contractor = eventData.contractor as any; // Type assertion to avoid null check errors
+          
           // Safely check and unwrap the contractor data
           contractorData = {
-            id: eventData.contractor.id || '',
-            first_name: eventData.contractor.first_name || '',
-            last_name: eventData.contractor.last_name || '',
-            avatar_url: eventData.contractor.avatar_url
+            id: contractor?.id || '',
+            first_name: contractor?.first_name || '',
+            last_name: contractor?.last_name || '',
+            avatar_url: contractor?.avatar_url
           };
         }
         
