@@ -60,6 +60,7 @@ export const useCreateEvent = () => {
         event_date: eventData.event_date,
         event_time: eventData.event_time,
         location: formattedAddress,
+        // Include address fields separately
         zipcode: eventData.zipcode,
         street: eventData.street,
         number: eventData.number,
@@ -69,7 +70,7 @@ export const useCreateEvent = () => {
         service_requests: prepareServiceRequestsForStorage(eventData.service_requests),
         image_url: imageUrl,
         contractor_id: user.id,
-        status: 'published' as const, // Make sure this is explicitly set to 'published'
+        status: 'published', // Make sure this is explicitly set to 'published'
         service_type: eventData.service_requests?.[0]?.category || ''
       };
 
@@ -99,7 +100,7 @@ export const useCreateEvent = () => {
     } catch (error: any) {
       console.error('Error creating/updating event:', error);
       toast.error(error.message || 'Ocorreu um erro ao criar o evento');
-      throw new Error(error.message || 'Ocorreu um erro ao criar o evento');
+      throw error;
     } finally {
       setLoading(false);
     }

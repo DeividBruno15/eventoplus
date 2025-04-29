@@ -32,7 +32,7 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
       
       console.log("Fetching events for contractor:", user.id);
       
-      // Modified query to not use join with contractor since it's causing errors
+      // Modified query to select all fields including the address fields
       const { data, error } = await supabase
         .from('events')
         .select('*')
@@ -63,13 +63,13 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
             last_name: '',
           },
           created_at: event.created_at,
-          updated_at: null, // Ensure this matches the type definition 
+          updated_at: event.updated_at || null, // Include updated_at field 
           service_type: event.service_type,
           status: event.status as EventStatus,
           event_time: event.event_time || undefined,
           image_url: event.image_url || undefined,
           service_requests: event.service_requests as any || undefined,
-          // Add extended properties from database
+          // Add address fields if they exist in the data
           zipcode: event.zipcode || undefined,
           street: event.street || undefined,
           number: event.number || undefined,
@@ -133,7 +133,7 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
                   last_name: '',
                 },
                 created_at: newEvent.created_at,
-                updated_at: null,
+                updated_at: newEvent.updated_at || null,
                 service_type: newEvent.service_type,
                 status: newEvent.status as EventStatus,
                 event_time: newEvent.event_time || undefined,
@@ -165,7 +165,7 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
                   last_name: '',
                 },
                 created_at: updatedEvent.created_at,
-                updated_at: null,
+                updated_at: updatedEvent.updated_at || null,
                 service_type: updatedEvent.service_type,
                 status: updatedEvent.status as EventStatus,
                 event_time: updatedEvent.event_time || undefined,
