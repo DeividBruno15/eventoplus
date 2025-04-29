@@ -1,5 +1,6 @@
+
 import { useState } from 'react';
-import { EventApplication } from '@/types/events';
+import { EventApplication, EventStatus } from '@/types/events';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -11,15 +12,17 @@ import { Link } from 'react-router-dom';
 interface ApplicationsListProps {
   applications: EventApplication[];
   onApprove: (applicationId: string, providerId: string) => void;
-  onReject: (applicationId: string) => void;
+  onReject: (applicationId: string, providerId: string) => void;
   submitting: boolean;
+  eventStatus?: EventStatus;
 }
 
 export const ApplicationsList = ({ 
   applications, 
   onApprove, 
   onReject, 
-  submitting 
+  submitting,
+  eventStatus
 }: ApplicationsListProps) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   
@@ -70,6 +73,24 @@ export const ApplicationsList = ({
           `${application.provider.first_name} ${application.provider.last_name}` : 
           'Prestador';
         
+        // Adjust badge variant to use valid variants only
+        const getBadgeVariant = (status: string) => {
+          switch(status) {
+            case 'accepted': return 'default' as const;
+            case 'rejected': return 'destructive' as const;
+            default: return 'outline' as const;
+          }
+        };
+        
+        // Define badge text based on status
+        const getBadgeText = (status: string) => {
+          switch(status) {
+            case 'accepted': return 'Aprovado';
+            case 'rejected': return 'Recusado';
+            default: return 'Pendente';
+          }
+        };
+        
         return (
           <Card key={application.id} className="overflow-hidden">
             <CardContent className="p-0">
@@ -82,16 +103,10 @@ export const ApplicationsList = ({
                 
                 <div className="flex items-center">
                   <Badge 
-                    variant={
-                      application.status === 'accepted' ? 'success' : 
-                      application.status === 'rejected' ? 'destructive' : 
-                      'outline'
-                    }
+                    variant={getBadgeVariant(application.status)}
                     className="mr-4"
                   >
-                    {application.status === 'accepted' ? 'Aprovado' : 
-                     application.status === 'rejected' ? 'Recusado' : 
-                     'Pendente'}
+                    {getBadgeText(application.status)}
                   </Badge>
                   
                   <Button 
@@ -134,7 +149,7 @@ export const ApplicationsList = ({
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => onReject(application.id)}
+                        onClick={() => application.provider && onReject(application.id, application.provider.id)}
                         disabled={submitting}
                         className="flex items-center"
                       >

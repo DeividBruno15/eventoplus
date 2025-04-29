@@ -40,7 +40,7 @@ export const useServiceRequestUtils = () => {
     // Ensure all price fields are numbers
     const preparedRequests = requests.map(req => ({
       ...req,
-      price: req.price ? Number(req.price) : 0
+      price: req.price !== undefined ? Number(req.price) : 0
     }));
     
     return preparedRequests as unknown as Json;

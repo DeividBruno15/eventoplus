@@ -20,14 +20,26 @@ export interface Event {
   event_time?: string;
   image_url?: string;
   service_requests?: ServiceRequest[];
+  // Additional fields for address
+  zipcode?: string;
+  street?: string;
+  number?: string;
+  neighborhood?: string;
+  city?: string;
+  state?: string;
 }
 
 export type EventStatus = 'open' | 'closed' | 'published' | 'draft';
 
 export interface ServiceRequest {
-  id: string;
-  service_type: string;
+  id?: string;
+  service_type?: string;
   description?: string;
+  // Fields needed for event creation form
+  category?: string;
+  count?: number;
+  price?: number;
+  filled?: number;
 }
 
 export interface EventApplication {
@@ -44,4 +56,26 @@ export interface EventApplication {
     last_name: string;
     avatar_url?: string | null;
   };
+}
+
+// Form data interface for creating events
+export interface CreateEventFormData {
+  name: string;
+  description: string;
+  event_date: string;
+  event_time: string;
+  zipcode: string;
+  street: string;
+  number: string;
+  neighborhood: string;
+  city: string;
+  state: string;
+  location: string;
+  service_requests?: {
+    category: string;
+    count: number;
+    price?: number;
+    filled?: number;
+  }[];
+  image?: File | null;
 }
