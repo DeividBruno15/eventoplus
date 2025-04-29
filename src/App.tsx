@@ -21,7 +21,6 @@ import ServiceProviders from "./pages/ServiceProviders";
 import ProviderProfile from "./pages/ProviderProfile";
 import RequestQuote from "./pages/RequestQuote";
 import NotFound from "./pages/NotFound";
-import DashboardLayout from "./layouts/DashboardLayout";
 import HelpCenter from "./pages/HelpCenter";
 import Support from "./pages/Support";
 import ForgotPassword from "./pages/ForgotPassword";
