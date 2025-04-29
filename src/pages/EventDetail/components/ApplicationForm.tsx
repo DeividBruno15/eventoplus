@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
@@ -33,35 +34,44 @@ export const ApplicationForm = ({ event, onSubmit, userApplication, submitting }
   const [showSuccess, setShowSuccess] = useState(false);
   const [userServices, setUserServices] = useState<UserService[]>([]);
   const [selectedService, setSelectedService] = useState<string>('');
+  const [loadingServices, setLoadingServices] = useState(true);
 
   // Fetch user services
   useEffect(() => {
     if (!user) return;
     
     const fetchUserServices = async () => {
-      const { data, error } = await supabase
-        .from('provider_services')
-        .select('id, category, description')
-        .eq('provider_id', user.id);
-        
-      if (error) {
-        console.error('Error fetching provider services:', error);
-        return;
-      }
-      
-      setUserServices(data || []);
-      
-      // If there's only one service, select it by default
-      if (data && data.length === 1) {
-        setSelectedService(data[0].category);
-      }
-      
-      // If we have event service_type, try to match with provider services
-      if (event.service_type && data) {
-        const matchingService = data.find(service => service.category === event.service_type);
-        if (matchingService) {
-          setSelectedService(matchingService.category);
+      setLoadingServices(true);
+      try {
+        const { data, error } = await supabase
+          .from('provider_services')
+          .select('id, category, description')
+          .eq('provider_id', user.id);
+          
+        if (error) {
+          console.error('Error fetching provider services:', error);
+          return;
         }
+        
+        console.log('Fetched provider services:', data);
+        setUserServices(data || []);
+        
+        // If there's only one service, select it by default
+        if (data && data.length === 1) {
+          setSelectedService(data[0].category);
+        }
+        
+        // If we have event service_type, try to match with provider services
+        if (event.service_type && data) {
+          const matchingService = data.find(service => service.category === event.service_type);
+          if (matchingService) {
+            setSelectedService(matchingService.category);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch provider services:', err);
+      } finally {
+        setLoadingServices(false);
       }
     };
     
@@ -70,13 +80,9 @@ export const ApplicationForm = ({ event, onSubmit, userApplication, submitting }
 
   const handleSubmitApplication = async () => {
     try {
-      const serviceToUse = userServices.length === 1 
-        ? userServices[0].category 
-        : selectedService;
-        
-      await onSubmit(applicationMessage, serviceToUse);
+      console.log('Submitting application with service:', selectedService);
+      await onSubmit(applicationMessage, selectedService);
       setShowSuccess(true);
-      toast.success("Candidatura enviada com sucesso!");
       
       // Reset form after 3 seconds and redirect back to event
       setTimeout(() => {
@@ -86,7 +92,6 @@ export const ApplicationForm = ({ event, onSubmit, userApplication, submitting }
       }, 3000);
     } catch (error) {
       console.error("Erro ao enviar candidatura:", error);
-      toast.error("Erro ao enviar candidatura. Tente novamente.");
     }
   };
 
@@ -175,6 +180,17 @@ export const ApplicationForm = ({ event, onSubmit, userApplication, submitting }
 
   // Check if user has compatible services for this event
   const hasCompatibleServices = userServices.length > 0;
+
+  if (loadingServices) {
+    return (
+      <Card className="mb-6">
+        <CardContent className="flex flex-col items-center justify-center h-40 py-6">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mb-2" />
+          <p className="text-muted-foreground">Carregando serviços...</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="mb-6">

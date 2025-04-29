@@ -1,9 +1,10 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Event, ServiceRequest } from "@/types/events";
 import { NoServicesWarning } from "./NoServicesWarning";
@@ -20,8 +21,7 @@ export const ProviderEventsContent: React.FC<ProviderEventsContentProps> = ({
   setSearchQuery,
 }) => {
   const navigate = useNavigate();
-  const { session, user } = useAuth();
-  const { toast } = useToast();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [availableEvents, setAvailableEvents] = useState<Event[]>([]);
   const [appliedEvents, setAppliedEvents] = useState<Event[]>([]);
@@ -79,7 +79,7 @@ export const ProviderEventsContent: React.FC<ProviderEventsContentProps> = ({
 
   useEffect(() => {
     const fetchEvents = async () => {
-      if (!providerServices.length) {
+      if (!providerServices.length || !user) {
         setLoading(false);
         return;
       }
@@ -87,33 +87,46 @@ export const ProviderEventsContent: React.FC<ProviderEventsContentProps> = ({
       try {
         setLoading(true);
         
+        // Fetch all events that match the provider's service categories
         const { data: events, error } = await supabase
           .from('events')
           .select('*')
           .in('service_type', providerServices)
+          .not('status', 'eq', 'closed')  // Don't show closed events
+          .not('status', 'eq', 'cancelled')  // Don't show cancelled events
           .order('created_at', { ascending: false });
 
         if (error) throw error;
 
+        // Fetch provider's applications to determine which events they've applied to
         const { data: applications, error: appError } = await supabase
           .from('event_applications')
-          .select('event_id')
-          .eq('provider_id', user?.id);
+          .select('event_id, status')
+          .eq('provider_id', user.id);
 
         if (appError) throw appError;
 
-        const appliedEventIds = applications?.map(app => app.event_id) || [];
+        // Create a map of event IDs to application status
+        const applicationMap = (applications || []).reduce((acc, app) => {
+          acc[app.event_id] = app.status;
+          return acc;
+        }, {} as Record<string, string>);
         
         const available: Event[] = [];
         const applied: Event[] = [];
         
-        events?.forEach(event => {
+        (events || []).forEach(event => {
           const eventData: Event = {
             ...event,
             service_requests: parseServiceRequests(event.service_requests as Json)
           } as Event;
           
-          if (appliedEventIds.includes(event.id)) {
+          // If the user has applied to this event, add it to applied events
+          if (applicationMap[event.id]) {
+            // If the application is accepted, mark the event as published
+            if (applicationMap[event.id] === 'accepted') {
+              eventData.status = 'published';
+            }
             applied.push(eventData);
           } else {
             available.push(eventData);
@@ -134,10 +147,8 @@ export const ProviderEventsContent: React.FC<ProviderEventsContentProps> = ({
       }
     };
 
-    if (user) {
-      fetchEvents();
-    }
-  }, [providerServices, user, toast]);
+    fetchEvents();
+  }, [providerServices, user]);
 
   return (
     <div className="space-y-6 animate-fade-in">

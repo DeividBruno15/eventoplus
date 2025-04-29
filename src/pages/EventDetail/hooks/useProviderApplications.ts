@@ -18,36 +18,47 @@ export const useProviderApplications = (event: Event | null) => {
     
     try {
       setSubmitting(true);
+      console.log("Sending application with data:", { 
+        event_id: event.id,
+        provider_id: user.id,
+        message,
+        serviceCategory 
+      });
       
       // Create the application data object
-      const applicationData: any = {
+      const applicationData = {
         event_id: event.id,
         provider_id: user.id,
         message: message,
-        status: 'pending'
+        status: 'pending',
+        service_category: serviceCategory || null
       };
-      
-      // Only add service_category if it exists in the schema
-      if (serviceCategory) {
-        applicationData.service_category = serviceCategory;
-      }
       
       const { data, error } = await supabase
         .from('event_applications')
         .insert(applicationData)
-        .select()
-        .single();
+        .select();
         
-      if (error) throw error;
+      if (error) {
+        console.error('Application submission error:', error);
+        throw error;
+      }
+      
+      console.log('Application submitted successfully:', data);
       
       // Send notification to event owner
-      await sendApplicationNotification(
-        event,
-        event.contractor_id,
-        "Nova candidatura ao seu evento",
-        `Você recebeu uma nova candidatura para o evento "${event.name}"`,
-        "new_application"
-      );
+      try {
+        await sendApplicationNotification(
+          event,
+          event.contractor_id,
+          "Nova candidatura ao seu evento",
+          `Você recebeu uma nova candidatura para o evento "${event.name}"`,
+          "new_application"
+        );
+      } catch (notificationError) {
+        console.error('Error sending notification:', notificationError);
+        // Don't throw here, application was successful
+      }
       
       toast.success("Candidatura enviada com sucesso!");
       

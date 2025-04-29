@@ -3,15 +3,18 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Users, CheckCircle, Clock } from "lucide-react";
+import { Calendar, MapPin, Users, CheckCircle, Clock, User } from "lucide-react";
 import { Event } from "@/types/events";
 import { useNavigate } from "react-router-dom";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 interface ProviderEventCardProps {
   event: Event;
   isApplied?: boolean;
   onApply: (eventId: string) => void;
   onViewDetails: (eventId: string) => void;
+  contractorName?: string;
 }
 
 export const ProviderEventCard = ({
@@ -19,74 +22,102 @@ export const ProviderEventCard = ({
   isApplied = false,
   onApply,
   onViewDetails,
+  contractorName,
 }: ProviderEventCardProps) => {
+  const navigate = useNavigate();
+  
+  // Format event date for display
   const eventDate = event.event_date 
-    ? new Date(event.event_date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
+    ? format(new Date(event.event_date), "dd 'de' MMMM, yyyy", { locale: ptBR })
     : 'Data não definida';
 
   return (
-    <Card>
-      <CardContent className="p-5">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
-          <div>
-            <h3 className="text-lg font-medium">{event.name}</h3>
-            <p className="text-muted-foreground text-sm">{event.service_type}</p>
-          </div>
-          <Badge variant={
-            isApplied ? event.status === 'published' ? 'secondary' : 'outline' : 'default'
-          }>
-            {isApplied ? event.status === 'published' ? 'Inscrito' : 'Pendente' : 'Disponível'}
-          </Badge>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="flex items-center gap-2 text-sm">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span>{eventDate}</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <MapPin className="h-4 w-4 text-muted-foreground" />
-            <span className="truncate">{event.location}</span>
-          </div>
-          {event.max_attendees && (
-            <div className="flex items-center gap-2 text-sm">
-              <Users className="h-4 w-4 text-muted-foreground" />
-              <span>{event.max_attendees} convidados</span>
-            </div>
-          )}
-        </div>
-        
-        <div className="mt-4">
-          <p className="text-sm line-clamp-2 text-gray-600">
-            {event.description}
-          </p>
-        </div>
-        
-        <div className="mt-6 flex justify-end">
-          {!isApplied ? (
-            <Button onClick={() => onApply(event.id)}>
-              Enviar Candidatura
-            </Button>
+    <Card className="overflow-hidden hover:shadow-md transition-shadow duration-300">
+      <div className="relative">
+        {/* Image section */}
+        <div className="h-40 bg-gray-100 relative overflow-hidden">
+          {event.image_url ? (
+            <img 
+              src={event.image_url} 
+              alt={event.name} 
+              className="w-full h-full object-cover"
+            />
           ) : (
-            <div className="flex gap-3">
-              {event.status === 'published' ? (
-                <div className="flex items-center gap-2 text-green-600">
-                  <CheckCircle className="h-4 w-4" />
-                  Candidatura aprovada
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 text-amber-600">
-                  <Clock className="h-4 w-4" />
-                  Aguardando aprovação
-                </div>
-              )}
-              <Button variant="outline" onClick={() => onViewDetails(event.id)}>
-                Ver Detalhes
-              </Button>
+            <div className="flex items-center justify-center h-full bg-gray-100">
+              <Calendar className="h-10 w-10 text-gray-300" />
             </div>
           )}
+          <div className="absolute top-3 right-3">
+            <Badge variant={
+              isApplied ? 
+                event.status === 'published' ? 'secondary' : 'outline' 
+                : 'default'
+            }>
+              {isApplied ? 
+                event.status === 'published' ? 'Inscrito' : 'Pendente' 
+                : 'Disponível'}
+            </Badge>
+          </div>
         </div>
-      </CardContent>
+        
+        <CardContent className="p-5">
+          <h3 className="text-xl font-semibold mb-3 line-clamp-1">{event.name}</h3>
+          
+          <div className="space-y-2 mb-4">
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <Calendar className="h-4 w-4 flex-shrink-0 text-primary" />
+              <span>{eventDate}</span>
+              {event.event_time && <span className="text-gray-500">às {event.event_time}</span>}
+            </div>
+            
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <MapPin className="h-4 w-4 flex-shrink-0 text-primary" />
+              <span className="truncate">{event.location}</span>
+            </div>
+            
+            {contractorName && (
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <User className="h-4 w-4 flex-shrink-0 text-primary" />
+                <span>Contratante: {contractorName}</span>
+              </div>
+            )}
+            
+            {event.max_attendees && (
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Users className="h-4 w-4 flex-shrink-0 text-primary" />
+                <span>{event.max_attendees} convidados</span>
+              </div>
+            )}
+          </div>
+          
+          <p className="text-sm text-gray-600 mb-4 line-clamp-2">{event.description}</p>
+          
+          <div className="mt-2 flex justify-end gap-3">
+            {!isApplied ? (
+              <Button onClick={() => onApply(event.id)} className="w-full">
+                Enviar Candidatura
+              </Button>
+            ) : (
+              <>
+                {event.status === 'published' ? (
+                  <div className="flex items-center gap-2 text-green-600">
+                    <CheckCircle className="h-4 w-4" />
+                    <span className="text-sm font-medium">Candidatura aprovada</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-amber-600">
+                    <Clock className="h-4 w-4" />
+                    <span className="text-sm font-medium">Aguardando aprovação</span>
+                  </div>
+                )}
+                <Button variant="outline" onClick={() => onViewDetails(event.id)}>
+                  Ver Detalhes
+                </Button>
+              </>
+            )}
+          </div>
+        </CardContent>
+      </div>
     </Card>
   );
 };

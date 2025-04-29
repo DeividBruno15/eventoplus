@@ -1,9 +1,10 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Event } from "@/types/events";
 import { ProviderEventCard } from "./ProviderEventCard";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ProviderEventsListProps {
   loading: boolean;
@@ -14,6 +15,11 @@ interface ProviderEventsListProps {
   onViewDetails: (eventId: string) => void;
 }
 
+interface ContractorInfo {
+  id: string;
+  name: string;
+}
+
 export const ProviderEventsList = ({
   loading,
   availableEvents,
@@ -22,6 +28,40 @@ export const ProviderEventsList = ({
   onApply,
   onViewDetails,
 }: ProviderEventsListProps) => {
+  const [contractorNames, setContractorNames] = useState<Record<string, string>>({});
+  
+  // Fetch contractor names for all events
+  useEffect(() => {
+    const fetchContractorNames = async () => {
+      const allEvents = [...availableEvents, ...appliedEvents];
+      const uniqueContractorIds = [...new Set(allEvents.map(event => event.contractor_id))];
+      
+      if (uniqueContractorIds.length === 0) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('user_profiles')
+          .select('id, first_name, last_name')
+          .in('id', uniqueContractorIds);
+          
+        if (error) throw error;
+        
+        if (data) {
+          const nameMap = data.reduce((acc: Record<string, string>, contractor) => {
+            acc[contractor.id] = `${contractor.first_name} ${contractor.last_name || ''}`.trim();
+            return acc;
+          }, {});
+          
+          setContractorNames(nameMap);
+        }
+      } catch (error) {
+        console.error('Error fetching contractor names:', error);
+      }
+    };
+    
+    fetchContractorNames();
+  }, [availableEvents, appliedEvents]);
+
   const filterEvents = (events: Event[]) =>
     events.filter(event =>
       event.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -60,14 +100,17 @@ export const ProviderEventsList = ({
             </CardContent>
           </Card>
         ) : (
-          filteredAvailableEvents.map(event => (
-            <ProviderEventCard
-              key={event.id}
-              event={event}
-              onApply={onApply}
-              onViewDetails={onViewDetails}
-            />
-          ))
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredAvailableEvents.map(event => (
+              <ProviderEventCard
+                key={event.id}
+                event={event}
+                onApply={onApply}
+                onViewDetails={onViewDetails}
+                contractorName={contractorNames[event.contractor_id]}
+              />
+            ))}
+          </div>
         )}
       </TabsContent>
       
@@ -82,15 +125,18 @@ export const ProviderEventsList = ({
             </CardContent>
           </Card>
         ) : (
-          filteredAppliedEvents.map(event => (
-            <ProviderEventCard
-              key={event.id}
-              event={event}
-              isApplied
-              onApply={onApply}
-              onViewDetails={onViewDetails}
-            />
-          ))
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredAppliedEvents.map(event => (
+              <ProviderEventCard
+                key={event.id}
+                event={event}
+                isApplied
+                onApply={onApply}
+                onViewDetails={onViewDetails}
+                contractorName={contractorNames[event.contractor_id]}
+              />
+            ))}
+          </div>
         )}
       </TabsContent>
     </Tabs>
