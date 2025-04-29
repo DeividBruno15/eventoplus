@@ -1,162 +1,102 @@
 
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { useAuth } from "@/hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import React from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SearchIcon } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { 
-  HelpCircle, 
-  Search, 
-  FileText, 
-  BookOpen, 
-  VideoIcon,
-  ChevronRight,
-  MessageCircle,
-  Calendar as CalendarIcon
-} from "lucide-react";
-import DashboardLayout from "@/layouts/DashboardLayout";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 const HelpCenter = () => {
-  const { session } = useAuth();
-  const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const popularArticles = [
-    { id: 1, title: "Como criar o seu primeiro evento", icon: FileText },
-    { id: 2, title: "Gerenciando seus contatos e conversas", icon: MessageCircle },
-    { id: 3, title: "Configurando seu perfil profissional", icon: FileText },
-    { id: 4, title: "Assinatura e planos: como funciona", icon: FileText },
-    { id: 5, title: "Recebendo pagamentos pela plataforma", icon: FileText },
-    { id: 6, title: "Políticas de privacidade e segurança", icon: FileText }
-  ];
-
-  const categories = [
-    { id: 1, title: "Primeiros passos", description: "Aprenda a configurar sua conta e entender as funcionalidades básicas", icon: BookOpen },
-    { id: 2, title: "Eventos", description: "Como criar, gerenciar e promover seus eventos", icon: CalendarIcon },
-    { id: 3, title: "Mensagens", description: "Tudo sobre o sistema de chat e comunicação", icon: MessageCircle },
-    { id: 4, title: "Tutoriais em vídeo", description: "Assista nossos vídeos passo a passo", icon: VideoIcon }
-  ];
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-  };
-
-  const handleViewArticle = (id: number) => {
-    // Placeholder for article viewing functionality
-    console.log(`Viewing article ${id}`);
-    // navigate(`/help-center/article/${id}`);
-  };
-
-  const handleViewCategory = (id: number) => {
-    // Placeholder for category viewing functionality
-    console.log(`Viewing category ${id}`);
-    // navigate(`/help-center/category/${id}`);
-  };
-
-  const handleContactSupport = () => {
-    navigate('/support');
-  };
-
   return (
-    <DashboardLayout>
-      <div className="space-y-6 animate-fade-in">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Central de Ajuda</h2>
-          <p className="text-muted-foreground mt-2">
-            Encontre respostas para suas dúvidas e tutoriais para maximizar sua experiência
-          </p>
-        </div>
-
-        {/* Search section */}
-        <Card>
-          <CardContent className="pt-6">
-            <div className="max-w-2xl mx-auto">
-              <div className="text-center mb-4">
-                <HelpCircle className="h-12 w-12 mx-auto text-primary mb-2" />
-                <h2 className="text-xl font-semibold">Como podemos ajudar?</h2>
-                <p className="text-muted-foreground">Busque por artigos ou navegue pelas categorias abaixo</p>
-              </div>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Pesquisar por tópico ou palavra-chave"
-                  value={searchQuery}
-                  onChange={handleSearchChange}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Popular articles */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Artigos populares</CardTitle>
-            <CardDescription>Os artigos mais acessados pela nossa comunidade</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {popularArticles.map(article => (
-                <Button
-                  key={article.id}
-                  variant="outline"
-                  className="justify-start h-auto py-3 px-4"
-                  onClick={() => handleViewArticle(article.id)}
-                >
-                  <article.icon className="mr-3 h-5 w-5 text-primary" />
-                  <span>{article.title}</span>
-                  <ChevronRight className="ml-auto h-4 w-4" />
-                </Button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Categories */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Categorias</CardTitle>
-            <CardDescription>Navegue por categorias para encontrar informações</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {categories.map(category => (
-                <Card key={category.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleViewCategory(category.id)}>
-                  <CardContent className="p-4 flex items-start">
-                    <div className="bg-primary/10 p-2 rounded-lg mr-4">
-                      <category.icon className="h-6 w-6 text-primary" />
-                    </div>
-                    <div className="flex-grow">
-                      <h3 className="font-medium mb-1">{category.title}</h3>
-                      <p className="text-sm text-muted-foreground">{category.description}</p>
-                    </div>
-                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Contact support */}
-        <Card>
-          <CardContent className="p-6 flex flex-col items-center text-center">
-            <div className="bg-primary/10 p-3 rounded-full mb-4">
-              <MessageCircle className="h-6 w-6 text-primary" />
-            </div>
-            <h3 className="text-xl font-medium mb-1">Ainda precisa de ajuda?</h3>
-            <p className="text-muted-foreground mb-4 max-w-md">
-              Nossa equipe de suporte está pronta para ajudar com qualquer dúvida que você tenha.
-            </p>
-            <Button onClick={handleContactSupport}>
-              Contatar Suporte
-            </Button>
-          </CardContent>
-        </Card>
+    <div className="space-y-6 animate-fade-in">
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight">Central de Ajuda</h2>
+        <p className="text-muted-foreground mt-2">
+          Encontre respostas para suas dúvidas mais frequentes
+        </p>
       </div>
-    </DashboardLayout>
+
+      <div className="relative">
+        <SearchIcon className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+        <Input
+          placeholder="Pesquise por ajuda..."
+          className="pl-10 bg-white"
+        />
+      </div>
+
+      <Tabs defaultValue="general">
+        <TabsList className="mb-4">
+          <TabsTrigger value="general">Geral</TabsTrigger>
+          <TabsTrigger value="events">Eventos</TabsTrigger>
+          <TabsTrigger value="billing">Pagamentos</TabsTrigger>
+          <TabsTrigger value="account">Conta</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="general">
+          <Card>
+            <CardHeader className="pb-3">
+              <h3 className="text-lg font-medium">Perguntas Frequentes</h3>
+            </CardHeader>
+            <CardContent>
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="q1">
+                  <AccordionTrigger>Como funciona a plataforma?</AccordionTrigger>
+                  <AccordionContent>
+                    Nossa plataforma conecta organizadores de eventos com prestadores de serviços. 
+                    Organize seu evento e encontre os melhores profissionais em um só lugar.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="q2">
+                  <AccordionTrigger>Como criar um evento?</AccordionTrigger>
+                  <AccordionContent>
+                    Para criar um evento, acesse a seção "Eventos" no menu lateral e clique no botão "Criar Evento".
+                    Preencha todas as informações necessárias e seu evento estará pronto para receber propostas.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="q3">
+                  <AccordionTrigger>Quanto custa usar a plataforma?</AccordionTrigger>
+                  <AccordionContent>
+                    Oferecemos planos gratuitos e pagos. O plano gratuito permite criar até 3 eventos por mês.
+                    Para mais recursos e eventos ilimitados, confira nossos planos premium.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="q4">
+                  <AccordionTrigger>Como posso me tornar um prestador de serviços?</AccordionTrigger>
+                  <AccordionContent>
+                    Ao se cadastrar, escolha a opção "Prestador de Serviços". Você poderá então
+                    configurar seu perfil, adicionar serviços e começar a receber solicitações.
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="events">
+          <Card>
+            <CardContent className="pt-6">
+              <p>Conteúdo sobre eventos estará disponível em breve.</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="billing">
+          <Card>
+            <CardContent className="pt-6">
+              <p>Conteúdo sobre pagamentos estará disponível em breve.</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="account">
+          <Card>
+            <CardContent className="pt-6">
+              <p>Conteúdo sobre contas estará disponível em breve.</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
 

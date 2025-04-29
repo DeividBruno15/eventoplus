@@ -3,6 +3,7 @@ import {
   BrowserRouter,
   Routes,
   Route,
+  Navigate,
 } from "react-router-dom";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -30,6 +31,7 @@ import Contact from "./pages/Contact";
 import { Toaster } from "./components/ui/sonner";
 import { AuthProvider } from "./hooks/useAuth";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import DashboardLayout from "./layouts/DashboardLayout";
 
 const queryClient = new QueryClient();
 
@@ -49,23 +51,25 @@ function App() {
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               
-              {/* Dashboard routes */}
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/events" element={<Events />} />
-              <Route path="/events/create" element={<CreateEvent />} />
-              <Route path="/events/:id" element={<EventDetail />} />
-              <Route path="/events/:id/edit" element={<CreateEvent />} />
-              <Route path="/chat" element={<Chat />} />
-              <Route path="/chat/:id" element={<Conversation />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/help-center" element={<HelpCenter />} />
-              <Route path="/support" element={<Support />} />
-              <Route path="/plans" element={<Plans />} />
-              <Route path="/onboarding" element={<Onboarding />} />
-              <Route path="/service-providers" element={<ServiceProviders />} />
-              <Route path="/provider/:id" element={<ProviderProfile />} />
-              <Route path="/request-quote/:id?" element={<RequestQuote />} />
+              {/* Dashboard routes - all wrapped with DashboardLayout */}
+              <Route path="/" element={<DashboardLayout />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/events" element={<Events />} />
+                <Route path="/events/create" element={<CreateEvent />} />
+                <Route path="/events/:id" element={<EventDetail />} />
+                <Route path="/events/:id/edit" element={<CreateEvent />} />
+                <Route path="/chat" element={<Chat />} />
+                <Route path="/chat/:id" element={<Conversation />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/help-center" element={<HelpCenter />} />
+                <Route path="/support" element={<Support />} />
+                <Route path="/plans" element={<Plans />} />
+                <Route path="/onboarding" element={<Onboarding />} />
+                <Route path="/service-providers" element={<ServiceProviders />} />
+                <Route path="/provider/:id" element={<ProviderProfile />} />
+                <Route path="/request-quote/:id?" element={<RequestQuote />} />
+              </Route>
               
               {/* 404 route */}
               <Route path="*" element={<NotFound />} />

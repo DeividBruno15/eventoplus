@@ -1,6 +1,6 @@
 
-import { useState, useEffect, ReactNode } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { 
   SidebarProvider, 
   Sidebar,
@@ -13,12 +13,8 @@ import { NotificationsMenu } from '@/components/layout/NotificationsMenu';
 import { SidebarNavigation } from '@/components/layout/SidebarNavigation';
 import { UserMenu } from '@/components/layout/UserMenu';
 
-interface DashboardLayoutProps {
-  children: ReactNode;
-}
-
-const DashboardLayout = ({ children }: DashboardLayoutProps) => {
-  const { session, user, loading } = useAuth();
+const DashboardLayout = () => {
+  const { session, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [activePath, setActivePath] = useState(location.pathname);
@@ -101,7 +97,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
           <main className="flex-1 p-8 bg-gray-50">
             <div className="animate-fade-in">
-              {children}
+              <Outlet />
             </div>
           </main>
         </div>
