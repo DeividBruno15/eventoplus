@@ -3,57 +3,13 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Event, ServiceRequest } from '@/types/events';
 import { toast } from 'sonner';
-import { sendProviderNotification } from './useEventNotifications';
-import { Json } from '@/integrations/supabase/types';
+import { sendProviderNotification } from '../useEventNotifications';
 import { useNavigate } from 'react-router-dom';
+import { Json } from '@/integrations/supabase/types';
 
-export const useApplicationManagement = (event: Event | null) => {
-  const [submitting, setSubmitting] = useState(false);
+export const useApplicationApproval = (event: Event | null) => {
+  const [approving, setApproving] = useState(false);
   const navigate = useNavigate();
-
-  /**
-   * Rejects an application for an event
-   */
-  const handleRejectApplication = async (applicationId: string, providerId: string): Promise<void> => {
-    if (!event) return;
-    
-    try {
-      setSubmitting(true);
-      console.log('Rejecting application:', applicationId, 'for provider:', providerId);
-      
-      // Update the application status to rejected
-      const { error } = await supabase
-        .from('event_applications')
-        .update({ status: 'rejected' })
-        .eq('id', applicationId);
-        
-      if (error) {
-        console.error('Error rejecting application:', error);
-        throw error;
-      }
-      
-      // Send notification to provider
-      try {
-        await sendProviderNotification(
-          event,
-          providerId,
-          "Candidatura rejeitada",
-          `Sua candidatura para o evento "${event.name}" não foi aprovada.`,
-          "application_rejected"
-        );
-        console.log('Rejection notification sent to provider:', providerId);
-      } catch (notificationError) {
-        console.error('Error sending rejection notification:', notificationError);
-      }
-      
-      toast.success("Candidatura rejeitada com sucesso.");
-    } catch (error: any) {
-      console.error('Erro ao rejeitar candidatura:', error);
-      toast.error(error.message || 'Ocorreu um erro ao rejeitar a candidatura');
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   /**
    * Approves an application for an event
@@ -62,7 +18,7 @@ export const useApplicationManagement = (event: Event | null) => {
     if (!event) return;
     
     try {
-      setSubmitting(true);
+      setApproving(true);
       console.log('Approving application:', applicationId, 'for provider:', providerId);
       
       // Get the application to determine which service it's for
@@ -157,34 +113,9 @@ export const useApplicationManagement = (event: Event | null) => {
         console.error('Error sending approval notification:', notificationError);
       }
       
-      // Increment the filled count for this service in service_requests
+      // Update service request filled count
       if (event.service_requests && event.service_requests.length > 0 && applicationData.service_category) {
-        // Get current service_requests
-        const updatedServiceRequests = [...event.service_requests].map(req => {
-          if (req.category === applicationData.service_category) {
-            return {
-              ...req,
-              filled: (req.filled || 0) + 1
-            };
-          }
-          return req;
-        });
-        
-        // Convert ServiceRequest[] to Json for database storage
-        const serviceRequestsJson: Json = updatedServiceRequests.map(req => ({
-          category: req.category,
-          count: req.count,
-          price: req.price,
-          filled: req.filled
-        })) as unknown as Json;
-        
-        // Update the event with the new filled count
-        await supabase
-          .from('events')
-          .update({ service_requests: serviceRequestsJson })
-          .eq('id', event.id);
-          
-        console.log('Updated service request filled count for category:', applicationData.service_category);
+        await updateServiceRequestFilledCount(event, applicationData.service_category);
       }
       
       toast.success("Candidatura aprovada! Redirecionando para o chat...");
@@ -197,13 +128,44 @@ export const useApplicationManagement = (event: Event | null) => {
       console.error('Erro ao aprovar candidatura:', error);
       toast.error(error.message || 'Ocorreu um erro ao aprovar a candidatura');
     } finally {
-      setSubmitting(false);
+      setApproving(false);
     }
   };
 
+  /**
+   * Updates the filled count for a specific service category in the event
+   */
+  const updateServiceRequestFilledCount = async (event: Event, serviceCategory: string) => {
+    // Get current service_requests
+    const updatedServiceRequests = [...event.service_requests as ServiceRequest[]].map(req => {
+      if (req.category === serviceCategory) {
+        return {
+          ...req,
+          filled: (req.filled || 0) + 1
+        };
+      }
+      return req;
+    });
+    
+    // Convert ServiceRequest[] to Json for database storage
+    const serviceRequestsJson: Json = updatedServiceRequests.map(req => ({
+      category: req.category,
+      count: req.count,
+      price: req.price,
+      filled: req.filled
+    })) as unknown as Json;
+    
+    // Update the event with the new filled count
+    await supabase
+      .from('events')
+      .update({ service_requests: serviceRequestsJson })
+      .eq('id', event.id);
+      
+    console.log('Updated service request filled count for category:', serviceCategory);
+  };
+
   return {
-    submitting, 
-    handleApproveApplication,
-    handleRejectApplication
+    approving,
+    handleApproveApplication
   };
 };

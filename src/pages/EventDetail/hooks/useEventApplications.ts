@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { Event } from '@/types/events';
-import { useApplicationManagement } from './useApplicationManagement';
+import { useApplicationManagement } from './application-management';
 import { useProviderApplications } from './useProviderApplications';
 
 export const useEventApplications = (event: Event | null) => {

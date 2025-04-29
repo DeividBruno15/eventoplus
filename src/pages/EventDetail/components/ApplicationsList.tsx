@@ -1,4 +1,3 @@
-
 import { useNavigate } from 'react-router-dom'; 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +8,7 @@ import { EventApplication } from '@/types/events';
 import { Separator } from '@/components/ui/separator';
 import { getApplicationStatusColor } from '@/lib/utils';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 interface ApplicationsListProps {
   applications: EventApplication[];
