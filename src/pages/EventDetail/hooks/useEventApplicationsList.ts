@@ -43,11 +43,12 @@ export const useEventApplicationsList = (eventId?: string, user?: User | null, u
           const providerIds = appsData.map(app => app.provider_id);
           const { data: providersData, error: providersError } = await supabase
             .from('user_profiles')
-            .select('id, first_name, last_name, email, avatar_url')
+            .select('id, first_name, last_name, avatar_url')
             .in('id', providerIds);
             
           if (providersError) {
             console.error('Error fetching provider profiles:', providersError);
+            toast.error("Erro ao carregar detalhes dos prestadores");
           }
           
           // Create a map of providers by id for easy lookup
@@ -63,7 +64,6 @@ export const useEventApplicationsList = (eventId?: string, user?: User | null, u
               id: app.provider_id,
               first_name: '', 
               last_name: '',
-              email: '',
               avatar_url: null
             }
           })) as EventApplication[];
