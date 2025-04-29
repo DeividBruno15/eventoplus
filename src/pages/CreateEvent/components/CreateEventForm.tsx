@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -57,7 +56,7 @@ export function CreateEventForm() {
       neighborhood: '',
       city: '',
       state: '',
-      service_requests: [{ category: '', count: 1 }],
+      service_requests: [{ category: '', count: 1, price: 0 }],
       image: null
     }
   });
@@ -112,12 +111,34 @@ export function CreateEventForm() {
 
   const onSubmit = async (data: CreateEventFormData) => {
     try {
+      // Verificar se todos os serviços têm categoria
+      if (data.service_requests && data.service_requests.length > 0) {
+        const hasEmptyCategory = data.service_requests.some(service => !service.category);
+        if (hasEmptyCategory) {
+          toast.error('Todos os serviços devem ter uma categoria selecionada');
+          return;
+        }
+      }
+      
+      // Validar a data do evento (não pode ser anterior a hoje)
+      if (data.event_date) {
+        const [day, month, year] = data.event_date.split('/').map(Number);
+        const selectedDate = new Date(year, month - 1, day);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        if (selectedDate < today) {
+          toast.error('A data do evento não pode ser anterior ao dia atual');
+          return;
+        }
+      }
+      
       await createEvent(data);
       toast.success('Evento criado com sucesso!');
       navigate('/events');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao criar evento:', error);
-      toast.error('Ocorreu um erro ao criar o evento. Tente novamente.');
+      toast.error(error.message || 'Ocorreu um erro ao criar o evento. Tente novamente.');
     }
   };
 

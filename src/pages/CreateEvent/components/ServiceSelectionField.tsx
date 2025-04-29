@@ -4,7 +4,7 @@ import { UseFormReturn } from 'react-hook-form';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { CreateEventFormData } from '../schema';
-import { Plus, Minus } from 'lucide-react';
+import { Plus, Minus, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -45,7 +45,7 @@ export const ServiceSelectionField = ({ form }: ServiceSelectionFieldProps) => {
 
   const addServiceRequest = () => {
     const currentServices = form.getValues('service_requests') || [];
-    form.setValue('service_requests', [...currentServices, { category: '', count: 1 }]);
+    form.setValue('service_requests', [...currentServices, { category: '', count: 1, price: 0 }]);
   };
 
   const removeServiceRequest = (index: number) => {
@@ -55,11 +55,11 @@ export const ServiceSelectionField = ({ form }: ServiceSelectionFieldProps) => {
     );
   };
 
-  const updateServiceRequest = (index: number, field: 'category' | 'count', value: string | number) => {
+  const updateServiceRequest = (index: number, field: 'category' | 'count' | 'price', value: string | number) => {
     const currentServices = [...(form.getValues('service_requests') || [])];
     currentServices[index] = {
       ...currentServices[index],
-      [field]: field === 'count' ? Number(value) : value
+      [field]: field === 'category' ? value : Number(value)
     };
     form.setValue('service_requests', currentServices);
   };
@@ -72,16 +72,6 @@ export const ServiceSelectionField = ({ form }: ServiceSelectionFieldProps) => {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <Label>Serviços Necessários</Label>
-        <Button 
-          type="button" 
-          size="sm" 
-          variant="outline" 
-          onClick={addServiceRequest}
-          className="flex items-center gap-1"
-        >
-          <Plus className="h-4 w-4" />
-          Adicionar Serviço
-        </Button>
       </div>
 
       {serviceRequests.length === 0 ? (
@@ -148,6 +138,21 @@ export const ServiceSelectionField = ({ form }: ServiceSelectionFieldProps) => {
                 </div>
               </div>
               
+              <div className="w-32">
+                <div className="flex items-center relative">
+                  <DollarSign className="h-4 w-4 absolute left-2 text-muted-foreground" />
+                  <Input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    placeholder="Valor"
+                    value={service.price || ""}
+                    onChange={(e) => updateServiceRequest(index, 'price', parseFloat(e.target.value) || 0)}
+                    className="h-8 pl-7"
+                  />
+                </div>
+              </div>
+              
               <Button 
                 type="button"
                 size="icon"
@@ -161,6 +166,18 @@ export const ServiceSelectionField = ({ form }: ServiceSelectionFieldProps) => {
           ))}
         </div>
       )}
+
+      {/* Botão Adicionar Serviço sempre no final */}
+      <Button 
+        type="button" 
+        size="sm" 
+        variant="outline" 
+        onClick={addServiceRequest}
+        className="flex items-center gap-1 w-full justify-center"
+      >
+        <Plus className="h-4 w-4" />
+        Adicionar Serviço
+      </Button>
     </div>
   );
 };

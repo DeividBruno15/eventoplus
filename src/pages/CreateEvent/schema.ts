@@ -17,6 +17,7 @@ export const createEventSchema = z.object({
     z.object({
       category: z.string(),
       count: z.number().min(1, "A quantidade deve ser pelo menos 1"),
+      price: z.number().optional().default(0),
       filled: z.number().optional().default(0)
     })
   ).optional(),

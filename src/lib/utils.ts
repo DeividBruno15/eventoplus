@@ -22,6 +22,22 @@ export const formatDate = (date: Date) => {
   });
 };
 
+export const formatDateInput = (value: string): string => {
+  let cleaned = value.replace(/\D/g, '');
+  
+  if (cleaned.length > 8) {
+    cleaned = cleaned.substring(0, 8);
+  }
+  
+  if (cleaned.length > 4) {
+    return cleaned.replace(/(\d{2})(\d{2})(\d+)/, '$1/$2/$3');
+  } else if (cleaned.length > 2) {
+    return cleaned.replace(/(\d{2})(\d+)/, '$1/$2');
+  }
+  
+  return cleaned;
+};
+
 export const getStatusColor = (status: EventStatus) => {
   switch (status) {
     case 'draft':
