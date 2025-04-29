@@ -4,12 +4,15 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input';
 import { CreateEventFormData } from '@/types/events';
 import { formatDateInput, isDateBeforeToday } from '@/lib/utils';
+import { useState } from 'react';
 
 interface BasicEventFieldsProps {
   form: UseFormReturn<CreateEventFormData>;
 }
 
 export const BasicEventFields = ({ form }: BasicEventFieldsProps) => {
+  const [dateError, setDateError] = useState<string | null>(null);
+  
   // Formata a data enquanto o usuário digita e adiciona "/" automaticamente
   const handleDateInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formattedValue = formatDateInput(e.target.value);
@@ -26,8 +29,10 @@ export const BasicEventFields = ({ form }: BasicEventFieldsProps) => {
         type: 'manual', 
         message: 'A data do evento não pode ser anterior ao dia atual' 
       });
+      setDateError('A data do evento não pode ser anterior ao dia atual');
     } else {
       form.clearErrors('event_date');
+      setDateError(null);
     }
   };
 
@@ -69,6 +74,9 @@ export const BasicEventFields = ({ form }: BasicEventFieldsProps) => {
                 />
               </FormControl>
               <FormMessage />
+              {dateError && !form.formState.errors.event_date && (
+                <p className="text-sm font-medium text-destructive">{dateError}</p>
+              )}
             </FormItem>
           )}
         />

@@ -5,6 +5,7 @@ import { CreateEventFormData, Event, ServiceRequest } from '@/types/events';
 import { useAuth } from '@/hooks/useAuth';
 import { v4 as uuidv4 } from 'uuid';
 import { Json } from '@/integrations/supabase/types';
+import { toast } from 'sonner';
 
 export const useCreateEvent = () => {
   const [loading, setLoading] = useState(false);
@@ -148,7 +149,7 @@ export const useCreateEvent = () => {
         }
       }
       
-      // Prepare event object for saving
+      // Prepare event object for saving - removed city and other fields that don't exist in the schema
       const eventToSave = {
         name: eventData.name,
         description: eventData.description,
@@ -156,11 +157,6 @@ export const useCreateEvent = () => {
         event_time: eventData.event_time,
         location: formattedAddress,
         zipcode: eventData.zipcode,
-        street: eventData.street,
-        number: eventData.number,
-        neighborhood: eventData.neighborhood,
-        city: eventData.city,
-        state: eventData.state,
         service_requests: prepareServiceRequestsForStorage(eventData.service_requests),
         image_url: imageUrl,
         contractor_id: user.id,
