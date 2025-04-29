@@ -1,4 +1,3 @@
-
 export interface UserCompany {
   id: string;
   user_id: string;
@@ -30,6 +29,7 @@ export interface UserProfile {
   number?: string | null;
   neighborhood?: string | null;
   companies?: UserCompany[];
+  email?: string;
 }
 
 export interface UserProfileWithRating extends UserProfile {
