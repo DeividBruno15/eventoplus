@@ -1,8 +1,6 @@
 
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
 import { Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,6 +11,7 @@ import { useEventDetails } from './hooks/useEventDetails';
 import { useEventApplications } from './hooks/useEventApplications';
 import { ImageUpload } from './components/ImageUpload';
 import { DeleteEvent } from './components/DeleteEvent';
+import DashboardLayout from '@/layouts/DashboardLayout';
 
 const EventDetail = () => {
   const { id } = useParams();
@@ -38,20 +37,17 @@ const EventDetail = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col bg-page">
-        <Navbar />
-        <div className="container mx-auto px-4 py-8 flex-grow flex items-center justify-center">
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[50vh]">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
-        <Footer />
-      </div>
+      </DashboardLayout>
     );
   }
 
   if (!event) {
     return (
-      <div className="min-h-screen flex flex-col bg-page">
-        <Navbar />
+      <DashboardLayout>
         <div className="container mx-auto px-4 py-8 flex-grow">
           <Card className="text-center py-16">
             <CardContent>
@@ -65,14 +61,12 @@ const EventDetail = () => {
             </CardContent>
           </Card>
         </div>
-        <Footer />
-      </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-page">
-      <Navbar />
+    <DashboardLayout>
       <div className="container mx-auto px-4 py-8 flex-grow">
         <div className="space-y-6">
           <div className="bg-white rounded-lg shadow-sm overflow-hidden">
@@ -116,8 +110,7 @@ const EventDetail = () => {
           </div>
         </div>
       </div>
-      <Footer />
-    </div>
+    </DashboardLayout>
   );
 };
 

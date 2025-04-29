@@ -41,6 +41,17 @@ export const DeleteEvent = ({ event, userId }: DeleteEventProps) => {
     try {
       setDeleting(true);
       
+      // Delete all applications for this event first
+      const { error: applicationsError } = await supabase
+        .from('event_applications')
+        .delete()
+        .eq('event_id', event.id);
+        
+      if (applicationsError) {
+        console.error("Error deleting applications:", applicationsError);
+      }
+      
+      // Delete the event itself
       const { error } = await supabase
         .from('events')
         .delete()
@@ -61,7 +72,7 @@ export const DeleteEvent = ({ event, userId }: DeleteEventProps) => {
         description: error.message,
         variant: "destructive"
       });
-      console.error(error);
+      console.error("Delete error:", error);
     } finally {
       setIsOpen(false);
       setDeleting(false);

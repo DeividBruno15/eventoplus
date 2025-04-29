@@ -51,16 +51,26 @@ export const useEventDetails = ({ id, user: passedUser }: EventDetailsProps): Ev
 
   const fetchData = async () => {
     try {
-      // Get user role
+      setLoading(true);
+      console.log("Fetching event details for ID:", id);
+      
+      // Get user role from user_metadata or from the database
       if (user) {
-        const { data: userProfileData } = await supabase
-          .from('user_profiles')
-          .select('role')
-          .eq('id', user.id)
-          .single();
-        
-        if (userProfileData) {
-          setUserRole(userProfileData.role as 'provider' | 'contractor');
+        const userRole = user.user_metadata?.role;
+        if (userRole) {
+          setUserRole(userRole as 'provider' | 'contractor');
+          console.log("User role from metadata:", userRole);
+        } else {
+          const { data: userProfileData } = await supabase
+            .from('user_profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single();
+          
+          if (userProfileData) {
+            setUserRole(userProfileData.role as 'provider' | 'contractor');
+            console.log("User role from database:", userProfileData.role);
+          }
         }
       }
       
@@ -86,6 +96,7 @@ export const useEventDetails = ({ id, user: passedUser }: EventDetailsProps): Ev
           } as Event;
           
           setEvent(typedEvent);
+          console.log("Event data fetched:", typedEvent);
         }
         
         // Fetch applications for this event
@@ -101,10 +112,11 @@ export const useEventDetails = ({ id, user: passedUser }: EventDetailsProps): Ev
           if (userAppData) {
             setUserHasApplied(true);
             setUserApplication(userAppData as EventApplication);
+            console.log("User has applied to this event:", userAppData);
           }
           
           // For contractors, fetch all applications for this event
-          if (userRole === 'contractor' && eventData?.contractor_id === user.id) {
+          if ((userRole === 'contractor' || user.user_metadata?.role === 'contractor') && eventData?.contractor_id === user.id) {
             const { data: appsData } = await supabase
               .from('event_applications')
               .select(`
@@ -125,6 +137,7 @@ export const useEventDetails = ({ id, user: passedUser }: EventDetailsProps): Ev
               })) as EventApplication[];
               
               setApplications(typedApplications);
+              console.log("Applications fetched:", typedApplications.length);
             }
           }
         }

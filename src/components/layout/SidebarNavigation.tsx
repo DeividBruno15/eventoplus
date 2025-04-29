@@ -1,3 +1,4 @@
+
 import { 
   LayoutDashboard, 
   User, 
@@ -14,12 +15,10 @@ import {
   SidebarMenuButton 
 } from '@/components/ui/sidebar';
 import { Link, useLocation } from 'react-router-dom';
-import { useSession } from '@/contexts/SessionContext';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/components/ui/use-toast';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { Badge } from '@/components/ui/badge';
 
 type MenuItem = {
   path: string;
@@ -34,16 +33,20 @@ type SidebarNavigationProps = {
 
 export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationProps) => {
   const location = useLocation();
-  const { session } = useSession();
-  const { logout } = useAuth();
+  const { session, user, logout } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   
-  const user = session?.user;
   const firstName = user?.user_metadata?.first_name || '';
   const lastName = user?.user_metadata?.last_name || '';
   const avatarUrl = user?.user_metadata?.avatar_url;
-  const initials = firstName && lastName ? `${firstName[0]}${lastName[0]}` : 'U';
+  // Fix: Generate initials correctly from first and last name
+  const initials = firstName && lastName 
+    ? `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase() 
+    : firstName 
+      ? firstName.charAt(0).toUpperCase() 
+      : 'U';
+      
   const userRole = user?.user_metadata?.role || 'contractor';
 
   const getRoleLabel = (role: string) => {
@@ -54,17 +57,6 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
         return 'Prestador';
       default:
         return 'Usuário';
-    }
-  };
-
-  const getRoleColor = (role: string) => {
-    switch(role) {
-      case 'contractor':
-        return 'bg-blue-100 text-blue-800';
-      case 'provider':
-        return 'bg-green-100 text-green-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
     }
   };
 
