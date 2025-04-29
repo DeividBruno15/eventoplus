@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Event, ServiceRequest } from '@/types/events';
@@ -7,7 +6,7 @@ import { sendProviderNotification } from '../useEventNotifications';
 import { useNavigate } from 'react-router-dom';
 import { Json } from '@/integrations/supabase/types';
 
-export const useApplicationApproval = (event: Event | null) => {
+export const useApplicationApproval = (event: Event | null, updateApplicationStatus?: (applicationId: string, status: 'accepted') => void) => {
   const [approving, setApproving] = useState(false);
   const navigate = useNavigate();
 
@@ -33,6 +32,30 @@ export const useApplicationApproval = (event: Event | null) => {
         throw appError;
       }
       
+      // Check if this application is already accepted
+      if (applicationData.status === 'accepted') {
+        // Check if a conversation already exists between these users
+        const { data: existingConversation } = await supabase
+          .from('conversation_participants')
+          .select('conversation_id')
+          .eq('user_id', event.contractor_id)
+          .in('conversation_id', function(builder: any) {
+            builder
+              .select('conversation_id')
+              .from('conversation_participants')
+              .eq('user_id', providerId);
+          })
+          .single();
+          
+        if (existingConversation) {
+          // Redirect to existing conversation
+          toast.info("Redirecionando para conversa existente...");
+          navigate('/chat');
+          return;
+        }
+        // Otherwise, continue to create a new conversation
+      }
+      
       // Approve this application
       const { error } = await supabase
         .from('event_applications')
@@ -42,6 +65,11 @@ export const useApplicationApproval = (event: Event | null) => {
       if (error) {
         console.error('Error approving application:', error);
         throw error;
+      }
+      
+      // Update local state to reflect the change immediately
+      if (updateApplicationStatus) {
+        updateApplicationStatus(applicationId, 'accepted');
       }
       
       // Mark other applications as rejected for this service category if specified
@@ -75,29 +103,61 @@ export const useApplicationApproval = (event: Event | null) => {
         console.log('Updated event status to published');
       }
       
-      // Create a conversation for them to chat
-      const { data: conversation, error: conversationError } = await supabase
-        .from('conversations')
-        .insert({
-          service_request_id: null
-        })
-        .select()
-        .single();
+      // Check if a conversation already exists between these users
+      const { data: existingConversations } = await supabase
+        .from('conversation_participants')
+        .select('conversation_id')
+        .eq('user_id', event.contractor_id);
+        
+      let existingConversationId = null;
       
-      if (conversationError) {
-        console.error('Error creating conversation:', conversationError);
-        throw conversationError;
+      if (existingConversations && existingConversations.length > 0) {
+        const contractorConversationIds = existingConversations.map(c => c.conversation_id);
+        
+        const { data: providerConversations } = await supabase
+          .from('conversation_participants')
+          .select('conversation_id')
+          .eq('user_id', providerId)
+          .in('conversation_id', contractorConversationIds);
+          
+        if (providerConversations && providerConversations.length > 0) {
+          existingConversationId = providerConversations[0].conversation_id;
+        }
       }
       
-      // Add both participants to the conversation
-      await supabase
-        .from('conversation_participants')
-        .insert([
-          { conversation_id: conversation.id, user_id: event.contractor_id },
-          { conversation_id: conversation.id, user_id: providerId }
-        ]);
+      // Create a conversation only if one doesn't exist
+      let conversationId;
+      
+      if (existingConversationId) {
+        conversationId = existingConversationId;
+        console.log('Using existing conversation:', conversationId);
+      } else {
+        // Create a new conversation
+        const { data: conversation, error: conversationError } = await supabase
+          .from('conversations')
+          .insert({
+            service_request_id: null
+          })
+          .select()
+          .single();
         
-      console.log('Created conversation and added participants');
+        if (conversationError) {
+          console.error('Error creating conversation:', conversationError);
+          throw conversationError;
+        }
+        
+        conversationId = conversation.id;
+        
+        // Add both participants to the conversation
+        await supabase
+          .from('conversation_participants')
+          .insert([
+            { conversation_id: conversationId, user_id: event.contractor_id },
+            { conversation_id: conversationId, user_id: providerId }
+          ]);
+          
+        console.log('Created conversation and added participants');
+      }
       
       // Send notification to provider
       try {

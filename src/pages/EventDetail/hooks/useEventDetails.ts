@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, useCallback } from 'react';
 import { Event, EventApplication } from '@/types/events';
 import { User } from '@supabase/supabase-js';
 import { useAuth } from '@/hooks/useAuth';
@@ -20,6 +21,7 @@ interface EventDetailsState {
   userHasApplied: boolean;
   userApplication: EventApplication | null;
   refetchEvent: () => Promise<void>;
+  updateApplicationStatus: (applicationId: string, status: 'accepted' | 'rejected') => void;
 }
 
 /**
@@ -33,7 +35,7 @@ export const useEventDetails = ({ id, user: passedUser }: EventDetailsProps): Ev
   const { event, loading, refetchEvent } = useEventData(id);
   const { userRole } = useEventUserRole(user);
   const { userHasApplied, userApplication } = useUserApplication(id, user);
-  const { applications } = useEventApplicationsList(id, user, userRole);
+  const { applications, updateApplicationStatus } = useEventApplicationsList(id, user, userRole);
 
   return {
     event,
@@ -42,6 +44,7 @@ export const useEventDetails = ({ id, user: passedUser }: EventDetailsProps): Ev
     loading,
     userHasApplied,
     userApplication,
-    refetchEvent
+    refetchEvent,
+    updateApplicationStatus
   };
 };

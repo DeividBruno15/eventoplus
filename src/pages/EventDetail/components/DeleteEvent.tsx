@@ -56,10 +56,8 @@ export const DeleteEvent = ({ event, userId }: DeleteEventProps) => {
       
       toast.success("Evento excluído com sucesso");
       
-      // Navigate to events page after short delay
-      setTimeout(() => {
-        navigate('/events');
-      }, 1000);
+      // Navigate to events page immediately
+      navigate('/events');
       
     } catch (error: any) {
       toast.error(`Erro ao excluir evento: ${error.message}`);

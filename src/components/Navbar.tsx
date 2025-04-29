@@ -83,9 +83,13 @@ const Navbar = () => {
                 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Avatar className="cursor-pointer h-10 w-10">
+                    <Avatar className="cursor-pointer h-10 w-10 border border-gray-200">
                       {avatarUrl ? (
-                        <AvatarImage src={avatarUrl} alt={`${firstName} ${lastName}`} />
+                        <AvatarImage 
+                          src={avatarUrl} 
+                          alt={`${firstName} ${lastName}`} 
+                          className="object-cover"
+                        />
                       ) : (
                         <AvatarFallback className="bg-primary text-primary-foreground">
                           {getInitials()}

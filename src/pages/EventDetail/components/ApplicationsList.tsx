@@ -1,3 +1,4 @@
+
 import { useNavigate } from 'react-router-dom'; 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -31,7 +32,7 @@ export const ApplicationsList = ({
   console.log("Applications in ApplicationsList:", applications);
   
   const handleViewProfile = (providerId: string) => {
-    navigate(`/provider-profile/${providerId}`);
+    navigate(`/profile/${providerId}`);
   };
   
   const handleRejectApplication = async (applicationId: string, providerId: string) => {
@@ -51,7 +52,6 @@ export const ApplicationsList = ({
     setActionInProgress(applicationId);
     try {
       await onApprove(applicationId, providerId);
-      // Navigation to chat will happen in the onApprove handler itself
     } finally {
       setActionInProgress(null);
     }
@@ -81,26 +81,31 @@ export const ApplicationsList = ({
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center">
-                    <Avatar className="h-10 w-10 mr-3">
-                      {app.provider?.avatar_url ? (
-                        <AvatarImage 
-                          src={app.provider.avatar_url} 
-                          alt={app.provider?.first_name || 'Provider'} 
-                        />
-                      ) : (
-                        <AvatarFallback className="bg-primary text-primary-foreground">
-                          {getProviderInitials(app)}
-                        </AvatarFallback>
-                      )}
-                    </Avatar>
-                    <div>
-                      <span className="font-medium">
-                        {app.provider ? `${app.provider.first_name} ${app.provider.last_name || ''}` : 'Usuário'}
-                      </span>
-                      <p className="text-xs text-muted-foreground">
-                        {app.service_category && <span className="px-1.5 py-0.5 bg-primary/10 text-primary rounded-full text-xs">{app.service_category}</span>}
-                      </p>
-                    </div>
+                    <a 
+                      className="flex items-center cursor-pointer" 
+                      onClick={() => handleViewProfile(app.provider_id)}
+                    >
+                      <Avatar className="h-10 w-10 mr-3">
+                        {app.provider?.avatar_url ? (
+                          <AvatarImage 
+                            src={app.provider.avatar_url} 
+                            alt={app.provider?.first_name || 'Provider'} 
+                          />
+                        ) : (
+                          <AvatarFallback className="bg-primary text-primary-foreground">
+                            {getProviderInitials(app)}
+                          </AvatarFallback>
+                        )}
+                      </Avatar>
+                      <div>
+                        <span className="font-medium hover:underline">
+                          {app.provider ? `${app.provider.first_name} ${app.provider.last_name || ''}` : 'Usuário'}
+                        </span>
+                        <p className="text-xs text-muted-foreground">
+                          {app.service_category && <span className="px-1.5 py-0.5 bg-primary/10 text-primary rounded-full text-xs">{app.service_category}</span>}
+                        </p>
+                      </div>
+                    </a>
                   </div>
                   <Badge 
                     variant="outline" 
@@ -117,15 +122,6 @@ export const ApplicationsList = ({
                 </p>
                 
                 <div className="flex flex-wrap gap-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleViewProfile(app.provider_id)}
-                  >
-                    <User className="h-4 w-4 mr-1" />
-                    Ver perfil completo
-                  </Button>
-                
                   {app.status === 'pending' && (eventStatus === 'open' || eventStatus === 'published') && (
                     <>
                       <Button 

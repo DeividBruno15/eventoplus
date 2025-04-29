@@ -85,7 +85,7 @@ export default function Messages({ messages, currentUserId }: MessagesProps) {
                     >
                       <p className="whitespace-pre-line text-[15px]">{message.message}</p>
                       <div 
-                        className={`text-[11px] mt-1 ${
+                        className={`text-[11px] mt-1 text-right ${
                           isMine ? 'text-primary-foreground/70' : 'text-gray-400'
                         }`}
                       >
@@ -102,4 +102,4 @@ export default function Messages({ messages, currentUserId }: MessagesProps) {
       </div>
     </div>
   );
-}
+};

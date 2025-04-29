@@ -9,7 +9,8 @@ import {
   HelpCircle,
   LifeBuoy,
   LogOut,
-  RefreshCcw
+  RefreshCcw,
+  Bell
 } from 'lucide-react';
 import { 
   SidebarMenu, 
@@ -20,6 +21,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from '@/components/ui/use-toast';
+import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
@@ -36,6 +38,7 @@ type MenuItem = {
   path: string;
   name: string;
   icon: React.ElementType;
+  badge?: number;
 }
 
 type SidebarNavigationProps = {
@@ -49,6 +52,7 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
   const { toast: toastUI } = useToast();
   const [switchingRole, setSwitchingRole] = useState(false);
   const [showRoleDialog, setShowRoleDialog] = useState(false);
+  const [unreadMessages, setUnreadMessages] = useState(0);
   
   const firstName = user?.user_metadata?.first_name || '';
   const lastName = user?.user_metadata?.last_name || '';
@@ -106,6 +110,63 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
     
     checkUserRoles();
   }, [user]);
+  
+  // Check for unread messages
+  useEffect(() => {
+    const checkUnreadMessages = async () => {
+      if (!user) return;
+      
+      try {
+        // Get all conversations the user is part of
+        const { data: participantData } = await supabase
+          .from('conversation_participants')
+          .select('conversation_id')
+          .eq('user_id', user.id);
+          
+        if (!participantData || participantData.length === 0) return;
+        
+        const conversationIds = participantData.map(p => p.conversation_id);
+        
+        // Get unread messages count
+        const { count, error } = await supabase
+          .from('chat_messages')
+          .select('*', { count: 'exact' })
+          .in('conversation_id', conversationIds)
+          .eq('read', false)
+          .neq('sender_id', user.id);
+          
+        if (error) {
+          console.error('Error getting unread messages:', error);
+          return;
+        }
+        
+        setUnreadMessages(count || 0);
+      } catch (error) {
+        console.error('Error checking unread messages:', error);
+      }
+    };
+    
+    checkUnreadMessages();
+    
+    // Subscribe to new messages
+    const channel = supabase
+      .channel('chat_messages_changes')
+      .on('postgres_changes', 
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'chat_messages',
+        },
+        () => {
+          checkUnreadMessages();
+        }
+      )
+      .subscribe();
+      
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
 
   const getRoleLabel = (role: string) => {
     switch(role) {
@@ -159,7 +220,7 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
     { path: '/dashboard', name: 'Dashboard', icon: LayoutDashboard },
     { path: '/profile', name: 'Perfil', icon: User },
     { path: '/events', name: 'Eventos', icon: Calendar },
-    { path: '/chat', name: 'Chat', icon: MessagesSquare },
+    { path: '/chat', name: 'Chat', icon: MessagesSquare, badge: unreadMessages },
     { path: '/settings', name: 'Configurações', icon: Settings },
   ];
 
@@ -213,9 +274,18 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
             }`}
           >
             <div className="flex items-center gap-3 w-full">
-              <Icon className={`h-5 w-5 transition-transform duration-300 ${
-                isActive ? 'scale-110 text-primary' : 'text-gray-500'
-              }`} />
+              <div className="relative">
+                <Icon className={`h-5 w-5 transition-transform duration-300 ${
+                  isActive ? 'scale-110 text-primary' : 'text-gray-500'
+                }`} />
+                {item.badge && item.badge > 0 && (
+                  <span className="absolute -top-1 -right-1">
+                    <Badge className="h-4 w-4 p-0 flex items-center justify-center bg-red-500 text-white text-[10px]">
+                      {item.badge > 99 ? '99+' : item.badge}
+                    </Badge>
+                  </span>
+                )}
+              </div>
               <span>{item.name}</span>
             </div>
           </SidebarMenuButton>
@@ -230,7 +300,11 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
         <div className="flex flex-col items-center text-center">
           <Avatar className="h-20 w-20 mb-3">
             {avatarUrl ? (
-              <AvatarImage src={avatarUrl} alt={`${firstName} ${lastName}`} />
+              <AvatarImage 
+                src={avatarUrl} 
+                alt={`${firstName} ${lastName}`} 
+                className="object-cover"
+              />
             ) : (
               <AvatarFallback className="bg-primary text-primary-foreground">{initials}</AvatarFallback>
             )}

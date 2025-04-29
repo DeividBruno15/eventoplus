@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { EventApplication } from '@/types/events';
 import { User } from '@supabase/supabase-js';
 import { useFetchApplications } from './useFetchApplications';
@@ -10,6 +10,15 @@ import { useFetchApplications } from './useFetchApplications';
 export const useEventApplicationsList = (eventId?: string, user?: User | null, userRole?: 'provider' | 'contractor' | null) => {
   const [applications, setApplications] = useState<EventApplication[]>([]);
   const { loading, fetchApplications } = useFetchApplications();
+  
+  // Function to update application status locally
+  const updateApplicationStatus = useCallback((applicationId: string, status: 'accepted' | 'rejected') => {
+    setApplications(prevApplications => 
+      prevApplications.map(app => 
+        app.id === applicationId ? { ...app, status } : app
+      )
+    );
+  }, []);
   
   useEffect(() => {
     const getApplications = async () => {
@@ -25,7 +34,7 @@ export const useEventApplicationsList = (eventId?: string, user?: User | null, u
     };
     
     getApplications();
-  }, [eventId, user, userRole]);
+  }, [eventId, user, userRole, fetchApplications]);
   
-  return { applications, loading };
+  return { applications, loading, updateApplicationStatus };
 };

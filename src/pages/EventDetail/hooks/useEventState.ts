@@ -16,7 +16,8 @@ export const useEventState = () => {
     loading, 
     userHasApplied, 
     userApplication,
-    refetchEvent 
+    refetchEvent,
+    updateApplicationStatus
   } = useEventDetails({ id, user });
   
   const { 
@@ -25,7 +26,7 @@ export const useEventState = () => {
     handleApproveApplication,
     handleCancelApplication,
     handleRejectApplication
-  } = useEventApplications(event);
+  } = useEventApplications(event, updateApplicationStatus);
   
   console.log("Applications in useEventState:", applications);
 
