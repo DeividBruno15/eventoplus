@@ -6,7 +6,7 @@ export type ApplicationStatus = 'pending' | 'accepted' | 'rejected';
 export interface ServiceRequest {
   category: string;
   count: number;
-  price?: number; // Adicionando o campo de preço
+  price?: number;
   filled?: number;
 }
 
@@ -47,4 +47,20 @@ export interface CreateEventFormData {
   state: string;
   service_requests?: ServiceRequest[];
   image: File | null | string;
+}
+
+export interface EventApplication {
+  id: string;
+  event_id: string;
+  provider_id: string;
+  message: string;
+  status: ApplicationStatus;
+  created_at: string;
+  updated_at?: string | null;
+  service_category?: string | null;
+  provider?: {
+    first_name: string;
+    last_name: string;
+    email?: string;
+  };
 }
