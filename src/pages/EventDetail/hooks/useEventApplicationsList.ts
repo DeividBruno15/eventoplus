@@ -25,18 +25,10 @@ export const useEventApplicationsList = (eventId?: string, user?: User | null, u
         setLoading(true);
         console.log("Fetching applications for contractor:", user.id);
         
+        // First get applications
         const { data: appsData, error: appsError } = await supabase
           .from('event_applications')
-          .select(`
-            *,
-            provider:user_profiles!provider_id (
-              id,
-              first_name, 
-              last_name,
-              email,
-              avatar_url
-            )
-          `)
+          .select('*')
           .eq('event_id', eventId)
           .order('created_at', { ascending: false });
           
@@ -46,11 +38,29 @@ export const useEventApplicationsList = (eventId?: string, user?: User | null, u
           return;
         }
         
-        if (appsData) {
+        if (appsData && appsData.length > 0) {
+          // Now fetch provider details for each application
+          const providerIds = appsData.map(app => app.provider_id);
+          const { data: providersData, error: providersError } = await supabase
+            .from('user_profiles')
+            .select('id, first_name, last_name, email, avatar_url')
+            .in('id', providerIds);
+            
+          if (providersError) {
+            console.error('Error fetching provider profiles:', providersError);
+          }
+          
+          // Create a map of providers by id for easy lookup
+          const providersMap = (providersData || []).reduce((map, provider) => {
+            map[provider.id] = provider;
+            return map;
+          }, {} as Record<string, any>);
+          
+          // Map applications with their provider details
           const typedApplications = appsData.map(app => ({
             ...app,
-            provider: app.provider || { 
-              id: '',
+            provider: providersMap[app.provider_id] || { 
+              id: app.provider_id,
               first_name: '', 
               last_name: '',
               email: '',
@@ -60,9 +70,12 @@ export const useEventApplicationsList = (eventId?: string, user?: User | null, u
           
           setApplications(typedApplications);
           console.log("Applications fetched:", typedApplications);
+        } else {
+          setApplications([]);
         }
       } catch (error) {
         console.error('Error in fetchApplications:', error);
+        toast.error("Erro ao carregar candidaturas");
       } finally {
         setLoading(false);
       }
@@ -71,5 +84,5 @@ export const useEventApplicationsList = (eventId?: string, user?: User | null, u
     fetchApplications();
   }, [eventId, user, userRole]);
   
-  return { applications };
+  return { applications, loading };
 };

@@ -58,7 +58,7 @@ export const useProviderApplications = (event: Event | null) => {
       // Log what we're trying to insert for debugging
       console.log('Attempting to insert application data:', applicationData);
       
-      // Explicitly define the return type with service_category
+      // Insert the application
       const { data, error } = await supabase
         .from('event_applications')
         .insert(applicationData)
@@ -71,8 +71,16 @@ export const useProviderApplications = (event: Event | null) => {
       
       console.log('Application submitted successfully:', data);
       
-      // Send notification to event owner
+      // Make sure we have the contractor_id
+      if (!event.contractor_id) {
+        console.error('Missing contractor_id - cannot send notification');
+        throw new Error('Dados do contratante não disponíveis');
+      }
+      
+      // Send notification to event owner - with extra error handling
       try {
+        console.log("Sending notification to contractor:", event.contractor_id);
+        
         await sendApplicationNotification(
           event,
           event.contractor_id,
@@ -80,6 +88,7 @@ export const useProviderApplications = (event: Event | null) => {
           `Você recebeu uma nova candidatura para o evento "${event.name}"`,
           "new_application"
         );
+        
         console.log('Notification sent to contractor:', event.contractor_id);
       } catch (notificationError) {
         console.error('Error sending notification:', notificationError);

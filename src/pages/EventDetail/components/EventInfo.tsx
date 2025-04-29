@@ -8,47 +8,12 @@ import { Separator } from '@/components/ui/separator';
 import { Calendar, Clock, MapPin, Users } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { supabase } from '@/integrations/supabase/client';
 
 interface EventInfoProps {
   event: Event;
 }
 
-interface ContractorProfile {
-  id: string;
-  first_name: string;
-  last_name: string;
-  avatar_url?: string | null;
-}
-
 export const EventInfo = ({ event }: EventInfoProps) => {
-  const [contractor, setContractor] = useState<ContractorProfile | null>(null);
-  
-  useEffect(() => {
-    const fetchContractorProfile = async () => {
-      if (!event?.contractor_id) return;
-      
-      try {
-        const { data, error } = await supabase
-          .from('user_profiles')
-          .select('id, first_name, last_name, avatar_url')
-          .eq('id', event.contractor_id)
-          .single();
-        
-        if (error) {
-          console.error('Error fetching contractor profile:', error);
-          return;
-        }
-        
-        setContractor(data as ContractorProfile);
-      } catch (error) {
-        console.error('Error in fetchContractorProfile:', error);
-      }
-    };
-    
-    fetchContractorProfile();
-  }, [event]);
-  
   const formattedDate = event.event_date 
     ? format(parseISO(event.event_date), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
     : 'Data não definida';
@@ -56,6 +21,9 @@ export const EventInfo = ({ event }: EventInfoProps) => {
   const getInitials = (first: string = '', last: string = '') => {
     return `${first.charAt(0)}${last.charAt(0)}`.toUpperCase();
   };
+  
+  // Use the contractor data directly from the event
+  const contractor = event.contractor;
   
   return (
     <div>

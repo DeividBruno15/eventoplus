@@ -32,6 +32,7 @@ export const EventActionPanel = ({
   console.log("Current user role:", userRole);
   console.log("Event contractor ID:", event.contractor_id);
   console.log("Current user ID:", userId);
+  console.log("Is user the event contractor?", event.contractor_id === userId);
   
   return (
     <div className="grid gap-6 lg:grid-cols-2">
@@ -46,8 +47,7 @@ export const EventActionPanel = ({
         </div>
       )}
       
-      {userRole === 'contractor' && 
-       event.contractor_id === userId && (
+      {userId === event.contractor_id && (
         <div>
           <ApplicationsList 
             applications={applications}

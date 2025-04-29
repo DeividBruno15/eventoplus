@@ -8,7 +8,6 @@ import { Loader2, User, Check, X } from 'lucide-react';
 import { EventApplication } from '@/types/events';
 import { Separator } from '@/components/ui/separator';
 import { getApplicationStatusColor } from '@/lib/utils';
-import { supabase } from '@/integrations/supabase/client';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
@@ -28,45 +27,8 @@ export const ApplicationsList = ({
   eventStatus 
 }: ApplicationsListProps) => {
   const navigate = useNavigate();
-  const [providerProfiles, setProviderProfiles] = useState<Record<string, {
-    avatar_url?: string | null;
-    service_categories?: string[] | null;
-  }>>({});
   
   console.log("Applications in ApplicationsList:", applications);
-  
-  // Fetch provider profiles with avatars
-  useEffect(() => {
-    const fetchProviderProfiles = async () => {
-      if (!applications.length) return;
-      
-      const providerIds = applications.map(app => app.provider_id);
-      
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('id, avatar_url')
-        .in('id', providerIds);
-        
-      if (error) {
-        console.error('Error fetching provider profiles:', error);
-        return;
-      }
-      
-      const profiles = data.reduce((acc, profile) => {
-        acc[profile.id] = {
-          avatar_url: profile.avatar_url,
-        };
-        return acc;
-      }, {} as Record<string, {
-        avatar_url?: string | null;
-        service_categories?: string[] | null;
-      }>);
-      
-      setProviderProfiles(profiles);
-    };
-    
-    fetchProviderProfiles();
-  }, [applications]);
   
   const handleViewProfile = (providerId: string) => {
     navigate(`/provider-profile/${providerId}`);
@@ -102,9 +64,9 @@ export const ApplicationsList = ({
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center">
                     <Avatar className="h-10 w-10 mr-3">
-                      {providerProfiles[app.provider_id]?.avatar_url ? (
+                      {app.provider?.avatar_url ? (
                         <AvatarImage 
-                          src={providerProfiles[app.provider_id].avatar_url || ''} 
+                          src={app.provider.avatar_url} 
                           alt={app.provider?.first_name || 'Provider'} 
                         />
                       ) : (

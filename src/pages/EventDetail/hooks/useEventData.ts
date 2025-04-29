@@ -39,18 +39,10 @@ export const useEventData = (id?: string) => {
       
       console.log("Fetching event details for ID:", id);
       
-      // Fetch event details with contractor information joined
+      // First fetch the event details without trying to join with contractor to ensure we get the data
       const { data: eventData, error: eventError } = await supabase
         .from('events')
-        .select(`
-          *,
-          contractor:user_profiles!contractor_id(
-            id,
-            first_name,
-            last_name,
-            avatar_url
-          )
-        `)
+        .select('*')
         .eq('id', id)
         .single();
         
@@ -64,24 +56,33 @@ export const useEventData = (id?: string) => {
         // Parse service requests
         const parsedServiceRequests = parseServiceRequests(eventData.service_requests);
         
+        // Now fetch contractor details separately to avoid join errors
+        const { data: contractorData, error: contractorError } = await supabase
+          .from('user_profiles')
+          .select('id, first_name, last_name, avatar_url')
+          .eq('id', eventData.contractor_id)
+          .single();
+          
+        if (contractorError && contractorError.code !== 'PGRST116') { 
+          // PGRST116 means no rows returned, which we can handle as null contractor
+          console.error('Error fetching contractor details:', contractorError);
+        }
+        
         // Handle contractor data safely
-        let contractorData = { 
-          id: '', 
+        let contractorInfo = { 
+          id: eventData.contractor_id, 
           first_name: '', 
           last_name: '', 
           avatar_url: null 
         };
         
-        // Check if contractor exists and is a valid object before accessing its properties
-        if (eventData.contractor && typeof eventData.contractor === 'object') {
-          const contractor = eventData.contractor as any; // Type assertion to avoid null check errors
-          
-          // Safely check and unwrap the contractor data
-          contractorData = {
-            id: contractor?.id || '',
-            first_name: contractor?.first_name || '',
-            last_name: contractor?.last_name || '',
-            avatar_url: contractor?.avatar_url
+        // Use contractor data if available
+        if (contractorData) {
+          contractorInfo = {
+            id: contractorData.id,
+            first_name: contractorData.first_name || '',
+            last_name: contractorData.last_name || '',
+            avatar_url: contractorData.avatar_url
           };
         }
         
@@ -90,7 +91,7 @@ export const useEventData = (id?: string) => {
           ...eventData,
           service_requests: parsedServiceRequests,
           status: eventData.status as EventStatus,
-          contractor: contractorData
+          contractor: contractorInfo
         };
         
         setEvent(typedEvent);
@@ -98,6 +99,7 @@ export const useEventData = (id?: string) => {
       }
     } catch (error) {
       console.error('Error in fetchEvent:', error);
+      toast.error("Erro ao carregar detalhes do evento");
     } finally {
       setLoading(false);
     }
