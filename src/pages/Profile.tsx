@@ -27,6 +27,8 @@ type UserData = {
   zipcode?: string | null;
   bio?: string | null;
   role?: string | null;
+  document_number?: string | null; // Adding the missing document_number property
+  person_type?: string | null; // Also adding person_type for completeness
 };
 
 const Profile = () => {
