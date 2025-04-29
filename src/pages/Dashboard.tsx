@@ -39,7 +39,7 @@ const Dashboard = () => {
   
   return (
     <DashboardLayout>
-      <ContractorDashboardContent userName={userName} />
+      <ContractorDashboard userName={userName} />
     </DashboardLayout>
   );
 };
