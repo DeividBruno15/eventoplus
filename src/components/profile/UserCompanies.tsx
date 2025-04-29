@@ -68,14 +68,19 @@ export function UserCompanies() {
 
     try {
       setLoading(true);
+      
+      // Use a direct query with any to avoid type issues
+      // This is a workaround until the Supabase types are updated
       const { data, error } = await supabase
-        .from('user_companies')
+        .from('user_companies' as any)
         .select('*')
         .eq('user_id', user.id)
         .order('name', { ascending: true });
 
       if (error) throw error;
-      setCompanies(data || []);
+      
+      // Cast the data to our known type
+      setCompanies(data as unknown as UserCompany[] || []);
     } catch (error) {
       console.error('Error fetching companies:', error);
       toast.error('Erro ao carregar empresas');
@@ -183,16 +188,18 @@ export function UserCompanies() {
       };
       
       if (isEdit && currentCompanyId) {
+        // Type assertion for the database table
         const { error } = await supabase
-          .from('user_companies')
+          .from('user_companies' as any)
           .update(companyData)
           .eq('id', currentCompanyId);
         
         if (error) throw error;
         toast.success('Empresa atualizada com sucesso');
       } else {
+        // Type assertion for the database table
         const { error } = await supabase
-          .from('user_companies')
+          .from('user_companies' as any)
           .insert([companyData]);
         
         if (error) throw error;
@@ -215,8 +222,9 @@ export function UserCompanies() {
     
     try {
       setLoading(true);
+      // Type assertion for the database table
       const { error } = await supabase
-        .from('user_companies')
+        .from('user_companies' as any)
         .delete()
         .eq('id', id);
       

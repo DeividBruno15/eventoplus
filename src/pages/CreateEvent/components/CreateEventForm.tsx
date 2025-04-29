@@ -70,15 +70,17 @@ export function CreateEventForm() {
       try {
         setLoadingCompanies(true);
         
+        // Use a direct query with any to avoid type issues
+        // This is a workaround until the Supabase types are updated
         const { data, error } = await supabase
-          .from('user_companies')
+          .from('user_companies' as any)
           .select('*')
           .eq('user_id', user.id)
           .order('name');
           
         if (error) throw error;
         
-        setUserCompanies(data || []);
+        setUserCompanies(data as unknown as UserCompany[] || []);
       } catch (error) {
         console.error('Error fetching companies:', error);
       } finally {

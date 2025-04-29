@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, 
   User, 
@@ -65,7 +65,7 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
   const [hasContractorRole, setHasContractorRole] = useState<boolean | null>(null);
 
   // Check if user has both roles
-  useState(() => {
+  useEffect(() => {
     const checkUserRoles = async () => {
       if (!user) return;
       
