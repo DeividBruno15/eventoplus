@@ -32,7 +32,7 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
       
       const { data, error } = await supabase
         .from('events')
-        .select('*')
+        .select('*, contractor:contractor_id(*)')
         .eq('contractor_id', user.id)
         .order('created_at', { ascending: false });
 
@@ -48,6 +48,7 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
           location: eventData.location,
           max_attendees: eventData.max_attendees,
           contractor_id: eventData.contractor_id,
+          contractor: eventData.contractor,
           created_at: eventData.created_at,
           updated_at: eventData.updated_at || null,
           service_type: eventData.service_type,

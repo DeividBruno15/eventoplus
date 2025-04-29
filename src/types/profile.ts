@@ -31,3 +31,20 @@ export interface UserProfile {
   neighborhood?: string | null;
   companies?: UserCompany[];
 }
+
+export interface UserProfileWithRating extends UserProfile {
+  average_rating?: number;
+  rating_count?: number;
+  event_count?: number;
+}
+
+export interface UserRating {
+  id: string;
+  rating: number;
+  comment: string;
+  created_at: string;
+  user_id: string;
+  reviewer_id: string;
+  reviewer_name?: string;
+  reviewer_avatar?: string | null;
+}

@@ -28,6 +28,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import UserProfilePage from "./pages/UserProfile";
 import { Toaster } from "./components/ui/sonner";
 import { AuthProvider } from "./hooks/useAuth";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -69,6 +70,7 @@ function App() {
                 <Route path="/service-providers" element={<ServiceProviders />} />
                 <Route path="/provider/:id" element={<ProviderProfile />} />
                 <Route path="/request-quote/:id?" element={<RequestQuote />} />
+                <Route path="/user-profile/:id" element={<UserProfilePage />} />
               </Route>
               
               {/* 404 route */}

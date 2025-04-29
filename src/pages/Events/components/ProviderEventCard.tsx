@@ -93,7 +93,7 @@ export const ProviderEventCard = ({
                   <User className="h-4 w-4 flex-shrink-0 text-primary" />
                 )}
                 <Link 
-                  to={`/provider-profile/${contractorInfo.id}`} 
+                  to={`/user-profile/${contractorInfo.id}`} 
                   className="hover:text-primary hover:underline transition-colors"
                 >
                   {contractorInfo.company_name || contractorInfo.name}
@@ -106,7 +106,7 @@ export const ProviderEventCard = ({
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <User className="h-4 w-4 flex-shrink-0 text-primary" />
                 <Link 
-                  to={`/provider-profile/${event.contractor_id}`} 
+                  to={`/user-profile/${event.contractor_id}`} 
                   className="hover:text-primary hover:underline transition-colors"
                 >
                   {event.contractor.first_name} {event.contractor.last_name}
