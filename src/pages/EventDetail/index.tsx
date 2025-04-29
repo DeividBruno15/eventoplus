@@ -31,7 +31,8 @@ const EventDetail = () => {
     submitting, 
     handleApply, 
     handleApproveApplication,
-    handleCancelApplication
+    handleCancelApplication,
+    handleRejectApplication
   } = useEventApplications(event);
 
   if (loading) {
