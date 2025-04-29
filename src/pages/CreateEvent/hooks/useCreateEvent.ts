@@ -88,6 +88,7 @@ export const useCreateEvent = () => {
         throw new Error(response.error.message || 'Erro ao salvar o evento no banco de dados');
       }
       
+      console.log("Evento salvo com sucesso:", response);
       return true;
     } catch (error: any) {
       console.error('Erro ao criar/atualizar evento:', error);

@@ -54,11 +54,13 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
           service_type: eventData.service_type,
           status: eventData.status as EventStatus,
           event_time: eventData.event_time,
-          image_url: eventData.image_url ? String(eventData.image_url) : undefined
+          image_url: eventData.image_url ? String(eventData.image_url) : undefined,
+          service_requests: eventData.service_requests
         };
       });
       
       setEvents(processedEvents);
+      console.log("Eventos carregados:", processedEvents.length);
     } catch (error) {
       console.error('Erro ao buscar eventos:', error);
       toast({
@@ -74,16 +76,20 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
   useEffect(() => {
     fetchEvents();
     
+    // Configurar canal de realtime para atualizar eventos
     const channel = supabase
       .channel('events-changes')
       .on('postgres_changes', 
         { 
           event: '*', 
           schema: 'public', 
-          table: 'events' 
+          table: 'events',
+          filter: `contractor_id=eq.${user?.id}` 
         }, 
         payload => {
+          console.log('Evento recebido:', payload);
           if (payload.eventType === 'INSERT') {
+            console.log('Novo evento adicionado:', payload.new);
             setEvents(prevEvents => [payload.new as Event, ...prevEvents]);
           } else if (payload.eventType === 'UPDATE') {
             setEvents(prevEvents => 

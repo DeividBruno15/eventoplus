@@ -1,3 +1,4 @@
+
 import { useNavigate } from 'react-router-dom';
 import { Calendar, MapPin, Users } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -28,6 +29,8 @@ export const EventCard = ({ event }: EventCardProps) => {
         return <span className="absolute top-3 right-3 text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium">Rascunho</span>;
       case 'open':
         return <span className="absolute top-3 right-3 text-xs bg-green-100 text-green-600 px-2 py-0.5 rounded-full font-medium">Aberto</span>;
+      case 'cancelled':
+        return <span className="absolute top-3 right-3 text-xs bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full font-medium">Cancelado</span>;
       default:
         return <span className="absolute top-3 right-3 text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium">{event.status}</span>;
     }

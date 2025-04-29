@@ -47,6 +47,7 @@ export const EventActionPanel = ({
             onSubmit={handleApply}
             userApplication={userApplication}
             submitting={submitting}
+            onCancelApplication={handleCancelApplication}
           />
         </div>
       )}

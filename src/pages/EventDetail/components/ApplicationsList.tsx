@@ -1,163 +1,176 @@
+
 import { useState } from 'react';
-import { EventApplication } from '@/types/events';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Check, X } from 'lucide-react';
+import { EventApplication, EventStatus } from '@/types/events';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { User, CheckCircle, XCircle } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Link } from 'react-router-dom';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface ApplicationsListProps {
   applications: EventApplication[];
-  onApprove: (applicationId: string, providerId: string) => void;
-  onReject: (applicationId: string) => void;
+  onApprove: (applicationId: string, providerId: string) => Promise<void>;
+  onReject: (applicationId: string, providerId: string) => Promise<void>;
   submitting: boolean;
+  eventStatus: EventStatus;
 }
 
-export const ApplicationsList = ({ 
-  applications, 
-  onApprove, 
-  onReject, 
-  submitting 
+export const ApplicationsList = ({
+  applications,
+  onApprove,
+  onReject,
+  submitting,
+  eventStatus
 }: ApplicationsListProps) => {
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [processingIds, setProcessingIds] = useState<string[]>([]);
   
-  const toggleExpand = (id: string) => {
-    setExpandedId(expandedId === id ? null : id);
+  const handleApprove = async (applicationId: string, providerId: string) => {
+    try {
+      setProcessingIds(prev => [...prev, applicationId]);
+      await onApprove(applicationId, providerId);
+    } finally {
+      setProcessingIds(prev => prev.filter(id => id !== applicationId));
+    }
   };
   
-  const renderProviderInfo = (providerId: string, providerName: string, avatar?: string | null) => (
-    <div className="flex items-center">
-      <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 mr-3">
-        {avatar ? (
-          <img src={avatar} alt={providerName} className="w-full h-full object-cover" />
-        ) : (
-          <div className="w-full h-full bg-primary/10 flex items-center justify-center">
-            <User className="text-primary/60 w-5 h-5" />
-          </div>
-        )}
-      </div>
-      <div>
-        <Link 
-          to={`/user-profile/${providerId}`} 
-          className="font-medium hover:text-primary hover:underline"
-        >
-          {providerName}
-        </Link>
-        <p className="text-xs text-gray-500">Prestador de serviços</p>
-      </div>
-    </div>
-  );
+  const handleReject = async (applicationId: string, providerId: string) => {
+    try {
+      setProcessingIds(prev => [...prev, applicationId]);
+      await onReject(applicationId, providerId);
+    } finally {
+      setProcessingIds(prev => prev.filter(id => id !== applicationId));
+    }
+  };
   
+  const isButtonDisabled = (applicationId: string) => {
+    return submitting || processingIds.includes(applicationId) || eventStatus === 'closed';
+  };
+  
+  const getInitials = (firstName: string = '', lastName: string = '') => {
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+  };
+
   if (applications.length === 0) {
     return (
       <Card>
-        <CardContent className="p-6 text-center">
-          <p className="text-muted-foreground">
-            Ainda não há candidaturas para este evento.
-          </p>
+        <CardHeader>
+          <CardTitle>Candidaturas</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Alert>
+            <AlertTitle>Nenhuma candidatura</AlertTitle>
+            <AlertDescription>
+              Ainda não há prestadores de serviços interessados neste evento.
+            </AlertDescription>
+          </Alert>
         </CardContent>
       </Card>
     );
   }
-  
+
   return (
-    <div className="space-y-4">
-      {applications.map((application) => {
-        const isExpanded = expandedId === application.id;
-        const providerName = application.provider ? 
-          `${application.provider.first_name} ${application.provider.last_name}` : 
-          'Prestador';
-        
-        return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Candidaturas ({applications.length})</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {applications.map((application) => (
           <Card key={application.id} className="overflow-hidden">
-            <CardContent className="p-0">
-              <div className="p-4 flex justify-between items-center">
-                {application.provider && renderProviderInfo(
-                  application.provider.id,
-                  providerName,
-                  application.provider.avatar_url
-                )}
-                
-                <div className="flex items-center">
-                  <Badge 
-                    variant={
-                      application.status === 'accepted' ? 'success' : 
-                      application.status === 'rejected' ? 'destructive' : 
-                      'outline'
-                    }
-                    className="mr-4"
-                  >
-                    {application.status === 'accepted' ? 'Aprovado' : 
-                     application.status === 'rejected' ? 'Recusado' : 
-                     'Pendente'}
-                  </Badge>
-                  
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => toggleExpand(application.id)}
-                  >
-                    {isExpanded ? 'Menos detalhes' : 'Ver detalhes'}
-                  </Button>
-                </div>
-              </div>
-              
-              {isExpanded && (
-                <div className="border-t p-4">
-                  <div className="mb-4">
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium">Categoria:</span>
-                      <span className="text-sm">{application.service_category}</span>
-                    </div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium">Data da candidatura:</span>
-                      <span className="text-sm">
-                        {formatDistanceToNow(new Date(application.created_at), { 
-                          addSuffix: true,
-                          locale: ptBR
-                        })}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div className="mb-4">
-                    <h4 className="text-sm font-medium mb-2">Mensagem:</h4>
-                    <p className="text-sm bg-gray-50 p-3 rounded-md">
-                      {application.message || "Nenhuma mensagem fornecida."}
+            <div className="p-4 flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Avatar>
+                    <AvatarImage src={application.provider?.avatar_url || ''} />
+                    <AvatarFallback>
+                      {application.provider ? getInitials(application.provider.first_name, application.provider.last_name) : '??'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-medium">
+                      {application.provider?.first_name} {application.provider?.last_name}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      {format(new Date(application.created_at), "dd 'de' MMMM, yyyy", { locale: ptBR })}
                     </p>
                   </div>
-                  
-                  {application.status === 'pending' && (
-                    <div className="flex justify-end gap-2 mt-4">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => onReject(application.id)}
-                        disabled={submitting}
-                        className="flex items-center"
-                      >
-                        <XCircle className="mr-1 h-4 w-4" />
-                        Recusar
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={() => application.provider && onApprove(application.id, application.provider.id)}
-                        disabled={submitting}
-                        className="flex items-center"
-                      >
-                        <CheckCircle className="mr-1 h-4 w-4" />
-                        Aprovar
-                      </Button>
-                    </div>
-                  )}
+                </div>
+                
+                <Badge variant={
+                  application.status === 'accepted' ? 'default' :
+                  application.status === 'rejected' ? 'destructive' :
+                  'outline'
+                }>
+                  {application.status === 'accepted' ? 'Aprovado' :
+                   application.status === 'rejected' ? 'Rejeitado' :
+                   'Pendente'}
+                </Badge>
+              </div>
+              
+              <div>
+                <p className="text-sm font-medium mb-1">Categoria: {application.service_category}</p>
+                <p className="text-sm text-gray-700">{application.message}</p>
+              </div>
+              
+              {application.status === 'pending' && (
+                <div className="flex gap-2 justify-end mt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleReject(application.id, application.provider_id)}
+                    disabled={isButtonDisabled(application.id)}
+                  >
+                    <X className="h-4 w-4 mr-1" />
+                    Recusar
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => handleApprove(application.id, application.provider_id)}
+                    disabled={isButtonDisabled(application.id)}
+                  >
+                    <Check className="h-4 w-4 mr-1" />
+                    Aprovar
+                  </Button>
                 </div>
               )}
-            </CardContent>
+            </div>
           </Card>
-        );
-      })}
-    </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
+};
+
+// Skeleton loader for applications list
+export const ApplicationsListSkeleton = () => {
+  return (
+    <Card>
+      <CardHeader>
+        <Skeleton className="h-6 w-32" />
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {[1, 2].map((i) => (
+          <Card key={i} className="overflow-hidden">
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="h-10 w-10 rounded-full" />
+                  <div>
+                    <Skeleton className="h-4 w-32 mb-1" />
+                    <Skeleton className="h-3 w-24" />
+                  </div>
+                </div>
+                <Skeleton className="h-5 w-20" />
+              </div>
+              <Skeleton className="h-4 w-full mb-2" />
+              <Skeleton className="h-4 w-3/4" />
+            </div>
+          </Card>
+        ))}
+      </CardContent>
+    </Card>
   );
 };

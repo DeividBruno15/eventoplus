@@ -1,5 +1,5 @@
 
-import { ServiceRequest } from '@/types/events';
+import { ExtendedServiceRequest, ServiceRequest } from '@/types/events';
 import { Json } from '@/integrations/supabase/types';
 
 /**
@@ -11,7 +11,7 @@ export const useServiceRequestUtils = () => {
    * @param jsonData The JSON data from the database
    * @returns Array of typed ServiceRequest objects
    */
-  const parseServiceRequests = (jsonData: Json): ServiceRequest[] => {
+  const parseServiceRequests = (jsonData: Json): ExtendedServiceRequest[] => {
     if (Array.isArray(jsonData)) {
       return jsonData.map(item => {
         if (typeof item === 'object' && item !== null) {
@@ -34,7 +34,7 @@ export const useServiceRequestUtils = () => {
    * @param requests Array of service requests
    * @returns JSON formatted service requests ready for database storage
    */
-  const prepareServiceRequestsForStorage = (requests: ServiceRequest[] | undefined): Json => {
+  const prepareServiceRequestsForStorage = (requests: ExtendedServiceRequest[] | undefined): Json => {
     if (!requests || !Array.isArray(requests)) return [];
     
     // Ensure all price fields are numbers
