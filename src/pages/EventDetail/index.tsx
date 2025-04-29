@@ -1,107 +1,56 @@
 
-import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
-import { Loader2 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { EventInfo } from './components/EventInfo';
-import { ApplicationForm } from './components/ApplicationForm';
-import { ApplicationsList } from './components/ApplicationsList';
-import { useEventDetails } from './hooks/useEventDetails';
-import { useEventApplications } from './hooks/useEventApplications';
-import { ImageUpload } from './components/ImageUpload';
-import { DeleteEvent } from './components/DeleteEvent';
+import { EventDetailHeader } from './components/EventDetailHeader';
+import { EventManagementControls } from './components/EventManagementControls';
+import { EventActionPanel } from './components/EventActionPanel';
+import { useEventState } from './hooks/useEventState';
 
 const EventDetail = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const { user } = useAuth();
-  
-  const { 
-    event, 
-    applications, 
-    userRole, 
-    loading, 
-    userHasApplied, 
+  const {
+    user,
+    event,
+    applications,
+    userRole,
+    loading,
     userApplication,
-    refetchEvent 
-  } = useEventDetails({ id, user });
-  
-  const { 
-    submitting, 
-    handleApply, 
+    refetchEvent,
+    submitting,
+    handleApply,
     handleApproveApplication,
     handleCancelApplication,
     handleRejectApplication
-  } = useEventApplications(event);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (!event) {
-    return (
-      <div className="container mx-auto px-4 py-8 flex-grow">
-        <Card className="text-center py-16">
-          <CardContent>
-            <h3 className="text-xl font-medium mb-2">Evento não encontrado</h3>
-            <p className="text-muted-foreground mb-6">
-              Este evento pode ter sido removido ou você não tem permissão para acessá-lo.
-            </p>
-            <Button onClick={() => navigate('/events')}>
-              Voltar para eventos
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  } = useEventState();
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        <EventInfo event={event} />
-        
-        {userRole === 'contractor' && event.contractor_id === user?.id && (
-          <div className="p-6 border-t flex flex-wrap gap-4">
-            <ImageUpload 
-              event={event} 
-              userId={user?.id} 
-              onSuccess={refetchEvent} 
-            />
-            <DeleteEvent event={event} userId={user?.id} />
-          </div>
-        )}
-      </div>
+      <EventDetailHeader loading={loading} event={event} />
       
-      <div className="grid gap-6 lg:grid-cols-2">
-        {userRole === 'provider' && (
-          <div>
-            <ApplicationForm 
+      {event && (
+        <>
+          <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+            <EventInfo event={event} />
+            
+            <EventManagementControls 
               event={event}
-              onSubmit={handleApply}
-              userApplication={userApplication}
-              submitting={submitting}
+              userId={user?.id}
+              onSuccess={refetchEvent}
+              isOwner={userRole === 'contractor' && event.contractor_id === user?.id}
             />
           </div>
-        )}
-        
-        {userRole === 'contractor' && 
-         event.contractor_id === user?.id && (
-          <div>
-            <ApplicationsList 
-              applications={applications}
-              onApprove={handleApproveApplication}
-              submitting={submitting}
-              eventStatus={event.status}
-            />
-          </div>
-        )}
-      </div>
+          
+          <EventActionPanel
+            userRole={userRole}
+            event={event}
+            userId={user?.id}
+            applications={applications}
+            userApplication={userApplication}
+            submitting={submitting}
+            handleApply={handleApply}
+            handleApproveApplication={handleApproveApplication}
+            handleCancelApplication={handleCancelApplication}
+          />
+        </>
+      )}
     </div>
   );
 };
