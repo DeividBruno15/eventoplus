@@ -280,6 +280,12 @@ const Profile = () => {
                     {userData.bio}
                   </p>
                 )}
+                
+                {userData.document_number && (
+                  <p className="text-sm text-muted-foreground">
+                    <span className="font-medium">CPF/CNPJ:</span> {userData.document_number}
+                  </p>
+                )}
               </div>
             </div>
           </div>

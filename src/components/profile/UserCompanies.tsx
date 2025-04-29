@@ -24,7 +24,7 @@ import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { consultarCep } from '@/utils/cep';
+import { fetchAddressByCep } from '@/utils/cep';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { UserCompany } from '@/types/profile';
 
@@ -104,13 +104,13 @@ export const UserCompanies = () => {
     if (zipcode.length === 8) {
       setLookingUpZipcode(true);
       try {
-        const result = await consultarCep(zipcode);
+        const result = await fetchAddressByCep(zipcode);
         
         if (result) {
-          form.setValue('street', result.logradouro || '');
-          form.setValue('neighborhood', result.bairro || '');
-          form.setValue('city', result.localidade || '');
-          form.setValue('state', result.uf || '');
+          form.setValue('street', result.street || '');
+          form.setValue('neighborhood', result.neighborhood || '');
+          form.setValue('city', result.city || '');
+          form.setValue('state', result.state || '');
           
           // Trigger validation
           form.trigger(['street', 'neighborhood', 'city', 'state']);

@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Dialog, 
   DialogContent, 
@@ -34,7 +34,22 @@ export const EditProfileModal = ({ isOpen, onClose, userData, onSuccess }: EditP
     bio: userData?.bio || '',
   });
   
+  // Inicializar com o valor atual do avatar
   const [avatarUrl, setAvatarUrl] = useState(userData?.avatar_url || '');
+  
+  // Atualizar os dados do formulário quando userData mudar
+  useEffect(() => {
+    if (userData) {
+      setFormData({
+        first_name: userData.first_name || '',
+        last_name: userData.last_name || '',
+        phone_number: userData.phone_number || '',
+        document_number: userData.document_number || '',
+        bio: userData.bio || '',
+      });
+      setAvatarUrl(userData.avatar_url || '');
+    }
+  }, [userData]);
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -59,13 +74,15 @@ export const EditProfileModal = ({ isOpen, onClose, userData, onSuccess }: EditP
       
       if (error) throw error;
       
-      // Update user_profiles table as well
+      // Atualizar a tabela user_profiles também
       await supabase
         .from('user_profiles')
         .update({
           first_name: formData.first_name,
           last_name: formData.last_name,
           phone_number: formData.phone_number,
+          bio: formData.bio,
+          avatar_url: avatarUrl,
         })
         .eq('id', userData.id);
       
@@ -88,12 +105,14 @@ export const EditProfileModal = ({ isOpen, onClose, userData, onSuccess }: EditP
       
       const file = event.target.files[0];
       const fileExt = file.name.split('.').pop();
-      const filePath = `${userData?.id}/${Math.random().toString(36).slice(2)}.${fileExt}`;
+      const fileName = `${userData?.id}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+      const filePath = `avatars/${fileName}`;
       
+      // Criar bucket se não existir
       await supabase.storage
         .createBucket('avatars', { public: true })
         .catch(() => {
-          // Bucket might already exist, continue
+          // Bucket já pode existir, continuar
         });
         
       const { error: uploadError } = await supabase.storage

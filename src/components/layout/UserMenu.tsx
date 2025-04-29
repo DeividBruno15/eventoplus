@@ -75,8 +75,10 @@ export function UserMenu() {
       
       const file = event.target.files[0];
       const fileExt = file.name.split('.').pop();
-      const filePath = `${user?.id}/${Math.random().toString(36).slice(2)}.${fileExt}`;
+      const fileName = `${user?.id}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+      const filePath = `avatars/${fileName}`;
       
+      // Create bucket if it doesn't exist
       await supabase.storage
         .createBucket('avatars', { public: true })
         .catch(() => {
@@ -85,19 +87,29 @@ export function UserMenu() {
         
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
         
       if (uploadError) throw uploadError;
       
-      const { data: { publicUrl } } = supabase.storage
+      const { data } = supabase.storage
         .from('avatars')
         .getPublicUrl(filePath);
       
+      // Update user metadata  
       const { error: updateError } = await supabase.auth.updateUser({
-        data: { avatar_url: publicUrl }
+        data: { avatar_url: data.publicUrl }
       });
       
       if (updateError) throw updateError;
+      
+      // Update profile table as well
+      await supabase
+        .from('user_profiles')
+        .update({ avatar_url: data.publicUrl })
+        .eq('id', user?.id);
       
       toast({
         title: "Avatar atualizado",
@@ -137,7 +149,14 @@ export function UserMenu() {
               onChange={uploadAvatar}
               disabled={uploading}
             />
-            <Camera className="h-5 w-5 text-white" />
+            {uploading ? (
+              <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            ) : (
+              <Camera className="h-5 w-5 text-white" />
+            )}
           </label>
         </button>
       </DropdownMenuTrigger>

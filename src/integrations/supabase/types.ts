@@ -405,6 +405,7 @@ export type Database = {
         Row: {
           address: string | null
           avatar_url: string | null
+          bio: string | null
           city: string
           created_at: string | null
           document_number: string
@@ -415,6 +416,7 @@ export type Database = {
           latitude: number | null
           longitude: number | null
           neighborhood: string | null
+          number: string | null
           person_type: string
           phone_number: string | null
           role: string
@@ -426,6 +428,7 @@ export type Database = {
         Insert: {
           address?: string | null
           avatar_url?: string | null
+          bio?: string | null
           city: string
           created_at?: string | null
           document_number: string
@@ -436,6 +439,7 @@ export type Database = {
           latitude?: number | null
           longitude?: number | null
           neighborhood?: string | null
+          number?: string | null
           person_type: string
           phone_number?: string | null
           role: string
@@ -447,6 +451,7 @@ export type Database = {
         Update: {
           address?: string | null
           avatar_url?: string | null
+          bio?: string | null
           city?: string
           created_at?: string | null
           document_number?: string
@@ -457,6 +462,7 @@ export type Database = {
           latitude?: number | null
           longitude?: number | null
           neighborhood?: string | null
+          number?: string | null
           person_type?: string
           phone_number?: string | null
           role?: string

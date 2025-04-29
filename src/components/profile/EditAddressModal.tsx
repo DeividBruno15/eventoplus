@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Dialog, 
   DialogContent, 
@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
-import { consultarCep } from '@/utils/cep';
+import { fetchAddressByCep } from '@/utils/cep';
 
 interface EditAddressModalProps {
   isOpen: boolean;
@@ -35,6 +35,20 @@ export const EditAddressModal = ({ isOpen, onClose, userData, onSuccess }: EditA
     state: userData?.state || '',
   });
   
+  // Atualiza os dados quando userData muda
+  useEffect(() => {
+    if (userData) {
+      setFormData({
+        zipcode: userData?.zipcode || '',
+        street: userData?.street || '',
+        number: userData?.number || '',
+        neighborhood: userData?.neighborhood || '',
+        city: userData?.city || '',
+        state: userData?.state || '',
+      });
+    }
+  }, [userData]);
+  
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -47,15 +61,15 @@ export const EditAddressModal = ({ isOpen, onClose, userData, onSuccess }: EditA
     if (zipcode.length === 8) {
       setLookingUpZipcode(true);
       try {
-        const result = await consultarCep(zipcode);
+        const result = await fetchAddressByCep(zipcode);
         
         if (result) {
           setFormData(prev => ({
             ...prev,
-            street: result.logradouro || '',
-            neighborhood: result.bairro || '',
-            city: result.localidade || '',
-            state: result.uf || '',
+            street: result.street || '',
+            neighborhood: result.neighborhood || '',
+            city: result.city || '',
+            state: result.state || '',
           }));
         }
       } catch (error) {
@@ -71,7 +85,7 @@ export const EditAddressModal = ({ isOpen, onClose, userData, onSuccess }: EditA
     setLoading(true);
     
     try {
-      // Update user_profiles table
+      // Atualiza tabela user_profiles
       const { error } = await supabase
         .from('user_profiles')
         .update({
