@@ -78,8 +78,8 @@ export const UserCompanies = () => {
     try {
       setLoading(true);
       
-      // Cast to any to workaround type incompatibility until types are updated
-      const { data, error } = await (supabase as any)
+      // Usando o cliente supabase normal sem cast para any
+      const { data, error } = await supabase
         .from('user_companies')
         .select('*')
         .eq('user_id', user.id)
@@ -87,9 +87,8 @@ export const UserCompanies = () => {
       
       if (error) throw error;
       
-      // Cast the result to UserCompany[] since we know the structure
-      setCompanies(data || [] as UserCompany[]);
-    } catch (error) {
+      setCompanies(data || []);
+    } catch (error: any) {
       console.error('Error fetching companies:', error);
       toast.error('Erro ao carregar empresas');
     } finally {
@@ -137,25 +136,26 @@ export const UserCompanies = () => {
       let response;
       
       if (editingCompany) {
-        // Cast to any to workaround type incompatibility until types are updated
-        response = await (supabase as any)
+        response = await supabase
           .from('user_companies')
           .update(companyData)
           .eq('id', editingCompany.id);
+          
+        if (response.error) throw response.error;
       } else {
-        // Cast to any to workaround type incompatibility until types are updated
-        response = await (supabase as any)
+        response = await supabase
           .from('user_companies')
           .insert([companyData]);
+          
+        if (response.error) throw response.error;
       }
-      
-      if (response.error) throw response.error;
       
       toast.success(editingCompany ? 'Empresa atualizada com sucesso' : 'Empresa adicionada com sucesso');
       fetchCompanies();
       closeDialog();
     } catch (error: any) {
-      toast.error(`Erro: ${error.message}`);
+      toast.error(`Erro: ${error.message || 'Ocorreu um erro ao salvar a empresa'}`);
+      console.error('Error submitting company:', error);
     } finally {
       setSubmitting(false);
     }
@@ -189,8 +189,7 @@ export const UserCompanies = () => {
     try {
       setSubmitting(true);
       
-      // Cast to any to workaround type incompatibility until types are updated
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('user_companies')
         .delete()
         .eq('id', companyToDelete.id);
@@ -200,7 +199,7 @@ export const UserCompanies = () => {
       toast.success('Empresa removida com sucesso');
       fetchCompanies();
     } catch (error: any) {
-      toast.error(`Erro: ${error.message}`);
+      toast.error(`Erro: ${error.message || 'Ocorreu um erro ao excluir a empresa'}`);
     } finally {
       setSubmitting(false);
       setIsDeleteDialogOpen(false);

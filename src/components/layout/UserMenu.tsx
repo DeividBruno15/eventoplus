@@ -116,6 +116,9 @@ export function UserMenu() {
         description: "Sua imagem de perfil foi atualizada com sucesso."
       });
       
+      // Atualiza a página para que as alterações sejam refletidas
+      setTimeout(() => window.location.reload(), 1500);
+      
     } catch (error: any) {
       toast({
         title: "Erro ao atualizar avatar",
