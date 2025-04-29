@@ -7,15 +7,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
-interface Event {
-  id: string;
-  name: string;
-  description?: string;
-  event_date: string;
-  location: string;
-  image_url?: string;
-}
+import { Event } from '../types';
 
 interface UserEventsProps {
   userId: string;

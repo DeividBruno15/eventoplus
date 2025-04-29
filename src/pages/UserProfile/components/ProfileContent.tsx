@@ -1,28 +1,10 @@
 
 import { Card, CardContent } from '@/components/ui/card';
-import { MapPin, Phone, Mail, Briefcase, CheckSquare } from 'lucide-react';
-
-interface UserData {
-  id: string;
-  first_name: string;
-  last_name: string;
-  role: 'contractor' | 'provider';
-  avatar_url: string | null;
-  bio: string | null;
-  city?: string;
-  state?: string;
-  companies?: Array<{
-    id: string;
-    name: string;
-  }>;
-  services?: Array<{
-    id: string;
-    category: string;
-  }>;
-}
+import { MapPin, Briefcase, CheckSquare } from 'lucide-react';
+import { UserProfileData } from '../types';
 
 interface ProfileContentProps {
-  userData: UserData;
+  userData: UserProfileData;
 }
 
 export const ProfileContent = ({ userData }: ProfileContentProps) => {

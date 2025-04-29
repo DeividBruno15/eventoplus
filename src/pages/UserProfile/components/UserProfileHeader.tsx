@@ -2,20 +2,10 @@
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Star, MapPin, Calendar } from 'lucide-react';
-
-interface UserData {
-  id: string;
-  first_name: string;
-  last_name: string;
-  role: 'contractor' | 'provider';
-  avatar_url: string | null;
-  bio: string | null;
-  city?: string;
-  state?: string;
-}
+import { UserProfileData } from '../types';
 
 interface UserProfileHeaderProps {
-  userData: UserData;
+  userData: UserProfileData;
   averageRating: number;
   ratingCount: number;
   eventCount: number;

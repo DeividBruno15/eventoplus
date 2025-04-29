@@ -3,15 +3,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Star } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-
-interface Rating {
-  id: string;
-  rating: number;
-  comment: string;
-  created_at: string;
-  reviewer_name: string;
-  reviewer_avatar?: string | null;
-}
+import { Rating } from '../types';
 
 interface UserRatingsProps {
   ratings: Rating[];
