@@ -25,7 +25,7 @@ export const useProviderApplications = (event: Event | null) => {
         event_id: event.id,
         provider_id: user.id,
         message,
-        serviceCategory 
+        service_category: serviceCategory 
       });
       
       // Check if an application already exists
@@ -55,6 +55,9 @@ export const useProviderApplications = (event: Event | null) => {
         service_category: serviceCategory || null
       };
       
+      // Log what we're trying to insert for debugging
+      console.log('Attempting to insert application data:', applicationData);
+      
       const { data, error } = await supabase
         .from('event_applications')
         .insert(applicationData)
@@ -82,6 +85,11 @@ export const useProviderApplications = (event: Event | null) => {
       }
       
       toast.success("Candidatura enviada com sucesso!");
+      
+      // Force a page reload to reflect the new state
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
       
     } catch (error: any) {
       console.error('Erro ao enviar candidatura:', error);

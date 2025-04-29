@@ -1,22 +1,23 @@
 
+import React from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 interface EventsSearchProps {
   value: string;
-  onChange: (query: string) => void;
+  onChange: (value: string) => void;
 }
 
 export const EventsSearch = ({ value, onChange }: EventsSearchProps) => {
   return (
-    <div className="relative">
-      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+    <div className="relative w-full max-w-md">
+      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
       <Input
-        type="text"
-        placeholder="Buscar eventos por título, local ou data..."
+        type="search"
+        placeholder="Buscar eventos..."
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full pl-9 h-10 bg-white border-gray-200"
+        className="pl-10 pr-4"
       />
     </div>
   );

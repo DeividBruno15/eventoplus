@@ -71,7 +71,12 @@ export const ProviderEventsContent = () => {
 
         if (appError) throw appError;
 
-        const appliedEventIds = applications.map(app => app.event_id);
+        // Log for debugging
+        console.log('Fetched applications:', applications);
+        
+        const appliedEventIds = applications ? applications.map(app => app.event_id) : [];
+        
+        console.log('Applied event IDs:', appliedEventIds);
 
         // Separate applied and available events
         if (events) {
@@ -81,9 +86,13 @@ export const ProviderEventsContent = () => {
             service_requests: event.service_requests as unknown as Event['service_requests']
           }));
           
-          setAvailableEvents(typedEvents.filter((event) => 
+          // Only show events in the available list that the user has NOT applied to
+          const availableEventsFiltered = typedEvents.filter((event) => 
             !appliedEventIds.includes(event.id)
-          ));
+          );
+          
+          console.log('Available events after filtering:', availableEventsFiltered.length);
+          setAvailableEvents(availableEventsFiltered);
           
           // For applied events, fetch them by IDs
           if (appliedEventIds.length > 0) {
@@ -101,7 +110,11 @@ export const ProviderEventsContent = () => {
               service_requests: event.service_requests as unknown as Event['service_requests']
             })) : [];
             
+            console.log('Applied events fetched:', typedAppliedEvents.length);
             setAppliedEvents(typedAppliedEvents);
+          } else {
+            console.log('No applied events found');
+            setAppliedEvents([]);
           }
         }
       } catch (error) {
