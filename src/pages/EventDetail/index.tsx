@@ -67,47 +67,45 @@ const EventDetail = () => {
 
   return (
     <DashboardLayout>
-      <div className="container mx-auto px-4 py-8 flex-grow">
-        <div className="space-y-6">
-          <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-            <EventInfo event={event} />
-            
-            {userRole === 'contractor' && event.contractor_id === user?.id && (
-              <div className="p-6 border-t flex flex-wrap gap-4">
-                <ImageUpload 
-                  event={event} 
-                  userId={user?.id} 
-                  onSuccess={refetchEvent} 
-                />
-                <DeleteEvent event={event} userId={user?.id} />
-              </div>
-            )}
-          </div>
+      <div className="space-y-6">
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+          <EventInfo event={event} />
           
-          <div className="grid gap-6 lg:grid-cols-2">
-            {userRole === 'provider' && (
-              <div>
-                <ApplicationForm 
-                  event={event}
-                  onSubmit={handleApply}
-                  userApplication={userApplication}
-                  submitting={submitting}
-                />
-              </div>
-            )}
-            
-            {userRole === 'contractor' && 
-             event.contractor_id === user?.id && (
-              <div>
-                <ApplicationsList 
-                  applications={applications}
-                  onApprove={handleApproveApplication}
-                  submitting={submitting}
-                  eventStatus={event.status}
-                />
-              </div>
-            )}
-          </div>
+          {userRole === 'contractor' && event.contractor_id === user?.id && (
+            <div className="p-6 border-t flex flex-wrap gap-4">
+              <ImageUpload 
+                event={event} 
+                userId={user?.id} 
+                onSuccess={refetchEvent} 
+              />
+              <DeleteEvent event={event} userId={user?.id} />
+            </div>
+          )}
+        </div>
+        
+        <div className="grid gap-6 lg:grid-cols-2">
+          {userRole === 'provider' && (
+            <div>
+              <ApplicationForm 
+                event={event}
+                onSubmit={handleApply}
+                userApplication={userApplication}
+                submitting={submitting}
+              />
+            </div>
+          )}
+          
+          {userRole === 'contractor' && 
+           event.contractor_id === user?.id && (
+            <div>
+              <ApplicationsList 
+                applications={applications}
+                onApprove={handleApproveApplication}
+                submitting={submitting}
+                eventStatus={event.status}
+              />
+            </div>
+          )}
         </div>
       </div>
     </DashboardLayout>

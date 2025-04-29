@@ -46,18 +46,18 @@ function App() {
               <Route path="/register" element={<Register />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
-              <Route path="/dashboard" element={<DashboardLayout><Dashboard /></DashboardLayout>} />
-              <Route path="/profile" element={<DashboardLayout><Profile /></DashboardLayout>} />
-              <Route path="/events" element={<DashboardLayout><Events /></DashboardLayout>} />
-              <Route path="/events/create" element={<DashboardLayout><CreateEvent /></DashboardLayout>} />
-              <Route path="/events/:id" element={<DashboardLayout><EventDetail /></DashboardLayout>} />
-              <Route path="/events/:id/edit" element={<DashboardLayout><CreateEvent /></DashboardLayout>} />
-              <Route path="/chat" element={<DashboardLayout><Chat /></DashboardLayout>} />
-              <Route path="/chat/:id" element={<DashboardLayout><Conversation /></DashboardLayout>} />
-              <Route path="/settings" element={<DashboardLayout><Settings /></DashboardLayout>} />
-              <Route path="/help-center" element={<DashboardLayout><HelpCenter /></DashboardLayout>} />
-              <Route path="/support" element={<DashboardLayout><Support /></DashboardLayout>} />
-              <Route path="/plans" element={<DashboardLayout><Plans /></DashboardLayout>} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/events" element={<Events />} />
+              <Route path="/events/create" element={<CreateEvent />} />
+              <Route path="/events/:id" element={<EventDetail />} />
+              <Route path="/events/:id/edit" element={<CreateEvent />} />
+              <Route path="/chat" element={<Chat />} />
+              <Route path="/chat/:id" element={<Conversation />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/help-center" element={<HelpCenter />} />
+              <Route path="/support" element={<Support />} />
+              <Route path="/plans" element={<Plans />} />
               <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/service-providers" element={<ServiceProviders />} />
               <Route path="/provider/:id" element={<ProviderProfile />} />
