@@ -2,6 +2,7 @@
 import { Event, EventApplication } from '@/types/events';
 import { ApplicationForm } from './ApplicationForm';
 import { ApplicationsList } from './ApplicationsList';
+import { useEffect } from 'react';
 
 interface EventActionPanelProps {
   userRole: 'provider' | 'contractor' | null;

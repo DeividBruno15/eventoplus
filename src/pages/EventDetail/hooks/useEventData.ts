@@ -14,13 +14,9 @@ export const parseServiceRequests = (jsonData: any): ServiceRequest[] => {
   try {
     if (Array.isArray(jsonData)) {
       return jsonData.map(item => ({
-        id: item.id || undefined,
-        service_type: item.service_type || '',
-        category: item.category || '',
+        category: typeof item.category === 'string' ? item.category : '',
         count: typeof item.count === 'number' ? item.count : 0,
-        filled: typeof item.filled === 'number' ? item.filled : 0,
-        price: typeof item.price === 'number' ? item.price : undefined,
-        description: item.description || undefined
+        filled: typeof item.filled === 'number' ? item.filled : 0
       }));
     }
     return [];

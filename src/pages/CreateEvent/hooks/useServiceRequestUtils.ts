@@ -20,18 +20,10 @@ export const useServiceRequestUtils = () => {
             category: typeof jsonObj.category === 'string' ? jsonObj.category : '',
             count: typeof jsonObj.count === 'number' ? jsonObj.count : 0,
             price: typeof jsonObj.price === 'number' ? jsonObj.price : 0,
-            filled: typeof jsonObj.filled === 'number' ? jsonObj.filled : 0,
-            service_type: typeof jsonObj.service_type === 'string' ? jsonObj.service_type : undefined,
-            id: typeof jsonObj.id === 'string' ? jsonObj.id : undefined
+            filled: typeof jsonObj.filled === 'number' ? jsonObj.filled : 0
           };
         }
-        return { 
-          service_type: '',
-          category: '', 
-          count: 0, 
-          price: 0, 
-          filled: 0 
-        };
+        return { category: '', count: 0, price: 0, filled: 0 };
       });
     }
     return [];
@@ -48,7 +40,7 @@ export const useServiceRequestUtils = () => {
     // Ensure all price fields are numbers
     const preparedRequests = requests.map(req => ({
       ...req,
-      price: req.price !== undefined ? Number(req.price) : 0
+      price: req.price ? Number(req.price) : 0
     }));
     
     return preparedRequests as unknown as Json;

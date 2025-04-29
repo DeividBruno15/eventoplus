@@ -81,10 +81,10 @@ export const EventInfo = ({ event }: EventInfoProps) => {
           <div className="grid gap-2">
             {event.service_requests.map((service, index) => (
               <div key={index} className="flex justify-between p-2 border rounded-md">
-                <span>{service.category || service.service_type || 'Serviço'}</span>
+                <span>{service.category}</span>
                 <div className="text-sm text-gray-600">
-                  <span>{(service.filled || 0)}/{(service.count || 0)} preenchidos</span>
-                  {service.price !== undefined && <span className="ml-2">• R$ {service.price}</span>}
+                  <span>{service.filled || 0}/{service.count} preenchidos</span>
+                  {service.price && <span className="ml-2">• R$ {service.price}</span>}
                 </div>
               </div>
             ))}
