@@ -108,29 +108,45 @@ export const EditProfileModal = ({ isOpen, onClose, userData, onSuccess }: EditP
       const fileName = `${userData?.id}-${Math.random().toString(36).slice(2)}.${fileExt}`;
       const filePath = `avatars/${fileName}`;
       
-      // Criar bucket se não existir
-      await supabase.storage
-        .createBucket('avatars', { public: true })
-        .catch(() => {
-          // Bucket já pode existir, continuar
+      // Check if bucket exists before trying to create it
+      try {
+        const { data: buckets } = await supabase.storage.listBuckets();
+        const avatarBucketExists = buckets?.some(bucket => bucket.name === 'avatars');
+        
+        if (!avatarBucketExists) {
+          await supabase.storage.createBucket('avatars', {
+            public: true,
+            fileSizeLimit: 5242880, // 5MB
+            allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
+          });
+        }
+      } catch (error) {
+        console.log('Bucket might already exist, continuing');
+      }
+        
+      const { error: uploadError, data } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true
         });
         
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file);
-        
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
+      }
       
-      const { data: { publicUrl } } = supabase.storage
+      const { data: urlData } = supabase.storage
         .from('avatars')
         .getPublicUrl(filePath);
       
-      setAvatarUrl(publicUrl);
+      setAvatarUrl(urlData.publicUrl);
       
       toast.success("Avatar carregado");
       
     } catch (error: any) {
-      toast.error("Erro ao carregar avatar: " + error.message);
+      console.error('Avatar upload error:', error);
+      toast.error("Erro ao carregar avatar: " + (error.message || "Erro desconhecido"));
     } finally {
       setUploading(false);
     }

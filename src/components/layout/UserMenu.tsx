@@ -78,38 +78,55 @@ export function UserMenu() {
       const fileName = `${user?.id}-${Math.random().toString(36).slice(2)}.${fileExt}`;
       const filePath = `avatars/${fileName}`;
       
-      // Create bucket if it doesn't exist
-      await supabase.storage
-        .createBucket('avatars', { public: true })
-        .catch(() => {
-          // Bucket might already exist, continue
-        });
+      // Make sure avatars bucket exists
+      try {
+        // First check if bucket exists
+        const { data: buckets } = await supabase.storage.listBuckets();
+        const avatarBucketExists = buckets?.some(bucket => bucket.name === 'avatars');
         
-      const { error: uploadError } = await supabase.storage
+        if (!avatarBucketExists) {
+          await supabase.storage.createBucket('avatars', {
+            public: true,
+            fileSizeLimit: 5242880, // 5MB
+            allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
+          });
+        }
+      } catch (error) {
+        console.log('Bucket might already exist, continuing');
+      }
+        
+      const { error: uploadError, data } = await supabase.storage
         .from('avatars')
         .upload(filePath, file, {
           cacheControl: '3600',
           upsert: true
         });
         
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
+      }
       
-      const { data } = supabase.storage
+      const { data: urlData } = supabase.storage
         .from('avatars')
         .getPublicUrl(filePath);
       
       // Update user metadata  
       const { error: updateError } = await supabase.auth.updateUser({
-        data: { avatar_url: data.publicUrl }
+        data: { avatar_url: urlData.publicUrl }
       });
       
       if (updateError) throw updateError;
       
       // Update profile table as well
-      await supabase
+      const { error: profileError } = await supabase
         .from('user_profiles')
-        .update({ avatar_url: data.publicUrl })
+        .update({ avatar_url: urlData.publicUrl })
         .eq('id', user?.id);
+        
+      if (profileError) {
+        console.error('Profile update error:', profileError);
+      }
       
       toast({
         title: "Avatar atualizado",
@@ -120,12 +137,12 @@ export function UserMenu() {
       setTimeout(() => window.location.reload(), 1500);
       
     } catch (error: any) {
+      console.error('Avatar upload error:', error);
       toast({
         title: "Erro ao atualizar avatar",
-        description: error.message,
+        description: error.message || "Não foi possível fazer upload do avatar",
         variant: "destructive"
       });
-      console.error(error);
     } finally {
       setUploading(false);
     }

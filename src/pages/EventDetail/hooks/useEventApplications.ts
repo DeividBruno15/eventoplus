@@ -17,15 +17,22 @@ export const useEventApplications = (event: Event | null) => {
     try {
       setSubmitting(true);
       
+      // Create the application data object
+      const applicationData: any = {
+        event_id: event.id,
+        provider_id: user.id,
+        message: message,
+        status: 'pending'
+      };
+      
+      // Only add service_category if it exists in the schema
+      if (serviceCategory) {
+        applicationData.service_category = serviceCategory;
+      }
+      
       const { data, error } = await supabase
         .from('event_applications')
-        .insert({
-          event_id: event.id,
-          provider_id: user.id,
-          message: message,
-          status: 'pending',
-          service_category: serviceCategory || event.service_type
-        })
+        .insert(applicationData)
         .select()
         .single();
         
@@ -40,10 +47,11 @@ export const useEventApplications = (event: Event | null) => {
         link: `/events/${event.id}`
       });
       
-      // Success! The calling component will handle UI feedback
+      toast.success("Candidatura enviada com sucesso!");
+      
     } catch (error: any) {
       console.error('Erro ao enviar candidatura:', error);
-      toast.error(error.message || 'Ocorreu um erro ao enviar sua candidatura');
+      toast.error("Erro ao enviar candidatura. Tente novamente.");
       throw error;
     } finally {
       setSubmitting(false);

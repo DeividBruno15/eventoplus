@@ -13,30 +13,44 @@ export const useEventImageUpload = () => {
    */
   const uploadEventImage = async (file: File): Promise<string> => {
     try {
+      // Validate file size (max 10MB)
+      if (file.size > 10485760) {
+        throw new Error('Arquivo muito grande. Limite máximo: 10MB');
+      }
+
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        throw new Error('Tipo de arquivo não permitido. Somente JPG, PNG, GIF ou WebP.');
+      }
+
       const fileExt = file.name.split('.').pop();
       const fileName = `${uuidv4()}.${fileExt}`;
       const filePath = `event-images/${fileName}`;
       
-      // Create events bucket if it doesn't exist
+      // Check if events bucket exists
       try {
-        const { data: bucketList } = await supabase.storage.listBuckets();
-        const eventsBucketExists = bucketList?.some(bucket => bucket.name === 'events');
+        const { data: buckets } = await supabase.storage.listBuckets();
+        const eventsBucketExists = buckets?.some(bucket => bucket.name === 'events');
         
         if (!eventsBucketExists) {
-          await supabase.storage.createBucket('events', { 
+          await supabase.storage.createBucket('events', {
             public: true,
-            fileSizeLimit: 10485760 // 10MB
+            fileSizeLimit: 10485760, // 10MB
+            allowedMimeTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
           });
         }
       } catch (error) {
-        // Log error but continue, as the bucket might already exist
         console.log('Bucket check/creation info:', error);
       }
 
       // Upload the file
       const { error: uploadError, data } = await supabase.storage
         .from('events')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
         
       if (uploadError) {
         console.error('Upload error details:', uploadError);
