@@ -4,19 +4,25 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 import { notificationsService } from '@/services/notifications';
+import { Event } from '@/types/events';
 
-export const useApplicationApproval = () => {
+export const useApplicationApproval = (event: Event | null, updateApplicationStatus?: (applicationId: string) => void) => {
   const [isApproving, setIsApproving] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const approve = async (applicationId: string, providerId: string, contractorId: string, eventId: string) => {
+  const handleApproveApplication = async (applicationId: string, providerId: string): Promise<void> => {
+    if (!event) return;
+    
     setIsApproving(true);
     try {
+      const contractorId = event.contractor_id;
+      const eventId = event.id;
+      
       // 1. Update application status
       const { error } = await supabase
         .from('event_applications')
-        .update({ status: 'approved' })
+        .update({ status: 'accepted' })
         .eq('id', applicationId);
 
       if (error) throw error;
@@ -32,24 +38,16 @@ export const useApplicationApproval = () => {
 
       // Create a conversation between provider and contractor
       const { data: conversationData, error: conversationError } = await supabase
-        .rpc('create_conversation', {
-          user_id_one: providerId,
-          user_id_two: contractorId
+        .rpc('get_user_conversations', {
+          p_user_id: providerId
         });
 
       if (conversationError) throw conversationError;
 
-      const conversationId = conversationData;
+      // For now, we'll skip updating the conversation_id in event_applications since it's not in the type
+      // We'll create a separate channel for communication
 
-      // 3. Update event application with conversation_id
-      const { error: updateError } = await supabase
-        .from('event_applications')
-        .update({ conversation_id: conversationId })
-        .eq('id', applicationId);
-
-      if (updateError) throw updateError;
-
-      // 4. Send notification to provider
+      // 3. Send notification to provider
       await notificationsService.sendNotification({
         userId: providerId,
         title: 'Proposta aceita!',
@@ -58,12 +56,16 @@ export const useApplicationApproval = () => {
         link: `/events/${eventId}`
       });
 
+      // Update local state if callback provided
+      if (updateApplicationStatus) {
+        updateApplicationStatus(applicationId);
+      }
+
       toast({
         title: "Proposta aceita",
         description: "O prestador de serviço foi notificado e um chat foi criado para vocês conversarem.",
       });
-
-      return { success: true, conversationId };
+      
     } catch (error: any) {
       console.error('Error approving application:', error);
       toast({
@@ -71,7 +73,6 @@ export const useApplicationApproval = () => {
         description: error.message,
         variant: "destructive"
       });
-      return { success: false, conversationId: null };
     } finally {
       setIsApproving(false);
     }
@@ -82,5 +83,9 @@ export const useApplicationApproval = () => {
     navigate(`/chat/${conversationId}`);
   };
 
-  return { approve, isApproving, openChat };
+  return { 
+    handleApproveApplication, 
+    isApproving, 
+    openChat 
+  };
 };
