@@ -53,20 +53,15 @@ export const useCreateEvent = () => {
         }
       }
       
-      // Prepare event object for saving - ensure status is 'published' so it's visible
+      // Prepare event object for saving
       const eventToSave = {
         name: eventData.name,
         description: eventData.description,
         event_date: eventData.event_date,
         event_time: eventData.event_time,
         location: formattedAddress,
-        // Include address fields separately
+        // Only include zipcode for now as that's the only address field in the DB
         zipcode: eventData.zipcode,
-        street: eventData.street,
-        number: eventData.number,
-        neighborhood: eventData.neighborhood,
-        city: eventData.city,
-        state: eventData.state,
         service_requests: prepareServiceRequestsForStorage(eventData.service_requests),
         image_url: imageUrl,
         contractor_id: user.id,

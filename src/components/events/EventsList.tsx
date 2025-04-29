@@ -32,7 +32,7 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
       
       console.log("Fetching events for contractor:", user.id);
       
-      // Modified query to select all fields including the address fields
+      // Get events data from Supabase
       const { data, error } = await supabase
         .from('events')
         .select('*')
@@ -63,19 +63,21 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
             last_name: '',
           },
           created_at: event.created_at,
-          updated_at: event.updated_at || null, // Include updated_at field 
+          // Handle updated_at differently since it might not exist in the DB
+          updated_at: null,
           service_type: event.service_type,
           status: event.status as EventStatus,
           event_time: event.event_time || undefined,
           image_url: event.image_url || undefined,
           service_requests: event.service_requests as any || undefined,
-          // Add address fields if they exist in the data
+          // Add zipcode which is the only address field in the current DB schema
           zipcode: event.zipcode || undefined,
-          street: event.street || undefined,
-          number: event.number || undefined,
-          neighborhood: event.neighborhood || undefined,
-          city: event.city || undefined,
-          state: event.state || undefined,
+          // Add empty values for other address fields that might not be in the DB yet
+          street: '',
+          number: '',
+          neighborhood: '',
+          city: '',
+          state: '',
         }));
         
         setEvents(processedEvents);
@@ -133,18 +135,18 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
                   last_name: '',
                 },
                 created_at: newEvent.created_at,
-                updated_at: newEvent.updated_at || null,
+                updated_at: null,
                 service_type: newEvent.service_type,
                 status: newEvent.status as EventStatus,
                 event_time: newEvent.event_time || undefined,
                 image_url: newEvent.image_url || undefined,
                 service_requests: newEvent.service_requests as any || undefined,
                 zipcode: newEvent.zipcode || undefined,
-                street: newEvent.street || undefined,
-                number: newEvent.number || undefined,
-                neighborhood: newEvent.neighborhood || undefined,
-                city: newEvent.city || undefined,
-                state: newEvent.state || undefined,
+                street: '',
+                number: '',
+                neighborhood: '',
+                city: '',
+                state: '',
               };
               
               setEvents(prevEvents => [processedEvent, ...prevEvents]);
@@ -165,18 +167,18 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
                   last_name: '',
                 },
                 created_at: updatedEvent.created_at,
-                updated_at: updatedEvent.updated_at || null,
+                updated_at: null,
                 service_type: updatedEvent.service_type,
                 status: updatedEvent.status as EventStatus,
                 event_time: updatedEvent.event_time || undefined,
                 image_url: updatedEvent.image_url || undefined,
                 service_requests: updatedEvent.service_requests as any || undefined,
                 zipcode: updatedEvent.zipcode || undefined,
-                street: updatedEvent.street || undefined,
-                number: updatedEvent.number || undefined,
-                neighborhood: updatedEvent.neighborhood || undefined,
-                city: updatedEvent.city || undefined,
-                state: updatedEvent.state || undefined,
+                street: '',
+                number: '',
+                neighborhood: '',
+                city: '',
+                state: '',
               };
               
               setEvents(prevEvents => 

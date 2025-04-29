@@ -20,8 +20,9 @@ export interface Event {
   event_time?: string;
   image_url?: string;
   service_requests?: ServiceRequest[];
-  // Extended properties from database
+  // Currently only zipcode is available in the DB
   zipcode?: string;
+  // The following fields will be empty strings until we update the DB schema
   street?: string;
   number?: string;
   neighborhood?: string;
