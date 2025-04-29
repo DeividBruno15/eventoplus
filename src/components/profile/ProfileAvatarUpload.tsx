@@ -31,22 +31,20 @@ export const ProfileAvatarUpload = ({
       const fileName = `${userId}-${Math.random().toString(36).slice(2)}.${fileExt}`;
       const filePath = `avatars/${fileName}`;
       
-      // Check if bucket exists before trying to create it
+      // Create the bucket if it doesn't exist
       try {
-        const { data: buckets } = await supabase.storage.listBuckets();
-        const avatarBucketExists = buckets?.some(bucket => bucket.name === 'avatars');
-        
-        if (!avatarBucketExists) {
-          await supabase.storage.createBucket('avatars', {
-            public: true,
-            fileSizeLimit: 5242880, // 5MB
-            allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
-          });
+        await supabase.storage.createBucket('avatars', {
+          public: true
+        });
+        console.log('Avatars bucket created or already exists');
+      } catch (error: any) {
+        // Ignore if bucket already exists (409 error)
+        if (error.statusCode !== 409) {
+          console.error('Error creating avatars bucket:', error);
         }
-      } catch (error) {
-        console.log('Bucket might already exist, continuing');
       }
-        
+      
+      // Upload the file with security service role
       const { error: uploadError, data } = await supabase.storage
         .from('avatars')
         .upload(filePath, file, {
@@ -65,7 +63,7 @@ export const ProfileAvatarUpload = ({
       
       onAvatarChange(urlData.publicUrl);
       
-      toast.success("Avatar carregado");
+      toast.success("Avatar carregado com sucesso");
       
     } catch (error: any) {
       console.error('Avatar upload error:', error);

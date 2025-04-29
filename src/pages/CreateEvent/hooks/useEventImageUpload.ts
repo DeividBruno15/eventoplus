@@ -1,6 +1,7 @@
 
 import { v4 as uuidv4 } from 'uuid';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 /**
  * Hook for handling event image uploads
@@ -28,20 +29,17 @@ export const useEventImageUpload = () => {
       const fileName = `${uuidv4()}.${fileExt}`;
       const filePath = `event-images/${fileName}`;
       
-      // Check if events bucket exists
+      // Create the bucket if it doesn't exist
       try {
-        const { data: buckets } = await supabase.storage.listBuckets();
-        const eventsBucketExists = buckets?.some(bucket => bucket.name === 'events');
-        
-        if (!eventsBucketExists) {
-          await supabase.storage.createBucket('events', {
-            public: true,
-            fileSizeLimit: 10485760, // 10MB
-            allowedMimeTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
-          });
+        await supabase.storage.createBucket('events', {
+          public: true
+        });
+        console.log('Bucket created or already exists');
+      } catch (error: any) {
+        // Ignore if bucket already exists (409 error)
+        if (error.statusCode !== 409) {
+          console.error('Error creating bucket:', error);
         }
-      } catch (error) {
-        console.log('Bucket check/creation info:', error);
       }
 
       // Upload the file
@@ -69,10 +67,14 @@ export const useEventImageUpload = () => {
       if (!publicUrlData.publicUrl) {
         throw new Error('Failed to get public URL');
       }
+
+      // Notify success
+      toast.success('Imagem carregada com sucesso');
       
       return publicUrlData.publicUrl;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error in uploadEventImage:', error);
+      toast.error(`Erro ao fazer upload da imagem: ${error.message}`);
       throw error;
     }
   };
