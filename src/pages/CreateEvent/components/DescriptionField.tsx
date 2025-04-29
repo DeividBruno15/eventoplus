@@ -1,9 +1,9 @@
 
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import { Label } from '@/components/ui/label';
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
-import type { CreateEventFormData } from '../schema';
+import type { CreateEventFormData } from '@/types/events';
 
 interface DescriptionFieldProps {
   form: UseFormReturn<CreateEventFormData>;
@@ -11,17 +11,22 @@ interface DescriptionFieldProps {
 
 export const DescriptionField = ({ form }: DescriptionFieldProps) => {
   return (
-    <div>
-      <Label htmlFor="description">Descrição do Evento*</Label>
-      <Textarea 
-        id="description"
-        placeholder="Descreva detalhes do evento, necessidades específicas, orçamento estimado, etc."
-        rows={5}
-        {...form.register('description')}
-      />
-      {form.formState.errors.description && (
-        <p className="text-sm text-red-500 mt-1">{form.formState.errors.description.message}</p>
+    <FormField
+      control={form.control}
+      name="description"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Descrição do Evento*</FormLabel>
+          <FormControl>
+            <Textarea 
+              placeholder="Descreva detalhes do evento, necessidades específicas, orçamento estimado, etc."
+              rows={5}
+              {...field}
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
       )}
-    </div>
+    />
   );
 };
