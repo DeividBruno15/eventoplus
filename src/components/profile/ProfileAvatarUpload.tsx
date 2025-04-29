@@ -29,22 +29,11 @@ export const ProfileAvatarUpload = ({
       const file = event.target.files[0];
       const fileExt = file.name.split('.').pop();
       const fileName = `${userId}-${Math.random().toString(36).slice(2)}.${fileExt}`;
-      const filePath = `avatars/${fileName}`;
+      const filePath = `${fileName}`;
       
-      // Create the bucket if it doesn't exist
-      try {
-        await supabase.storage.createBucket('avatars', {
-          public: true
-        });
-        console.log('Avatars bucket created or already exists');
-      } catch (error: any) {
-        // Ignore if bucket already exists (409 error)
-        if (error.statusCode !== 409) {
-          console.error('Error creating avatars bucket:', error);
-        }
-      }
+      console.log('Uploading avatar to:', filePath);
       
-      // Upload the file with security service role
+      // Upload the file
       const { error: uploadError, data } = await supabase.storage
         .from('avatars')
         .upload(filePath, file, {

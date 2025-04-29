@@ -3,7 +3,7 @@ import { useState, useRef } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Image, Upload, X } from 'lucide-react';
+import { Image, X } from 'lucide-react';
 import { CreateEventFormData } from '@/types/events';
 import { toast } from 'sonner';
 

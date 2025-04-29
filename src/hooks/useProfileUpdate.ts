@@ -22,6 +22,8 @@ export const useProfileUpdate = (
     setLoading(true);
     
     try {
+      console.log('Updating profile with avatar:', avatarUrl);
+      
       const { error } = await supabase.auth.updateUser({
         data: {
           first_name: formData.first_name,
@@ -36,7 +38,7 @@ export const useProfileUpdate = (
       if (error) throw error;
       
       // Update the user_profiles table as well
-      await supabase
+      const { error: profileError } = await supabase
         .from('user_profiles')
         .update({
           first_name: formData.first_name,
@@ -46,10 +48,13 @@ export const useProfileUpdate = (
           avatar_url: avatarUrl,
         })
         .eq('id', userData.id);
+        
+      if (profileError) throw profileError;
       
       toast.success("Perfil atualizado");
       onSuccess();
     } catch (error: any) {
+      console.error('Profile update error:', error);
       toast.error("Erro ao atualizar perfil: " + error.message);
     } finally {
       setLoading(false);

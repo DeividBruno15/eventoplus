@@ -30,20 +30,16 @@ export const ImageUpload = ({ event, userId, onSuccess }: ImageUploadProps) => {
     
     const file = e.target.files[0];
     const fileExt = file.name.split('.').pop();
-    const filePath = `events/${event.id}/${Math.random().toString(36).slice(2)}.${fileExt}`;
+    const filePath = `${event.id}/${Math.random().toString(36).slice(2)}.${fileExt}`;
     
     try {
       setUploading(true);
       
-      await supabase.storage
-        .createBucket('events', { public: true })
-        .catch(() => {
-          // Bucket might already exist, continue
-        });
-      
       const { error: uploadError } = await supabase.storage
         .from('events')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          upsert: true
+        });
         
       if (uploadError) throw uploadError;
       

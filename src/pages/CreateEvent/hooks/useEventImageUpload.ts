@@ -29,19 +29,8 @@ export const useEventImageUpload = () => {
       const fileName = `${uuidv4()}.${fileExt}`;
       const filePath = `event-images/${fileName}`;
       
-      // Create the bucket if it doesn't exist
-      try {
-        await supabase.storage.createBucket('events', {
-          public: true
-        });
-        console.log('Bucket created or already exists');
-      } catch (error: any) {
-        // Ignore if bucket already exists (409 error)
-        if (error.statusCode !== 409) {
-          console.error('Error creating bucket:', error);
-        }
-      }
-
+      console.log('Uploading event image to:', filePath);
+      
       // Upload the file
       const { error: uploadError, data } = await supabase.storage
         .from('events')

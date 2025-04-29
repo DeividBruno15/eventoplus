@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -76,25 +75,9 @@ export function UserMenu() {
       const file = event.target.files[0];
       const fileExt = file.name.split('.').pop();
       const fileName = `${user?.id}-${Math.random().toString(36).slice(2)}.${fileExt}`;
-      const filePath = `avatars/${fileName}`;
+      const filePath = `${fileName}`;
       
-      // Make sure avatars bucket exists
-      try {
-        // First check if bucket exists
-        const { data: buckets } = await supabase.storage.listBuckets();
-        const avatarBucketExists = buckets?.some(bucket => bucket.name === 'avatars');
-        
-        if (!avatarBucketExists) {
-          await supabase.storage.createBucket('avatars', {
-            public: true,
-            fileSizeLimit: 5242880, // 5MB
-            allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
-          });
-        }
-      } catch (error) {
-        console.log('Bucket might already exist, continuing');
-      }
-        
+      // Upload the file
       const { error: uploadError, data } = await supabase.storage
         .from('avatars')
         .upload(filePath, file, {

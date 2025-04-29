@@ -33,9 +33,13 @@ export const useEventFormSubmit = () => {
         }
       }
       
-      await createEvent(data);
-      toast.success('Evento criado com sucesso!');
-      navigate('/events');
+      console.log('Submitting event data:', data);
+      const result = await createEvent(data);
+      
+      if (result) {
+        toast.success('Evento criado com sucesso!');
+        navigate('/events');
+      }
     } catch (error: any) {
       console.error('Erro ao criar evento:', error);
       toast.error(error.message || 'Ocorreu um erro ao criar o evento. Tente novamente.');
