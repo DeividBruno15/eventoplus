@@ -189,10 +189,13 @@ export const useContractorEvents = () => {
             }
           }
         )
-        .subscribe();
+        .subscribe((status) => {
+          console.log('Subscription status:', status);
+        });
         
       // Cleanup subscription on unmount
       return () => {
+        console.log('Removing subscription');
         supabase.removeChannel(channel);
       };
     }

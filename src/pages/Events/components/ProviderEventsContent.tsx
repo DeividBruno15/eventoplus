@@ -45,7 +45,7 @@ export const ProviderEventsContent = () => {
     fetchUserServices();
   }, [user]);
 
-  // Fetch events based on user services
+  // Fetch events and set up real-time subscription
   useEffect(() => {
     if (!user || userServices.length === 0) {
       setLoading(false);
@@ -88,7 +88,12 @@ export const ProviderEventsContent = () => {
           const typedEvents = events.map((event: any) => ({
             ...event,
             status: event.status as EventStatus,
-            service_requests: event.service_requests as unknown as Event['service_requests']
+            service_requests: event.service_requests as unknown as Event['service_requests'],
+            contractor: {
+              id: event.contractor_id,
+              first_name: '',
+              last_name: '',
+            }
           }));
           
           // Only show events in the available list that the user has NOT applied to
@@ -113,7 +118,12 @@ export const ProviderEventsContent = () => {
             const typedAppliedEvents = appliedEventsData ? appliedEventsData.map((event: any) => ({
               ...event,
               status: event.status as EventStatus,
-              service_requests: event.service_requests as unknown as Event['service_requests']
+              service_requests: event.service_requests as unknown as Event['service_requests'],
+              contractor: {
+                id: event.contractor_id,
+                first_name: '',
+                last_name: '',
+              }
             })) : [];
             
             console.log('Applied events fetched:', typedAppliedEvents.length);
@@ -132,6 +142,42 @@ export const ProviderEventsContent = () => {
     };
 
     fetchEvents();
+    
+    // Set up real-time subscription for events deletions
+    if (userServices.length > 0) {
+      console.log("Setting up real-time subscription for provider events");
+      const channel = supabase
+        .channel('provider-events-changes')
+        .on('postgres_changes', 
+          { 
+            event: 'DELETE',
+            schema: 'public', 
+            table: 'events'
+          }, 
+          (payload) => {
+            console.log('Event deleted, updating lists:', payload.old);
+            const deletedEventId = payload.old.id;
+            
+            // Remove from available events if present
+            setAvailableEvents(current => 
+              current.filter(event => event.id !== deletedEventId)
+            );
+            
+            // Remove from applied events if present
+            setAppliedEvents(current => 
+              current.filter(event => event.id !== deletedEventId)
+            );
+          }
+        )
+        .subscribe((status) => {
+          console.log('Provider events subscription status:', status);
+        });
+        
+      return () => {
+        console.log('Removing provider events subscription');
+        supabase.removeChannel(channel);
+      };
+    }
   }, [user, userServices]);
 
   // Send application for an event

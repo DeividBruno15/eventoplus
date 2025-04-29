@@ -35,6 +35,7 @@ export const DeleteEvent = ({ event, userId }: DeleteEventProps) => {
     
     try {
       setDeleting(true);
+      console.log("Iniciando exclusão do evento:", event.id);
       
       // Delete all applications for this event first
       const { error: applicationsError } = await supabase
@@ -44,7 +45,11 @@ export const DeleteEvent = ({ event, userId }: DeleteEventProps) => {
         
       if (applicationsError) {
         console.error("Error deleting applications:", applicationsError);
+        toast.error(`Erro ao excluir candidaturas: ${applicationsError.message}`);
+        return;
       }
+      
+      console.log("Todas as candidaturas foram excluídas, agora excluindo o evento");
       
       // Delete the event itself
       const { error } = await supabase
@@ -52,16 +57,23 @@ export const DeleteEvent = ({ event, userId }: DeleteEventProps) => {
         .delete()
         .eq('id', event.id);
         
-      if (error) throw error;
+      if (error) {
+        console.error("Error deleting event:", error);
+        toast.error(`Erro ao excluir evento: ${error.message}`);
+        return;
+      }
       
+      console.log("Evento excluído com sucesso, ID:", event.id);
       toast.success("Evento excluído com sucesso");
       
-      // Navigate to events page immediately
-      navigate('/events');
+      // Ensure the navigation happens after the deletion is confirmed
+      setTimeout(() => {
+        navigate('/events');
+      }, 500);
       
     } catch (error: any) {
-      toast.error(`Erro ao excluir evento: ${error.message}`);
       console.error("Delete error:", error);
+      toast.error(`Erro ao excluir evento: ${error.message}`);
     } finally {
       setIsOpen(false);
       setDeleting(false);
@@ -89,7 +101,10 @@ export const DeleteEvent = ({ event, userId }: DeleteEventProps) => {
           <AlertDialogFooter>
             <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
             <AlertDialogAction 
-              onClick={handleDelete}
+              onClick={(e) => {
+                e.preventDefault(); // Prevent default to handle manually
+                handleDelete();
+              }}
               disabled={deleting}
               className="bg-red-500 text-white hover:bg-red-600"
             >
