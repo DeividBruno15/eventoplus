@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Camera } from 'lucide-react';
 
@@ -20,22 +20,21 @@ interface EditProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
   userData: any;
-  onProfileUpdate: () => void;
+  onSuccess: () => void;
 }
 
-export const EditProfileModal = ({ isOpen, onClose, userData, onProfileUpdate }: EditProfileModalProps) => {
-  const { toast } = useToast();
+export const EditProfileModal = ({ isOpen, onClose, userData, onSuccess }: EditProfileModalProps) => {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
-    first_name: userData?.user_metadata?.first_name || '',
-    last_name: userData?.user_metadata?.last_name || '',
-    phone_number: userData?.user_metadata?.phone_number || '',
-    document_number: userData?.user_metadata?.document_number || '',
-    bio: userData?.user_metadata?.bio || '',
+    first_name: userData?.first_name || '',
+    last_name: userData?.last_name || '',
+    phone_number: userData?.phone_number || '',
+    document_number: userData?.document_number || '',
+    bio: userData?.bio || '',
   });
   
-  const [avatarUrl, setAvatarUrl] = useState(userData?.user_metadata?.avatar_url || '');
+  const [avatarUrl, setAvatarUrl] = useState(userData?.avatar_url || '');
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -60,19 +59,20 @@ export const EditProfileModal = ({ isOpen, onClose, userData, onProfileUpdate }:
       
       if (error) throw error;
       
-      toast({
-        title: "Perfil atualizado",
-        description: "Suas informações foram atualizadas com sucesso."
-      });
+      // Update user_profiles table as well
+      await supabase
+        .from('user_profiles')
+        .update({
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+          phone_number: formData.phone_number,
+        })
+        .eq('id', userData.id);
       
-      onProfileUpdate();
-      onClose();
+      toast.success("Perfil atualizado");
+      onSuccess();
     } catch (error: any) {
-      toast({
-        title: "Erro ao atualizar perfil",
-        description: error.message,
-        variant: "destructive"
-      });
+      toast.error("Erro ao atualizar perfil: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -108,17 +108,10 @@ export const EditProfileModal = ({ isOpen, onClose, userData, onProfileUpdate }:
       
       setAvatarUrl(publicUrl);
       
-      toast({
-        title: "Avatar carregado",
-        description: "A imagem foi carregada com sucesso."
-      });
+      toast.success("Avatar carregado");
       
     } catch (error: any) {
-      toast({
-        title: "Erro ao carregar avatar",
-        description: error.message,
-        variant: "destructive"
-      });
+      toast.error("Erro ao carregar avatar: " + error.message);
     } finally {
       setUploading(false);
     }

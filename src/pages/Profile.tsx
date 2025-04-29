@@ -7,7 +7,7 @@ import { EditAddressModal } from "@/components/profile/EditAddressModal";
 import { ServiceCategoriesModal } from "@/components/profile/ServiceCategoriesModal";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Camera, MapPin, Phone, Mail, Upload } from "lucide-react";
+import { Camera, MapPin, Phone, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { UserCompanies } from "@/components/profile/UserCompanies";
 
@@ -373,7 +373,7 @@ const Profile = () => {
       {/* Modals */}
       {isEditProfileOpen && (
         <EditProfileModal
-          open={isEditProfileOpen}
+          isOpen={isEditProfileOpen}
           onClose={() => setIsEditProfileOpen(false)}
           onSuccess={handleProfileUpdated}
           userData={userData}
@@ -382,7 +382,7 @@ const Profile = () => {
 
       {isEditAddressOpen && (
         <EditAddressModal
-          open={isEditAddressOpen}
+          isOpen={isEditAddressOpen}
           onClose={() => setIsEditAddressOpen(false)}
           onSuccess={handleAddressUpdated}
           userData={userData}
@@ -391,7 +391,7 @@ const Profile = () => {
 
       {isServiceCategoriesOpen && (
         <ServiceCategoriesModal
-          open={isServiceCategoriesOpen}
+          isOpen={isServiceCategoriesOpen}
           onClose={() => setIsServiceCategoriesOpen(false)}
           onSuccess={handleServiceCategoriesUpdated}
         />

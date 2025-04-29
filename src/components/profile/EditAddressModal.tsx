@@ -11,26 +11,28 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/components/ui/use-toast';
-import { fetchAddressByCep } from '@/utils/cep';
+import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
+import { consultarCep } from '@/utils/cep';
 
 interface EditAddressModalProps {
   isOpen: boolean;
   onClose: () => void;
   userData: any;
-  onAddressUpdate: () => void;
+  onSuccess: () => void;
 }
 
-export const EditAddressModal = ({ isOpen, onClose, userData, onAddressUpdate }: EditAddressModalProps) => {
-  const { toast } = useToast();
+export const EditAddressModal = ({ isOpen, onClose, userData, onSuccess }: EditAddressModalProps) => {
   const [loading, setLoading] = useState(false);
-  const [searchingCep, setSearchingCep] = useState(false);
+  const [lookingUpZipcode, setLookingUpZipcode] = useState(false);
+  
   const [formData, setFormData] = useState({
-    street: userData?.user_metadata?.street || '',
-    neighborhood: userData?.user_metadata?.neighborhood || '',
-    city: userData?.user_metadata?.city || '',
-    state: userData?.user_metadata?.state || '',
-    zipcode: userData?.user_metadata?.zipcode || '',
+    zipcode: userData?.zipcode || '',
+    street: userData?.street || '',
+    number: userData?.number || '',
+    neighborhood: userData?.neighborhood || '',
+    city: userData?.city || '',
+    state: userData?.state || '',
   });
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,49 +40,29 @@ export const EditAddressModal = ({ isOpen, onClose, userData, onAddressUpdate }:
     setFormData(prev => ({ ...prev, [name]: value }));
   };
   
-  const searchCep = async () => {
-    if (!formData.zipcode || formData.zipcode.length < 8) {
-      toast({
-        title: "CEP inválido",
-        description: "Por favor, informe um CEP válido.",
-        variant: "destructive"
-      });
-      return;
-    }
+  const handleZipcodeChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const zipcode = e.target.value.replace(/\D/g, '');
+    setFormData(prev => ({ ...prev, zipcode }));
     
-    try {
-      setSearchingCep(true);
-      const address = await fetchAddressByCep(formData.zipcode);
-      
-      if (!address) {
-        toast({
-          title: "CEP não encontrado",
-          description: "O CEP informado não foi encontrado.",
-          variant: "destructive"
-        });
-        return;
+    if (zipcode.length === 8) {
+      setLookingUpZipcode(true);
+      try {
+        const result = await consultarCep(zipcode);
+        
+        if (result) {
+          setFormData(prev => ({
+            ...prev,
+            street: result.logradouro || '',
+            neighborhood: result.bairro || '',
+            city: result.localidade || '',
+            state: result.uf || '',
+          }));
+        }
+      } catch (error) {
+        toast.error("Erro ao buscar CEP");
+      } finally {
+        setLookingUpZipcode(false);
       }
-      
-      setFormData({
-        street: address.street,
-        neighborhood: address.neighborhood,
-        city: address.city,
-        state: address.state,
-        zipcode: address.zipcode,
-      });
-      
-      toast({
-        title: "Endereço encontrado",
-        description: "Endereço localizado com sucesso."
-      });
-    } catch (error) {
-      toast({
-        title: "Erro na busca",
-        description: "Não foi possível buscar o endereço pelo CEP.",
-        variant: "destructive"
-      });
-    } finally {
-      setSearchingCep(false);
     }
   };
   
@@ -89,31 +71,25 @@ export const EditAddressModal = ({ isOpen, onClose, userData, onAddressUpdate }:
     setLoading(true);
     
     try {
-      const { error } = await supabase.auth.updateUser({
-        data: {
+      // Update user_profiles table
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({
+          zipcode: formData.zipcode,
           street: formData.street,
+          number: formData.number,
           neighborhood: formData.neighborhood,
           city: formData.city,
           state: formData.state,
-          zipcode: formData.zipcode,
-        }
-      });
+        })
+        .eq('id', userData.id);
       
       if (error) throw error;
       
-      toast({
-        title: "Endereço atualizado",
-        description: "Seu endereço foi atualizado com sucesso."
-      });
-      
-      onAddressUpdate();
-      onClose();
+      toast.success("Endereço atualizado");
+      onSuccess();
     } catch (error: any) {
-      toast({
-        title: "Erro ao atualizar endereço",
-        description: error.message,
-        variant: "destructive"
-      });
+      toast.error("Erro ao atualizar endereço: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -123,41 +99,53 @@ export const EditAddressModal = ({ isOpen, onClose, userData, onAddressUpdate }:
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Editar Endereço</DialogTitle>
+          <DialogTitle>Atualizar Endereço</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex gap-2 items-end">
-            <div className="flex-1 space-y-2">
-              <Label htmlFor="zipcode">CEP</Label>
+          <div className="space-y-2">
+            <Label htmlFor="zipcode">CEP</Label>
+            <div className="relative">
               <Input 
                 id="zipcode"
                 name="zipcode"
                 value={formData.zipcode}
-                onChange={handleInputChange}
-                placeholder="00000-000"
+                onChange={handleZipcodeChange}
+                placeholder="Digite o CEP"
+                maxLength={9}
+                disabled={lookingUpZipcode}
               />
+              {lookingUpZipcode && (
+                <Loader2 className="absolute right-3 top-2.5 h-4 w-4 animate-spin" />
+              )}
             </div>
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={searchCep} 
-              disabled={searchingCep}
-              className="mb-px"
-            >
-              {searchingCep ? "Buscando..." : "Buscar"}
-            </Button>
+            <p className="text-xs text-muted-foreground">
+              Digite o CEP para preenchimento automático dos campos
+            </p>
           </div>
           
-          <div className="space-y-2">
-            <Label htmlFor="street">Rua</Label>
-            <Input 
-              id="street"
-              name="street"
-              value={formData.street}
-              onChange={handleInputChange}
-              placeholder="Rua, Avenida, etc."
-            />
+          <div className="grid grid-cols-3 gap-4">
+            <div className="col-span-2 space-y-2">
+              <Label htmlFor="street">Rua</Label>
+              <Input 
+                id="street"
+                name="street"
+                value={formData.street}
+                onChange={handleInputChange}
+                placeholder="Nome da rua"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="number">Número</Label>
+              <Input 
+                id="number"
+                name="number"
+                value={formData.number}
+                onChange={handleInputChange}
+                placeholder="Nº"
+              />
+            </div>
           </div>
           
           <div className="space-y-2">
@@ -167,19 +155,19 @@ export const EditAddressModal = ({ isOpen, onClose, userData, onAddressUpdate }:
               name="neighborhood"
               value={formData.neighborhood}
               onChange={handleInputChange}
-              placeholder="Seu bairro"
+              placeholder="Bairro"
             />
           </div>
           
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
+          <div className="grid grid-cols-3 gap-4">
+            <div className="col-span-2 space-y-2">
               <Label htmlFor="city">Cidade</Label>
               <Input 
                 id="city"
                 name="city"
                 value={formData.city}
                 onChange={handleInputChange}
-                placeholder="Sua cidade"
+                placeholder="Cidade"
               />
             </div>
             

@@ -1,86 +1,92 @@
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
-import { UserCompany } from '@/types/profile';
-import { Button } from '@/components/ui/button';
 import { 
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Plus, Pencil, Trash, Building, Loader2 } from 'lucide-react';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-  DialogClose,
-} from "@/components/ui/dialog";
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogFooter 
+} from '@/components/ui/dialog';
+import { 
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { fetchAddressByCep, formatCep } from '@/utils/cep';
+import { supabase } from '@/integrations/supabase/client';
+import { Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { consultarCep } from '@/utils/cep';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { UserCompany } from '@/types/profile';
 
-interface CompanyFormValues {
-  name: string;
-  zipcode: string;
-  street: string;
-  number: string;
-  neighborhood: string;
-  city: string;
-  state: string;
-}
+// Form validation schema
+const companySchema = z.object({
+  name: z.string().min(1, "Nome da empresa é obrigatório"),
+  zipcode: z.string().min(8, "CEP deve ter 8 dígitos"),
+  street: z.string().min(1, "Rua é obrigatória"),
+  number: z.string().min(1, "Número é obrigatório"),
+  neighborhood: z.string().min(1, "Bairro é obrigatório"),
+  city: z.string().min(1, "Cidade é obrigatória"),
+  state: z.string().min(2, "Estado é obrigatório"),
+});
 
-const initialFormValues: CompanyFormValues = {
-  name: '',
-  zipcode: '',
-  street: '',
-  number: '',
-  neighborhood: '',
-  city: '',
-  state: '',
-};
+type CompanyFormValues = z.infer<typeof companySchema>;
 
-export function UserCompanies() {
+export const UserCompanies = () => {
   const { user } = useAuth();
   const [companies, setCompanies] = useState<UserCompany[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showDialog, setShowDialog] = useState(false);
-  const [isEdit, setIsEdit] = useState(false);
-  const [currentCompanyId, setCurrentCompanyId] = useState<string | null>(null);
-  const [formValues, setFormValues] = useState<CompanyFormValues>(initialFormValues);
-  const [saving, setSaving] = useState(false);
-  const [fetchingAddress, setFetchingAddress] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [lookingUpZipcode, setLookingUpZipcode] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [editingCompany, setEditingCompany] = useState<UserCompany | null>(null);
+  const [companyToDelete, setCompanyToDelete] = useState<UserCompany | null>(null);
   
+  const form = useForm<CompanyFormValues>({
+    resolver: zodResolver(companySchema),
+    defaultValues: {
+      name: '',
+      zipcode: '',
+      street: '',
+      number: '',
+      neighborhood: '',
+      city: '',
+      state: '',
+    }
+  });
+  
+  // Fetch companies on component mount
   useEffect(() => {
-    fetchCompanies();
+    if (user) {
+      fetchCompanies();
+    }
   }, [user]);
-
+  
   const fetchCompanies = async () => {
     if (!user) return;
-
+    
     try {
       setLoading(true);
       
-      // Use a direct query with any to avoid type issues
-      // This is a workaround until the Supabase types are updated
       const { data, error } = await supabase
-        .from('user_companies' as any)
+        .from('user_companies')
         .select('*')
         .eq('user_id', user.id)
-        .order('name', { ascending: true });
-
+        .order('name');
+      
       if (error) throw error;
       
-      // Cast the data to our known type
-      setCompanies(data as unknown as UserCompany[] || []);
+      setCompanies(data || []);
     } catch (error) {
       console.error('Error fetching companies:', error);
       toast.error('Erro ao carregar empresas');
@@ -88,354 +94,396 @@ export function UserCompanies() {
       setLoading(false);
     }
   };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+  
+  const handleZipcodeChange = async (value: string) => {
+    const zipcode = value.replace(/\D/g, '');
+    form.setValue('zipcode', zipcode);
     
-    if (name === 'zipcode') {
-      const formattedZipcode = formatCep(value);
-      setFormValues({ ...formValues, [name]: formattedZipcode });
-      
-      // If we have a complete CEP, fetch the address
-      if (formattedZipcode.replace(/\D/g, '').length === 8) {
-        fetchAddressData(formattedZipcode);
+    if (zipcode.length === 8) {
+      setLookingUpZipcode(true);
+      try {
+        const result = await consultarCep(zipcode);
+        
+        if (result) {
+          form.setValue('street', result.logradouro || '');
+          form.setValue('neighborhood', result.bairro || '');
+          form.setValue('city', result.localidade || '');
+          form.setValue('state', result.uf || '');
+          
+          // Trigger validation
+          form.trigger(['street', 'neighborhood', 'city', 'state']);
+        }
+      } catch (error) {
+        toast.error('Erro ao buscar CEP');
+      } finally {
+        setLookingUpZipcode(false);
       }
-    } else {
-      setFormValues({ ...formValues, [name]: value });
     }
   };
   
-  const fetchAddressData = async (cep: string) => {
-    setFetchingAddress(true);
-    try {
-      const addressData = await fetchAddressByCep(cep);
-      if (addressData) {
-        setFormValues(prev => ({
-          ...prev,
-          street: addressData.street || prev.street,
-          neighborhood: addressData.neighborhood || prev.neighborhood,
-          city: addressData.city || prev.city,
-          state: addressData.state || prev.state,
-        }));
-      } else {
-        toast.error('CEP não encontrado');
-      }
-    } catch (error) {
-      console.error('Error fetching address:', error);
-      toast.error('Erro ao buscar endereço pelo CEP');
-    } finally {
-      setFetchingAddress(false);
-    }
-  };
-
-  const handleOpenDialog = (company?: UserCompany) => {
-    if (company) {
-      setIsEdit(true);
-      setCurrentCompanyId(company.id);
-      setFormValues({
-        name: company.name,
-        zipcode: company.zipcode,
-        street: company.street,
-        number: company.number,
-        neighborhood: company.neighborhood,
-        city: company.city,
-        state: company.state,
-      });
-    } else {
-      setIsEdit(false);
-      setCurrentCompanyId(null);
-      setFormValues(initialFormValues);
-    }
-    setShowDialog(true);
-  };
-
-  const handleCloseDialog = () => {
-    setShowDialog(false);
-    setTimeout(() => {
-      setFormValues(initialFormValues);
-    }, 300);
-  };
-
-  const validateForm = () => {
-    const requiredFields = ['name', 'zipcode', 'street', 'number', 'neighborhood', 'city', 'state'];
-    const missingFields = requiredFields.filter(field => !formValues[field as keyof CompanyFormValues]);
-    
-    if (missingFields.length > 0) {
-      toast.error(`Preencha todos os campos obrigatórios`);
-      return false;
-    }
-    
-    // Validate zipcode format
-    const zipcode = formValues.zipcode.replace(/\D/g, '');
-    if (zipcode.length !== 8) {
-      toast.error('CEP inválido');
-      return false;
-    }
-    
-    return true;
-  };
-
-  const handleSaveCompany = async () => {
+  const onSubmit = async (values: CompanyFormValues) => {
     if (!user) return;
-    if (!validateForm()) return;
     
     try {
-      setSaving(true);
+      setSubmitting(true);
       
       const companyData = {
-        ...formValues,
         user_id: user.id,
+        ...values
       };
       
-      if (isEdit && currentCompanyId) {
-        // Type assertion for the database table
-        const { error } = await supabase
-          .from('user_companies' as any)
+      let response;
+      
+      if (editingCompany) {
+        response = await supabase
+          .from('user_companies')
           .update(companyData)
-          .eq('id', currentCompanyId);
-        
-        if (error) throw error;
-        toast.success('Empresa atualizada com sucesso');
+          .eq('id', editingCompany.id);
       } else {
-        // Type assertion for the database table
-        const { error } = await supabase
-          .from('user_companies' as any)
+        response = await supabase
+          .from('user_companies')
           .insert([companyData]);
-        
-        if (error) throw error;
-        toast.success('Empresa adicionada com sucesso');
       }
       
-      // Refresh companies and close dialog
+      if (response.error) throw response.error;
+      
+      toast.success(editingCompany ? 'Empresa atualizada com sucesso' : 'Empresa adicionada com sucesso');
       fetchCompanies();
-      handleCloseDialog();
-    } catch (error) {
-      console.error('Error saving company:', error);
-      toast.error('Erro ao salvar empresa');
+      closeDialog();
+    } catch (error: any) {
+      toast.error(`Erro: ${error.message}`);
     } finally {
-      setSaving(false);
+      setSubmitting(false);
     }
   };
-
-  const handleDeleteCompany = async (id: string) => {
-    if (!confirm('Tem certeza que deseja excluir esta empresa?')) return;
+  
+  const handleEditCompany = (company: UserCompany) => {
+    setEditingCompany(company);
+    
+    // Set form values
+    form.reset({
+      name: company.name,
+      zipcode: company.zipcode,
+      street: company.street,
+      number: company.number,
+      neighborhood: company.neighborhood,
+      city: company.city,
+      state: company.state,
+    });
+    
+    setIsDialogOpen(true);
+  };
+  
+  const handleDeleteClick = (company: UserCompany) => {
+    setCompanyToDelete(company);
+    setIsDeleteDialogOpen(true);
+  };
+  
+  const confirmDelete = async () => {
+    if (!companyToDelete) return;
     
     try {
-      setLoading(true);
-      // Type assertion for the database table
+      setSubmitting(true);
+      
       const { error } = await supabase
-        .from('user_companies' as any)
+        .from('user_companies')
         .delete()
-        .eq('id', id);
+        .eq('id', companyToDelete.id);
       
       if (error) throw error;
       
-      toast.success('Empresa excluída com sucesso');
+      toast.success('Empresa removida com sucesso');
       fetchCompanies();
-    } catch (error) {
-      console.error('Error deleting company:', error);
-      toast.error('Erro ao excluir empresa');
+    } catch (error: any) {
+      toast.error(`Erro: ${error.message}`);
     } finally {
-      setLoading(false);
+      setSubmitting(false);
+      setIsDeleteDialogOpen(false);
+      setCompanyToDelete(null);
     }
   };
-
-  if (loading) {
-    return (
-      <Card className="border border-gray-200">
-        <CardHeader>
-          <CardTitle className="text-xl">Minhas Empresas</CardTitle>
-          <CardDescription>Gerencie suas empresas para criar eventos</CardDescription>
-        </CardHeader>
-        <CardContent className="flex justify-center py-8">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </CardContent>
-      </Card>
-    );
-  }
-
+  
+  const openDialog = () => {
+    setEditingCompany(null);
+    form.reset({
+      name: '',
+      zipcode: '',
+      street: '',
+      number: '',
+      neighborhood: '',
+      city: '',
+      state: '',
+    });
+    setIsDialogOpen(true);
+  };
+  
+  const closeDialog = () => {
+    setIsDialogOpen(false);
+    form.reset();
+  };
+  
   return (
-    <Card className="border border-gray-200">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div>
-          <CardTitle className="text-xl">Minhas Empresas</CardTitle>
-          <CardDescription>Gerencie suas empresas para criar eventos</CardDescription>
+    <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-xl font-medium">Minhas Empresas</h3>
+          <Button onClick={openDialog} size="sm">
+            <Plus className="mr-2 h-4 w-4" /> Adicionar Empresa
+          </Button>
         </div>
-        <Button onClick={() => handleOpenDialog()} size="sm">
-          <Plus className="mr-1 h-4 w-4" />
-          Nova Empresa
-        </Button>
-      </CardHeader>
-      
-      <CardContent>
-        {companies.length === 0 ? (
-          <div className="text-center py-8 border border-dashed rounded-lg">
-            <Building className="h-10 w-10 text-muted-foreground/40 mx-auto mb-3" />
-            <h3 className="text-lg font-medium mb-1">Nenhuma empresa cadastrada</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Adicione empresas para facilitar a criação de eventos
+        
+        {loading ? (
+          <div className="flex justify-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : companies.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground">
+            <p>Você ainda não tem empresas cadastradas.</p>
+            <p className="text-sm mt-2">
+              Adicione empresas para facilitar a criação de eventos.
             </p>
-            <Button onClick={() => handleOpenDialog()}>
-              <Plus className="mr-2 h-4 w-4" />
-              Adicionar Empresa
-            </Button>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="grid gap-4">
             {companies.map((company) => (
-              <div key={company.id} className="border rounded-md p-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="font-medium">{company.name}</h3>
+              <div 
+                key={company.id} 
+                className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+              >
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h4 className="font-medium">{company.name}</h4>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {company.street}, {company.number} - {company.neighborhood}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {company.city}, {company.state} - CEP {company.zipcode}
+                    </p>
+                  </div>
                   <div className="flex gap-2">
                     <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleOpenDialog(company)}
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-8 w-8 p-0"
+                      onClick={() => handleEditCompany(company)}
                     >
-                      <Pencil className="h-3.5 w-3.5" />
+                      <Pencil className="h-4 w-4" />
+                      <span className="sr-only">Editar</span>
                     </Button>
                     <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleDeleteCompany(company.id)}
-                      className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+                      onClick={() => handleDeleteClick(company)}
                     >
-                      <Trash className="h-3.5 w-3.5" />
+                      <Trash2 className="h-4 w-4" />
+                      <span className="sr-only">Excluir</span>
                     </Button>
                   </div>
-                </div>
-                <Separator className="my-2" />
-                <div className="text-sm text-muted-foreground">
-                  <p>{company.street}, {company.number}</p>
-                  <p>{company.neighborhood} - {company.city}/{company.state}</p>
-                  <p>CEP: {company.zipcode}</p>
                 </div>
               </div>
             ))}
           </div>
         )}
-      </CardContent>
+      </div>
       
-      {/* Company Form Dialog */}
-      <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent>
+      {/* Add/Edit Company Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{isEdit ? 'Editar Empresa' : 'Adicionar Empresa'}</DialogTitle>
-            <DialogDescription>
-              {isEdit 
-                ? 'Atualize os dados da empresa selecionada' 
-                : 'Preencha os dados para cadastrar uma nova empresa'}
-            </DialogDescription>
+            <DialogTitle>
+              {editingCompany ? 'Editar Empresa' : 'Adicionar Empresa'}
+            </DialogTitle>
           </DialogHeader>
           
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="name">Nome da Empresa</Label>
-              <Input 
-                id="name" 
-                name="name" 
-                placeholder="Nome da empresa" 
-                value={formValues.name}
-                onChange={handleInputChange}
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nome da Empresa</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Nome da empresa" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-            
-            <div className="grid gap-2">
-              <Label htmlFor="zipcode">CEP</Label>
-              <Input 
-                id="zipcode" 
-                name="zipcode" 
-                placeholder="00000-000" 
-                value={formValues.zipcode}
-                onChange={handleInputChange}
-                maxLength={9}
+              
+              <FormField
+                control={form.control}
+                name="zipcode"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>CEP</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Input 
+                          placeholder="00000-000" 
+                          {...field} 
+                          onChange={(e) => handleZipcodeChange(e.target.value)}
+                          maxLength={9}
+                          disabled={lookingUpZipcode}
+                        />
+                        {lookingUpZipcode && (
+                          <div className="absolute right-3 top-2.5">
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          </div>
+                        )}
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {fetchingAddress && <p className="text-xs text-primary">Buscando endereço...</p>}
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="street">Logradouro</Label>
-                <Input 
-                  id="street" 
-                  name="street" 
-                  placeholder="Rua, Avenida, etc" 
-                  value={formValues.street}
-                  onChange={handleInputChange}
+              
+              <div className="grid grid-cols-3 gap-4">
+                <div className="col-span-2">
+                  <FormField
+                    control={form.control}
+                    name="street"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Rua</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Nome da rua" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                
+                <FormField
+                  control={form.control}
+                  name="number"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Número</FormLabel>
+                      <FormControl>
+                        <Input placeholder="123" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </div>
               
-              <div className="grid gap-2">
-                <Label htmlFor="number">Número</Label>
-                <Input 
-                  id="number" 
-                  name="number" 
-                  placeholder="123" 
-                  value={formValues.number}
-                  onChange={handleInputChange}
-                />
-              </div>
-            </div>
-            
-            <div className="grid gap-2">
-              <Label htmlFor="neighborhood">Bairro</Label>
-              <Input 
-                id="neighborhood" 
-                name="neighborhood" 
-                placeholder="Bairro" 
-                value={formValues.neighborhood}
-                onChange={handleInputChange}
+              <FormField
+                control={form.control}
+                name="neighborhood"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Bairro</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Bairro" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="city">Cidade</Label>
-                <Input 
-                  id="city" 
-                  name="city" 
-                  placeholder="Cidade" 
-                  value={formValues.city}
-                  onChange={handleInputChange}
+              
+              <div className="grid grid-cols-3 gap-4">
+                <div className="col-span-2">
+                  <FormField
+                    control={form.control}
+                    name="city"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Cidade</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Cidade" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                
+                <FormField
+                  control={form.control}
+                  name="state"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Estado</FormLabel>
+                      <FormControl>
+                        <Input placeholder="UF" {...field} maxLength={2} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </div>
               
-              <div className="grid gap-2">
-                <Label htmlFor="state">Estado</Label>
-                <Input 
-                  id="state" 
-                  name="state" 
-                  placeholder="UF" 
-                  value={formValues.state}
-                  onChange={handleInputChange}
-                  maxLength={2}
-                />
-              </div>
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button type="button" variant="outline">
-                Cancelar
-              </Button>
-            </DialogClose>
-            <Button 
-              onClick={handleSaveCompany}
-              disabled={saving || fetchingAddress}
-            >
-              {saving ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Salvando...
-                </>
-              ) : (
-                'Salvar'
-              )}
-            </Button>
-          </DialogFooter>
+              <DialogFooter>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={closeDialog}
+                  disabled={submitting}
+                >
+                  Cancelar
+                </Button>
+                <Button 
+                  type="submit"
+                  disabled={submitting}
+                >
+                  {submitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {editingCompany ? 'Atualizando...' : 'Salvando...'}
+                    </>
+                  ) : (
+                    editingCompany ? 'Atualizar' : 'Salvar'
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
-    </Card>
+      
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog 
+        open={isDeleteDialogOpen} 
+        onOpenChange={setIsDeleteDialogOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir a empresa "{companyToDelete?.name}"?
+              <br/>
+              Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={submitting}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={(e) => {
+                e.preventDefault();
+                confirmDelete();
+              }}
+              disabled={submitting}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              {submitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Excluindo...
+                </>
+              ) : (
+                'Sim, excluir'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
   );
-}
+};

@@ -4,7 +4,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Event } from '@/types/events';
-import { formatCurrency } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import { Calendar, Clock, MapPin, Users } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
@@ -20,7 +19,6 @@ interface ContractorProfile {
   first_name: string;
   last_name: string;
   avatar_url?: string | null;
-  bio?: string | null;
 }
 
 export const EventInfo = ({ event }: EventInfoProps) => {
@@ -30,18 +28,22 @@ export const EventInfo = ({ event }: EventInfoProps) => {
     const fetchContractorProfile = async () => {
       if (!event?.contractor_id) return;
       
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('id, first_name, last_name, avatar_url, bio')
-        .eq('id', event.contractor_id)
-        .single();
-      
-      if (error) {
-        console.error('Error fetching contractor profile:', error);
-        return;
+      try {
+        const { data, error } = await supabase
+          .from('user_profiles')
+          .select('id, first_name, last_name, avatar_url')
+          .eq('id', event.contractor_id)
+          .single();
+        
+        if (error) {
+          console.error('Error fetching contractor profile:', error);
+          return;
+        }
+        
+        setContractor(data as ContractorProfile);
+      } catch (error) {
+        console.error('Error in fetchContractorProfile:', error);
       }
-      
-      setContractor(data);
     };
     
     fetchContractorProfile();
@@ -104,11 +106,6 @@ export const EventInfo = ({ event }: EventInfoProps) => {
                 <p className="font-medium">
                   {contractor.first_name} {contractor.last_name}
                 </p>
-                {contractor.bio && (
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {contractor.bio}
-                  </p>
-                )}
               </div>
             </div>
           </div>

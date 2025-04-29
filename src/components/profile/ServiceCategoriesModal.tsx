@@ -1,5 +1,4 @@
 
-
 import { useState, useEffect } from 'react';
 import { 
   Dialog, 
@@ -12,32 +11,45 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 import { useServiceCategories } from '@/hooks/useServiceCategories';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ServiceCategoriesModalProps {
   isOpen: boolean;
   onClose: () => void;
-  userData: any;
-  userServices: string[];
-  onServicesUpdate: () => void;
+  onSuccess: () => void;
 }
 
-export const ServiceCategoriesModal = ({ 
-  isOpen, 
-  onClose, 
-  userData, 
-  userServices, 
-  onServicesUpdate 
-}: ServiceCategoriesModalProps) => {
-  const { toast } = useToast();
+export const ServiceCategoriesModal = ({ isOpen, onClose, onSuccess }: ServiceCategoriesModalProps) => {
   const [loading, setLoading] = useState(false);
   const { categories, isLoading } = useServiceCategories();
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(userServices || []);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const { user } = useAuth();
   
+  // Fetch user's current service categories when modal opens
   useEffect(() => {
-    setSelectedCategories(userServices || []);
-  }, [userServices, isOpen]);
+    if (isOpen && user) {
+      fetchUserServices();
+    }
+  }, [isOpen, user]);
+  
+  const fetchUserServices = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('provider_services')
+        .select('category')
+        .eq('provider_id', user?.id);
+      
+      if (error) throw error;
+      
+      const userCategories = data.map(item => item.category);
+      setSelectedCategories(userCategories);
+    } catch (error) {
+      console.error('Error fetching user services:', error);
+      toast.error('Erro ao carregar categorias do usuário');
+    }
+  };
   
   const handleCategoryToggle = (category: string) => {
     setSelectedCategories(prev => 
@@ -52,11 +64,7 @@ export const ServiceCategoriesModal = ({
     setLoading(true);
     
     if (selectedCategories.length > 3) {
-      toast({
-        title: "Limite excedido",
-        description: "Você pode selecionar no máximo 3 categorias de serviços.",
-        variant: "destructive"
-      });
+      toast.error('Você pode selecionar no máximo 3 categorias de serviços');
       setLoading(false);
       return;
     }
@@ -66,12 +74,12 @@ export const ServiceCategoriesModal = ({
       await supabase
         .from('provider_services')
         .delete()
-        .eq('provider_id', userData.id);
+        .eq('provider_id', user?.id);
       
       // Insert new services
       if (selectedCategories.length > 0) {
         const servicesToInsert = selectedCategories.map(category => ({
-          provider_id: userData.id,
+          provider_id: user?.id,
           category,
           description: ''
         }));
@@ -83,19 +91,10 @@ export const ServiceCategoriesModal = ({
         if (error) throw error;
       }
       
-      toast({
-        title: "Serviços atualizados",
-        description: "Suas categorias de serviço foram atualizadas com sucesso."
-      });
-      
-      onServicesUpdate();
-      onClose();
+      toast.success('Categorias de serviço atualizadas');
+      onSuccess();
     } catch (error: any) {
-      toast({
-        title: "Erro ao atualizar serviços",
-        description: error.message,
-        variant: "destructive"
-      });
+      toast.error('Erro ao atualizar categorias: ' + error.message);
     } finally {
       setLoading(false);
     }
