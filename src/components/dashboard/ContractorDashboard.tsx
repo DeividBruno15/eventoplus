@@ -16,7 +16,11 @@ interface ServiceRequest {
   } | null;
 }
 
-const ContractorDashboard = () => {
+interface ContractorDashboardProps {
+  userName: string;
+}
+
+const ContractorDashboard = ({ userName }: ContractorDashboardProps) => {
   const { data: requests, isLoading } = useQuery({
     queryKey: ['service-requests'],
     queryFn: async () => {
@@ -42,6 +46,13 @@ const ContractorDashboard = () => {
 
   return (
     <div className="space-y-6">
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight">Olá, {userName}!</h2>
+        <p className="text-muted-foreground mt-2">
+          Bem-vindo(a) ao seu Dashboard de Contratante.
+        </p>
+      </div>
+      
       <Card>
         <CardHeader>
           <CardTitle>Últimas Solicitações</CardTitle>
