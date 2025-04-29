@@ -32,9 +32,10 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
       
       console.log("Fetching events for contractor:", user.id);
       
+      // Modified query to not use join with contractor since it's causing errors
       const { data, error } = await supabase
         .from('events')
-        .select('*, contractor:contractor_id(id, first_name, last_name, avatar_url)')
+        .select('*')
         .eq('contractor_id', user.id)
         .order('created_at', { ascending: false });
 
@@ -46,22 +47,35 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
       console.log("Fetched events:", data);
       
       if (data && data.length > 0) {
+        // Transform data into valid Event objects
         const processedEvents: Event[] = data.map(event => ({
           id: event.id,
           name: event.name, 
           description: event.description,
           event_date: event.event_date,
           location: event.location,
-          max_attendees: event.max_attendees,
+          max_attendees: event.max_attendees || undefined,
           contractor_id: event.contractor_id,
-          contractor: event.contractor,
+          // Create a placeholder contractor object that matches the expected type
+          contractor: {
+            id: event.contractor_id,
+            first_name: '', // We'll fetch this separately if needed
+            last_name: '',
+          },
           created_at: event.created_at,
-          updated_at: event.updated_at || null,
+          updated_at: null, // Ensure this matches the type definition 
           service_type: event.service_type,
           status: event.status as EventStatus,
-          event_time: event.event_time,
-          image_url: event.image_url ? String(event.image_url) : undefined,
-          service_requests: event.service_requests
+          event_time: event.event_time || undefined,
+          image_url: event.image_url || undefined,
+          service_requests: event.service_requests as any || undefined,
+          // Add extended properties from database
+          zipcode: event.zipcode || undefined,
+          street: event.street || undefined,
+          number: event.number || undefined,
+          neighborhood: event.neighborhood || undefined,
+          city: event.city || undefined,
+          state: event.state || undefined,
         }));
         
         setEvents(processedEvents);
@@ -103,11 +117,71 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
             // Handle different event types
             if (payload.eventType === 'INSERT') {
               console.log('New event added:', payload.new);
-              setEvents(prevEvents => [payload.new as Event, ...prevEvents]);
+              // Convert the new event to the right format
+              const newEvent = payload.new as any;
+              const processedEvent: Event = {
+                id: newEvent.id,
+                name: newEvent.name,
+                description: newEvent.description,
+                event_date: newEvent.event_date,
+                location: newEvent.location,
+                max_attendees: newEvent.max_attendees || undefined,
+                contractor_id: newEvent.contractor_id,
+                contractor: {
+                  id: newEvent.contractor_id,
+                  first_name: '',
+                  last_name: '',
+                },
+                created_at: newEvent.created_at,
+                updated_at: null,
+                service_type: newEvent.service_type,
+                status: newEvent.status as EventStatus,
+                event_time: newEvent.event_time || undefined,
+                image_url: newEvent.image_url || undefined,
+                service_requests: newEvent.service_requests as any || undefined,
+                zipcode: newEvent.zipcode || undefined,
+                street: newEvent.street || undefined,
+                number: newEvent.number || undefined,
+                neighborhood: newEvent.neighborhood || undefined,
+                city: newEvent.city || undefined,
+                state: newEvent.state || undefined,
+              };
+              
+              setEvents(prevEvents => [processedEvent, ...prevEvents]);
             } else if (payload.eventType === 'UPDATE') {
+              // Same transformation for updated events
+              const updatedEvent = payload.new as any;
+              const processedEvent: Event = {
+                id: updatedEvent.id,
+                name: updatedEvent.name,
+                description: updatedEvent.description,
+                event_date: updatedEvent.event_date,
+                location: updatedEvent.location,
+                max_attendees: updatedEvent.max_attendees || undefined,
+                contractor_id: updatedEvent.contractor_id,
+                contractor: {
+                  id: updatedEvent.contractor_id,
+                  first_name: '',
+                  last_name: '',
+                },
+                created_at: updatedEvent.created_at,
+                updated_at: null,
+                service_type: updatedEvent.service_type,
+                status: updatedEvent.status as EventStatus,
+                event_time: updatedEvent.event_time || undefined,
+                image_url: updatedEvent.image_url || undefined,
+                service_requests: updatedEvent.service_requests as any || undefined,
+                zipcode: updatedEvent.zipcode || undefined,
+                street: updatedEvent.street || undefined,
+                number: updatedEvent.number || undefined,
+                neighborhood: updatedEvent.neighborhood || undefined,
+                city: updatedEvent.city || undefined,
+                state: updatedEvent.state || undefined,
+              };
+              
               setEvents(prevEvents => 
                 prevEvents.map(event => 
-                  event.id === payload.new.id ? payload.new as Event : event
+                  event.id === processedEvent.id ? processedEvent : event
                 )
               );
             } else if (payload.eventType === 'DELETE') {

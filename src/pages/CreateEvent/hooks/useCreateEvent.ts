@@ -53,7 +53,7 @@ export const useCreateEvent = () => {
         }
       }
       
-      // Prepare event object for saving - set status to 'published' so it's visible
+      // Prepare event object for saving - ensure status is 'published' so it's visible
       const eventToSave = {
         name: eventData.name,
         description: eventData.description,
@@ -69,7 +69,7 @@ export const useCreateEvent = () => {
         service_requests: prepareServiceRequestsForStorage(eventData.service_requests),
         image_url: imageUrl,
         contractor_id: user.id,
-        status: 'published' as const,
+        status: 'published' as const, // Make sure this is explicitly set to 'published'
         service_type: eventData.service_requests?.[0]?.category || ''
       };
 
