@@ -4,7 +4,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Avatar } from "@/components/ui/avatar";
 import { Search, MessageSquare, Plus } from "lucide-react";
 import ConversationList from "@/components/chat/ConversationList";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,7 +23,6 @@ const Chat = () => {
     filteredConversations,
     searchQuery,
     isLoading,
-    setSearchQuery,
     handleSearchChange,
   } = useChatState();
 

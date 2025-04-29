@@ -1,17 +1,17 @@
 
 import { useState } from "react";
-import { useSession } from "@/contexts/SessionContext";
+import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Settings as SettingsIcon, Bell, Lock } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { AccountSettings } from "./components/AccountSettings";
 import { NotificationSettings } from "./components/NotificationSettings";
 import { SecuritySettings } from "./components/SecuritySettings";
 
 const Settings = () => {
-  const { session } = useSession();
+  const { session, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
