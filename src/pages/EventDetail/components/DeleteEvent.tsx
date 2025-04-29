@@ -46,6 +46,7 @@ export const DeleteEvent = ({ event, userId }: DeleteEventProps) => {
       if (applicationsError) {
         console.error("Error deleting applications:", applicationsError);
         toast.error(`Erro ao excluir candidaturas: ${applicationsError.message}`);
+        setDeleting(false);
         return;
       }
       
@@ -60,22 +61,21 @@ export const DeleteEvent = ({ event, userId }: DeleteEventProps) => {
       if (error) {
         console.error("Error deleting event:", error);
         toast.error(`Erro ao excluir evento: ${error.message}`);
+        setDeleting(false);
         return;
       }
       
       console.log("Evento excluído com sucesso, ID:", event.id);
       toast.success("Evento excluído com sucesso");
       
-      // Ensure the navigation happens after the deletion is confirmed
-      setTimeout(() => {
-        navigate('/events');
-      }, 500);
+      // Close the dialog and navigate immediately
+      setIsOpen(false);
+      setDeleting(false);
+      navigate('/events', { replace: true });
       
     } catch (error: any) {
       console.error("Delete error:", error);
       toast.error(`Erro ao excluir evento: ${error.message}`);
-    } finally {
-      setIsOpen(false);
       setDeleting(false);
     }
   };

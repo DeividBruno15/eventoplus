@@ -13,6 +13,9 @@ const Events = () => {
     if (!session) {
       navigate('/login');
     }
+    
+    // Force refresh component when navigated to via direct path
+    console.log("Events page mounted/refreshed");
   }, [session, navigate]);
 
   if (!session) {
@@ -25,9 +28,9 @@ const Events = () => {
   return (
     <>
       {userRole === 'provider' ? (
-        <ProviderEventsContent />
+        <ProviderEventsContent key={Date.now()} />
       ) : (
-        <EventsContent />
+        <EventsContent key={Date.now()} />
       )}
     </>
   );

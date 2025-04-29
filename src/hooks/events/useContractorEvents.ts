@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Event, EventStatus } from "@/types/events";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 /**
  * Hook to fetch events belonging to the contractor
@@ -11,7 +11,6 @@ import { useToast } from "@/components/ui/use-toast";
 export const useContractorEvents = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
   const { user } = useAuth();
 
   const fetchEvents = async () => {
@@ -37,7 +36,7 @@ export const useContractorEvents = () => {
         throw error;
       }
       
-      console.log("Fetched events:", data);
+      console.log("Fetched events:", data?.length || 0);
       
       if (data && data.length > 0) {
         // Transform data into valid Event objects
@@ -74,18 +73,14 @@ export const useContractorEvents = () => {
         }));
         
         setEvents(processedEvents);
-        console.log("Processed events:", processedEvents);
+        console.log("Processed events:", processedEvents.length);
       } else {
         setEvents([]);
         console.log("No events found for this contractor");
       }
     } catch (error) {
       console.error('Error fetching events:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível carregar os eventos.",
-        variant: "destructive"
-      });
+      toast.error("Não foi possível carregar os eventos.");
     } finally {
       setLoading(false);
     }
@@ -98,7 +93,7 @@ export const useContractorEvents = () => {
     if (user) {
       console.log("Setting up realtime subscription for events");
       const channel = supabase
-        .channel('events-changes')
+        .channel('events-realtime')
         .on('postgres_changes', 
           { 
             event: '*', 
@@ -183,9 +178,14 @@ export const useContractorEvents = () => {
             } else if (payload.eventType === 'DELETE') {
               console.log('Event deleted:', payload.old.id);
               // Filter out the deleted event
-              setEvents(prevEvents => 
-                prevEvents.filter(event => event.id !== payload.old.id)
-              );
+              const deletedEventId = payload.old.id;
+              console.log('Removing event with ID:', deletedEventId);
+              
+              setEvents(prevEvents => {
+                const filteredEvents = prevEvents.filter(event => event.id !== deletedEventId);
+                console.log(`Filtered events: ${prevEvents.length} -> ${filteredEvents.length}`);
+                return filteredEvents;
+              });
             }
           }
         )
@@ -199,7 +199,7 @@ export const useContractorEvents = () => {
         supabase.removeChannel(channel);
       };
     }
-  }, [user, toast]);
+  }, [user]);
 
-  return { events, loading };
+  return { events, loading, fetchEvents };
 };
