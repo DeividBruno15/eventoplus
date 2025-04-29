@@ -29,6 +29,17 @@ export function UserMenu() {
   const lastName = user?.user_metadata?.last_name || "";
   const avatarUrl = user?.user_metadata?.avatar_url;
 
+  const getInitials = () => {
+    if (firstName && lastName) {
+      return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+    } else if (firstName) {
+      return firstName.charAt(0).toUpperCase();
+    } else if (user?.email) {
+      return user.email.charAt(0).toUpperCase();
+    }
+    return "U";
+  };
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -111,10 +122,10 @@ export function UserMenu() {
         <button className="relative h-10 w-10 rounded-full overflow-hidden hover:ring-2 hover:ring-primary/20 transition-all">
           <Avatar className="h-10 w-10">
             {avatarUrl ? (
-              <AvatarImage src={avatarUrl} />
+              <AvatarImage src={avatarUrl} alt={`${firstName} ${lastName}`} />
             ) : (
-              <AvatarFallback className="bg-muted">
-                <Camera className="h-5 w-5 text-muted-foreground" />
+              <AvatarFallback className="bg-primary text-primary-foreground">
+                {getInitials()}
               </AvatarFallback>
             )}
           </Avatar>

@@ -3,10 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, User } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Loader2, User, Check, X } from 'lucide-react';
 import { EventApplication } from '@/types/events';
 import { Separator } from '@/components/ui/separator';
 import { getApplicationStatusColor } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
+import { useState, useEffect } from 'react';
 
 interface ApplicationsListProps {
   applications: EventApplication[];
@@ -15,8 +18,59 @@ interface ApplicationsListProps {
   eventStatus: string;
 }
 
+interface ProviderProfile {
+  avatar_url?: string | null;
+  service_categories?: string[] | null;
+}
+
 export const ApplicationsList = ({ applications, onApprove, submitting, eventStatus }: ApplicationsListProps) => {
   const navigate = useNavigate();
+  const [providerProfiles, setProviderProfiles] = useState<Record<string, ProviderProfile>>({});
+  
+  // Fetch provider profiles with avatars
+  useEffect(() => {
+    const fetchProviderProfiles = async () => {
+      if (!applications.length) return;
+      
+      const providerIds = applications.map(app => app.provider_id);
+      
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('id, avatar_url')
+        .in('id', providerIds);
+        
+      if (error) {
+        console.error('Error fetching provider profiles:', error);
+        return;
+      }
+      
+      const profiles = data.reduce((acc, profile) => {
+        acc[profile.id] = {
+          avatar_url: profile.avatar_url,
+        };
+        return acc;
+      }, {} as Record<string, ProviderProfile>);
+      
+      setProviderProfiles(profiles);
+    };
+    
+    fetchProviderProfiles();
+  }, [applications]);
+  
+  const handleViewProfile = (providerId: string) => {
+    navigate(`/provider/${providerId}`);
+  };
+  
+  const handleRejectApplication = (applicationId: string) => {
+    // Implement rejection logic here
+    console.log('Rejecting application:', applicationId);
+  };
+  
+  const getProviderInitials = (app: EventApplication) => {
+    if (!app.provider) return 'U';
+    const { first_name, last_name } = app.provider;
+    return `${first_name.charAt(0)}${last_name ? last_name.charAt(0) : ''}`.toUpperCase();
+  };
   
   return (
     <Card>
@@ -31,12 +85,28 @@ export const ApplicationsList = ({ applications, onApprove, submitting, eventSta
           <div className="space-y-4">
             {applications.map((app) => (
               <div key={app.id} className="border rounded-md p-4">
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center">
-                    <User className="h-5 w-5 mr-2 text-primary" />
-                    <span className="font-medium">
-                      {app.provider ? `${app.provider.first_name} ${app.provider.last_name}` : 'Usuário'}
-                    </span>
+                    <Avatar className="h-10 w-10 mr-3">
+                      {providerProfiles[app.provider_id]?.avatar_url ? (
+                        <AvatarImage 
+                          src={providerProfiles[app.provider_id].avatar_url || ''} 
+                          alt={app.provider?.first_name || 'Provider'} 
+                        />
+                      ) : (
+                        <AvatarFallback className="bg-primary text-primary-foreground">
+                          {getProviderInitials(app)}
+                        </AvatarFallback>
+                      )}
+                    </Avatar>
+                    <div>
+                      <span className="font-medium">
+                        {app.provider ? `${app.provider.first_name} ${app.provider.last_name}` : 'Usuário'}
+                      </span>
+                      <p className="text-xs text-muted-foreground">
+                        {app.provider?.email || 'Sem email'}
+                      </p>
+                    </div>
                   </div>
                   <Badge 
                     variant="outline" 
@@ -48,34 +118,62 @@ export const ApplicationsList = ({ applications, onApprove, submitting, eventSta
                   </Badge>
                 </div>
                 
-                <p className="text-sm whitespace-pre-line border-l-2 pl-3 py-1 border-gray-200 bg-gray-50 mb-3">
+                <p className="text-sm whitespace-pre-line border-l-2 pl-3 py-1 border-gray-200 bg-gray-50 mb-4">
                   {app.message}
                 </p>
                 
-                {app.status === 'pending' && (eventStatus === 'open' || eventStatus === 'published') && (
+                <div className="flex flex-wrap gap-2">
                   <Button 
-                    onClick={() => onApprove(app.id, app.provider_id)}
-                    disabled={submitting}
-                    className="w-full"
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleViewProfile(app.provider_id)}
                   >
-                    {submitting ? 
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Aprovando...
-                      </> : 
-                      'Aprovar Prestador'
-                    }
+                    <User className="h-4 w-4 mr-1" />
+                    Ver perfil completo
                   </Button>
-                )}
                 
-                {app.status === 'accepted' && (
-                  <Button 
-                    onClick={() => navigate('/chat')}
-                    className="w-full"
-                  >
-                    Conversar com o prestador
-                  </Button>
-                )}
+                  {app.status === 'pending' && (eventStatus === 'open' || eventStatus === 'published') && (
+                    <>
+                      <Button 
+                        onClick={() => onApprove(app.id, app.provider_id)}
+                        disabled={submitting}
+                        size="sm"
+                        className="bg-green-600 hover:bg-green-700"
+                      >
+                        {submitting ? (
+                          <>
+                            <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                            Aprovando...
+                          </>
+                        ) : (
+                          <>
+                            <Check className="mr-1 h-4 w-4" />
+                            Aprovar
+                          </>
+                        )}
+                      </Button>
+                      
+                      <Button 
+                        onClick={() => handleRejectApplication(app.id)}
+                        disabled={submitting}
+                        size="sm"
+                        variant="destructive"
+                      >
+                        <X className="mr-1 h-4 w-4" />
+                        Rejeitar
+                      </Button>
+                    </>
+                  )}
+                  
+                  {app.status === 'accepted' && (
+                    <Button 
+                      onClick={() => navigate('/chat')}
+                      size="sm"
+                    >
+                      Conversar
+                    </Button>
+                  )}
+                </div>
               </div>
             ))}
           </div>

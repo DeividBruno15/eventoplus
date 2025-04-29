@@ -1,33 +1,90 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, CheckCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Event, EventApplication } from '@/types/events';
 import { getApplicationStatusColor } from '@/lib/utils';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ApplicationFormProps {
   event: Event;
-  onSubmit: (message: string) => Promise<void>;
+  onSubmit: (message: string, serviceCategory?: string) => Promise<void>;
   userApplication: EventApplication | null;
   submitting: boolean;
 }
 
+interface UserService {
+  id: string;
+  category: string;
+  description?: string | null;
+}
+
 export const ApplicationForm = ({ event, onSubmit, userApplication, submitting }: ApplicationFormProps) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [applicationMessage, setApplicationMessage] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
+  const [userServices, setUserServices] = useState<UserService[]>([]);
+  const [selectedService, setSelectedService] = useState<string>('');
+
+  // Fetch user services
+  useEffect(() => {
+    if (!user) return;
+    
+    const fetchUserServices = async () => {
+      const { data, error } = await supabase
+        .from('provider_services')
+        .select('id, category, description')
+        .eq('provider_id', user.id);
+        
+      if (error) {
+        console.error('Error fetching provider services:', error);
+        return;
+      }
+      
+      setUserServices(data || []);
+      
+      // If there's only one service, select it by default
+      if (data && data.length === 1) {
+        setSelectedService(data[0].category);
+      }
+      
+      // If we have event service_type, try to match with provider services
+      if (event.service_type && data) {
+        const matchingService = data.find(service => service.category === event.service_type);
+        if (matchingService) {
+          setSelectedService(matchingService.category);
+        }
+      }
+    };
+    
+    fetchUserServices();
+  }, [user, event]);
 
   const handleSubmitApplication = async () => {
     try {
-      await onSubmit(applicationMessage);
+      const serviceToUse = userServices.length === 1 
+        ? userServices[0].category 
+        : selectedService;
+        
+      await onSubmit(applicationMessage, serviceToUse);
       setShowSuccess(true);
       toast.success("Candidatura enviada com sucesso!");
+      
+      // Reset form after 3 seconds and redirect back to event
+      setTimeout(() => {
+        setApplicationMessage('');
+        setShowSuccess(false);
+        navigate(`/events/${event.id}`);
+      }, 3000);
     } catch (error) {
       console.error("Erro ao enviar candidatura:", error);
       toast.error("Erro ao enviar candidatura. Tente novamente.");
@@ -106,35 +163,72 @@ export const ApplicationForm = ({ event, onSubmit, userApplication, submitting }
     );
   }
 
+  // Check if user has compatible services for this event
+  const hasCompatibleServices = userServices.length > 0;
+
   return (
     <Card className="mb-6">
       <CardContent className="pt-6">
         <h3 className="font-medium text-lg mb-3">Candidatar-se a este evento</h3>
-        <p className="text-sm text-muted-foreground mb-4">
-          Explique por que você é a pessoa ideal para este serviço.
-        </p>
         
-        <Textarea
-          placeholder="Descreva sua experiência e por que você é uma boa escolha para este evento..."
-          className="mb-4"
-          rows={4}
-          value={applicationMessage}
-          onChange={(e) => setApplicationMessage(e.target.value)}
-        />
-        
-        <Button 
-          className="w-full" 
-          onClick={handleSubmitApplication}
-          disabled={submitting || !applicationMessage.trim()}
-        >
-          {submitting ? 
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Enviando...
-            </> : 
-            'Enviar candidatura'
-          }
-        </Button>
+        {!hasCompatibleServices ? (
+          <div className="text-center py-4">
+            <p className="text-amber-600 mb-4">
+              Você precisa cadastrar serviços compatíveis antes de se candidatar a eventos.
+            </p>
+            <Button onClick={() => navigate('/profile')}>
+              Configurar meus serviços
+            </Button>
+          </div>
+        ) : (
+          <>
+            <p className="text-sm text-muted-foreground mb-4">
+              Explique por que você é a pessoa ideal para este serviço.
+            </p>
+            
+            {userServices.length > 1 && (
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Selecione o serviço para este evento:
+                </label>
+                <Select value={selectedService} onValueChange={setSelectedService}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione um serviço" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {userServices.map((service) => (
+                      <SelectItem key={service.id} value={service.category}>
+                        {service.category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            
+            <Textarea
+              placeholder="Descreva sua experiência e por que você é uma boa escolha para este evento..."
+              className="mb-4"
+              rows={4}
+              value={applicationMessage}
+              onChange={(e) => setApplicationMessage(e.target.value)}
+            />
+            
+            <Button 
+              className="w-full" 
+              onClick={handleSubmitApplication}
+              disabled={submitting || !applicationMessage.trim() || (userServices.length > 1 && !selectedService)}
+            >
+              {submitting ? 
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Enviando...
+                </> : 
+                'Enviar candidatura'
+              }
+            </Button>
+          </>
+        )}
       </CardContent>
     </Card>
   );

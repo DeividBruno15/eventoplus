@@ -1,120 +1,174 @@
 
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { CalendarIcon, Clock, MapPin } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Event } from "@/types/events";
-import { getStatusColor } from "@/lib/utils";
+import { useEffect, useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Event } from '@/types/events';
+import { formatCurrency } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
+import { Calendar, Clock, MapPin, Users } from 'lucide-react';
+import { format, parseISO } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { supabase } from '@/integrations/supabase/client';
 
 interface EventInfoProps {
   event: Event;
 }
 
+interface ContractorProfile {
+  id: string;
+  first_name: string;
+  last_name: string;
+  avatar_url?: string | null;
+  bio?: string | null;
+}
+
 export const EventInfo = ({ event }: EventInfoProps) => {
-  // Format date
-  const formattedDate = event.event_date ? 
-    format(new Date(event.event_date), "dd 'de' MMMM 'de' yyyy", { locale: ptBR }) : 
-    "Data não definida";
+  const [contractor, setContractor] = useState<ContractorProfile | null>(null);
   
-  // Get the complete address if available
-  const fullAddress = [
-    event.street,
-    event.number && `Nº ${event.number}`,
-    event.neighborhood,
-    event.city,
-    event.state,
-    event.zipcode && `CEP: ${event.zipcode}`
-  ].filter(Boolean).join(", ");
+  useEffect(() => {
+    const fetchContractorProfile = async () => {
+      if (!event?.contractor_id) return;
+      
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('id, first_name, last_name, avatar_url, bio')
+        .eq('id', event.contractor_id)
+        .single();
+      
+      if (error) {
+        console.error('Error fetching contractor profile:', error);
+        return;
+      }
+      
+      setContractor(data);
+    };
+    
+    fetchContractorProfile();
+  }, [event]);
+  
+  const formattedDate = event.event_date 
+    ? format(parseISO(event.event_date), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
+    : 'Data não definida';
+    
+  const getInitials = (first: string = '', last: string = '') => {
+    return `${first.charAt(0)}${last.charAt(0)}`.toUpperCase();
+  };
   
   return (
     <div>
-      {/* Event header with image */}
-      {event.image_url && (
-        <div className="w-full h-48 md:h-64 lg:h-80 overflow-hidden relative">
+      <div className={`relative h-48 md:h-64 bg-gray-200 ${event.image_url ? '' : 'flex items-center justify-center'}`}>
+        {event.image_url ? (
           <img 
             src={event.image_url} 
-            alt={event.name}
+            alt={event.name} 
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-          <div className="absolute bottom-0 left-0 p-6 text-white">
-            <Badge 
-              variant="outline"
-              className={`mb-2 ${getStatusColor(event.status)} border-white/20 text-white`}
-            >
-              {event.status === 'draft' ? 'Rascunho' : 
-               event.status === 'published' ? 'Publicado' : 
-               event.status === 'closed' ? 'Fechado' :
-               event.status === 'completed' ? 'Concluído' : 
-               event.status === 'cancelled' ? 'Cancelado' : 'Desconhecido'}
-            </Badge>
-            <h1 className="text-2xl md:text-3xl font-bold">{event.name}</h1>
+        ) : (
+          <div className="text-lg text-gray-400">Imagem não disponível</div>
+        )}
+      </div>
+      
+      <div className="p-6">
+        <div className="flex justify-between items-start mb-6">
+          <div>
+            <h1 className="text-2xl font-bold mb-2">{event.name}</h1>
+            <div className="flex flex-wrap gap-2 mb-2">
+              <Badge variant="secondary" className="bg-primary/10 text-primary">
+                {event.service_type || 'Serviço não especificado'}
+              </Badge>
+              <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200">
+                {event.status === 'draft' ? 'Rascunho' : 
+                 event.status === 'published' ? 'Publicado' : 
+                 event.status === 'closed' ? 'Fechado' : 
+                 event.status === 'completed' ? 'Concluído' : 'Cancelado'}
+              </Badge>
+            </div>
           </div>
         </div>
-      )}
-      
-      {/* Event content */}
-      <div className="p-6">
-        {!event.image_url && (
-          <div className="mb-4">
-            <Badge 
-              variant="outline"
-              className={`${getStatusColor(event.status)}`}
-            >
-              {event.status === 'draft' ? 'Rascunho' : 
-               event.status === 'published' ? 'Publicado' : 
-               event.status === 'closed' ? 'Fechado' :
-               event.status === 'completed' ? 'Concluído' : 
-               event.status === 'cancelled' ? 'Cancelado' : 'Desconhecido'}
-            </Badge>
-            <h1 className="text-2xl md:text-3xl font-bold mt-2">{event.name}</h1>
+        
+        {contractor && (
+          <div className="mb-6">
+            <h3 className="text-sm text-muted-foreground mb-2">Organizado por:</h3>
+            <div className="flex items-center">
+              <Avatar className="h-10 w-10 mr-3">
+                {contractor.avatar_url ? (
+                  <AvatarImage src={contractor.avatar_url} alt={contractor.first_name} />
+                ) : (
+                  <AvatarFallback className="bg-primary text-primary-foreground">
+                    {getInitials(contractor.first_name, contractor.last_name)}
+                  </AvatarFallback>
+                )}
+              </Avatar>
+              <div>
+                <p className="font-medium">
+                  {contractor.first_name} {contractor.last_name}
+                </p>
+                {contractor.bio && (
+                  <p className="text-sm text-muted-foreground line-clamp-2">
+                    {contractor.bio}
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
         )}
         
-        <div className="flex flex-wrap gap-4 mb-4 text-sm text-muted-foreground">
-          <div className="flex items-center">
-            <CalendarIcon className="w-4 h-4 mr-1" />
-            {formattedDate}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div className="flex items-center gap-2">
+            <Calendar className="h-5 w-5 text-primary" />
+            <span>{formattedDate}</span>
           </div>
           
           {event.event_time && (
-            <div className="flex items-center">
-              <Clock className="w-4 h-4 mr-1" />
-              {event.event_time}
+            <div className="flex items-center gap-2">
+              <Clock className="h-5 w-5 text-primary" />
+              <span>{event.event_time}</span>
             </div>
           )}
           
-          <div className="flex items-center">
-            <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
-            <span className="truncate max-w-md">
-              {event.location}
-              {fullAddress ? ` - ${fullAddress}` : ''}
-            </span>
+          <div className="flex items-center gap-2">
+            <MapPin className="h-5 w-5 text-primary" />
+            <span className="line-clamp-1">{event.location}</span>
           </div>
-        </div>
-        
-        <div className="my-6 whitespace-pre-line">
-          <h2 className="text-lg font-medium mb-2">Descrição do evento</h2>
-          <p className="text-muted-foreground">{event.description}</p>
-        </div>
-        
-        {/* Service Requests Section */}
-        {event.service_requests && event.service_requests.length > 0 && (
-          <div className="mt-6 border-t border-gray-100 pt-6">
-            <h2 className="text-lg font-medium mb-3">Serviços Necessários</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {event.service_requests.map((service, index) => (
-                <div key={index} className="border rounded-md p-3 bg-slate-50">
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">{service.category}</span>
-                    <Badge variant={service.filled === service.count ? "subscription" : "outline"}>
-                      {service.filled || 0}/{service.count} preenchido
-                    </Badge>
-                  </div>
-                </div>
-              ))}
+          
+          {event.max_attendees && (
+            <div className="flex items-center gap-2">
+              <Users className="h-5 w-5 text-primary" />
+              <span>{event.max_attendees} convidados</span>
             </div>
-          </div>
+          )}
+        </div>
+        
+        <Separator className="my-4" />
+        
+        <div>
+          <h3 className="font-medium mb-2">Descrição</h3>
+          <p className="text-muted-foreground whitespace-pre-line">
+            {event.description}
+          </p>
+        </div>
+        
+        {event.service_requests && event.service_requests.length > 0 && (
+          <>
+            <Separator className="my-4" />
+            <div>
+              <h3 className="font-medium mb-2">Serviços Necessários</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {event.service_requests.map((service, index) => (
+                  <div key={index} className="bg-gray-50 p-3 rounded-md">
+                    <p className="font-medium">{service.category}</p>
+                    <div className="flex justify-between mt-1 text-sm text-muted-foreground">
+                      <span>Necessários: {service.count}</span>
+                      <span>
+                        Confirmados: {service.filled || 0}/{service.count}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
         )}
       </div>
     </div>

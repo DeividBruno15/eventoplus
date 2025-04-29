@@ -11,7 +11,7 @@ export const useEventApplications = (event: Event | null) => {
   const [submitting, setSubmitting] = useState(false);
   const { user } = useAuth();
 
-  const handleApply = async (message: string): Promise<void> => {
+  const handleApply = async (message: string, serviceCategory?: string): Promise<void> => {
     if (!event || !user) return;
     
     try {
@@ -23,7 +23,8 @@ export const useEventApplications = (event: Event | null) => {
           event_id: event.id,
           provider_id: user.id,
           message: message,
-          status: 'pending'
+          status: 'pending',
+          service_category: serviceCategory || event.service_type
         })
         .select()
         .single();
@@ -38,9 +39,8 @@ export const useEventApplications = (event: Event | null) => {
         type: "new_application",
         link: `/events/${event.id}`
       });
-        
-      // Refresh the page to see the application
-      window.location.reload();
+      
+      // Success! The calling component will handle UI feedback
     } catch (error: any) {
       console.error('Erro ao enviar candidatura:', error);
       toast.error(error.message || 'Ocorreu um erro ao enviar sua candidatura');
@@ -81,6 +81,41 @@ export const useEventApplications = (event: Event | null) => {
     } catch (error: any) {
       console.error('Erro ao cancelar candidatura:', error);
       toast.error(error.message || 'Ocorreu um erro ao cancelar sua candidatura');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleRejectApplication = async (applicationId: string, providerId: string): Promise<void> => {
+    if (!event) return;
+    
+    try {
+      setSubmitting(true);
+      
+      // Update the application status to rejected
+      const { error } = await supabase
+        .from('event_applications')
+        .update({ status: 'rejected' })
+        .eq('id', applicationId);
+        
+      if (error) throw error;
+      
+      // Send notification to provider
+      await notificationsService.sendNotification({
+        userId: providerId,
+        title: "Candidatura rejeitada",
+        content: `Sua candidatura para o evento "${event.name}" não foi aprovada.`,
+        type: "application_rejected",
+        link: `/events/${event.id}`
+      });
+      
+      toast.success("Candidatura rejeitada.");
+      
+      // Refresh the page
+      setTimeout(() => window.location.reload(), 1500);
+    } catch (error: any) {
+      console.error('Erro ao rejeitar candidatura:', error);
+      toast.error(error.message || 'Ocorreu um erro ao rejeitar a candidatura');
     } finally {
       setSubmitting(false);
     }
@@ -183,6 +218,7 @@ export const useEventApplications = (event: Event | null) => {
     submitting,
     handleApply,
     handleApproveApplication,
+    handleRejectApplication,
     handleCancelApplication
   };
 };

@@ -1,4 +1,5 @@
 
+import { useState } from 'react';
 import { 
   LayoutDashboard, 
   User, 
@@ -7,7 +8,8 @@ import {
   Settings,
   HelpCircle,
   LifeBuoy,
-  LogOut
+  LogOut,
+  RefreshCcw
 } from 'lucide-react';
 import { 
   SidebarMenu, 
@@ -18,6 +20,17 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from '@/components/ui/use-toast';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 type MenuItem = {
   path: string;
@@ -33,7 +46,9 @@ type SidebarNavigationProps = {
 export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationProps) => {
   const navigate = useNavigate();
   const { session, user, logout } = useAuth();
-  const { toast } = useToast();
+  const { toast: toastUI } = useToast();
+  const [switchingRole, setSwitchingRole] = useState(false);
+  const [showRoleDialog, setShowRoleDialog] = useState(false);
   
   const firstName = user?.user_metadata?.first_name || '';
   const lastName = user?.user_metadata?.last_name || '';
@@ -46,6 +61,51 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
       : 'U';
       
   const userRole = user?.user_metadata?.role || 'contractor';
+  const [hasProviderRole, setHasProviderRole] = useState<boolean | null>(null);
+  const [hasContractorRole, setHasContractorRole] = useState<boolean | null>(null);
+
+  // Check if user has both roles
+  useState(() => {
+    const checkUserRoles = async () => {
+      if (!user) return;
+      
+      try {
+        // First check current user metadata
+        if (user.user_metadata?.role === 'provider') {
+          setHasProviderRole(true);
+        } else if (user.user_metadata?.role === 'contractor') {
+          setHasContractorRole(true);
+        }
+        
+        // Check if user has a provider profile
+        const { data: providerData, error: providerError } = await supabase
+          .from('provider_services')
+          .select('id')
+          .eq('provider_id', user.id)
+          .limit(1);
+          
+        if (!providerError && providerData && providerData.length > 0) {
+          setHasProviderRole(true);
+        }
+        
+        // Check if user has created any events as a contractor
+        const { data: contractorData, error: contractorError } = await supabase
+          .from('events')
+          .select('id')
+          .eq('contractor_id', user.id)
+          .limit(1);
+          
+        if (!contractorError && contractorData && contractorData.length > 0) {
+          setHasContractorRole(true);
+        }
+        
+      } catch (error) {
+        console.error('Error checking user roles:', error);
+      }
+    };
+    
+    checkUserRoles();
+  }, [user]);
 
   const getRoleLabel = (role: string) => {
     switch(role) {
@@ -55,6 +115,43 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
         return 'Prestador';
       default:
         return 'Usuário';
+    }
+  };
+
+  const handleSwitchRole = async () => {
+    if (!user) return;
+    
+    try {
+      setSwitchingRole(true);
+      
+      const newRole = userRole === 'contractor' ? 'provider' : 'contractor';
+      
+      // Update role in Supabase Auth
+      const { error } = await supabase.auth.updateUser({
+        data: { role: newRole }
+      });
+      
+      if (error) throw error;
+      
+      // Update role in profile if needed
+      await supabase
+        .from('user_profiles')
+        .update({ role: newRole })
+        .eq('id', user.id);
+      
+      toast.success(`Perfil alterado para ${getRoleLabel(newRole)}`);
+      
+      // Refresh page to apply changes
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+      
+    } catch (error: any) {
+      console.error('Error switching role:', error);
+      toast.error('Erro ao trocar o tipo de conta');
+    } finally {
+      setSwitchingRole(false);
+      setShowRoleDialog(false);
     }
   };
 
@@ -79,13 +176,13 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
   const handleLogout = async () => {
     try {
       await logout();
-      toast({
+      toastUI({
         title: "Logout realizado",
         description: "Você foi desconectado com sucesso."
       });
       navigate('/');
     } catch (error: any) {
-      toast({
+      toastUI({
         title: "Erro ao fazer logout",
         description: error.message,
         variant: "destructive"
@@ -133,15 +230,66 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
         <div className="flex flex-col items-center text-center">
           <Avatar className="h-20 w-20 mb-3">
             {avatarUrl ? (
-              <AvatarImage src={avatarUrl} />
+              <AvatarImage src={avatarUrl} alt={`${firstName} ${lastName}`} />
             ) : (
-              <AvatarFallback>{initials}</AvatarFallback>
+              <AvatarFallback className="bg-primary text-primary-foreground">{initials}</AvatarFallback>
             )}
           </Avatar>
           <h3 className="font-medium text-gray-900">{firstName} {lastName}</h3>
-          <span className="inline-flex items-center px-2 py-0.5 bg-primary/10 text-primary text-xs font-medium rounded">
-            {getRoleLabel(userRole)}
-          </span>
+          <div className="flex items-center gap-2 mt-1">
+            <span className="inline-flex items-center px-2 py-0.5 bg-primary/10 text-primary text-xs font-medium rounded">
+              {getRoleLabel(userRole)}
+            </span>
+            
+            <Dialog open={showRoleDialog} onOpenChange={setShowRoleDialog}>
+              <DialogTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-5 w-5 p-0 rounded-full"
+                  title="Trocar tipo de conta"
+                >
+                  <RefreshCcw className="h-3 w-3" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Trocar tipo de conta</DialogTitle>
+                  <DialogDescription>
+                    Deseja trocar para o perfil de {userRole === 'contractor' ? 'Prestador' : 'Contratante'}?
+                  </DialogDescription>
+                </DialogHeader>
+                
+                <div className="flex flex-col gap-4 py-4">
+                  {userRole === 'contractor' && !hasProviderRole && (
+                    <p className="text-amber-600 text-sm">
+                      Você ainda não tem um perfil de prestador configurado. 
+                      Será necessário completar seu cadastro após a troca.
+                    </p>
+                  )}
+                  
+                  {userRole === 'provider' && !hasContractorRole && (
+                    <p className="text-amber-600 text-sm">
+                      Você ainda não tem um perfil de contratante configurado. 
+                      Será necessário completar seu cadastro após a troca.
+                    </p>
+                  )}
+                </div>
+                
+                <div className="flex justify-end gap-3">
+                  <Button variant="outline" onClick={() => setShowRoleDialog(false)}>
+                    Cancelar
+                  </Button>
+                  <Button 
+                    onClick={handleSwitchRole} 
+                    disabled={switchingRole}
+                  >
+                    {switchingRole ? 'Trocando...' : 'Trocar perfil'}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
       </div>
 
