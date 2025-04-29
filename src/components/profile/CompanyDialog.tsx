@@ -25,9 +25,15 @@ export const CompanyDialog = ({
   const handleSubmit = async (values: CompanyFormValues) => {
     if (!user) return;
 
-    const companyData = {
+    const companyData: Omit<UserCompany, 'id' | 'created_at'> = {
       user_id: user.id,
-      ...values
+      name: values.name,
+      zipcode: values.zipcode,
+      street: values.street,
+      number: values.number,
+      neighborhood: values.neighborhood,
+      city: values.city,
+      state: values.state
     };
 
     const success = await onSubmit(

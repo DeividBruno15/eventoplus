@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { UserCompany } from '@/types/companies';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { CustomDatabase } from '@/integrations/supabase/types.d';
 
 export function useCompanies() {
   const { user } = useAuth();
@@ -24,13 +25,13 @@ export function useCompanies() {
     try {
       setLoading(true);
       
-      // TypeScript will complain because user_companies isn't in the generated types yet
-      // We need to use type assertions to work around this until the types are updated
-      const response = await supabase
+      // Use type assertion to work with the custom table
+      const client = supabase as any;
+      const response = await client
         .from('user_companies')
         .select('*')
         .eq('user_id', user.id)
-        .order('name') as { data: UserCompany[] | null, error: any };
+        .order('name');
       
       if (response.error) throw response.error;
       
@@ -43,13 +44,14 @@ export function useCompanies() {
     }
   };
 
-  const addCompany = async (companyData: { user_id: string } & Omit<UserCompany, 'id' | 'created_at'>) => {
+  const addCompany = async (companyData: Omit<UserCompany, 'id' | 'created_at'>) => {
     try {
       setSubmitting(true);
       
-      const response = await supabase
+      const client = supabase as any;
+      const response = await client
         .from('user_companies')
-        .insert([companyData]) as { data: UserCompany[] | null, error: any };
+        .insert([companyData]);
         
       if (response.error) throw response.error;
       
@@ -65,14 +67,15 @@ export function useCompanies() {
     }
   };
 
-  const updateCompany = async (id: string, companyData: { user_id: string } & Omit<UserCompany, 'id' | 'created_at'>) => {
+  const updateCompany = async (id: string, companyData: Omit<UserCompany, 'id' | 'created_at'>) => {
     try {
       setSubmitting(true);
       
-      const response = await supabase
+      const client = supabase as any;
+      const response = await client
         .from('user_companies')
         .update(companyData)
-        .eq('id', id) as { data: UserCompany[] | null, error: any };
+        .eq('id', id);
         
       if (response.error) throw response.error;
       
@@ -92,10 +95,11 @@ export function useCompanies() {
     try {
       setSubmitting(true);
       
-      const response = await supabase
+      const client = supabase as any;
+      const response = await client
         .from('user_companies')
         .delete()
-        .eq('id', id) as { data: any, error: any };
+        .eq('id', id);
       
       if (response.error) throw response.error;
       
