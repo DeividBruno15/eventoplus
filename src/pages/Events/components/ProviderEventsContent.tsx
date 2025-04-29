@@ -8,7 +8,7 @@ import { NoServicesWarning } from "./NoServicesWarning";
 import { EventsSearch } from "./EventsSearch";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { Event } from "@/types/events";
+import { Event, EventStatus } from "@/types/events";
 import { toast } from "sonner";
 
 export const ProviderEventsContent = () => {
@@ -34,6 +34,7 @@ export const ProviderEventsContent = () => {
 
         if (error) throw error;
 
+        console.log("Provider services fetched:", data);
         setUserServices(data.map(service => service.category));
       } catch (error) {
         console.error('Error fetching provider services:', error);
@@ -53,7 +54,9 @@ export const ProviderEventsContent = () => {
 
     const fetchEvents = async () => {
       try {
-        // Fetch events that match user services
+        console.log("Fetching events for service categories:", userServices);
+        
+        // Fetch events that match user services and are published
         const { data: events, error } = await supabase
           .from('events')
           .select('*')
@@ -63,6 +66,8 @@ export const ProviderEventsContent = () => {
 
         if (error) throw error;
 
+        console.log("Fetched events:", events);
+
         // Fetch ALL applications by this provider
         const { data: applications, error: appError } = await supabase
           .from('event_applications')
@@ -71,7 +76,6 @@ export const ProviderEventsContent = () => {
 
         if (appError) throw appError;
 
-        // Log for debugging
         console.log('Fetched applications:', applications?.length || 0, 'applications');
         
         const appliedEventIds = applications ? applications.map(app => app.event_id) : [];
@@ -83,6 +87,7 @@ export const ProviderEventsContent = () => {
           // Need to cast the JSON data to match our Event type
           const typedEvents = events.map((event: any) => ({
             ...event,
+            status: event.status as EventStatus,
             service_requests: event.service_requests as unknown as Event['service_requests']
           }));
           
@@ -107,6 +112,7 @@ export const ProviderEventsContent = () => {
             // Cast the applied events data too
             const typedAppliedEvents = appliedEventsData ? appliedEventsData.map((event: any) => ({
               ...event,
+              status: event.status as EventStatus,
               service_requests: event.service_requests as unknown as Event['service_requests']
             })) : [];
             

@@ -14,9 +14,16 @@ interface EventCardProps {
 export const EventCard = ({ event }: EventCardProps) => {
   const navigate = useNavigate();
   
-  // Format event date for display
+  // Format event date for display - safely handle date formatting
   const formattedDate = event.event_date
-    ? format(new Date(event.event_date), "dd 'de' MMMM, yyyy", { locale: ptBR })
+    ? (() => {
+        try {
+          return format(new Date(event.event_date), "dd 'de' MMMM, yyyy", { locale: ptBR });
+        } catch (e) {
+          console.error("Error formatting date:", e, event.event_date);
+          return 'Data não definida';
+        }
+      })()
     : 'Data não definida';
   
   const getStatusBadge = () => {
@@ -32,7 +39,7 @@ export const EventCard = ({ event }: EventCardProps) => {
       case 'cancelled':
         return <span className="absolute top-3 right-3 text-xs bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full font-medium">Cancelado</span>;
       default:
-        return <span className="absolute top-3 right-3 text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium">{event.status}</span>;
+        return <span className="absolute top-3 right-3 text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium">{event.status || 'Desconhecido'}</span>;
     }
   };
 

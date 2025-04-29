@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Event } from "@/types/events";
+import { Event, EventStatus } from "@/types/events";
 import { ProviderEventCard } from "./ProviderEventCard";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
@@ -104,12 +104,18 @@ export const ProviderEventsList = ({
   const filterEvents = (events: Event[]) =>
     events.filter(event =>
       event.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      event.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       event.location.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
   const filteredAvailableEvents = filterEvents(availableEvents);
   const filteredAppliedEvents = filterEvents(appliedEvents);
+
+  // For debugging
+  useEffect(() => {
+    console.log("Available events:", availableEvents);
+    console.log("Applied events:", appliedEvents);
+  }, [availableEvents, appliedEvents]);
 
   if (loading) {
     return (

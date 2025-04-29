@@ -30,39 +30,48 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
         return;
       }
       
+      console.log("Fetching events for contractor:", user.id);
+      
       const { data, error } = await supabase
         .from('events')
-        .select('*, contractor:contractor_id(*)')
+        .select('*, contractor:contractor_id(id, first_name, last_name, avatar_url)')
         .eq('contractor_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching events:", error);
+        throw error;
+      }
       
-      const processedEvents: Event[] = (data || []).map(event => {
-        const eventData = event as any;
-        return {
-          id: eventData.id,
-          name: eventData.name, 
-          description: eventData.description,
-          event_date: eventData.event_date,
-          location: eventData.location,
-          max_attendees: eventData.max_attendees,
-          contractor_id: eventData.contractor_id,
-          contractor: eventData.contractor,
-          created_at: eventData.created_at,
-          updated_at: eventData.updated_at || null,
-          service_type: eventData.service_type,
-          status: eventData.status as EventStatus,
-          event_time: eventData.event_time,
-          image_url: eventData.image_url ? String(eventData.image_url) : undefined,
-          service_requests: eventData.service_requests
-        };
-      });
+      console.log("Fetched events:", data);
       
-      setEvents(processedEvents);
-      console.log("Eventos carregados:", processedEvents.length);
+      if (data && data.length > 0) {
+        const processedEvents: Event[] = data.map(event => ({
+          id: event.id,
+          name: event.name, 
+          description: event.description,
+          event_date: event.event_date,
+          location: event.location,
+          max_attendees: event.max_attendees,
+          contractor_id: event.contractor_id,
+          contractor: event.contractor,
+          created_at: event.created_at,
+          updated_at: event.updated_at || null,
+          service_type: event.service_type,
+          status: event.status as EventStatus,
+          event_time: event.event_time,
+          image_url: event.image_url ? String(event.image_url) : undefined,
+          service_requests: event.service_requests
+        }));
+        
+        setEvents(processedEvents);
+        console.log("Processed events:", processedEvents);
+      } else {
+        setEvents([]);
+        console.log("No events found for this contractor");
+      }
     } catch (error) {
-      console.error('Erro ao buscar eventos:', error);
+      console.error('Error fetching events:', error);
       toast({
         title: "Erro",
         description: "Não foi possível carregar os eventos.",
@@ -76,40 +85,46 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
   useEffect(() => {
     fetchEvents();
     
-    // Configurar canal de realtime para atualizar eventos
-    const channel = supabase
-      .channel('events-changes')
-      .on('postgres_changes', 
-        { 
-          event: '*', 
-          schema: 'public', 
-          table: 'events',
-          filter: `contractor_id=eq.${user?.id}` 
-        }, 
-        payload => {
-          console.log('Evento recebido:', payload);
-          if (payload.eventType === 'INSERT') {
-            console.log('Novo evento adicionado:', payload.new);
-            setEvents(prevEvents => [payload.new as Event, ...prevEvents]);
-          } else if (payload.eventType === 'UPDATE') {
-            setEvents(prevEvents => 
-              prevEvents.map(event => 
-                event.id === payload.new.id ? payload.new as Event : event
-              )
-            );
-          } else if (payload.eventType === 'DELETE') {
-            setEvents(prevEvents => 
-              prevEvents.filter(event => event.id !== payload.old.id)
-            );
+    // Set up realtime subscription for events table
+    if (user) {
+      console.log("Setting up realtime subscription for events");
+      const channel = supabase
+        .channel('events-changes')
+        .on('postgres_changes', 
+          { 
+            event: '*', 
+            schema: 'public', 
+            table: 'events',
+            filter: `contractor_id=eq.${user.id}` 
+          }, 
+          payload => {
+            console.log('Event change received:', payload);
+            
+            // Handle different event types
+            if (payload.eventType === 'INSERT') {
+              console.log('New event added:', payload.new);
+              setEvents(prevEvents => [payload.new as Event, ...prevEvents]);
+            } else if (payload.eventType === 'UPDATE') {
+              setEvents(prevEvents => 
+                prevEvents.map(event => 
+                  event.id === payload.new.id ? payload.new as Event : event
+                )
+              );
+            } else if (payload.eventType === 'DELETE') {
+              setEvents(prevEvents => 
+                prevEvents.filter(event => event.id !== payload.old.id)
+              );
+            }
           }
-        }
-      )
-      .subscribe();
-      
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [toast, user]);
+        )
+        .subscribe();
+        
+      // Cleanup subscription on unmount
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [user, toast]);
 
   if (loading) {
     return (

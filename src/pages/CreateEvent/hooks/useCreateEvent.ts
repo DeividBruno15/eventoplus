@@ -53,7 +53,7 @@ export const useCreateEvent = () => {
         }
       }
       
-      // Prepare event object for saving - only include fields that exist in the schema
+      // Prepare event object for saving - set status to 'published' so it's visible
       const eventToSave = {
         name: eventData.name,
         description: eventData.description,
@@ -61,6 +61,11 @@ export const useCreateEvent = () => {
         event_time: eventData.event_time,
         location: formattedAddress,
         zipcode: eventData.zipcode,
+        street: eventData.street,
+        number: eventData.number,
+        neighborhood: eventData.neighborhood,
+        city: eventData.city,
+        state: eventData.state,
         service_requests: prepareServiceRequestsForStorage(eventData.service_requests),
         image_url: imageUrl,
         contractor_id: user.id,
@@ -68,7 +73,7 @@ export const useCreateEvent = () => {
         service_type: eventData.service_requests?.[0]?.category || ''
       };
 
-      console.log("Salvando evento:", eventToSave);
+      console.log("Saving event with data:", eventToSave);
       
       let response;
       
@@ -84,14 +89,16 @@ export const useCreateEvent = () => {
       }
 
       if (response.error) {
-        console.error("Erro no Supabase:", response.error);
-        throw new Error(response.error.message || 'Erro ao salvar o evento no banco de dados');
+        console.error("Error in Supabase:", response.error);
+        throw new Error(response.error.message || 'Error saving the event to the database');
       }
       
-      console.log("Evento salvo com sucesso:", response);
+      console.log("Event saved successfully:", response);
+      toast.success("Evento salvo com sucesso!");
       return true;
     } catch (error: any) {
-      console.error('Erro ao criar/atualizar evento:', error);
+      console.error('Error creating/updating event:', error);
+      toast.error(error.message || 'Ocorreu um erro ao criar o evento');
       throw new Error(error.message || 'Ocorreu um erro ao criar o evento');
     } finally {
       setLoading(false);
