@@ -144,6 +144,7 @@ export const useContractorEvents = () => {
               
               setEvents(prevEvents => [processedEvent, ...prevEvents]);
             } else if (payload.eventType === 'UPDATE') {
+              console.log('Event updated:', payload.new);
               // Same transformation for updated events
               const updatedEvent = payload.new as any;
               const processedEvent: Event = {
@@ -180,6 +181,8 @@ export const useContractorEvents = () => {
                 )
               );
             } else if (payload.eventType === 'DELETE') {
+              console.log('Event deleted:', payload.old.id);
+              // Filter out the deleted event
               setEvents(prevEvents => 
                 prevEvents.filter(event => event.id !== payload.old.id)
               );
