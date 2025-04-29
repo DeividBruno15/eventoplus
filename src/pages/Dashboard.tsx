@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
-import ContractorDashboard from "@/components/dashboard/ContractorDashboard";
+import ContractorDashboardContent from "@/components/dashboard/ContractorDashboardContent";
 import ProviderDashboardContent from "@/components/dashboard/ProviderDashboardContent";
 import DashboardLayout from "@/layouts/DashboardLayout";
 
@@ -38,7 +38,7 @@ const Dashboard = () => {
   
   return (
     <DashboardLayout>
-      <ContractorDashboard userName={userName} />
+      <ContractorDashboardContent userName={userName} />
     </DashboardLayout>
   );
 };

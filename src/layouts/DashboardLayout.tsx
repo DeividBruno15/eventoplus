@@ -62,9 +62,9 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     if (route.startsWith('/events')) return 'Eventos';
     if (route.startsWith('/chat')) return 'Chat';
     if (route.startsWith('/settings')) return 'Configurações';
-    if (route.startsWith('/service-providers')) return 'Prestadores de Serviços';
     if (route.startsWith('/help-center')) return 'Central de Ajuda';
     if (route.startsWith('/support')) return 'Suporte';
+    if (route.startsWith('/service-providers')) return 'Prestadores de Serviços';
     
     return 'Dashboard';
   };

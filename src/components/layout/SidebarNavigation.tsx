@@ -14,7 +14,7 @@ import {
   SidebarMenuItem, 
   SidebarMenuButton 
 } from '@/components/ui/sidebar';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from '@/components/ui/use-toast';
@@ -72,6 +72,7 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
   ];
 
   const handleLinkClick = (path: string) => {
+    console.log('Sidebar item clicked:', path);
     onNavigate(path);
   };
 
