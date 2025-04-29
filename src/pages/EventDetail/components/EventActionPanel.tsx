@@ -2,6 +2,7 @@
 import { Event, EventApplication } from '@/types/events';
 import { ApplicationForm } from './ApplicationForm';
 import { ApplicationsList } from './ApplicationsList';
+import { useEffect } from 'react';
 
 interface EventActionPanelProps {
   userRole: 'provider' | 'contractor' | null;
@@ -33,6 +34,9 @@ export const EventActionPanel = ({
   console.log("Event contractor ID:", event.contractor_id);
   console.log("Current user ID:", userId);
   console.log("Is user the event contractor?", event.contractor_id === userId);
+
+  // Check if there are any accepted applications for this event
+  const hasAcceptedApplications = applications.some(app => app.status === 'accepted');
   
   return (
     <div className="grid gap-6 lg:grid-cols-2">

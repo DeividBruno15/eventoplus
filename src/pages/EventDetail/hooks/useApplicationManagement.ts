@@ -5,9 +5,11 @@ import { Event, ServiceRequest } from '@/types/events';
 import { toast } from 'sonner';
 import { sendProviderNotification } from './useEventNotifications';
 import { Json } from '@/integrations/supabase/types';
+import { useNavigate } from 'react-router-dom';
 
 export const useApplicationManagement = (event: Event | null) => {
   const [submitting, setSubmitting] = useState(false);
+  const navigate = useNavigate();
 
   /**
    * Rejects an application for an event
@@ -45,9 +47,6 @@ export const useApplicationManagement = (event: Event | null) => {
       }
       
       toast.success("Candidatura rejeitada com sucesso.");
-      
-      // Refresh the page
-      setTimeout(() => window.location.reload(), 1500);
     } catch (error: any) {
       console.error('Erro ao rejeitar candidatura:', error);
       toast.error(error.message || 'Ocorreu um erro ao rejeitar a candidatura');
@@ -158,8 +157,6 @@ export const useApplicationManagement = (event: Event | null) => {
         console.error('Error sending approval notification:', notificationError);
       }
       
-      toast.success("Candidatura aprovada! Você e o prestador já podem conversar.");
-      
       // Increment the filled count for this service in service_requests
       if (event.service_requests && event.service_requests.length > 0 && applicationData.service_category) {
         // Get current service_requests
@@ -190,8 +187,12 @@ export const useApplicationManagement = (event: Event | null) => {
         console.log('Updated service request filled count for category:', applicationData.service_category);
       }
       
-      // Refresh the page
-      setTimeout(() => window.location.reload(), 1500);
+      toast.success("Candidatura aprovada! Redirecionando para o chat...");
+      
+      // Redirect to chat with a slight delay to allow toast to be seen
+      setTimeout(() => {
+        navigate('/chat');
+      }, 1500);
     } catch (error: any) {
       console.error('Erro ao aprovar candidatura:', error);
       toast.error(error.message || 'Ocorreu um erro ao aprovar a candidatura');
@@ -206,4 +207,3 @@ export const useApplicationManagement = (event: Event | null) => {
     handleRejectApplication
   };
 };
-

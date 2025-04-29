@@ -1,7 +1,6 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/components/ui/use-toast';
 import { Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Event } from '@/types/events';
@@ -16,6 +15,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 interface DeleteEventProps {
   event: Event;
@@ -23,18 +23,13 @@ interface DeleteEventProps {
 }
 
 export const DeleteEvent = ({ event, userId }: DeleteEventProps) => {
-  const { toast } = useToast();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   const handleDelete = async () => {
     if (!event || !userId || event.contractor_id !== userId) {
-      toast({
-        title: "Erro",
-        description: "Apenas o criador do evento pode excluí-lo",
-        variant: "destructive"
-      });
+      toast.error("Apenas o criador do evento pode excluí-lo");
       return;
     }
     
@@ -59,19 +54,15 @@ export const DeleteEvent = ({ event, userId }: DeleteEventProps) => {
         
       if (error) throw error;
       
-      toast({
-        title: "Sucesso",
-        description: "Evento excluído com sucesso",
-      });
+      toast.success("Evento excluído com sucesso");
       
-      navigate('/events');
+      // Navigate to events page after short delay
+      setTimeout(() => {
+        navigate('/events');
+      }, 1000);
       
     } catch (error: any) {
-      toast({
-        title: "Erro ao excluir evento",
-        description: error.message,
-        variant: "destructive"
-      });
+      toast.error(`Erro ao excluir evento: ${error.message}`);
       console.error("Delete error:", error);
     } finally {
       setIsOpen(false);

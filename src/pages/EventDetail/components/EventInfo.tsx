@@ -1,141 +1,120 @@
 
-import { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Event } from '@/types/events';
-import { Separator } from '@/components/ui/separator';
-import { Calendar, Clock, MapPin, Users } from 'lucide-react';
-import { format, parseISO } from 'date-fns';
+import { Calendar, MapPin, Users, Clock, User, Building } from 'lucide-react';
+import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { Event } from '@/types/events';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Link } from 'react-router-dom';
 
 interface EventInfoProps {
   event: Event;
 }
 
 export const EventInfo = ({ event }: EventInfoProps) => {
-  const formattedDate = event.event_date 
-    ? format(parseISO(event.event_date), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
+  // Format the event date
+  const eventDate = event.event_date
+    ? format(new Date(event.event_date), "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })
     : 'Data não definida';
     
-  const getInitials = (first: string = '', last: string = '') => {
-    return `${first.charAt(0)}${last.charAt(0)}`.toUpperCase();
+  // Get contractor initials for avatar fallback
+  const getContractorInitials = () => {
+    if (!event.contractor) return 'C';
+    const { first_name, last_name } = event.contractor;
+    return `${first_name?.charAt(0) || ''}${last_name ? last_name.charAt(0) : ''}`.toUpperCase() || 'C';
   };
   
-  // Use the contractor data directly from the event
-  const contractor = event.contractor;
+  const renderServiceRequests = () => {
+    if (!event.service_requests || event.service_requests.length === 0) {
+      return <p>Nenhum serviço solicitado</p>;
+    }
+    
+    return (
+      <ul className="mt-1 space-y-1">
+        {event.service_requests.map((req, index) => (
+          <li key={index} className="flex items-center justify-between">
+            <span className="text-sm">{req.category}</span>
+            <div className="flex items-center gap-1">
+              <span className="text-sm font-medium">{req.filled || 0}/{req.count}</span>
+            </div>
+          </li>
+        ))}
+      </ul>
+    );
+  };
   
   return (
-    <div>
-      <div className={`relative h-48 md:h-64 bg-gray-200 ${event.image_url ? '' : 'flex items-center justify-center'}`}>
-        {event.image_url ? (
-          <img 
-            src={event.image_url} 
-            alt={event.name} 
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="text-lg text-gray-400">Imagem não disponível</div>
-        )}
-      </div>
-      
-      <div className="p-6">
-        <div className="flex justify-between items-start mb-6">
-          <div>
-            <h1 className="text-2xl font-bold mb-2">{event.name}</h1>
-            <div className="flex flex-wrap gap-2 mb-2">
-              <Badge variant="secondary" className="bg-primary/10 text-primary">
-                {event.service_type || 'Serviço não especificado'}
-              </Badge>
-              <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200">
-                {event.status === 'draft' ? 'Rascunho' : 
-                 event.status === 'published' ? 'Publicado' : 
-                 event.status === 'closed' ? 'Fechado' : 
-                 event.status === 'completed' ? 'Concluído' : 'Cancelado'}
-              </Badge>
-            </div>
-          </div>
-        </div>
-        
-        {contractor && (
-          <div className="mb-6">
-            <h3 className="text-sm text-muted-foreground mb-2">Organizado por:</h3>
-            <div className="flex items-center">
-              <Avatar className="h-10 w-10 mr-3">
-                {contractor.avatar_url ? (
-                  <AvatarImage src={contractor.avatar_url} alt={contractor.first_name} />
-                ) : (
-                  <AvatarFallback className="bg-primary text-primary-foreground">
-                    {getInitials(contractor.first_name, contractor.last_name)}
-                  </AvatarFallback>
-                )}
-              </Avatar>
-              <div>
-                <p className="font-medium">
-                  {contractor.first_name} {contractor.last_name}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div className="flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-primary" />
-            <span>{formattedDate}</span>
-          </div>
-          
-          {event.event_time && (
-            <div className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-primary" />
-              <span>{event.event_time}</span>
-            </div>
-          )}
-          
-          <div className="flex items-center gap-2">
-            <MapPin className="h-5 w-5 text-primary" />
-            <span className="line-clamp-1">{event.location}</span>
-          </div>
-          
-          {event.max_attendees && (
-            <div className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-primary" />
-              <span>{event.max_attendees} convidados</span>
-            </div>
-          )}
-        </div>
-        
-        <Separator className="my-4" />
-        
-        <div>
-          <h3 className="font-medium mb-2">Descrição</h3>
-          <p className="text-muted-foreground whitespace-pre-line">
-            {event.description}
-          </p>
-        </div>
-        
-        {event.service_requests && event.service_requests.length > 0 && (
-          <>
-            <Separator className="my-4" />
+    <Card>
+      <CardContent className="pt-6">
+        <div className="space-y-4">
+          {/* Event date and time */}
+          <div className="flex items-start space-x-2">
+            <Calendar className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
             <div>
-              <h3 className="font-medium mb-2">Serviços Necessários</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {event.service_requests.map((service, index) => (
-                  <div key={index} className="bg-gray-50 p-3 rounded-md">
-                    <p className="font-medium">{service.category}</p>
-                    <div className="flex justify-between mt-1 text-sm text-muted-foreground">
-                      <span>Necessários: {service.count}</span>
-                      <span>
-                        Confirmados: {service.filled || 0}/{service.count}
-                      </span>
-                    </div>
-                  </div>
-                ))}
+              <p className="font-medium">{eventDate}</p>
+              {event.event_time && (
+                <div className="flex items-center mt-1">
+                  <Clock className="h-4 w-4 text-muted-foreground mr-1" />
+                  <span className="text-sm text-muted-foreground">{event.event_time}</span>
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {/* Location */}
+          <div className="flex items-start space-x-2">
+            <MapPin className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+            <p>{event.location}</p>
+          </div>
+          
+          {/* Contractor - Only show if there is contractor data */}
+          {event.contractor && (
+            <div className="flex items-start space-x-2">
+              <User className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+              <div className="flex items-center">
+                <span className="mr-2">Organizado por:</span>
+                <Link to={`/provider-profile/${event.contractor_id}`} className="flex items-center group">
+                  <Avatar className="h-6 w-6 mr-2">
+                    {event.contractor.avatar_url ? (
+                      <AvatarImage 
+                        src={event.contractor.avatar_url}
+                        alt={`${event.contractor.first_name} ${event.contractor.last_name || ''}`}
+                      />
+                    ) : (
+                      <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                        {getContractorInitials()}
+                      </AvatarFallback>
+                    )}
+                  </Avatar>
+                  <span className="group-hover:text-primary transition-colors">
+                    {event.contractor.first_name} {event.contractor.last_name || ''}
+                  </span>
+                </Link>
               </div>
             </div>
-          </>
-        )}
-      </div>
-    </div>
+          )}
+          
+          {/* Attendees - Only show if max_attendees is defined */}
+          {event.max_attendees && (
+            <div className="flex items-start space-x-2">
+              <Users className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+              <p>{event.max_attendees} convidados</p>
+            </div>
+          )}
+          
+          {/* Services requested */}
+          <div>
+            <h3 className="font-medium text-lg mt-6 mb-3">Serviços solicitados</h3>
+            {renderServiceRequests()}
+          </div>
+          
+          {/* Description */}
+          <div>
+            <h3 className="font-medium text-lg mt-6 mb-3">Descrição</h3>
+            <p className="whitespace-pre-line">{event.description}</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };

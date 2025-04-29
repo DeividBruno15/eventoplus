@@ -8,8 +8,7 @@ import { Loader2, User, Check, X } from 'lucide-react';
 import { EventApplication } from '@/types/events';
 import { Separator } from '@/components/ui/separator';
 import { getApplicationStatusColor } from '@/lib/utils';
-import { useState, useEffect } from 'react';
-import { toast } from 'sonner';
+import { useState } from 'react';
 
 interface ApplicationsListProps {
   applications: EventApplication[];
@@ -27,6 +26,7 @@ export const ApplicationsList = ({
   eventStatus 
 }: ApplicationsListProps) => {
   const navigate = useNavigate();
+  const [actionInProgress, setActionInProgress] = useState<string | null>(null);
   
   console.log("Applications in ApplicationsList:", applications);
   
@@ -36,16 +36,31 @@ export const ApplicationsList = ({
   
   const handleRejectApplication = async (applicationId: string, providerId: string) => {
     if (onReject) {
-      await onReject(applicationId, providerId);
+      setActionInProgress(applicationId);
+      try {
+        await onReject(applicationId, providerId);
+      } finally {
+        setActionInProgress(null);
+      }
     } else {
       toast.error("Função de rejeição não implementada");
+    }
+  };
+
+  const handleApproveApplication = async (applicationId: string, providerId: string) => {
+    setActionInProgress(applicationId);
+    try {
+      await onApprove(applicationId, providerId);
+      // Navigation to chat will happen in the onApprove handler itself
+    } finally {
+      setActionInProgress(null);
     }
   };
   
   const getProviderInitials = (app: EventApplication) => {
     if (!app.provider) return 'U';
     const { first_name, last_name } = app.provider;
-    return `${first_name.charAt(0)}${last_name ? last_name.charAt(0) : ''}`.toUpperCase();
+    return `${first_name?.charAt(0) || ''}${last_name ? last_name.charAt(0) : ''}`.toUpperCase() || 'U';
   };
   
   return (
@@ -60,7 +75,10 @@ export const ApplicationsList = ({
         ) : (
           <div className="space-y-4">
             {applications.map((app) => (
-              <div key={app.id} className="border rounded-md p-4">
+              <div 
+                key={app.id} 
+                className={`border rounded-md p-4 ${app.status === 'rejected' ? 'bg-gray-50' : ''}`}
+              >
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center">
                     <Avatar className="h-10 w-10 mr-3">
@@ -80,8 +98,7 @@ export const ApplicationsList = ({
                         {app.provider ? `${app.provider.first_name} ${app.provider.last_name || ''}` : 'Usuário'}
                       </span>
                       <p className="text-xs text-muted-foreground">
-                        {app.provider?.email || 'Sem email'}
-                        {app.service_category && <span className="ml-2 px-1.5 py-0.5 bg-primary/10 text-primary rounded-full text-xs">{app.service_category}</span>}
+                        {app.service_category && <span className="px-1.5 py-0.5 bg-primary/10 text-primary rounded-full text-xs">{app.service_category}</span>}
                       </p>
                     </div>
                   </div>
@@ -112,12 +129,12 @@ export const ApplicationsList = ({
                   {app.status === 'pending' && (eventStatus === 'open' || eventStatus === 'published') && (
                     <>
                       <Button 
-                        onClick={() => onApprove(app.id, app.provider_id)}
-                        disabled={submitting}
+                        onClick={() => handleApproveApplication(app.id, app.provider_id)}
+                        disabled={submitting || actionInProgress !== null}
                         size="sm"
                         className="bg-green-600 hover:bg-green-700"
                       >
-                        {submitting ? (
+                        {(submitting || actionInProgress === app.id) ? (
                           <>
                             <Loader2 className="mr-1 h-4 w-4 animate-spin" />
                             Aprovando...
@@ -132,12 +149,21 @@ export const ApplicationsList = ({
                       
                       <Button 
                         onClick={() => handleRejectApplication(app.id, app.provider_id)}
-                        disabled={submitting}
+                        disabled={submitting || actionInProgress !== null}
                         size="sm"
                         variant="destructive"
                       >
-                        <X className="mr-1 h-4 w-4" />
-                        Rejeitar
+                        {(submitting || actionInProgress === app.id) ? (
+                          <>
+                            <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                            Rejeitando...
+                          </>
+                        ) : (
+                          <>
+                            <X className="mr-1 h-4 w-4" />
+                            Rejeitar
+                          </>
+                        )}
                       </Button>
                     </>
                   )}
