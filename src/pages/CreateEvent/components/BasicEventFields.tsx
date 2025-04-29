@@ -2,31 +2,18 @@
 import { UseFormReturn } from 'react-hook-form';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { CreateEventFormData } from '../schema';
-import { useEffect } from 'react';
-import { formatDate } from '@/lib/utils';
+import { CreateEventFormData } from '@/types/events';
+import { formatDateInput, isDateBeforeToday } from '@/lib/utils';
 
 interface BasicEventFieldsProps {
   form: UseFormReturn<CreateEventFormData>;
 }
 
 export const BasicEventFields = ({ form }: BasicEventFieldsProps) => {
-  // Formata a data enquanto o usuário digita
+  // Formata a data enquanto o usuário digita e adiciona "/" automaticamente
   const handleDateInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value.replace(/\D/g, ''); // Remove tudo que não é número
-    
-    if (value.length > 8) {
-      value = value.substring(0, 8);
-    }
-    
-    // Adiciona as barras conforme o usuário vai digitando
-    if (value.length > 4) {
-      value = value.replace(/(\d{2})(\d{2})(\d+)/, '$1/$2/$3');
-    } else if (value.length > 2) {
-      value = value.replace(/(\d{2})(\d+)/, '$1/$2');
-    }
-    
-    form.setValue('event_date', value);
+    const formattedValue = formatDateInput(e.target.value);
+    form.setValue('event_date', formattedValue);
   };
   
   // Valida a data para não aceitar datas anteriores ao dia atual
@@ -34,12 +21,7 @@ export const BasicEventFields = ({ form }: BasicEventFieldsProps) => {
     const dateValue = form.getValues('event_date');
     if (!dateValue || dateValue.length !== 10) return;
     
-    const [day, month, year] = dateValue.split('/').map(Number);
-    const selectedDate = new Date(year, month - 1, day);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    if (selectedDate < today) {
+    if (isDateBeforeToday(dateValue)) {
       form.setError('event_date', { 
         type: 'manual', 
         message: 'A data do evento não pode ser anterior ao dia atual' 

@@ -4,7 +4,8 @@ import { UseFormReturn } from 'react-hook-form';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Image, Upload, X } from 'lucide-react';
-import { CreateEventFormData } from '../schema';
+import { CreateEventFormData } from '@/types/events';
+import { toast } from 'sonner';
 
 interface ImageUploadFieldProps {
   form: UseFormReturn<CreateEventFormData>;
@@ -18,6 +19,19 @@ export const ImageUploadField = ({ form, defaultImage }: ImageUploadFieldProps) 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
+    // Check file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('A imagem não pode ser maior que 10MB');
+      return;
+    }
+
+    // Check file type
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!validTypes.includes(file.type)) {
+      toast.error('O formato do arquivo não é suportado. Use JPG, PNG, WEBP ou GIF.');
+      return;
+    }
 
     // Update form value with the file object
     form.setValue('image', file);
@@ -73,7 +87,7 @@ export const ImageUploadField = ({ form, defaultImage }: ImageUploadFieldProps) 
                   id="event-image"
                   name="event-image"
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
                   className="sr-only"
                   ref={fileInputRef}
                   onChange={handleFileChange}

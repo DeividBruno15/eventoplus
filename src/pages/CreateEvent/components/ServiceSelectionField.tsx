@@ -1,181 +1,176 @@
 
-import { useState, useEffect } from 'react';
-import { UseFormReturn } from 'react-hook-form';
-import { Label } from '@/components/ui/label';
-import { supabase } from '@/integrations/supabase/client';
-import { CreateEventFormData } from '../schema';
-import { Plus, Minus, DollarSign } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { UseFormReturn, useFieldArray } from 'react-hook-form';
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { PlusCircle, Trash2 } from 'lucide-react';
+import { CreateEventFormData } from '@/types/events';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { formatCurrency } from '@/lib/utils';
+
+interface ServiceSelectionFieldProps {
+  form: UseFormReturn<CreateEventFormData>;
+}
 
 interface ServiceCategory {
   id: string;
   name: string;
 }
 
-interface ServiceSelectionFieldProps {
-  form: UseFormReturn<CreateEventFormData>;
-}
-
 export const ServiceSelectionField = ({ form }: ServiceSelectionFieldProps) => {
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
-  const [loading, setLoading] = useState(true);
-  const serviceRequests = form.watch('service_requests') || [];
-
+  const [loading, setLoading] = useState(false);
+  
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "service_requests"
+  });
+  
+  // Fetch service categories from the database
   useEffect(() => {
-    async function fetchCategories() {
+    const fetchCategories = async () => {
+      setLoading(true);
       try {
         const { data, error } = await supabase
           .from('service_categories')
           .select('id, name')
           .order('name');
-
+          
         if (error) throw error;
+        
         setCategories(data || []);
       } catch (error) {
         console.error('Error fetching categories:', error);
       } finally {
         setLoading(false);
       }
-    }
-
+    };
+    
     fetchCategories();
   }, []);
 
-  const addServiceRequest = () => {
-    const currentServices = form.getValues('service_requests') || [];
-    form.setValue('service_requests', [...currentServices, { category: '', count: 1, price: 0 }]);
+  // Format price input to currency
+  const handlePriceChange = (index: number, value: string) => {
+    // Remove non-numeric characters
+    const numericValue = value.replace(/\D/g, '');
+    
+    // Convert to number (cents) and back to string with formatting
+    const priceInCents = parseInt(numericValue) || 0;
+    const priceInReais = priceInCents / 100;
+    
+    // Update the form
+    form.setValue(`service_requests.${index}.price`, priceInReais);
   };
-
-  const removeServiceRequest = (index: number) => {
-    const currentServices = form.getValues('service_requests') || [];
-    form.setValue('service_requests', 
-      currentServices.filter((_, i) => i !== index)
-    );
-  };
-
-  const updateServiceRequest = (index: number, field: 'category' | 'count' | 'price', value: string | number) => {
-    const currentServices = [...(form.getValues('service_requests') || [])];
-    currentServices[index] = {
-      ...currentServices[index],
-      [field]: field === 'category' ? value : Number(value)
-    };
-    form.setValue('service_requests', currentServices);
-  };
-
-  if (loading) {
-    return <div>Carregando categorias de serviço...</div>;
-  }
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <Label>Serviços Necessários</Label>
-      </div>
-
-      {serviceRequests.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          Adicione os serviços que você precisa para este evento.
+    <div className="space-y-6">
+      <div>
+        <FormLabel>Serviços Necessários</FormLabel>
+        <p className="text-sm text-muted-foreground mb-4">
+          Adicione os serviços que você precisa para o seu evento
         </p>
-      ) : (
-        <div className="space-y-3">
-          {serviceRequests.map((service, index) => (
-            <div key={index} className="flex items-center gap-3">
-              <div className="flex-grow">
-                <Select
-                  value={service.category}
-                  onValueChange={(value) => updateServiceRequest(index, 'category', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o tipo de serviço" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category.id} value={category.name}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="w-28">
-                <div className="flex items-center">
-                  <Button 
-                    type="button"
-                    size="icon"
-                    variant="outline"
-                    onClick={() => {
-                      const currentCount = service.count || 1;
-                      if (currentCount > 1) {
-                        updateServiceRequest(index, 'count', currentCount - 1);
-                      }
-                    }}
-                    className="h-8 w-8 rounded-r-none"
-                  >
-                    <Minus className="h-3 w-3" />
-                  </Button>
-                  <Input
-                    type="number"
-                    min={1}
-                    value={service.count || 1}
-                    onChange={(e) => updateServiceRequest(index, 'count', parseInt(e.target.value) || 1)}
-                    className="h-8 rounded-none text-center w-12"
-                  />
-                  <Button 
-                    type="button"
-                    size="icon"
-                    variant="outline"
-                    onClick={() => {
-                      const currentCount = service.count || 1;
-                      updateServiceRequest(index, 'count', currentCount + 1);
-                    }}
-                    className="h-8 w-8 rounded-l-none"
-                  >
-                    <Plus className="h-3 w-3" />
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="w-32">
-                <div className="flex items-center relative">
-                  <DollarSign className="h-4 w-4 absolute left-2 text-muted-foreground" />
-                  <Input
-                    type="number"
-                    min={0}
-                    step="0.01"
-                    placeholder="Valor"
-                    value={service.price || ""}
-                    onChange={(e) => updateServiceRequest(index, 'price', parseFloat(e.target.value) || 0)}
-                    className="h-8 pl-7"
-                  />
-                </div>
-              </div>
-              
+      </div>
+      
+      {fields.map((field, index) => (
+        <div key={field.id} className="flex flex-col space-y-4 p-4 border rounded-md bg-muted/30">
+          <div className="flex justify-between items-center">
+            <h4 className="font-medium">Serviço {index + 1}</h4>
+            {fields.length > 1 && (
               <Button 
-                type="button"
-                size="icon"
-                variant="outline"
-                onClick={() => removeServiceRequest(index)}
-                className="h-8 w-8"
+                type="button" 
+                variant="ghost" 
+                size="sm"
+                onClick={() => remove(index)}
+                className="h-8 w-8 p-0"
               >
-                <Minus className="h-3 w-3" />
+                <Trash2 size={16} className="text-destructive" />
               </Button>
-            </div>
-          ))}
+            )}
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name={`service_requests.${index}.category`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Categoria</FormLabel>
+                  <FormControl>
+                    <Select
+                      disabled={loading}
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione uma categoria" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map((category) => (
+                          <SelectItem key={category.id} value={category.name}>
+                            {category.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name={`service_requests.${index}.count`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Quantidade</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min="1"
+                      {...field}
+                      onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          
+          <div className="w-full md:w-1/2">
+            <FormField
+              control={form.control}
+              name={`service_requests.${index}.price`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Valor (R$)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      value={field.value ? formatCurrency(Number(field.value)).replace('R$', '').trim() : ''}
+                      onChange={(e) => handlePriceChange(index, e.target.value)}
+                      placeholder="0,00"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
         </div>
-      )}
-
-      {/* Botão Adicionar Serviço sempre no final */}
-      <Button 
-        type="button" 
-        size="sm" 
-        variant="outline" 
-        onClick={addServiceRequest}
-        className="flex items-center gap-1 w-full justify-center"
+      ))}
+      
+      {/* The "Add Service" button is always positioned after the list */}
+      <Button
+        type="button"
+        variant="outline"
+        onClick={() => append({ category: '', count: 1, price: 0 })}
+        className="mt-2 w-full"
       >
-        <Plus className="h-4 w-4" />
+        <PlusCircle size={16} className="mr-2" />
         Adicionar Serviço
       </Button>
     </div>

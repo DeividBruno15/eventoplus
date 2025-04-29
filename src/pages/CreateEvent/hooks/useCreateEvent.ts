@@ -73,30 +73,46 @@ export const useCreateEvent = () => {
       const fileName = `${uuidv4()}.${fileExt}`;
       const filePath = `event-images/${fileName}`;
       
+      // Create events bucket if it doesn't exist
       try {
-        await supabase.storage.createBucket('events', { 
-          public: true,
-          fileSizeLimit: 10485760 // 10MB
-        });
+        const { data: bucketList } = await supabase.storage.listBuckets();
+        const eventsBucketExists = bucketList?.some(bucket => bucket.name === 'events');
+        
+        if (!eventsBucketExists) {
+          await supabase.storage.createBucket('events', { 
+            public: true,
+            fileSizeLimit: 10485760 // 10MB
+          });
+        }
       } catch (error) {
-        // Ignora erro se o bucket já existir
-        console.log('Bucket might already exist:', error);
+        // Log error but continue, as the bucket might already exist
+        console.log('Bucket check/creation info:', error);
       }
 
-      const { error } = await supabase.storage
+      // Upload the file
+      const { error: uploadError, data } = await supabase.storage
         .from('events')
         .upload(filePath, file);
         
-      if (error) {
-        console.error('Error uploading file:', error);
-        throw error;
+      if (uploadError) {
+        console.error('Upload error details:', uploadError);
+        throw new Error(`Error uploading file: ${uploadError.message}`);
       }
       
-      const { data } = supabase.storage
+      if (!data) {
+        throw new Error('No data returned from upload');
+      }
+      
+      // Get the public URL
+      const { data: publicUrlData } = supabase.storage
         .from('events')
         .getPublicUrl(filePath);
         
-      return data.publicUrl;
+      if (!publicUrlData.publicUrl) {
+        throw new Error('Failed to get public URL');
+      }
+      
+      return publicUrlData.publicUrl;
     } catch (error) {
       console.error('Error in uploadEventImage:', error);
       throw error;
@@ -110,18 +126,21 @@ export const useCreateEvent = () => {
       setLoading(true);
       let imageUrl = event?.image_url || null;
       
+      // Handle image upload if there's a file
       if (eventData.image instanceof File) {
         try {
           imageUrl = await uploadEventImage(eventData.image);
+          console.log('Image uploaded successfully:', imageUrl);
         } catch (error) {
           console.error('Error uploading image:', error);
           throw new Error('Erro ao fazer upload da imagem');
         }
       }
       
+      // Format location string from address components
       const formattedAddress = `${eventData.street}, ${eventData.number} - ${eventData.neighborhood}, ${eventData.city}-${eventData.state}`;
       
-      // Verificar se existem campos obrigatórios vazios nos service_requests
+      // Validate service requests
       if (eventData.service_requests && eventData.service_requests.length > 0) {
         const hasEmptyCategory = eventData.service_requests.some(service => !service.category);
         if (hasEmptyCategory) {
@@ -129,6 +148,7 @@ export const useCreateEvent = () => {
         }
       }
       
+      // Prepare event object for saving
       const eventToSave = {
         name: eventData.name,
         description: eventData.description,

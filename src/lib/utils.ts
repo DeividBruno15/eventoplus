@@ -38,6 +38,24 @@ export const formatDateInput = (value: string): string => {
   return cleaned;
 };
 
+export const isDateBeforeToday = (dateString: string): boolean => {
+  // Converte a string de data no formato DD/MM/AAAA para um objeto Date
+  const parts = dateString.split('/');
+  if (parts.length !== 3) return false;
+  
+  const day = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10) - 1; // Mês em JavaScript é 0-indexed
+  const year = parseInt(parts[2], 10);
+  
+  const inputDate = new Date(year, month, day);
+  inputDate.setHours(0, 0, 0, 0); // Zerar horas
+  
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Zerar horas
+  
+  return inputDate < today;
+};
+
 export const getStatusColor = (status: EventStatus) => {
   switch (status) {
     case 'draft':
