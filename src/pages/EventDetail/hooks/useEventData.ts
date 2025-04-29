@@ -72,7 +72,7 @@ export const useEventData = (id?: string) => {
           avatar_url: null 
         };
         
-        // Check if contractor is an error object (from join) or actual data
+        // Check if contractor exists and is a valid object before accessing its properties
         if (eventData.contractor && typeof eventData.contractor === 'object' && !('error' in eventData.contractor)) {
           contractorData = eventData.contractor;
         }
