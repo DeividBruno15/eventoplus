@@ -56,8 +56,12 @@ export const ApplicationsList = ({
       setProcessingIds(prev => [...prev, applicationId]);
       await onReject(applicationId, providerId);
       
-      // Remove the rejected application from local state
-      setLocalApplications(prev => prev.filter(app => app.id !== applicationId));
+      // Update local state to show application as rejected
+      setLocalApplications(prev => 
+        prev.map(app => 
+          app.id === applicationId ? { ...app, status: 'rejected' } : app
+        )
+      );
     } finally {
       setProcessingIds(prev => prev.filter(id => id !== applicationId));
     }
@@ -103,7 +107,8 @@ export const ApplicationsList = ({
             key={application.id} 
             className={cn(
               "overflow-hidden", 
-              application.status === 'accepted' ? "border-green-500 bg-green-50" : ""
+              application.status === 'accepted' ? "border-green-500 bg-green-50" : 
+              application.status === 'rejected' ? "border-red-500 bg-red-50" : ""
             )}
           >
             <div className="p-4 flex flex-col gap-3">
