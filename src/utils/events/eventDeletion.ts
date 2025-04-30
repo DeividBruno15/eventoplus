@@ -1,5 +1,5 @@
 
-import { supabase, checkSupabaseConnection } from "@/integrations/supabase/client";
+import { supabase, checkSupabaseConnection, SUPABASE_URL } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 /**
@@ -104,7 +104,7 @@ export const simulateEventDeletion = async (eventId: string): Promise<void> => {
   try {
     console.log("Simulando exclusão do evento:", eventId);
     // Exibir informações sobre ambiente
-    console.log("URL do Supabase:", supabase.supabaseUrl);
+    console.log("URL do Supabase:", SUPABASE_URL);
     console.log("Ambiente:", import.meta.env.MODE);
     
     // Simular exclusão bem-sucedida após 2 segundos

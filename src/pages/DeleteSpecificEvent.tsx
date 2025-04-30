@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { useNavigate } from 'react-router-dom';
 import { Loader2, AlertCircle, CheckCircle, WifiOff } from 'lucide-react';
 import { toast } from 'sonner';
-import { supabase, checkSupabaseConnection } from '@/integrations/supabase/client';
+import { supabase, checkSupabaseConnection, SUPABASE_URL } from '@/integrations/supabase/client';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const DeleteSpecificEvent = () => {
@@ -54,7 +54,7 @@ const DeleteSpecificEvent = () => {
         
         // Coletar informações de debug
         const debugData: Record<string, any> = {
-          url: supabase.supabaseUrl,
+          url: SUPABASE_URL,
           browserInfo: navigator.userAgent,
           timestamp: new Date().toISOString(),
           env: import.meta.env.MODE
@@ -118,7 +118,7 @@ const DeleteSpecificEvent = () => {
           
           {isDeleted ? (
             <div className="space-y-4">
-              <Alert variant="success" className="bg-green-50 border-green-200 text-green-700">
+              <Alert variant="default" className="bg-green-50 border-green-200 text-green-700">
                 <CheckCircle className="h-4 w-4" />
                 <AlertTitle>Sucesso</AlertTitle>
                 <AlertDescription>O evento foi excluído com sucesso!</AlertDescription>

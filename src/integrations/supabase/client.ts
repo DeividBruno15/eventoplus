@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 import type { CustomDatabase } from './types.d';
 
-const SUPABASE_URL = "https://euktkuqjadepwwsnrdsl.supabase.co";
+export const SUPABASE_URL = "https://euktkuqjadepwwsnrdsl.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1a3RrdXFqYWRlcHd3c25yZHNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1MDc1MjQsImV4cCI6MjA2MTA4MzUyNH0.KBUchcccCPwlt7NOesxrev0g0LuUYnEQPki6mkL4aLY";
 
 // Import the supabase client like this:
@@ -33,4 +33,3 @@ export const checkSupabaseConnection = async (): Promise<boolean> => {
     return false;
   }
 };
-
