@@ -28,28 +28,46 @@ export const useEventRealtimeSubscription = ({
       .channel('events-realtime')
       .on('postgres_changes', 
         { 
-          event: '*', 
+          event: 'INSERT', 
           schema: 'public', 
           table: 'events',
           filter: `contractor_id=eq.${userId}` 
         }, 
         payload => {
-          console.log('Event change received:', payload.eventType, payload);
-          
-          // Handle different event types
-          if (payload.eventType === 'INSERT') {
-            console.log('New event added:', payload.new);
-            const processedEvent = transformEventData(payload.new);
-            onEventAdded(processedEvent);
-          } else if (payload.eventType === 'UPDATE') {
-            console.log('Event updated:', payload.new);
-            const processedEvent = transformEventData(payload.new);
-            onEventUpdated(processedEvent);
-          } else if (payload.eventType === 'DELETE') {
-            console.log('Event deleted:', payload.old.id);
+          console.log('Event insert received:', payload);
+          const processedEvent = transformEventData(payload.new);
+          onEventAdded(processedEvent);
+        }
+      )
+      .on('postgres_changes', 
+        { 
+          event: 'UPDATE', 
+          schema: 'public', 
+          table: 'events',
+          filter: `contractor_id=eq.${userId}` 
+        }, 
+        payload => {
+          console.log('Event update received:', payload);
+          const processedEvent = transformEventData(payload.new);
+          onEventUpdated(processedEvent);
+        }
+      )
+      .on('postgres_changes', 
+        { 
+          event: 'DELETE', 
+          schema: 'public', 
+          table: 'events',
+          filter: `contractor_id=eq.${userId}` 
+        }, 
+        payload => {
+          console.log('Event deletion received:', payload);
+          // Make sure we're getting the deleted event ID
+          if (payload.old && payload.old.id) {
             const deletedEventId = payload.old.id;
             console.log('Removing event with ID:', deletedEventId);
             onEventDeleted(deletedEventId);
+          } else {
+            console.error('Missing ID in delete event payload:', payload);
           }
         }
       )

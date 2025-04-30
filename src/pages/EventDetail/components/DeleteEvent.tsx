@@ -73,6 +73,7 @@ export const DeleteEvent = ({ event, userId }: DeleteEventProps) => {
       setDeleting(false);
       
       // Navigate with replace:true to avoid history stack issues
+      // Using a static parameter to trigger a refresh
       navigate('/events?refresh=true', { replace: true });
     } catch (error: any) {
       console.error("Delete error:", error);

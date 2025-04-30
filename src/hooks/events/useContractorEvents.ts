@@ -38,21 +38,29 @@ export const useContractorEvents = () => {
       if (prevEvents.some(e => e.id === newEvent.id)) {
         return prevEvents;
       }
+      console.log("Adding new event to state:", newEvent.id);
       return [newEvent, ...prevEvents];
     });
   }, []);
 
   const handleEventUpdated = useCallback((updatedEvent: Event) => {
-    setEvents(prevEvents => 
-      prevEvents.map(event => 
+    setEvents(prevEvents => {
+      console.log("Updating event in state:", updatedEvent.id);
+      return prevEvents.map(event => 
         event.id === updatedEvent.id ? updatedEvent : event
-      )
-    );
+      );
+    });
   }, []);
 
   const handleEventDeleted = useCallback((deletedEventId: string) => {
     console.log("Event deletion detected, removing event ID:", deletedEventId);
     setEvents(prevEvents => {
+      // Check if the event exists before filtering
+      if (!prevEvents.some(event => event.id === deletedEventId)) {
+        console.log("Event not found in state:", deletedEventId);
+        return prevEvents;
+      }
+      
       // Important: Create a new array to ensure React detects the state change
       const filteredEvents = prevEvents.filter(event => event.id !== deletedEventId);
       console.log(`Filtered events: ${prevEvents.length} -> ${filteredEvents.length}`);
@@ -71,6 +79,7 @@ export const useContractorEvents = () => {
   // Initial data fetch - only run once when the component mounts or user changes
   useEffect(() => {
     if (user?.id) {
+      console.log("Initial events fetch for user:", user.id);
       fetchEvents();
     }
   }, [user?.id, fetchEvents]);

@@ -13,9 +13,6 @@ const Events = () => {
     if (!session) {
       navigate('/login');
     }
-    
-    // Logging only when component mounts, no dependency on location
-    console.log("Events page mounted");
   }, [session, navigate]);
 
   if (!session) {

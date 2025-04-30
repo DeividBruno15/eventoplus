@@ -21,7 +21,7 @@ export const useFetchContractorEvents = (userId: string | undefined) => {
       
       console.log("Fetching events for contractor:", userId);
       
-      // Get events data from Supabase
+      // Get events data from Supabase - ensure we're getting the latest data
       const { data, error } = await supabase
         .from('events')
         .select('*')
