@@ -12,12 +12,18 @@ export const useEventApplicationsList = (eventId?: string, user?: User | null, u
   const { loading, fetchApplications } = useFetchApplications();
   
   // Function to update application status locally
-  const updateApplicationStatus = useCallback((applicationId: string, status: 'accepted' | 'rejected') => {
-    setApplications(prevApplications => 
-      prevApplications.map(app => 
-        app.id === applicationId ? { ...app, status } : app
-      )
-    );
+  const updateApplicationStatus = useCallback((applicationId: string, status: 'accepted' | 'rejected' = 'accepted') => {
+    setApplications(prevApplications => {
+      if (status === 'rejected') {
+        // Remove rejected applications
+        return prevApplications.filter(app => app.id !== applicationId);
+      } else {
+        // Update accepted applications
+        return prevApplications.map(app => 
+          app.id === applicationId ? { ...app, status } : app
+        );
+      }
+    });
   }, []);
   
   useEffect(() => {

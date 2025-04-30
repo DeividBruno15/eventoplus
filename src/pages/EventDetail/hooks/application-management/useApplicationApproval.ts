@@ -2,13 +2,12 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
-import { useToast } from '@/components/ui/use-toast';
-import { notificationsService } from '@/services/notifications';
+import { toast } from 'sonner';
+import { sendProviderNotification } from '../useEventNotifications';
 import { Event } from '@/types/events';
 
 export const useApplicationApproval = (event: Event | null, updateApplicationStatus?: (applicationId: string) => void) => {
   const [isApproving, setIsApproving] = useState(false);
-  const { toast } = useToast();
   const navigate = useNavigate();
 
   const handleApproveApplication = async (applicationId: string, providerId: string): Promise<void> => {
@@ -36,56 +35,52 @@ export const useApplicationApproval = (event: Event | null, updateApplicationSta
 
       if (userError) throw userError;
 
-      // Create a conversation between provider and contractor
+      // Create a conversation between provider and contractor if it doesn't exist
       const { data: conversationData, error: conversationError } = await supabase
-        .rpc('get_user_conversations', {
-          p_user_id: providerId
+        .rpc('create_or_get_conversation', { 
+          user_id_one: contractorId,
+          user_id_two: providerId
         });
 
-      if (conversationError) throw conversationError;
+      if (conversationError) {
+        console.error('Error creating conversation:', conversationError);
+        throw conversationError;
+      }
 
-      // For now, we'll skip updating the conversation_id in event_applications since it's not in the type
-      // We'll create a separate channel for communication
+      const conversationId = conversationData?.[0]?.id;
+      console.log('Created or got conversation:', conversationId);
 
       // 3. Send notification to provider
-      await notificationsService.sendNotification({
-        userId: providerId,
-        title: 'Proposta aceita!',
-        content: `Sua proposta para um evento foi aceita por ${userData.first_name} ${userData.last_name}.`,
-        type: 'application_approved',
-        link: `/events/${eventId}`
-      });
+      await sendProviderNotification(
+        event,
+        providerId,
+        'Proposta aceita!',
+        `Sua proposta para o evento "${event.name}" foi aceita.`,
+        'application_approved'
+      );
 
       // Update local state if callback provided
       if (updateApplicationStatus) {
         updateApplicationStatus(applicationId);
       }
 
-      toast({
-        title: "Proposta aceita",
-        description: "O prestador de serviço foi notificado e um chat foi criado para vocês conversarem.",
-      });
+      toast.success("Candidatura aprovada com sucesso.");
+      
+      // Open chat with the provider
+      if (conversationId) {
+        navigate(`/chat/${conversationId}`);
+      }
       
     } catch (error: any) {
       console.error('Error approving application:', error);
-      toast({
-        title: "Erro ao aprovar proposta",
-        description: error.message,
-        variant: "destructive"
-      });
+      toast.error(error.message || 'Ocorreu um erro ao aprovar a candidatura');
     } finally {
       setIsApproving(false);
     }
   };
 
-  const openChat = (conversationId: string) => {
-    if (!conversationId) return;
-    navigate(`/chat/${conversationId}`);
-  };
-
   return { 
     handleApproveApplication, 
-    isApproving, 
-    openChat 
+    isApproving
   };
 };

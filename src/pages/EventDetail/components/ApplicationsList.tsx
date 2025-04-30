@@ -10,6 +10,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { cn } from '@/lib/utils';
 
 interface ApplicationsListProps {
   applications: EventApplication[];
@@ -27,11 +28,24 @@ export const ApplicationsList = ({
   eventStatus
 }: ApplicationsListProps) => {
   const [processingIds, setProcessingIds] = useState<string[]>([]);
+  const [localApplications, setLocalApplications] = useState<EventApplication[]>([]);
+  
+  // Initialize local applications from props on first render
+  useState(() => {
+    setLocalApplications(applications);
+  });
   
   const handleApprove = async (applicationId: string, providerId: string) => {
     try {
       setProcessingIds(prev => [...prev, applicationId]);
       await onApprove(applicationId, providerId);
+      
+      // Update local state to show application as approved
+      setLocalApplications(prev => 
+        prev.map(app => 
+          app.id === applicationId ? { ...app, status: 'accepted' } : app
+        )
+      );
     } finally {
       setProcessingIds(prev => prev.filter(id => id !== applicationId));
     }
@@ -41,6 +55,9 @@ export const ApplicationsList = ({
     try {
       setProcessingIds(prev => [...prev, applicationId]);
       await onReject(applicationId, providerId);
+      
+      // Remove the rejected application from local state
+      setLocalApplications(prev => prev.filter(app => app.id !== applicationId));
     } finally {
       setProcessingIds(prev => prev.filter(id => id !== applicationId));
     }
@@ -54,7 +71,10 @@ export const ApplicationsList = ({
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   };
 
-  if (applications.length === 0) {
+  // Use localApplications for rendering
+  const applicationsToShow = localApplications.length > 0 ? localApplications : applications;
+
+  if (applicationsToShow.length === 0) {
     return (
       <Card>
         <CardHeader>
@@ -75,11 +95,17 @@ export const ApplicationsList = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Candidaturas ({applications.length})</CardTitle>
+        <CardTitle>Candidaturas ({applicationsToShow.length})</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {applications.map((application) => (
-          <Card key={application.id} className="overflow-hidden">
+        {applicationsToShow.map((application) => (
+          <Card 
+            key={application.id} 
+            className={cn(
+              "overflow-hidden", 
+              application.status === 'accepted' ? "border-green-500 bg-green-50" : ""
+            )}
+          >
             <div className="p-4 flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
