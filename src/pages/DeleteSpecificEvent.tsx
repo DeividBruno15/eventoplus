@@ -25,6 +25,12 @@ const DeleteSpecificEvent = () => {
       console.log("Chamando deleteSpecificEvent");
       await deleteSpecificEvent();
       setIsDeleted(true);
+      
+      // Configurar um redirecionamento automático após 3 segundos
+      setTimeout(() => {
+        navigate('/events?refresh=true', { replace: true });
+      }, 3000);
+      
     } catch (err: any) {
       console.error("Erro capturado no componente:", err);
       setError(err.message || "Erro desconhecido ao tentar excluir o evento");
@@ -39,6 +45,13 @@ const DeleteSpecificEvent = () => {
     try {
       await simulateEventDeletion('4705b1a9-8c99-4d5b-b62c-83bba2c3f9ab');
       toast.info("Simulação concluída. Verifique o console para detalhes.");
+      
+      // Apenas para demonstração na simulação
+      setIsDeleted(true);
+      setTimeout(() => {
+        navigate('/events', { replace: true });
+      }, 3000);
+      
     } catch (err) {
       console.error("Erro na simulação:", err);
     } finally {
@@ -123,8 +136,9 @@ const DeleteSpecificEvent = () => {
                 <AlertTitle>Sucesso</AlertTitle>
                 <AlertDescription>O evento foi excluído com sucesso!</AlertDescription>
               </Alert>
-              <Button onClick={() => navigate('/events')}>
-                Voltar para a lista de eventos
+              <p className="text-sm text-gray-500">Redirecionando para a lista de eventos...</p>
+              <Button onClick={() => navigate('/events')} variant="outline">
+                Voltar para a lista de eventos agora
               </Button>
             </div>
           ) : (

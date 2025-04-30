@@ -28,16 +28,22 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
       console.log("Refresh param detected, fetching events");
       processedRefresh.current = true; // Mark as processed to prevent loops
       
-      // Fetch events
-      await fetchEvents();
-      
-      // Clear the refresh parameter immediately to prevent infinite loops
-      const newParams = new URLSearchParams(location.search);
-      newParams.delete('refresh');
-      const newSearch = newParams.toString() ? `?${newParams.toString()}` : '';
-      
-      // Use replace to avoid adding to navigation history
-      navigate(location.pathname + newSearch, { replace: true });
+      try {
+        // Fetch events
+        await fetchEvents();
+        console.log("Events refreshed successfully after deletion");
+        
+        // Clear the refresh parameter immediately to prevent infinite loops
+        const newParams = new URLSearchParams(location.search);
+        newParams.delete('refresh');
+        const newSearch = newParams.toString() ? `?${newParams.toString()}` : '';
+        
+        // Use replace to avoid adding to navigation history
+        navigate(location.pathname + newSearch, { replace: true });
+      } catch (error) {
+        console.error("Error refreshing events:", error);
+        processedRefresh.current = false; // Reset if there was an error
+      }
     } else if (!urlParams.get('refresh')) {
       // Reset the processed flag when the parameter is not present
       processedRefresh.current = false;

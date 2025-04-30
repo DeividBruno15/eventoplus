@@ -46,13 +46,24 @@ export const DeleteEvent = ({ event, userId }: DeleteEventProps) => {
       
       // Fechando o dialog
       setIsOpen(false);
-      setDeleting(false);
       
-      // Utilizando um pequeno atraso para garantir que todas as operações assíncronas foram concluídas
+      // Usando um pequeno atraso para garantir que todas as operações assíncronas foram concluídas
+      // e para dar tempo ao toast aparecer antes da navegação
+      toast.success("Evento excluído com sucesso", {
+        duration: 2000,
+        onAutoClose: () => {
+          // Redirecionando para a página de eventos com um parâmetro de atualização
+          navigate('/events?refresh=true', { replace: true });
+        }
+      });
+      
+      // Forçar a navegação após um tempo limite para garantir que ocorra mesmo se o toast falhar
       setTimeout(() => {
-        // Redirecionando para a página de eventos com um parâmetro de atualização
-        navigate('/events?refresh=true', { replace: true });
-      }, 500);
+        if (document.location.pathname !== '/events') {
+          navigate('/events?refresh=true', { replace: true });
+        }
+      }, 2500);
+      
     } catch (error: any) {
       console.error("Delete error:", error);
       toast.error(`Erro ao excluir evento: ${error.message}`);

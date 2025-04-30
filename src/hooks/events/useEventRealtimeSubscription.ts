@@ -72,8 +72,7 @@ export const useEventRealtimeSubscription = ({
           { 
             event: 'DELETE', 
             schema: 'public', 
-            table: 'events',
-            filter: `contractor_id=eq.${userId}` 
+            table: 'events' 
           }, 
           payload => {
             console.log('Event deletion received:', payload);
@@ -83,6 +82,11 @@ export const useEventRealtimeSubscription = ({
               console.log('Removing event with ID:', deletedEventId);
               // Garantindo que onEventDeleted é chamado com o ID correto
               onEventDeleted(deletedEventId);
+              
+              // Notifica o usuário sobre a exclusão bem-sucedida se não estiver na página de detalhes
+              if (!window.location.pathname.includes(deletedEventId)) {
+                toast.success("Um evento foi excluído com sucesso");
+              }
             } else {
               console.error('Missing ID in delete event payload:', payload);
             }
