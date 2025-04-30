@@ -16,9 +16,13 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
   const { events, loading, fetchEvents } = useContractorEvents();
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
 
-  // Refetch events when query parameters change (like after deletion)
+  // Only refetch events when refresh=true is in the URL
   useEffect(() => {
-    fetchEvents();
+    const urlParams = new URLSearchParams(location.search);
+    if (urlParams.get('refresh') === 'true') {
+      console.log("Refresh param detected, fetching events");
+      fetchEvents();
+    }
   }, [location.search, fetchEvents]);
 
   useEffect(() => {

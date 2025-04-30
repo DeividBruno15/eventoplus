@@ -26,12 +26,18 @@ const Events = () => {
   // Determine user role from session metadata
   const userRole = user?.user_metadata?.role || 'contractor';
 
+  // Use a stable key that doesn't change constantly
+  // Only regenerate the key when refresh=true is in the URL
+  const refreshKey = new URLSearchParams(location.search).get('refresh') === 'true' ? 
+    'refresh-triggered' : 
+    'stable-key';
+
   return (
     <>
       {userRole === 'provider' ? (
-        <ProviderEventsContent key={location.search || Date.now()} />
+        <ProviderEventsContent key={refreshKey} />
       ) : (
-        <EventsContent key={location.search || Date.now()} />
+        <EventsContent key={refreshKey} />
       )}
     </>
   );

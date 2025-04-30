@@ -72,9 +72,8 @@ export const DeleteEvent = ({ event, userId }: DeleteEventProps) => {
       setIsOpen(false);
       setDeleting(false);
       
-      // Use replace: true to prevent back navigation to the deleted event
-      // and add a timestamp parameter to force a fresh load of events
-      navigate('/events?t=' + Date.now(), { replace: true });
+      // Use a fixed parameter instead of a timestamp to avoid constant re-renders
+      navigate('/events?refresh=true', { replace: true });
     } catch (error: any) {
       console.error("Delete error:", error);
       toast.error(`Erro ao excluir evento: ${error.message}`);
