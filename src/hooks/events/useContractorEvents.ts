@@ -58,10 +58,18 @@ export const useContractorEvents = () => {
     console.log("Event deletion detected, removing event ID:", deletedEventId);
     setEvents(prevEvents => {
       // Filter out the deleted event
-      const updatedEvents = prevEvents.filter(event => event.id !== deletedEventId);
+      const updatedEvents = prevEvents.filter(event => {
+        const keepEvent = event.id !== deletedEventId;
+        if (!keepEvent) {
+          console.log(`Removing event with ID ${deletedEventId} from state`);
+        }
+        return keepEvent;
+      });
+      
+      // Log para verificar se houve alteração
       console.log(`Filtered events: ${prevEvents.length} -> ${updatedEvents.length}`);
       
-      // If nothing was removed, log a warning
+      // Se nada foi removido, registra um aviso
       if (updatedEvents.length === prevEvents.length) {
         console.warn("Event not found in state when attempting deletion:", deletedEventId);
       }

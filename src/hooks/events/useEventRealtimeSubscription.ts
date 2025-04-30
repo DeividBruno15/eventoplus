@@ -24,7 +24,7 @@ export const useEventRealtimeSubscription = ({
     if (!userId) return;
     
     console.log("Setting up realtime subscription for events");
-    
+      
     // Configurando o canal para receber atualizações em tempo real
     const channel = supabase
       .channel('events-realtime-channel')
@@ -71,6 +71,7 @@ export const useEventRealtimeSubscription = ({
           if (payload.old && payload.old.id) {
             const deletedEventId = payload.old.id;
             console.log('Removing event with ID:', deletedEventId);
+            // Garantindo que onEventDeleted é chamado com o ID correto
             onEventDeleted(deletedEventId);
           } else {
             console.error('Missing ID in delete event payload:', payload);

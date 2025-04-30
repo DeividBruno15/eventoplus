@@ -72,9 +72,11 @@ export const DeleteEvent = ({ event, userId }: DeleteEventProps) => {
       setIsOpen(false);
       setDeleting(false);
       
-      // Force a full refresh of the events page instead of using the navigation API
-      // This ensures a complete reload of the events list
-      window.location.href = '/events';
+      // Utilize um pequeno atraso para garantir que todas as operações assíncronas foram concluídas
+      setTimeout(() => {
+        // Redirecione para a página de eventos com um parâmetro de atualização
+        navigate('/events?refresh=true', { replace: true });
+      }, 300);
     } catch (error: any) {
       console.error("Delete error:", error);
       toast.error(`Erro ao excluir evento: ${error.message}`);
