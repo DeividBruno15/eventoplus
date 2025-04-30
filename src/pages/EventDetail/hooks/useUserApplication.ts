@@ -43,7 +43,7 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
         // Ensure we have a properly formatted provider object to satisfy the type
         if (data) {
           // If the provider data doesn't have the expected structure, create a default one
-          if (!data.provider || typeof data.provider !== 'object' || !('id' in data.provider)) {
+          if (!data.provider || typeof data.provider !== 'object' || !('id' in (data.provider || {}))) {
             const application = {
               ...data,
               provider: {
@@ -91,7 +91,7 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
               last_name: user?.user_metadata?.last_name || '',
               avatar_url: user?.user_metadata?.avatar_url || null
             }
-          } as EventApplication;
+          } as unknown as EventApplication;
           setUserApplication(updatedApplication);
         }
       })
