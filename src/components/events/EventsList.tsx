@@ -5,7 +5,7 @@ import { EmptyEventsList } from "./EmptyEventsList";
 import { EventsLoading } from "./EventsLoading";
 import { EventsGrid } from "./EventsGrid";
 import { useContractorEvents } from "@/hooks/events/useContractorEvents";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface EventsListProps {
   searchQuery?: string;
@@ -13,6 +13,7 @@ interface EventsListProps {
 
 export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { events, loading, fetchEvents } = useContractorEvents();
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
 
@@ -22,8 +23,17 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
     if (urlParams.get('refresh') === 'true') {
       console.log("Refresh param detected, fetching events");
       fetchEvents();
+      
+      // Clear the refresh parameter to prevent infinite loops
+      // This is critical - we remove the parameter right after using it
+      const newParams = new URLSearchParams(location.search);
+      newParams.delete('refresh');
+      const newSearch = newParams.toString() ? `?${newParams.toString()}` : '';
+      
+      // Use replace: true to avoid adding to navigation history
+      navigate(location.pathname + newSearch, { replace: true });
     }
-  }, [location.search, fetchEvents]);
+  }, [location.search, fetchEvents, navigate, location.pathname]);
 
   useEffect(() => {
     console.log("EventsList - eventos disponíveis:", events.length);
