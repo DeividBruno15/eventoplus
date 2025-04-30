@@ -1,7 +1,7 @@
 
 import { Event, EventApplication } from '@/types/events';
 import { ApplicationForm } from './ApplicationForm';
-import { ApplicationsList } from './ApplicationsList';
+import { ApplicationsList } from './applications-list';
 import { useEffect } from 'react';
 
 interface EventActionPanelProps {
