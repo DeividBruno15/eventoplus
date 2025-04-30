@@ -53,12 +53,29 @@ export const deleteEventById = async (eventId: string): Promise<boolean> => {
  * Esta função é para uso único para o caso específico solicitado
  */
 export const deleteSpecificEvent = async (): Promise<void> => {
-  const eventId = '4705b1a9-8c99-4d5b-b62c-83bba2c3f9ab';
-  const result = await deleteEventById(eventId);
-  
-  if (result) {
-    toast.success(`Evento específico ${eventId} excluído com sucesso!`);
-  } else {
-    toast.error(`Não foi possível excluir o evento específico ${eventId}`);
+  try {
+    console.log("Iniciando exclusão do evento específico");
+    const eventId = '4705b1a9-8c99-4d5b-b62c-83bba2c3f9ab';
+    
+    // Verificar se o cliente Supabase está inicializado corretamente
+    if (!supabase) {
+      console.error("Cliente Supabase não inicializado");
+      toast.error("Erro de conexão com o banco de dados");
+      return;
+    }
+    
+    console.log("Cliente Supabase:", supabase);
+    const result = await deleteEventById(eventId);
+    
+    if (result) {
+      console.log(`Evento específico ${eventId} excluído com sucesso!`);
+      toast.success(`Evento específico excluído com sucesso!`);
+    } else {
+      console.error(`Não foi possível excluir o evento específico ${eventId}`);
+      toast.error(`Não foi possível excluir o evento específico`);
+    }
+  } catch (error: any) {
+    console.error("Erro ao excluir evento específico:", error);
+    toast.error(`Erro ao excluir evento específico: ${error.message || "Erro desconhecido"}`);
   }
 };

@@ -24,68 +24,72 @@ export const useEventRealtimeSubscription = ({
     if (!userId) return;
     
     console.log("Setting up realtime subscription for events");
-      
-    // Configurando o canal para receber atualizações em tempo real
-    const channel = supabase
-      .channel('events-realtime-channel')
-      .on('postgres_changes', 
-        { 
-          event: 'INSERT', 
-          schema: 'public', 
-          table: 'events',
-          filter: `contractor_id=eq.${userId}` 
-        }, 
-        payload => {
-          console.log('Event insert received:', payload);
-          if (payload.new) {
-            const processedEvent = transformEventData(payload.new);
-            onEventAdded(processedEvent);
+    
+    try {
+      // Configurando o canal para receber atualizações em tempo real
+      const channel = supabase
+        .channel('events-realtime-channel')
+        .on('postgres_changes', 
+          { 
+            event: 'INSERT', 
+            schema: 'public', 
+            table: 'events',
+            filter: `contractor_id=eq.${userId}` 
+          }, 
+          payload => {
+            console.log('Event insert received:', payload);
+            if (payload.new) {
+              const processedEvent = transformEventData(payload.new);
+              onEventAdded(processedEvent);
+            }
           }
-        }
-      )
-      .on('postgres_changes', 
-        { 
-          event: 'UPDATE', 
-          schema: 'public', 
-          table: 'events',
-          filter: `contractor_id=eq.${userId}` 
-        }, 
-        payload => {
-          console.log('Event update received:', payload);
-          if (payload.new) {
-            const processedEvent = transformEventData(payload.new);
-            onEventUpdated(processedEvent);
+        )
+        .on('postgres_changes', 
+          { 
+            event: 'UPDATE', 
+            schema: 'public', 
+            table: 'events',
+            filter: `contractor_id=eq.${userId}` 
+          }, 
+          payload => {
+            console.log('Event update received:', payload);
+            if (payload.new) {
+              const processedEvent = transformEventData(payload.new);
+              onEventUpdated(processedEvent);
+            }
           }
-        }
-      )
-      .on('postgres_changes', 
-        { 
-          event: 'DELETE', 
-          schema: 'public', 
-          table: 'events',
-          filter: `contractor_id=eq.${userId}` 
-        }, 
-        payload => {
-          console.log('Event deletion received:', payload);
-          // Make sure we're getting the deleted event ID
-          if (payload.old && payload.old.id) {
-            const deletedEventId = payload.old.id;
-            console.log('Removing event with ID:', deletedEventId);
-            // Garantindo que onEventDeleted é chamado com o ID correto
-            onEventDeleted(deletedEventId);
-          } else {
-            console.error('Missing ID in delete event payload:', payload);
+        )
+        .on('postgres_changes', 
+          { 
+            event: 'DELETE', 
+            schema: 'public', 
+            table: 'events',
+            filter: `contractor_id=eq.${userId}` 
+          }, 
+          payload => {
+            console.log('Event deletion received:', payload);
+            // Make sure we're getting the deleted event ID
+            if (payload.old && payload.old.id) {
+              const deletedEventId = payload.old.id;
+              console.log('Removing event with ID:', deletedEventId);
+              // Garantindo que onEventDeleted é chamado com o ID correto
+              onEventDeleted(deletedEventId);
+            } else {
+              console.error('Missing ID in delete event payload:', payload);
+            }
           }
-        }
-      )
-      .subscribe((status) => {
-        console.log('Subscription status:', status);
-      });
-      
-    // Cleanup subscription on unmount
-    return () => {
-      console.log('Removing subscription');
-      supabase.removeChannel(channel);
-    };
+        )
+        .subscribe((status) => {
+          console.log('Subscription status:', status);
+        });
+        
+      // Cleanup subscription on unmount
+      return () => {
+        console.log('Removing subscription');
+        supabase.removeChannel(channel);
+      };
+    } catch (error) {
+      console.error("Erro ao configurar o canal de tempo real:", error);
+    }
   }, [userId, onEventAdded, onEventUpdated, onEventDeleted]);
 };
