@@ -144,6 +144,7 @@ export type Database = {
           service_requests: Json | null
           service_type: string
           status: string
+          user_id: string
           zipcode: string | null
         }
         Insert: {
@@ -160,6 +161,7 @@ export type Database = {
           service_requests?: Json | null
           service_type: string
           status?: string
+          user_id: string
           zipcode?: string | null
         }
         Update: {
@@ -176,6 +178,7 @@ export type Database = {
           service_requests?: Json | null
           service_type?: string
           status?: string
+          user_id?: string
           zipcode?: string | null
         }
         Relationships: []

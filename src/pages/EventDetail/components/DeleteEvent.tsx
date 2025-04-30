@@ -28,7 +28,13 @@ export const DeleteEvent = ({ event, userId }: DeleteEventProps) => {
   const [deleting, setDeleting] = useState(false);
 
   const handleDelete = async () => {
-    if (!event || !userId || event.contractor_id !== userId) {
+    if (!event || !userId) {
+      toast.error("Você precisa estar autenticado para excluir um evento");
+      return;
+    }
+    
+    // Verificamos se o usuário é o proprietário do evento - RLS aplicará a mesma regra no backend
+    if (event.user_id !== userId) {
       toast.error("Apenas o criador do evento pode excluí-lo");
       return;
     }

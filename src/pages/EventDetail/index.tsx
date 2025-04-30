@@ -23,6 +23,9 @@ const EventDetail = () => {
 
   console.log("Applications in EventDetail:", applications);
 
+  // Determinar se o usuário é o proprietário do evento
+  const isOwner = user && event && (event.user_id === user.id || event.contractor_id === user.id);
+
   return (
     <div className="space-y-6">
       <EventDetailHeader loading={loading} event={event} />
@@ -36,7 +39,7 @@ const EventDetail = () => {
               event={event}
               userId={user?.id}
               onSuccess={refetchEvent}
-              isOwner={userRole === 'contractor' && event.contractor_id === user?.id}
+              isOwner={!!isOwner}
             />
           </div>
           

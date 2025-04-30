@@ -13,6 +13,7 @@ export const transformEventData = (eventData: any): Event => {
     location: eventData.location,
     max_attendees: eventData.max_attendees || undefined,
     contractor_id: eventData.contractor_id,
+    user_id: eventData.user_id || eventData.contractor_id, // Usar contractor_id como fallback caso user_id não esteja disponível
     contractor: {
       id: eventData.contractor_id,
       first_name: '', // We'll fetch this separately if needed

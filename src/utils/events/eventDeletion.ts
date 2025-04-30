@@ -34,6 +34,7 @@ export const deleteEventById = async (eventId: string): Promise<boolean> => {
     console.log("Candidaturas excluídas com sucesso, excluindo evento");
     
     // Em seguida, excluímos o evento em si
+    // O RLS agora verificará automaticamente se o usuário tem permissão para excluir o evento
     const { error } = await supabase
       .from('events')
       .delete()
@@ -41,7 +42,13 @@ export const deleteEventById = async (eventId: string): Promise<boolean> => {
       
     if (error) {
       console.error("Erro ao excluir evento:", error);
-      toast.error(`Erro ao excluir evento: ${error.message}`);
+      
+      // Mensagem personalizada para erro de permissão negada
+      if (error.code === '42501' || error.message.includes('permission denied')) {
+        toast.error("Você não tem permissão para excluir este evento. Apenas o criador do evento pode excluí-lo.");
+      } else {
+        toast.error(`Erro ao excluir evento: ${error.message}`);
+      }
       return false;
     }
     

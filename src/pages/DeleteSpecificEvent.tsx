@@ -131,7 +131,7 @@ const DeleteSpecificEvent = () => {
           
           {isDeleted ? (
             <div className="space-y-4">
-              <Alert variant="default" className="bg-green-50 border-green-200 text-green-700">
+              <Alert className="bg-green-50 border-green-200 text-green-700">
                 <CheckCircle className="h-4 w-4" />
                 <AlertTitle>Sucesso</AlertTitle>
                 <AlertDescription>O evento foi excluído com sucesso!</AlertDescription>

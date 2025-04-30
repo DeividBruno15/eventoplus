@@ -1,4 +1,3 @@
-
 export interface Event {
   id: string;
   name: string;
@@ -7,6 +6,7 @@ export interface Event {
   location: string;
   max_attendees?: number;
   contractor_id: string;
+  user_id: string; // Novo campo adicionado para RLS
   contractor?: {
     id: string;
     first_name: string;
