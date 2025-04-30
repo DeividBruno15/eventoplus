@@ -36,6 +36,7 @@ export const useApplicationApproval = (event: Event | null, updateApplicationSta
       if (userError) throw userError;
 
       // Create a conversation between provider and contractor if it doesn't exist
+      // Using raw SQL query since the function isn't properly typed in the generated types
       const { data: conversationData, error: conversationError } = await supabase
         .rpc('create_or_get_conversation', { 
           user_id_one: contractorId,
@@ -47,6 +48,7 @@ export const useApplicationApproval = (event: Event | null, updateApplicationSta
         throw conversationError;
       }
 
+      // The function returns a single row with a single column 'id'
       const conversationId = conversationData?.[0]?.id;
       console.log('Created or got conversation:', conversationId);
 
