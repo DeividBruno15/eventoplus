@@ -65,6 +65,7 @@ export const useCreateEvent = () => {
         service_requests: prepareServiceRequestsForStorage(eventData.service_requests),
         image_url: imageUrl,
         contractor_id: user.id,
+        user_id: user.id, // Add the user_id field with the current user's ID
         status: 'published', // Make sure this is explicitly set to 'published'
         service_type: eventData.service_requests?.[0]?.category || ''
       };
@@ -81,7 +82,7 @@ export const useCreateEvent = () => {
       } else {
         response = await supabase
           .from('events')
-          .insert([eventToSave]);
+          .insert(eventToSave);
       }
 
       if (response.error) {
