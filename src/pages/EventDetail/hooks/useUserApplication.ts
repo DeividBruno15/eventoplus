@@ -40,24 +40,20 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
         // Update state based on whether application was found
         setUserHasApplied(!!data);
         
-        // Ensure we have a properly formatted provider object to satisfy the type
         if (data) {
-          // If the provider data doesn't have the expected structure, create a default one
-          if (!data.provider || typeof data.provider !== 'object' || !('id' in (data.provider || {}))) {
-            const application = {
-              ...data,
-              provider: {
-                id: user.id,
-                first_name: user.user_metadata?.first_name || '',
-                last_name: user.user_metadata?.last_name || '',
-                avatar_url: user.user_metadata?.avatar_url || null
-              }
-            } as EventApplication;
-            setUserApplication(application);
-          } else {
-            // Data is already in the correct format
-            setUserApplication(data as EventApplication);
-          }
+          // Create a properly formatted application object regardless of the provider data structure
+          const applicationData = {
+            ...data,
+            provider: {
+              id: user.id,
+              first_name: user.user_metadata?.first_name || '',
+              last_name: user.user_metadata?.last_name || '',
+              avatar_url: user.user_metadata?.avatar_url || null
+            }
+          };
+          
+          // Use type assertion since we're ensuring the structure is compatible
+          setUserApplication(applicationData as EventApplication);
         } else {
           setUserApplication(null);
         }
@@ -82,17 +78,19 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
       }, (payload) => {
         console.log('Application status changed:', payload);
         if (payload.new) {
-          // Update the local application state with the new data and ensure provider is properly formatted
+          // Always create a properly formatted application object for consistency
           const updatedApplication = {
             ...payload.new,
-            provider: userApplication?.provider || {
+            provider: {
               id: user?.id || '',
               first_name: user?.user_metadata?.first_name || '',
               last_name: user?.user_metadata?.last_name || '',
               avatar_url: user?.user_metadata?.avatar_url || null
             }
-          } as unknown as EventApplication;
-          setUserApplication(updatedApplication);
+          };
+          
+          // Use type assertion since we're ensuring the structure is compatible
+          setUserApplication(updatedApplication as EventApplication);
         }
       })
       .subscribe();

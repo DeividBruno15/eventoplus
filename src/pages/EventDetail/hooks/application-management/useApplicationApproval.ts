@@ -36,20 +36,27 @@ export const useApplicationApproval = (event: Event | null, updateApplicationSta
       if (userError) throw userError;
 
       // Create a conversation between provider and contractor if it doesn't exist
-      // Using raw SQL with a direct function call to bypass TypeScript limitations
-      const { data: conversationData, error: conversationError } = await supabase
-        .rpc('create_or_get_conversation', { 
+      // Use a direct query since the function isn't in the TypeScript types
+      const { data: conversationData, error: conversationError } = await supabase.rpc(
+        // We need to use 'as any' here because TypeScript doesn't know about this function
+        'create_or_get_conversation' as any, 
+        { 
           user_id_one: contractorId,
           user_id_two: providerId
-        }) as { data: Array<{id: string}> | null, error: any };
+        }
+      );
 
       if (conversationError) {
         console.error('Error creating conversation:', conversationError);
         throw conversationError;
       }
 
-      // The function returns a single row with a single column 'id'
-      const conversationId = conversationData?.[0]?.id;
+      // The function returns an array with a single object containing the id
+      // Handle this safely in case the return format changes
+      const conversationId = Array.isArray(conversationData) && conversationData.length > 0 
+        ? conversationData[0]?.id 
+        : undefined;
+        
       console.log('Created or got conversation:', conversationId);
 
       // 3. Send notification to provider
