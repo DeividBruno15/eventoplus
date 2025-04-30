@@ -23,6 +23,8 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
+      // Always fetch events on first mount
+      fetchEvents();
       return;
     }
     

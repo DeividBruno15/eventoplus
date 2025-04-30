@@ -34,7 +34,7 @@ export const useEventRealtimeSubscription = ({
           filter: `contractor_id=eq.${userId}` 
         }, 
         payload => {
-          console.log('Event change received:', payload);
+          console.log('Event change received:', payload.eventType, payload);
           
           // Handle different event types
           if (payload.eventType === 'INSERT') {

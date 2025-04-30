@@ -53,6 +53,7 @@ export const useContractorEvents = () => {
   const handleEventDeleted = useCallback((deletedEventId: string) => {
     console.log("Event deletion detected, removing event ID:", deletedEventId);
     setEvents(prevEvents => {
+      // Important: Create a new array to ensure React detects the state change
       const filteredEvents = prevEvents.filter(event => event.id !== deletedEventId);
       console.log(`Filtered events: ${prevEvents.length} -> ${filteredEvents.length}`);
       return filteredEvents;
