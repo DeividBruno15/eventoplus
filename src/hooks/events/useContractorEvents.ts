@@ -15,12 +15,20 @@ export const useContractorEvents = () => {
 
   // Define fetchEvents as a callback so it can be passed to other components
   const fetchEvents = useCallback(async () => {
+    // Only fetch if we have a user ID
+    if (!user?.id) return;
+    
     console.log("Fetching events for user:", user?.id);
     setLoading(true);
-    const eventData = await fetchEventsService();
-    console.log("Refetched events:", eventData.length);
-    setEvents(eventData);
-    setLoading(false);
+    try {
+      const eventData = await fetchEventsService();
+      console.log("Refetched events:", eventData.length);
+      setEvents(eventData);
+    } catch (error) {
+      console.error("Error fetching events:", error);
+    } finally {
+      setLoading(false);
+    }
   }, [fetchEventsService, setLoading, user?.id]);
 
   // Handle event updates from realtime subscription

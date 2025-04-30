@@ -17,21 +17,29 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
   const { events, loading, fetchEvents } = useContractorEvents();
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
   const processedRefresh = useRef(false);
+  const isInitialMount = useRef(true);
 
-  // Only refetch events when refresh=true is in the URL and it hasn't been processed yet
+  // Process URL refresh parameter only once
   useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    
     const urlParams = new URLSearchParams(location.search);
     if (urlParams.get('refresh') === 'true' && !processedRefresh.current) {
       console.log("Refresh param detected, fetching events");
       processedRefresh.current = true; // Mark as processed to prevent loops
+      
+      // Fetch events
       fetchEvents();
       
-      // Clear the refresh parameter to prevent infinite loops
+      // Clear the refresh parameter immediately to prevent infinite loops
       const newParams = new URLSearchParams(location.search);
       newParams.delete('refresh');
       const newSearch = newParams.toString() ? `?${newParams.toString()}` : '';
       
-      // Use replace: true to avoid adding to navigation history
+      // Use replace to avoid adding to navigation history
       navigate(location.pathname + newSearch, { replace: true });
     } else if (!urlParams.get('refresh')) {
       // Reset the processed flag when the parameter is not present
@@ -39,8 +47,9 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
     }
   }, [location.search, fetchEvents, navigate, location.pathname]);
 
+  // Filter events only when events or search query changes
   useEffect(() => {
-    console.log("EventsList - eventos disponíveis:", events.length);
+    console.log("Filtering events based on search:", events.length);
     
     const filtered = events.filter(event => 
       event.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -48,11 +57,11 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
       event.location.toLowerCase().includes(searchQuery.toLowerCase())
     );
     
-    console.log("EventsList - eventos filtrados:", filtered.length);
+    console.log("Filtered events count:", filtered.length);
     setFilteredEvents(filtered);
   }, [events, searchQuery]);
 
-  if (loading) {
+  if (loading && events.length === 0) {
     return <EventsLoading />;
   }
 

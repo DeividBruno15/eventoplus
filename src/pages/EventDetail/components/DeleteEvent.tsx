@@ -72,8 +72,8 @@ export const DeleteEvent = ({ event, userId }: DeleteEventProps) => {
       setIsOpen(false);
       setDeleting(false);
       
-      // Use refresh=true as a static flag instead of a dynamic timestamp
-      navigate('/events?refresh=true', { replace: true });
+      // Use a static refresh=true parameter instead of dynamic timestamp
+      navigate('/events?refresh=true');
     } catch (error: any) {
       console.error("Delete error:", error);
       toast.error(`Erro ao excluir evento: ${error.message}`);
