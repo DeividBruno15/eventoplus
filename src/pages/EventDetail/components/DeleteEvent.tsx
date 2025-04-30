@@ -72,7 +72,7 @@ export const DeleteEvent = ({ event, userId }: DeleteEventProps) => {
       setIsOpen(false);
       setDeleting(false);
       
-      // Use a fixed parameter instead of a timestamp to avoid constant re-renders
+      // Use refresh=true as a static flag instead of a dynamic timestamp
       navigate('/events?refresh=true', { replace: true });
     } catch (error: any) {
       console.error("Delete error:", error);

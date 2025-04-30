@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Event } from "@/types/events";
 import { EmptyEventsList } from "./EmptyEventsList";
 import { EventsLoading } from "./EventsLoading";
@@ -16,22 +16,26 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
   const navigate = useNavigate();
   const { events, loading, fetchEvents } = useContractorEvents();
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
+  const processedRefresh = useRef(false);
 
-  // Only refetch events when refresh=true is in the URL
+  // Only refetch events when refresh=true is in the URL and it hasn't been processed yet
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
-    if (urlParams.get('refresh') === 'true') {
+    if (urlParams.get('refresh') === 'true' && !processedRefresh.current) {
       console.log("Refresh param detected, fetching events");
+      processedRefresh.current = true; // Mark as processed to prevent loops
       fetchEvents();
       
       // Clear the refresh parameter to prevent infinite loops
-      // This is critical - we remove the parameter right after using it
       const newParams = new URLSearchParams(location.search);
       newParams.delete('refresh');
       const newSearch = newParams.toString() ? `?${newParams.toString()}` : '';
       
       // Use replace: true to avoid adding to navigation history
       navigate(location.pathname + newSearch, { replace: true });
+    } else if (!urlParams.get('refresh')) {
+      // Reset the processed flag when the parameter is not present
+      processedRefresh.current = false;
     }
   }, [location.search, fetchEvents, navigate, location.pathname]);
 
