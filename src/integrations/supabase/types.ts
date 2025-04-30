@@ -523,6 +523,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_or_get_conversation: {
+        Args: { user_id_one: string; user_id_two: string }
+        Returns: string
+      }
       get_conversation_details: {
         Args: { p_conversation_id: string; p_user_id: string }
         Returns: {

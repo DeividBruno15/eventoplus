@@ -36,7 +36,7 @@ export const useApplicationApproval = (event: Event | null, updateApplicationSta
       if (userError) throw userError;
 
       // Create a conversation between provider and contractor if it doesn't exist
-      // Use a direct query since the function isn't in the TypeScript types
+      // Use the newly created function to get or create a conversation
       const { data: conversationData, error: conversationError } = await supabase.rpc(
         // We need to use 'as any' here because TypeScript doesn't know about this function
         'create_or_get_conversation' as any, 
@@ -51,11 +51,8 @@ export const useApplicationApproval = (event: Event | null, updateApplicationSta
         throw conversationError;
       }
 
-      // The function returns an array with a single object containing the id
-      // Handle this safely in case the return format changes
-      const conversationId = Array.isArray(conversationData) && conversationData.length > 0 
-        ? conversationData[0]?.id 
-        : undefined;
+      // The conversation ID is now directly returned as a UUID from our function
+      const conversationId = conversationData;
         
       console.log('Created or got conversation:', conversationId);
 
