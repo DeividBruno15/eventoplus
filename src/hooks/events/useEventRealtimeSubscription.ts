@@ -25,11 +25,7 @@ export const useEventRealtimeSubscription = ({
     
     console.log("Setting up realtime subscription for events");
     
-    // Make sure the realtime extension is enabled for this table
-    supabase.rpc('enable_realtime_for_table', { table_name: 'events' })
-      .then(() => console.log('Realtime enabled for events table'))
-      .catch(err => console.error('Failed to enable realtime:', err));
-      
+    // Configurando o canal para receber atualizações em tempo real
     const channel = supabase
       .channel('events-realtime-channel')
       .on('postgres_changes', 
