@@ -24,8 +24,14 @@ export const useEventRealtimeSubscription = ({
     if (!userId) return;
     
     console.log("Setting up realtime subscription for events");
+    
+    // Make sure the realtime extension is enabled for this table
+    supabase.rpc('enable_realtime_for_table', { table_name: 'events' })
+      .then(() => console.log('Realtime enabled for events table'))
+      .catch(err => console.error('Failed to enable realtime:', err));
+      
     const channel = supabase
-      .channel('events-realtime')
+      .channel('events-realtime-channel')
       .on('postgres_changes', 
         { 
           event: 'INSERT', 
@@ -35,8 +41,10 @@ export const useEventRealtimeSubscription = ({
         }, 
         payload => {
           console.log('Event insert received:', payload);
-          const processedEvent = transformEventData(payload.new);
-          onEventAdded(processedEvent);
+          if (payload.new) {
+            const processedEvent = transformEventData(payload.new);
+            onEventAdded(processedEvent);
+          }
         }
       )
       .on('postgres_changes', 
@@ -48,8 +56,10 @@ export const useEventRealtimeSubscription = ({
         }, 
         payload => {
           console.log('Event update received:', payload);
-          const processedEvent = transformEventData(payload.new);
-          onEventUpdated(processedEvent);
+          if (payload.new) {
+            const processedEvent = transformEventData(payload.new);
+            onEventUpdated(processedEvent);
+          }
         }
       )
       .on('postgres_changes', 

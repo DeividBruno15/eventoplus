@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Event } from "@/types/events";
 import { EmptyEventsList } from "./EmptyEventsList";
 import { EventsLoading } from "./EventsLoading";

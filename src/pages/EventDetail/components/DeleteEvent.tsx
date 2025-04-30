@@ -68,13 +68,13 @@ export const DeleteEvent = ({ event, userId }: DeleteEventProps) => {
       console.log("Evento excluído com sucesso, ID:", event.id);
       toast.success("Evento excluído com sucesso");
       
-      // Close the dialog and navigate
+      // Close the dialog
       setIsOpen(false);
       setDeleting(false);
       
-      // Navigate with replace:true to avoid history stack issues
-      // Using a static parameter to trigger a refresh
-      navigate('/events?refresh=true', { replace: true });
+      // Force a full refresh of the events page instead of using the navigation API
+      // This ensures a complete reload of the events list
+      window.location.href = '/events';
     } catch (error: any) {
       console.error("Delete error:", error);
       toast.error(`Erro ao excluir evento: ${error.message}`);

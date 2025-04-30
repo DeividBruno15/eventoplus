@@ -4,6 +4,7 @@ import { Event } from "@/types/events";
 import { useAuth } from "@/hooks/useAuth";
 import { useFetchContractorEvents } from "./useFetchContractorEvents";
 import { useEventRealtimeSubscription } from "./useEventRealtimeSubscription";
+import { toast } from "sonner";
 
 /**
  * Hook to fetch events belonging to the contractor
@@ -26,6 +27,7 @@ export const useContractorEvents = () => {
       setEvents(eventData);
     } catch (error) {
       console.error("Error fetching events:", error);
+      toast.error("Não foi possível carregar os eventos.");
     } finally {
       setLoading(false);
     }
@@ -55,16 +57,16 @@ export const useContractorEvents = () => {
   const handleEventDeleted = useCallback((deletedEventId: string) => {
     console.log("Event deletion detected, removing event ID:", deletedEventId);
     setEvents(prevEvents => {
-      // Check if the event exists before filtering
-      if (!prevEvents.some(event => event.id === deletedEventId)) {
-        console.log("Event not found in state:", deletedEventId);
-        return prevEvents;
+      // Filter out the deleted event
+      const updatedEvents = prevEvents.filter(event => event.id !== deletedEventId);
+      console.log(`Filtered events: ${prevEvents.length} -> ${updatedEvents.length}`);
+      
+      // If nothing was removed, log a warning
+      if (updatedEvents.length === prevEvents.length) {
+        console.warn("Event not found in state when attempting deletion:", deletedEventId);
       }
       
-      // Important: Create a new array to ensure React detects the state change
-      const filteredEvents = prevEvents.filter(event => event.id !== deletedEventId);
-      console.log(`Filtered events: ${prevEvents.length} -> ${filteredEvents.length}`);
-      return filteredEvents;
+      return updatedEvents;
     });
   }, []);
 
