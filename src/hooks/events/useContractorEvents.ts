@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Event } from "@/types/events";
 import { useAuth } from "@/hooks/useAuth";
 import { useFetchContractorEvents } from "./useFetchContractorEvents";
@@ -11,7 +11,16 @@ import { useEventRealtimeSubscription } from "./useEventRealtimeSubscription";
 export const useContractorEvents = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const { user } = useAuth();
-  const { fetchEvents, loading, setLoading } = useFetchContractorEvents(user?.id);
+  const { fetchEvents: fetchEventsService, loading, setLoading } = useFetchContractorEvents(user?.id);
+
+  // Define fetchEvents as a callback so it can be passed to other components
+  const fetchEvents = useCallback(async () => {
+    setLoading(true);
+    const eventData = await fetchEventsService();
+    console.log("Refetched events:", eventData.length);
+    setEvents(eventData);
+    setLoading(false);
+  }, [fetchEventsService, setLoading]);
 
   // Handle event updates from realtime subscription
   const handleEventAdded = (newEvent: Event) => {
@@ -27,6 +36,7 @@ export const useContractorEvents = () => {
   };
 
   const handleEventDeleted = (deletedEventId: string) => {
+    console.log("Event deletion detected, removing event ID:", deletedEventId);
     setEvents(prevEvents => {
       const filteredEvents = prevEvents.filter(event => event.id !== deletedEventId);
       console.log(`Filtered events: ${prevEvents.length} -> ${filteredEvents.length}`);
@@ -44,13 +54,8 @@ export const useContractorEvents = () => {
 
   // Initial data fetch
   useEffect(() => {
-    const getEvents = async () => {
-      const eventData = await fetchEvents();
-      setEvents(eventData);
-    };
-    
-    getEvents();
-  }, [user]);
+    fetchEvents();
+  }, [user, fetchEvents]);
 
   return { events, loading, fetchEvents };
 };

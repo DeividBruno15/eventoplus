@@ -1,6 +1,6 @@
 
 import { useAuth } from "@/hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { EventsContent } from "./components/EventsContent";
 import { ProviderEventsContent } from "./components/ProviderEventsContent";
 import { useEffect } from "react";
@@ -8,15 +8,16 @@ import { useEffect } from "react";
 const Events = () => {
   const { session, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (!session) {
       navigate('/login');
     }
     
-    // Force refresh component when navigated to via direct path
-    console.log("Events page mounted/refreshed");
-  }, [session, navigate]);
+    // Force refresh component when navigated to via direct path or when URL changes (like after deletion)
+    console.log("Events page mounted/refreshed", location.search);
+  }, [session, navigate, location.search]);
 
   if (!session) {
     return null;
@@ -28,9 +29,9 @@ const Events = () => {
   return (
     <>
       {userRole === 'provider' ? (
-        <ProviderEventsContent key={Date.now()} />
+        <ProviderEventsContent key={location.search || Date.now()} />
       ) : (
-        <EventsContent key={Date.now()} />
+        <EventsContent key={location.search || Date.now()} />
       )}
     </>
   );

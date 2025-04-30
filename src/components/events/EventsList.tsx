@@ -5,14 +5,21 @@ import { EmptyEventsList } from "./EmptyEventsList";
 import { EventsLoading } from "./EventsLoading";
 import { EventsGrid } from "./EventsGrid";
 import { useContractorEvents } from "@/hooks/events/useContractorEvents";
+import { useLocation } from "react-router-dom";
 
 interface EventsListProps {
   searchQuery?: string;
 }
 
 export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
-  const { events, loading } = useContractorEvents();
+  const location = useLocation();
+  const { events, loading, fetchEvents } = useContractorEvents();
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
+
+  // Refetch events when query parameters change (like after deletion)
+  useEffect(() => {
+    fetchEvents();
+  }, [location.search, fetchEvents]);
 
   useEffect(() => {
     console.log("EventsList - eventos disponíveis:", events.length);
