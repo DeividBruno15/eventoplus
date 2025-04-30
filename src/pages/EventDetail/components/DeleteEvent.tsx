@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { Event } from '@/types/events';
 import {
   AlertDialog,
@@ -16,6 +15,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { deleteEventById } from '@/utils/events/eventDeletion';
 
 interface DeleteEventProps {
   event: Event;
@@ -37,46 +37,22 @@ export const DeleteEvent = ({ event, userId }: DeleteEventProps) => {
       setDeleting(true);
       console.log("Iniciando exclusão do evento:", event.id);
       
-      // Delete all applications for this event first
-      const { error: applicationsError } = await supabase
-        .from('event_applications')
-        .delete()
-        .eq('event_id', event.id);
-        
-      if (applicationsError) {
-        console.error("Error deleting applications:", applicationsError);
-        toast.error(`Erro ao excluir candidaturas: ${applicationsError.message}`);
+      const success = await deleteEventById(event.id);
+      
+      if (!success) {
         setDeleting(false);
         return;
       }
       
-      console.log("Todas as candidaturas foram excluídas, agora excluindo o evento");
-      
-      // Delete the event itself
-      const { error } = await supabase
-        .from('events')
-        .delete()
-        .eq('id', event.id);
-        
-      if (error) {
-        console.error("Error deleting event:", error);
-        toast.error(`Erro ao excluir evento: ${error.message}`);
-        setDeleting(false);
-        return;
-      }
-      
-      console.log("Evento excluído com sucesso, ID:", event.id);
-      toast.success("Evento excluído com sucesso");
-      
-      // Close the dialog
+      // Fechando o dialog
       setIsOpen(false);
       setDeleting(false);
       
-      // Utilize um pequeno atraso para garantir que todas as operações assíncronas foram concluídas
+      // Utilizando um pequeno atraso para garantir que todas as operações assíncronas foram concluídas
       setTimeout(() => {
-        // Redirecione para a página de eventos com um parâmetro de atualização
+        // Redirecionando para a página de eventos com um parâmetro de atualização
         navigate('/events?refresh=true', { replace: true });
-      }, 300);
+      }, 500);
     } catch (error: any) {
       console.error("Delete error:", error);
       toast.error(`Erro ao excluir evento: ${error.message}`);
