@@ -17,7 +17,10 @@ export const useContractorEvents = () => {
   // Define fetchEvents as a callback so it can be passed to other components
   const fetchEvents = useCallback(async () => {
     // Only fetch if we have a user ID
-    if (!user?.id) return;
+    if (!user?.id) {
+      setLoading(false); // Garantir que loading é false mesmo sem usuário
+      return;
+    }
     
     console.log("Fetching events for user:", user?.id);
     setLoading(true);
@@ -91,6 +94,8 @@ export const useContractorEvents = () => {
     if (user?.id) {
       console.log("Initial events fetch for user:", user.id);
       fetchEvents();
+    } else {
+      setLoading(false); // Garantir que loading é false se não houver usuário
     }
   }, [user?.id, fetchEvents]);
 

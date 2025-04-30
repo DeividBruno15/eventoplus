@@ -20,6 +20,7 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
   // Use refs to track refresh state and mount status
   const processedRefresh = useRef(false);
   const isInitialMount = useRef(true);
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   
   // Process URL refresh parameter
   const handleRefreshParam = useCallback(async () => {
@@ -56,7 +57,10 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
       console.log("Initial mount, fetching events");
       isInitialMount.current = false;
       // Always fetch events on first mount
-      fetchEvents();
+      fetchEvents().finally(() => {
+        // Mark initial load as complete regardless of success or failure
+        setInitialLoadComplete(true);
+      });
       return;
     }
     
@@ -77,10 +81,12 @@ export const EventsList = ({ searchQuery = '' }: EventsListProps) => {
     setFilteredEvents(filtered);
   }, [events, searchQuery]);
 
-  if (loading && events.length === 0) {
+  // Mostrar o loading apenas durante o carregamento inicial
+  if (loading && !initialLoadComplete) {
     return <EventsLoading />;
   }
 
+  // Depois que o carregamento inicial estiver concluído, mostrar o estado vazio se não houver eventos
   if (filteredEvents.length === 0) {
     return <EmptyEventsList />;
   }

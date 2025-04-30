@@ -16,6 +16,8 @@ export const useFetchContractorEvents = (userId: string | undefined) => {
       setLoading(true);
       
       if (!userId) {
+        console.log("No user ID provided to fetch events");
+        setLoading(false);
         return [];
       }
       
