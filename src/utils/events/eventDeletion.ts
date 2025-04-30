@@ -1,5 +1,5 @@
 
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, checkSupabaseConnection } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 /**
@@ -10,6 +10,14 @@ import { toast } from "sonner";
 export const deleteEventById = async (eventId: string): Promise<boolean> => {
   try {
     console.log("Iniciando exclusão do evento com ID:", eventId);
+    
+    // Verificar a conexão com o Supabase antes de prosseguir
+    const isConnected = await checkSupabaseConnection();
+    if (!isConnected) {
+      console.error("Sem conexão com o Supabase. Verifique a rede e as credenciais.");
+      toast.error("Erro de conexão com o banco de dados. Verifique sua conexão com a internet.");
+      return false;
+    }
     
     // Primeiro excluímos todas as candidaturas relacionadas a este evento
     const { error: applicationsError } = await supabase
@@ -43,7 +51,7 @@ export const deleteEventById = async (eventId: string): Promise<boolean> => {
     
   } catch (error: any) {
     console.error("Erro durante a exclusão do evento:", error);
-    toast.error(`Erro ao excluir evento: ${error.message}`);
+    toast.error(`Erro ao excluir evento: ${error.message || "Erro desconhecido"}`);
     return false;
   }
 };
@@ -64,6 +72,14 @@ export const deleteSpecificEvent = async (): Promise<void> => {
       return;
     }
     
+    // Verificar a conexão com o Supabase
+    const isConnected = await checkSupabaseConnection();
+    if (!isConnected) {
+      console.error("Sem conexão com o Supabase");
+      toast.error("Não foi possível conectar ao banco de dados. Verifique sua conexão com a internet.");
+      return;
+    }
+    
     console.log("Cliente Supabase:", supabase);
     const result = await deleteEventById(eventId);
     
@@ -77,5 +93,26 @@ export const deleteSpecificEvent = async (): Promise<void> => {
   } catch (error: any) {
     console.error("Erro ao excluir evento específico:", error);
     toast.error(`Erro ao excluir evento específico: ${error.message || "Erro desconhecido"}`);
+  }
+};
+
+/**
+ * Simula a operação de exclusão para debug
+ * Útil quando há problemas com CORS ou conexão
+ */
+export const simulateEventDeletion = async (eventId: string): Promise<void> => {
+  try {
+    console.log("Simulando exclusão do evento:", eventId);
+    // Exibir informações sobre ambiente
+    console.log("URL do Supabase:", supabase.supabaseUrl);
+    console.log("Ambiente:", import.meta.env.MODE);
+    
+    // Simular exclusão bem-sucedida após 2 segundos
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    toast.success("Operação de simulação concluída. Em produção, o evento seria excluído.");
+  } catch (error) {
+    console.error("Erro na simulação:", error);
+    toast.error("Falha na simulação");
   }
 };

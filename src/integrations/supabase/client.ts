@@ -10,4 +10,27 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database & CustomDatabase>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+export const supabase = createClient<Database & CustomDatabase>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true
+  },
+  global: {
+    fetch: fetch.bind(globalThis),
+    headers: {
+      'X-Client-Info': 'Lovable-App'
+    }
+  }
+});
+
+// Helper function para verificar a conectividade com o Supabase
+export const checkSupabaseConnection = async (): Promise<boolean> => {
+  try {
+    const { error } = await supabase.from('events').select('id').limit(1);
+    return !error;
+  } catch (err) {
+    console.error('Erro ao verificar conexão com Supabase:', err);
+    return false;
+  }
+};
+

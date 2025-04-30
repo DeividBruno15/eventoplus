@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Event } from "@/types/events";
 import { transformEventData } from "@/utils/events/eventTransformers";
+import { toast } from "sonner";
 
 interface UseEventRealtimeSubscriptionProps {
   userId: string | undefined;
@@ -39,8 +40,12 @@ export const useEventRealtimeSubscription = ({
           payload => {
             console.log('Event insert received:', payload);
             if (payload.new) {
-              const processedEvent = transformEventData(payload.new);
-              onEventAdded(processedEvent);
+              try {
+                const processedEvent = transformEventData(payload.new);
+                onEventAdded(processedEvent);
+              } catch (err) {
+                console.error('Erro ao processar novo evento:', err);
+              }
             }
           }
         )
@@ -54,8 +59,12 @@ export const useEventRealtimeSubscription = ({
           payload => {
             console.log('Event update received:', payload);
             if (payload.new) {
-              const processedEvent = transformEventData(payload.new);
-              onEventUpdated(processedEvent);
+              try {
+                const processedEvent = transformEventData(payload.new);
+                onEventUpdated(processedEvent);
+              } catch (err) {
+                console.error('Erro ao processar evento atualizado:', err);
+              }
             }
           }
         )
@@ -81,15 +90,28 @@ export const useEventRealtimeSubscription = ({
         )
         .subscribe((status) => {
           console.log('Subscription status:', status);
+          if (status === 'SUBSCRIBED') {
+            console.log('Inscrição realtime bem-sucedida');
+          } else if (status === 'CHANNEL_ERROR') {
+            console.error('Erro no canal de tempo real');
+            toast.error('Erro na conexão em tempo real. Algumas atualizações podem não ser recebidas automaticamente.', {
+              duration: 5000
+            });
+          }
         });
         
       // Cleanup subscription on unmount
       return () => {
         console.log('Removing subscription');
-        supabase.removeChannel(channel);
+        try {
+          supabase.removeChannel(channel);
+        } catch (err) {
+          console.error('Erro ao remover canal:', err);
+        }
       };
     } catch (error) {
       console.error("Erro ao configurar o canal de tempo real:", error);
+      toast.error('Não foi possível configurar atualizações em tempo real');
     }
   }, [userId, onEventAdded, onEventUpdated, onEventDeleted]);
 };

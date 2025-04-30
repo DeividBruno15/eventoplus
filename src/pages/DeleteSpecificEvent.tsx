@@ -1,16 +1,20 @@
 
 import { useEffect, useState } from 'react';
-import { deleteSpecificEvent } from '@/utils/events/eventDeletion';
+import { deleteSpecificEvent, simulateEventDeletion } from '@/utils/events/eventDeletion';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertCircle, CheckCircle, WifiOff } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase, checkSupabaseConnection } from '@/integrations/supabase/client';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const DeleteSpecificEvent = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [connectionStatus, setConnectionStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking');
+  const [debugInfo, setDebugInfo] = useState<Record<string, any>>({});
   const navigate = useNavigate();
   
   const handleDelete = async () => {
@@ -29,23 +33,45 @@ const DeleteSpecificEvent = () => {
       setIsDeleting(false);
     }
   };
+
+  const handleSimulate = async () => {
+    setIsDeleting(true);
+    try {
+      await simulateEventDeletion('4705b1a9-8c99-4d5b-b62c-83bba2c3f9ab');
+      toast.info("Simulação concluída. Verifique o console para detalhes.");
+    } catch (err) {
+      console.error("Erro na simulação:", err);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
   
   // Verificar a conexão com o Supabase ao carregar o componente
   useEffect(() => {
     const checkConnection = async () => {
       try {
-        const { supabase } = await import('@/integrations/supabase/client');
-        const { data, error } = await supabase.from('events').select('id').limit(1);
+        setConnectionStatus('checking');
         
-        if (error) {
-          console.error("Erro ao testar conexão com Supabase:", error);
-          setError(`Erro na conexão com o Supabase: ${error.message}`);
-          return;
+        // Coletar informações de debug
+        const debugData: Record<string, any> = {
+          url: supabase.supabaseUrl,
+          browserInfo: navigator.userAgent,
+          timestamp: new Date().toISOString(),
+          env: import.meta.env.MODE
+        };
+        
+        const isConnected = await checkSupabaseConnection();
+        setConnectionStatus(isConnected ? 'connected' : 'disconnected');
+        
+        debugData.connectionTestResult = isConnected;
+        setDebugInfo(debugData);
+        
+        if (!isConnected) {
+          setError('Não foi possível estabelecer conexão com o Supabase. Verifique sua conexão com a internet.');
         }
-        
-        console.log("Conexão com Supabase testada com sucesso:", data);
       } catch (err: any) {
-        console.error("Erro ao importar cliente Supabase:", err);
+        console.error("Erro ao verificar conexão:", err);
+        setConnectionStatus('disconnected');
         setError(`Erro ao inicializar cliente Supabase: ${err.message}`);
       }
     };
@@ -62,19 +88,41 @@ const DeleteSpecificEvent = () => {
             Esta página permite excluir o evento com ID 4705b1a9-8c99-4d5b-b62c-83bba2c3f9ab
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 p-4 mb-4 rounded-md">
-              <p className="font-medium">Erro detectado:</p>
-              <p>{error}</p>
+        <CardContent className="space-y-4">
+          {/* Status da conexão */}
+          <div className="mb-6">
+            <div className={`flex items-center gap-2 p-2 rounded-md ${
+              connectionStatus === 'connected' ? 'bg-green-50 text-green-700' : 
+              connectionStatus === 'disconnected' ? 'bg-red-50 text-red-700' : 
+              'bg-yellow-50 text-yellow-700'
+            }`}>
+              {connectionStatus === 'connected' && <CheckCircle className="h-5 w-5" />}
+              {connectionStatus === 'disconnected' && <WifiOff className="h-5 w-5" />}
+              {connectionStatus === 'checking' && <Loader2 className="h-5 w-5 animate-spin" />}
+              <span>
+                {connectionStatus === 'connected' && 'Conectado ao Supabase'}
+                {connectionStatus === 'disconnected' && 'Sem conexão com o Supabase'}
+                {connectionStatus === 'checking' && 'Verificando conexão...'}
+              </span>
             </div>
+          </div>
+          
+          {/* Mensagem de erro */}
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Erro detectado</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
           )}
           
           {isDeleted ? (
             <div className="space-y-4">
-              <p className="text-green-600 font-medium">
-                O evento foi excluído com sucesso!
-              </p>
+              <Alert variant="success" className="bg-green-50 border-green-200 text-green-700">
+                <CheckCircle className="h-4 w-4" />
+                <AlertTitle>Sucesso</AlertTitle>
+                <AlertDescription>O evento foi excluído com sucesso!</AlertDescription>
+              </Alert>
               <Button onClick={() => navigate('/events')}>
                 Voltar para a lista de eventos
               </Button>
@@ -87,11 +135,11 @@ const DeleteSpecificEvent = () => {
                 Esta ação excluirá primeiro todas as candidaturas associadas a este evento
                 e depois o próprio evento.
               </p>
-              <div className="flex gap-4">
+              <div className="flex flex-wrap gap-4">
                 <Button 
                   variant="destructive"
                   onClick={handleDelete}
-                  disabled={isDeleting}
+                  disabled={isDeleting || connectionStatus !== 'connected'}
                 >
                   {isDeleting ? (
                     <>
@@ -106,9 +154,24 @@ const DeleteSpecificEvent = () => {
                 >
                   Cancelar
                 </Button>
+                <Button 
+                  variant="secondary"
+                  onClick={handleSimulate}
+                  disabled={isDeleting}
+                >
+                  Simular Exclusão (Debug)
+                </Button>
               </div>
             </div>
           )}
+          
+          {/* Informações de debug para desenvolvedores */}
+          <div className="mt-8 pt-4 border-t">
+            <h3 className="text-sm font-medium mb-2">Informações de Diagnóstico:</h3>
+            <pre className="bg-slate-50 p-3 rounded-md text-xs overflow-auto max-h-40">
+              {JSON.stringify(debugInfo, null, 2)}
+            </pre>
+          </div>
         </CardContent>
       </Card>
     </div>
