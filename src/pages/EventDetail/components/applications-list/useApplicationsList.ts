@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { EventApplication } from '@/types/events';
+import { EventApplication, EventStatus } from '@/types/events';
 
 export const useApplicationsList = (initialApplications: EventApplication[]) => {
   const [processingIds, setProcessingIds] = useState<string[]>([]);

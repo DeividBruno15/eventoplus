@@ -38,6 +38,9 @@ export const EventActionPanel = ({
   // Check if there are any accepted applications for this event
   const hasAcceptedApplications = applications.some(app => app.status === 'accepted');
   
+  // Verifica se a candidatura atual do usuário foi rejeitada
+  const isRejected = userApplication?.status === 'rejected';
+  
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       {userRole === 'provider' && (
@@ -48,6 +51,7 @@ export const EventActionPanel = ({
             userApplication={userApplication}
             submitting={submitting}
             onCancelApplication={handleCancelApplication}
+            isRejected={isRejected}
           />
         </div>
       )}

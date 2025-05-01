@@ -15,8 +15,10 @@ export const useEventApplicationsList = (eventId?: string, user?: User | null, u
   const updateApplicationStatus = useCallback((applicationId: string, status: 'accepted' | 'rejected' = 'accepted') => {
     setApplications(prevApplications => {
       if (status === 'rejected') {
-        // Remove rejected applications
-        return prevApplications.filter(app => app.id !== applicationId);
+        // Manter aplicações rejeitadas na lista com status atualizado, em vez de removê-las
+        return prevApplications.map(app => 
+          app.id === applicationId ? { ...app, status } : app
+        );
       } else {
         // Update accepted applications
         return prevApplications.map(app => 

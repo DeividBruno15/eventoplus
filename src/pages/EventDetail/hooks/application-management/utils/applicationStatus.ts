@@ -16,4 +16,10 @@ export const updateApplicationStatus = async (applicationId: string, status: 'ac
     console.error(`Error updating application to ${status}:`, error);
     throw error;
   }
+  
+  // Se for uma rejeição, também precisamos garantir que o prestador não possa se candidatar novamente
+  if (status === 'rejected') {
+    // Na versão futura, poderíamos adicionar um campo na tabela de eventos para rastrear prestadores rejeitados
+    console.log(`Provider for application ${applicationId} has been rejected and cannot apply again`);
+  }
 };

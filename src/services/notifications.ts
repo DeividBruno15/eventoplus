@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
 interface SendWhatsAppParams {
@@ -49,6 +50,8 @@ export const notificationsService = {
     link?: string;
   }): Promise<boolean> {
     try {
+      console.log(`Enviando notificação para ${userId}: ${title}`);
+      
       const { error } = await supabase
         .from('notifications')
         .insert({

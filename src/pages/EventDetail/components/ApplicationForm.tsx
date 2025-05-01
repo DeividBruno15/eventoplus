@@ -15,7 +15,8 @@ interface ApplicationFormProps {
   onSubmit: (message: string, serviceCategory?: string) => Promise<void>;
   userApplication: EventApplication | null;
   submitting: boolean;
-  onCancelApplication: (applicationId: string) => Promise<void>; // Added missing prop
+  onCancelApplication: (applicationId: string) => Promise<void>;
+  isRejected?: boolean;
 }
 
 interface UserService {
@@ -24,7 +25,14 @@ interface UserService {
   description?: string | null;
 }
 
-export const ApplicationForm = ({ event, onSubmit, userApplication, submitting, onCancelApplication }: ApplicationFormProps) => {
+export const ApplicationForm = ({ 
+  event, 
+  onSubmit, 
+  userApplication, 
+  submitting, 
+  onCancelApplication,
+  isRejected = false
+}: ApplicationFormProps) => {
   const { user } = useAuth();
   const [showSuccess, setShowSuccess] = useState(false);
   const [userServices, setUserServices] = useState<UserService[]>([]);
@@ -87,6 +95,22 @@ export const ApplicationForm = ({ event, onSubmit, userApplication, submitting, 
       toast.error("Erro ao cancelar candidatura");
     }
   };
+
+  // Se o usuário foi rejeitado, mostra uma mensagem diferente
+  if (isRejected) {
+    return (
+      <Card className="mb-6">
+        <CardContent className="pt-6">
+          <div className="text-center p-6">
+            <h3 className="font-medium text-lg text-red-600 mb-4">Sua candidatura foi rejeitada</h3>
+            <p className="text-gray-600">
+              Infelizmente sua candidatura para este evento não foi aceita pelo contratante.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="mb-6">
