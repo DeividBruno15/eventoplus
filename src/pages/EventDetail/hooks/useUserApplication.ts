@@ -47,15 +47,18 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
           const status = data.status as "pending" | "accepted" | "rejected";
           
           // Create a formatted provider object with null checks
-          const providerData = data.provider && 
-            typeof data.provider === 'object' && 
-            !('error' in data.provider) ? 
-            {
+          let providerData = undefined;
+          
+          if (data.provider && 
+              typeof data.provider === 'object' && 
+              !('error' in data.provider)) {
+            providerData = {
               id: data.provider.id,
               first_name: data.provider.first_name,
               last_name: data.provider.last_name,
               avatar_url: data.provider.avatar_url
-            } : undefined;
+            };
+          }
           
           // Create a properly formatted EventApplication object with proper type casting
           const formattedApplication: EventApplication = {
@@ -111,15 +114,18 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
               const status = data.status as "pending" | "accepted" | "rejected";
               
               // Create a formatted provider object with null checks
-              const providerData = data.provider && 
-                typeof data.provider === 'object' && 
-                !('error' in data.provider) ? 
-                {
+              let providerData = undefined;
+              
+              if (data.provider && 
+                  typeof data.provider === 'object' && 
+                  !('error' in data.provider)) {
+                providerData = {
                   id: data.provider.id,
                   first_name: data.provider.first_name,
                   last_name: data.provider.last_name,
                   avatar_url: data.provider.avatar_url
-                } : undefined;
+                };
+              }
               
               // Create a properly formatted EventApplication object with proper type checking
               const formattedApplication: EventApplication = {
