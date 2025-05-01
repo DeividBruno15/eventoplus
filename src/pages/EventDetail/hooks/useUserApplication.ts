@@ -43,16 +43,19 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
         if (data) {
           console.log('User application data retrieved:', data);
           
-          // Create a properly formatted EventApplication object
+          // Create a properly typed EventApplication object, ensuring status is properly typed
+          const status = data.status as "pending" | "accepted" | "rejected";
+          
+          // Create a properly formatted EventApplication object with proper type casting
           const formattedApplication: EventApplication = {
             id: data.id,
             provider_id: data.provider_id,
             event_id: data.event_id,
-            status: data.status,
+            status: status,
             service_category: data.service_category,
             message: data.message,
             created_at: data.created_at,
-            provider: data.provider ? {
+            provider: data.provider && typeof data.provider === 'object' && !('error' in data.provider) ? {
               id: data.provider.id,
               first_name: data.provider.first_name,
               last_name: data.provider.last_name,
@@ -98,16 +101,19 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
               .single();
               
             if (data) {
-              // Create a properly formatted EventApplication object
+              // Ensure status is properly typed
+              const status = data.status as "pending" | "accepted" | "rejected";
+              
+              // Create a properly formatted EventApplication object with proper type checking
               const formattedApplication: EventApplication = {
                 id: data.id,
                 provider_id: data.provider_id,
                 event_id: data.event_id,
-                status: data.status,
+                status: status,
                 service_category: data.service_category,
                 message: data.message,
                 created_at: data.created_at,
-                provider: data.provider ? {
+                provider: data.provider && typeof data.provider === 'object' && !('error' in data.provider) ? {
                   id: data.provider.id,
                   first_name: data.provider.first_name,
                   last_name: data.provider.last_name,
