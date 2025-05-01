@@ -11,6 +11,7 @@ export const updateApplicationStatus = async (applicationId: string, status: 'ac
   console.log(`Updating application ${applicationId} to status: ${status}`);
   
   try {
+    // Incluir .select() para retornar os dados atualizados
     const { data, error } = await supabase
       .from('event_applications')
       .update({ status })
@@ -25,7 +26,7 @@ export const updateApplicationStatus = async (applicationId: string, status: 'ac
     
     console.log(`Application ${applicationId} updated successfully to ${status}`, data);
     
-    // Se for uma rejeição, registramos no console que o prestador não poderá se candidatar novamente
+    // Adicionar mais log para ajudar na depuração
     if (status === 'rejected') {
       console.log(`Provider for application ${applicationId} has been rejected and cannot apply again`);
     }
