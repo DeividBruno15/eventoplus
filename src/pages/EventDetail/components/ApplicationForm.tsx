@@ -61,6 +61,7 @@ export const ApplicationForm = ({
         ) : (
           <ApplicationFormContent 
             event={event}
+            userServices={[{ id: '1', category: event.service_type }]}
             onSubmit={handleSubmit}
             submitting={submitting}
           />

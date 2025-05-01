@@ -5,6 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Loader2 } from 'lucide-react';
 import { ServiceSelection } from './ServiceSelection';
 import { NoCompatibleServices } from './NoCompatibleServices';
+import { Event } from '@/types/events';
 
 interface UserService {
   id: string;
@@ -13,12 +14,13 @@ interface UserService {
 }
 
 interface ApplicationFormContentProps {
-  userServices: UserService[];
+  event: Event;
+  userServices?: UserService[];
   submitting: boolean;
   onSubmit: (message: string, serviceCategory?: string) => Promise<void>;
 }
 
-export const ApplicationFormContent = ({ userServices, submitting, onSubmit }: ApplicationFormContentProps) => {
+export const ApplicationFormContent = ({ event, userServices = [], submitting, onSubmit }: ApplicationFormContentProps) => {
   const [applicationMessage, setApplicationMessage] = useState('');
   const [selectedService, setSelectedService] = useState<string>('');
   
