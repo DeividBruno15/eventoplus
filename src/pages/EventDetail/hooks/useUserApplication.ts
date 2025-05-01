@@ -179,10 +179,23 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
       })
       .subscribe();
     
+    // Debug channel to monitor ALL application updates (temporary)
+    const debugChannel = supabase
+      .channel('debug-applications')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'event_applications'
+      }, (payload) => {
+        console.log('DEBUG - Payload recebido:', payload);
+      })
+      .subscribe();
+    
     // Clean up subscription
     return () => {
       console.log('Cleaning up realtime subscription');
       supabase.removeChannel(channel);
+      supabase.removeChannel(debugChannel);
     };
   }, [eventId, user]);
   

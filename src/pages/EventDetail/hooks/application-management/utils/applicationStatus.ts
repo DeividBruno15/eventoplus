@@ -11,6 +11,26 @@ export const updateApplicationStatus = async (applicationId: string, status: 'ac
   console.log(`Atualizando application ${applicationId} para status: ${status}`);
   
   try {
+    // First, check current status to ensure we're actually changing it
+    const { data: currentApplication, error: fetchError } = await supabase
+      .from('event_applications')
+      .select('status')
+      .eq('id', applicationId)
+      .single();
+    
+    if (fetchError) {
+      console.error('Error fetching current application status:', fetchError);
+      toast.error(`Erro ao verificar status atual: ${fetchError.message}`);
+      throw fetchError;
+    }
+    
+    // If status is already the requested status, log and return early
+    if (currentApplication && currentApplication.status === status) {
+      console.log(`Application ${applicationId} already has status ${status}, skipping update`);
+      return currentApplication;
+    }
+    
+    // Proceed with update since status is different
     // Usar .select('*') para retornar os dados atualizados
     const { data, error } = await supabase
       .from('event_applications')
