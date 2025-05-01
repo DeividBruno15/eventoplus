@@ -49,22 +49,21 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
           // Create a formatted provider object with null checks
           let providerData = undefined;
           
-          if (data.provider && 
-              typeof data.provider === 'object' && 
-              !('error' in data.provider)) {
-            // Use type assertion to tell TypeScript that provider is not null within this block
-            const provider = data.provider as { 
-              id: string; 
-              first_name: string; 
-              last_name: string; 
-              avatar_url?: string | null 
+          if (data.provider) {
+            // Fully type-guard the data.provider object
+            const safeProvider = data.provider as {
+              id: string;
+              first_name: string;
+              last_name: string;
+              avatar_url?: string | null;
             };
             
+            // Now TypeScript knows this object is safe to access
             providerData = {
-              id: provider.id,
-              first_name: provider.first_name,
-              last_name: provider.last_name,
-              avatar_url: provider.avatar_url
+              id: safeProvider.id,
+              first_name: safeProvider.first_name,
+              last_name: safeProvider.last_name,
+              avatar_url: safeProvider.avatar_url
             };
           }
           
@@ -124,22 +123,21 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
               // Create a formatted provider object with null checks
               let providerData = undefined;
               
-              if (data.provider && 
-                  typeof data.provider === 'object' && 
-                  !('error' in data.provider)) {
-                // Use type assertion to tell TypeScript that provider is not null within this block
-                const provider = data.provider as { 
-                  id: string; 
-                  first_name: string; 
-                  last_name: string; 
-                  avatar_url?: string | null 
+              if (data.provider) {
+                // Fully type-guard the data.provider object
+                const safeProvider = data.provider as {
+                  id: string;
+                  first_name: string;
+                  last_name: string;
+                  avatar_url?: string | null;
                 };
                 
+                // Now TypeScript knows this object is safe to access
                 providerData = {
-                  id: provider.id,
-                  first_name: provider.first_name,
-                  last_name: provider.last_name,
-                  avatar_url: provider.avatar_url
+                  id: safeProvider.id,
+                  first_name: safeProvider.first_name,
+                  last_name: safeProvider.last_name,
+                  avatar_url: safeProvider.avatar_url
                 };
               }
               
