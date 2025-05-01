@@ -32,14 +32,14 @@ export const updateApplicationStatus = async (applicationId: string, status: 'ac
     
     console.log(`Proceeding with update of application ${applicationId} from ${currentApplication?.status} to ${status}`);
     
-    // Proceed with update since status is different - add order by before limit
+    // Importante: Usar .single() ao invés de .limit(1) para garantir que o retorno seja o objeto atualizado
+    // e não um array. Isto ajuda a garantir que o retorno seja consistente.
     const { data, error } = await supabase
       .from('event_applications')
       .update({ status })
       .eq('id', applicationId)
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(1);
+      .select()
+      .single();
 
     if (error) {
       console.error(`Error updating application to ${status}:`, error);
@@ -50,7 +50,7 @@ export const updateApplicationStatus = async (applicationId: string, status: 'ac
     console.log(`Application ${applicationId} updated successfully to ${status}:`, data);
     
     // Check if we have valid data returned
-    if (!data || data.length === 0) {
+    if (!data) {
       console.warn(`No data returned after updating application ${applicationId}`);
       return null;
     }
@@ -61,7 +61,7 @@ export const updateApplicationStatus = async (applicationId: string, status: 'ac
     }
     
     // Return the updated application data
-    return data[0];
+    return data;
   } catch (error: any) {
     console.error('Error in updateApplicationStatus:', error);
     toast.error(`Erro ao atualizar status: ${error.message}`);

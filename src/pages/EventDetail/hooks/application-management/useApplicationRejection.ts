@@ -24,7 +24,8 @@ export const useApplicationRejection = (event: Event | null, onStatusUpdate?: (a
       console.log('Application rejected successfully, updated data:', updatedApplication);
       
       // Update local state to reflect the change immediately
-      if (onStatusUpdate) {
+      if (onStatusUpdate && updatedApplication) {
+        console.log('Calling onStatusUpdate with application:', applicationId);
         onStatusUpdate(applicationId, 'rejected');
       }
       

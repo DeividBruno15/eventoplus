@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Check, X } from 'lucide-react';
@@ -23,16 +23,37 @@ export const ApplicationCard = ({
   onReject, 
   isDisabled 
 }: ApplicationCardProps) => {
+  // Adicionar estado local para controlar o status durante transições
+  const [localStatus, setLocalStatus] = useState(application.status);
+  
+  // Atualizar o estado local quando a prop muda
+  useEffect(() => {
+    setLocalStatus(application.status);
+    console.log(`ApplicationCard: Status atualizado para ${application.status} para aplicação ${application.id}`);
+  }, [application.status, application.id]);
+  
+  // Handlers com feedback imediato na UI
+  const handleApprove = async () => {
+    setLocalStatus('accepted');
+    await onApprove(application.id, application.provider_id);
+  };
+  
+  const handleReject = async () => {
+    setLocalStatus('rejected');
+    await onReject(application.id, application.provider_id);
+  };
+  
   const getInitials = (firstName: string = '', lastName: string = '') => {
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   };
 
+  // Usar o localStatus para a UI para feedback imediato
   return (
     <Card 
       className={cn(
         "overflow-hidden", 
-        application.status === 'accepted' ? "border-green-500 bg-green-50" : 
-        application.status === 'rejected' ? "border-red-500 bg-red-50" : ""
+        localStatus === 'accepted' ? "border-green-500 bg-green-50" : 
+        localStatus === 'rejected' ? "border-red-500 bg-red-50" : ""
       )}
     >
       <div className="p-4 flex flex-col gap-3">
@@ -55,12 +76,12 @@ export const ApplicationCard = ({
           </div>
           
           <Badge variant={
-            application.status === 'accepted' ? 'default' :
-            application.status === 'rejected' ? 'destructive' :
+            localStatus === 'accepted' ? 'default' :
+            localStatus === 'rejected' ? 'destructive' :
             'outline'
           }>
-            {application.status === 'accepted' ? 'Aprovado' :
-             application.status === 'rejected' ? 'Rejeitado' :
+            {localStatus === 'accepted' ? 'Aprovado' :
+             localStatus === 'rejected' ? 'Rejeitado' :
              'Pendente'}
           </Badge>
         </div>
@@ -70,12 +91,12 @@ export const ApplicationCard = ({
           <p className="text-sm text-gray-700">{application.message}</p>
         </div>
         
-        {application.status === 'pending' && (
+        {localStatus === 'pending' && (
           <div className="flex gap-2 justify-end mt-2">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => onReject(application.id, application.provider_id)}
+              onClick={handleReject}
               disabled={isDisabled}
             >
               <X className="h-4 w-4 mr-1" />
@@ -83,7 +104,7 @@ export const ApplicationCard = ({
             </Button>
             <Button
               size="sm"
-              onClick={() => onApprove(application.id, application.provider_id)}
+              onClick={handleApprove}
               disabled={isDisabled}
             >
               <Check className="h-4 w-4 mr-1" />

@@ -46,13 +46,16 @@ export const useApplicationsList = (initialApplications: EventApplication[]) => 
       setProcessingIds(prev => [...prev, applicationId]);
       await onReject(applicationId, providerId);
       
-      // Update local state to show application as rejected
-      setLocalApplications(prev => 
-        prev.map(app => 
+      // Update local state to show application as rejected and ensure it stays that way
+      console.log(`Updating local application ${applicationId} state to rejected`);
+      setLocalApplications(prev => {
+        const updated = prev.map(app => 
           app.id === applicationId ? { ...app, status: 'rejected' } : app
-        )
-      );
-      console.log(`Application ${applicationId} rejected successfully`);
+        );
+        console.log('Updated local applications:', updated);
+        return updated;
+      });
+      console.log(`Application ${applicationId} rejected successfully and local state updated`);
     } catch (error) {
       console.error(`Error rejecting application ${applicationId}:`, error);
     } finally {
