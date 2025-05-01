@@ -99,6 +99,8 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
     checkUserApplication();
     
     // Set up realtime subscription to track application status changes
+    console.log('Subscribing to Realtime with:', { userId: user?.id, eventId });
+    
     const channel = supabase
       .channel('user-application-changes')
       .on('postgres_changes', {
@@ -108,6 +110,7 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
       }, async (payload) => {
         // Manual filtering in the callback instead of using filter in the channel config
         const newData = payload.new as any;
+        console.log('Realtime update received:', payload);
         
         // Only process updates relevant to this user and event
         if (newData && 
