@@ -1,30 +1,31 @@
 
-import { useState } from 'react';
 import { Event } from '@/types/events';
-import { useApplicationApproval } from './useApplicationApproval';
-import { useApplicationRejection } from './useApplicationRejection';
+import { 
+  useApplicationApprovalHandler,
+  useApplicationRejectionHandler,
+  useSubmittingState
+} from './hooks';
 
-export const useApplicationManagement = (event: Event | null, updateApplicationStatus?: (applicationId: string, status: 'accepted' | 'rejected') => void) => {
+/**
+ * Main hook that combines application approval and rejection functionality
+ */
+export const useApplicationManagement = (
+  event: Event | null, 
+  updateApplicationStatus?: (applicationId: string, status: 'accepted' | 'rejected') => void
+) => {
+  // Use the split hooks for approval and rejection
   const { 
     isApproving, 
     handleApproveApplication 
-  } = useApplicationApproval(event, (applicationId: string) => {
-    // Ensure we're only passing the applicationId to match the expected signature
-    // and the status 'accepted' is hardcoded for approval
-    if (updateApplicationStatus) updateApplicationStatus(applicationId, 'accepted');
-  });
+  } = useApplicationApprovalHandler(event, updateApplicationStatus);
     
   const { 
     rejecting, 
     handleRejectApplication 
-  } = useApplicationRejection(event, (applicationId: string) => {
-    // Ensure we're only passing the applicationId to match the expected signature
-    // and the status 'rejected' is hardcoded for rejection
-    if (updateApplicationStatus) updateApplicationStatus(applicationId, 'rejected');
-  });
+  } = useApplicationRejectionHandler(event, updateApplicationStatus);
   
   // Combine into a single submitting state for the UI
-  const submitting = isApproving || rejecting;
+  const submitting = useSubmittingState([isApproving, rejecting]);
 
   return {
     submitting, 
