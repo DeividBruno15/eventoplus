@@ -99,7 +99,6 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
     checkUserApplication();
     
     // Set up realtime subscription to track application status changes
-    // Removendo o filtro composto e fazendo filtragem manual no callback
     const channel = supabase
       .channel('user-application-changes')
       .on('postgres_changes', {
@@ -107,10 +106,10 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
         schema: 'public',
         table: 'event_applications'
       }, async (payload) => {
-        // Filtrando manualmente os eventos relevantes
+        // Manual filtering in the callback instead of using filter in the channel config
         const newData = payload.new as any;
         
-        // Verificando se o evento é relevante para este usuário e este evento
+        // Only process updates relevant to this user and event
         if (newData && 
             newData.provider_id === user?.id && 
             newData.event_id === eventId) {
