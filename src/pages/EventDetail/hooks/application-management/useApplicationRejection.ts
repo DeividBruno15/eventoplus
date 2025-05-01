@@ -1,9 +1,9 @@
 
 import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { Event } from '@/types/events';
 import { toast } from 'sonner';
 import { sendProviderNotification } from '../useEventNotifications';
+import { updateApplicationStatus } from './utils/applicationStatus';
 
 export const useApplicationRejection = (event: Event | null, updateApplicationStatus?: (applicationId: string, status: 'rejected') => void) => {
   const [rejecting, setRejecting] = useState(false);
@@ -19,15 +19,7 @@ export const useApplicationRejection = (event: Event | null, updateApplicationSt
       console.log('Rejecting application:', applicationId, 'for provider:', providerId);
       
       // Update the application status to rejected
-      const { error } = await supabase
-        .from('event_applications')
-        .update({ status: 'rejected' })
-        .eq('id', applicationId);
-        
-      if (error) {
-        console.error('Error rejecting application:', error);
-        throw error;
-      }
+      await updateApplicationStatus(applicationId, 'rejected');
       
       // Update local state to reflect the change immediately
       if (updateApplicationStatus) {

@@ -1,10 +1,12 @@
 
 import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { sendProviderNotification } from '../useEventNotifications';
 import { Event } from '@/types/events';
+import { sendProviderNotification } from '../useEventNotifications';
+import { createOrGetConversation } from './utils/conversation';
+import { updateApplicationStatus } from './utils/applicationStatus';
+import { supabase } from '@/integrations/supabase/client';
 
 export const useApplicationApproval = (event: Event | null, updateApplicationStatus?: (applicationId: string) => void) => {
   const [isApproving, setIsApproving] = useState(false);
@@ -19,14 +21,9 @@ export const useApplicationApproval = (event: Event | null, updateApplicationSta
       const eventId = event.id;
       
       // 1. Update application status
-      const { error } = await supabase
-        .from('event_applications')
-        .update({ status: 'accepted' })
-        .eq('id', applicationId);
+      await updateApplicationStatus(applicationId, 'accepted');
 
-      if (error) throw error;
-
-      // 2. Create or get conversation
+      // 2. Get contractor name for the notification
       const { data: userData, error: userError } = await supabase
         .from('user_profiles')
         .select('first_name, last_name')
@@ -35,28 +32,11 @@ export const useApplicationApproval = (event: Event | null, updateApplicationSta
 
       if (userError) throw userError;
 
-      // Create a conversation between provider and contractor if it doesn't exist
-      // Use the newly created function to get or create a conversation
-      const { data: conversationData, error: conversationError } = await supabase.rpc(
-        // We need to use 'as any' here because TypeScript doesn't know about this function
-        'create_or_get_conversation' as any, 
-        { 
-          user_id_one: contractorId,
-          user_id_two: providerId
-        }
-      );
-
-      if (conversationError) {
-        console.error('Error creating conversation:', conversationError);
-        throw conversationError;
-      }
-
-      // The conversation ID is now directly returned as a UUID from our function
-      const conversationId = conversationData;
-        
+      // 3. Create or get conversation between provider and contractor
+      const conversationId = await createOrGetConversation(contractorId, providerId);
       console.log('Created or got conversation:', conversationId);
 
-      // 3. Send notification to provider
+      // 4. Send notification to provider
       await sendProviderNotification(
         event,
         providerId,
