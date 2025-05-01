@@ -5,7 +5,7 @@ import { User } from '@supabase/supabase-js';
 import { useAuth } from '@/hooks/useAuth';
 import { useEventData } from './useEventData';
 import { useEventUserRole } from './useEventUserRole';
-import { useUserApplication } from './useUserApplication';
+import { useUserApplication } from './user-application';
 import { useEventApplicationsList } from './applications-list';
 
 interface EventDetailsProps {
