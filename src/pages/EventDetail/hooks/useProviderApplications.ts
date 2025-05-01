@@ -59,6 +59,8 @@ export const useProviderApplications = (event: Event | null) => {
         return;
       }
       
+      console.log('New application created:', data);
+      
       // Obter informações do prestador para incluir na notificação
       const { data: providerData } = await supabase
         .from('user_profiles')

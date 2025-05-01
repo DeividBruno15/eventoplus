@@ -40,6 +40,12 @@ export const ApplicationForm = ({
   // Verificar se a aplicação já foi rejeitada
   const hasBeenRejected = isRejected || userApplication?.status === 'rejected';
   
+  console.log('Application status check:', {
+    isRejected,
+    userApplicationStatus: userApplication?.status,
+    hasBeenRejected
+  });
+  
   return (
     <Card className="h-full">
       <CardHeader>

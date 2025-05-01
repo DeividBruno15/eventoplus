@@ -37,6 +37,13 @@ export const useEventDetails = ({ id, user: passedUser }: EventDetailsProps): Ev
   const { userHasApplied, userApplication } = useUserApplication(id, user);
   const { applications, updateApplicationStatus } = useEventApplicationsList(id, user, userRole);
 
+  // Debug logging
+  useEffect(() => {
+    if (userApplication) {
+      console.log('Current user application status:', userApplication.status);
+    }
+  }, [userApplication]);
+
   return {
     event,
     applications,

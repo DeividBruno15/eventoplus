@@ -41,6 +41,8 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
         setUserHasApplied(!!data);
         
         if (data) {
+          console.log('User application data retrieved:', data);
+          
           // Create a properly formatted application object regardless of the provider data structure
           const applicationData = {
             ...data,

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Event } from '@/types/events';
 import { toast } from 'sonner';
 import { sendProviderNotification } from '../useEventNotifications';
-import { updateApplicationStatus as updateAppStatus } from './utils/applicationStatus';
+import { updateApplicationStatus } from './utils/applicationStatus';
 
 export const useApplicationRejection = (event: Event | null, onStatusUpdate?: (applicationId: string) => void) => {
   const [rejecting, setRejecting] = useState(false);
@@ -19,7 +19,7 @@ export const useApplicationRejection = (event: Event | null, onStatusUpdate?: (a
       console.log('Rejecting application:', applicationId, 'for provider:', providerId);
       
       // Update the application status to rejected
-      await updateAppStatus(applicationId, 'rejected');
+      await updateApplicationStatus(applicationId, 'rejected');
       
       // Update local state to reflect the change immediately
       if (onStatusUpdate) {
