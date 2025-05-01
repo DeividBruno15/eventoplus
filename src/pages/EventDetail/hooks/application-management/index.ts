@@ -8,12 +8,20 @@ export const useApplicationManagement = (event: Event | null, updateApplicationS
   const { 
     isApproving, 
     handleApproveApplication 
-  } = useApplicationApproval(event, updateApplicationStatus);
+  } = useApplicationApproval(event, (applicationId: string) => {
+    // Ensure we're only passing the applicationId to match the expected signature
+    // and the status 'accepted' is hardcoded for approval
+    if (updateApplicationStatus) updateApplicationStatus(applicationId, 'accepted');
+  });
     
   const { 
     rejecting, 
     handleRejectApplication 
-  } = useApplicationRejection(event, updateApplicationStatus);
+  } = useApplicationRejection(event, (applicationId: string) => {
+    // Ensure we're only passing the applicationId to match the expected signature
+    // and the status 'rejected' is hardcoded for rejection
+    if (updateApplicationStatus) updateApplicationStatus(applicationId, 'rejected');
+  });
   
   // Combine into a single submitting state for the UI
   const submitting = isApproving || rejecting;
