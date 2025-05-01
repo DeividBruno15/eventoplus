@@ -52,11 +52,19 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
           if (data.provider && 
               typeof data.provider === 'object' && 
               !('error' in data.provider)) {
+            // Use type assertion to tell TypeScript that provider is not null within this block
+            const provider = data.provider as { 
+              id: string; 
+              first_name: string; 
+              last_name: string; 
+              avatar_url?: string | null 
+            };
+            
             providerData = {
-              id: data.provider.id,
-              first_name: data.provider.first_name,
-              last_name: data.provider.last_name,
-              avatar_url: data.provider.avatar_url
+              id: provider.id,
+              first_name: provider.first_name,
+              last_name: provider.last_name,
+              avatar_url: provider.avatar_url
             };
           }
           
@@ -119,11 +127,19 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
               if (data.provider && 
                   typeof data.provider === 'object' && 
                   !('error' in data.provider)) {
+                // Use type assertion to tell TypeScript that provider is not null within this block
+                const provider = data.provider as { 
+                  id: string; 
+                  first_name: string; 
+                  last_name: string; 
+                  avatar_url?: string | null 
+                };
+                
                 providerData = {
-                  id: data.provider.id,
-                  first_name: data.provider.first_name,
-                  last_name: data.provider.last_name,
-                  avatar_url: data.provider.avatar_url
+                  id: provider.id,
+                  first_name: provider.first_name,
+                  last_name: provider.last_name,
+                  avatar_url: provider.avatar_url
                 };
               }
               
