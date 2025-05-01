@@ -32,13 +32,13 @@ export const updateApplicationStatus = async (applicationId: string, status: 'ac
     
     console.log(`Proceeding with update of application ${applicationId} from ${currentApplication?.status} to ${status}`);
     
-    // Proceed with update since status is different - use upsert with returning: 'representation'
-    // to ensure we get the complete updated record back
+    // Proceed with update since status is different - add order by before limit
     const { data, error } = await supabase
       .from('event_applications')
       .update({ status })
       .eq('id', applicationId)
       .select('*')
+      .order('created_at', { ascending: false })
       .limit(1);
 
     if (error) {
