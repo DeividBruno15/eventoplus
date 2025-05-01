@@ -49,18 +49,21 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
           // Create a formatted provider object with null checks
           let providerData = undefined;
           
-          if (data.provider && 
-              typeof data.provider === 'object' && 
-              'id' in data.provider && 
-              'first_name' in data.provider && 
-              'last_name' in data.provider) {
-            // Now TypeScript knows this object is safe to access
-            providerData = {
-              id: data.provider.id,
-              first_name: data.provider.first_name,
-              last_name: data.provider.last_name,
-              avatar_url: data.provider.avatar_url
-            };
+          // Using a type assertion after ensuring the object has the required properties
+          if (data.provider && typeof data.provider === 'object') {
+            const provider = data.provider as Record<string, unknown>;
+            
+            if ('id' in provider && 
+                'first_name' in provider && 
+                'last_name' in provider) {
+              // Now TypeScript knows this object is safe to access
+              providerData = {
+                id: provider.id as string,
+                first_name: provider.first_name as string,
+                last_name: provider.last_name as string,
+                avatar_url: provider.avatar_url as string | undefined
+              };
+            }
           }
           
           // Create a properly formatted EventApplication object with proper type casting
@@ -119,18 +122,21 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
               // Create a formatted provider object with null checks
               let providerData = undefined;
               
-              if (data.provider && 
-                  typeof data.provider === 'object' && 
-                  'id' in data.provider && 
-                  'first_name' in data.provider && 
-                  'last_name' in data.provider) {
-                // Now TypeScript knows this object is safe to access
-                providerData = {
-                  id: data.provider.id,
-                  first_name: data.provider.first_name,
-                  last_name: data.provider.last_name,
-                  avatar_url: data.provider.avatar_url
-                };
+              // Using a type assertion after ensuring the object has the required properties
+              if (data.provider && typeof data.provider === 'object') {
+                const provider = data.provider as Record<string, unknown>;
+                
+                if ('id' in provider && 
+                    'first_name' in provider && 
+                    'last_name' in provider) {
+                  // Now TypeScript knows this object is safe to access
+                  providerData = {
+                    id: provider.id as string,
+                    first_name: provider.first_name as string,
+                    last_name: provider.last_name as string,
+                    avatar_url: provider.avatar_url as string | undefined
+                  };
+                }
               }
               
               // Create a properly formatted EventApplication object with proper type checking
