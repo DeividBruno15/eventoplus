@@ -1,14 +1,11 @@
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Event, EventApplication } from '@/types/events';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
-import { ApplicationSuccess } from './application-form/ApplicationSuccess';
-import { LoadingServices } from './application-form/LoadingServices';
-import { ExistingApplication } from './application-form/ExistingApplication';
+import { useState } from 'react';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { ApplicationFormContent } from './application-form/ApplicationFormContent';
-import { toast } from 'sonner';
+import { ApplicationSuccess } from './application-form/ApplicationSuccess';
+import { Event, EventApplication } from '@/types/events';
+import { ExistingApplication } from './application-form/ExistingApplication';
 
 interface ApplicationFormProps {
   event: Event;
@@ -19,121 +16,66 @@ interface ApplicationFormProps {
   isRejected?: boolean;
 }
 
-interface UserService {
-  id: string;
-  category: string;
-  description?: string | null;
-}
-
-export const ApplicationForm = ({ 
-  event, 
-  onSubmit, 
-  userApplication, 
-  submitting, 
+export const ApplicationForm = ({
+  event,
+  onSubmit,
+  userApplication,
+  submitting,
   onCancelApplication,
-  isRejected = false
+  isRejected
 }: ApplicationFormProps) => {
-  const { user } = useAuth();
   const [showSuccess, setShowSuccess] = useState(false);
-  const [userServices, setUserServices] = useState<UserService[]>([]);
-  const [loadingServices, setLoadingServices] = useState(true);
-
-  // Fetch user services
-  useEffect(() => {
-    if (!user) return;
-    
-    const fetchUserServices = async () => {
-      setLoadingServices(true);
-      try {
-        const { data, error } = await supabase
-          .from('provider_services')
-          .select('id, category, description')
-          .eq('provider_id', user.id);
-          
-        if (error) {
-          console.error('Error fetching provider services:', error);
-          return;
-        }
-        
-        console.log('Fetched provider services:', data);
-        
-        // Filter services to match event service type if specified
-        const filteredServices = event.service_type 
-          ? (data || []).filter(service => service.category === event.service_type)
-          : data || [];
-        
-        setUserServices(filteredServices);
-        
-        console.log('Filtered services:', filteredServices);
-      } catch (err) {
-        console.error('Failed to fetch provider services:', err);
-      } finally {
-        setLoadingServices(false);
-      }
-    };
-    
-    fetchUserServices();
-  }, [user, event]);
-
-  const handleSubmitApplication = async (message: string, serviceCategory?: string) => {
-    try {
-      console.log('Submitting application with service:', serviceCategory);
-      await onSubmit(message, serviceCategory);
-      setShowSuccess(true);
-    } catch (error) {
-      console.error("Erro ao enviar candidatura:", error);
+  
+  const handleSubmit = async (message: string, serviceCategory?: string) => {
+    await onSubmit(message, serviceCategory);
+    setShowSuccess(true);
+  };
+  
+  const handleCancel = () => {
+    if (userApplication) {
+      onCancelApplication(userApplication.id);
     }
   };
-
-  // Handle cancel application
-  const handleCancelApplication = async () => {
-    if (!userApplication) return;
-    
-    try {
-      await onCancelApplication(userApplication.id);
-    } catch (error) {
-      toast.error("Erro ao cancelar candidatura");
-    }
-  };
-
-  // Se o usuário foi rejeitado, mostra uma mensagem diferente
-  if (isRejected) {
-    return (
-      <Card className="mb-6">
-        <CardContent className="pt-6">
-          <div className="text-center p-6">
-            <h3 className="font-medium text-lg text-red-600 mb-4">Sua candidatura foi rejeitada</h3>
-            <p className="text-gray-600">
-              Infelizmente sua candidatura para este evento não foi aceita pelo contratante.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
+  
+  // Verificar se a aplicação já foi rejeitada
+  const hasBeenRejected = isRejected || userApplication?.status === 'rejected';
+  
   return (
-    <Card className="mb-6">
-      {showSuccess ? (
-        <ApplicationSuccess />
-      ) : loadingServices ? (
-        <LoadingServices />
-      ) : userApplication ? (
-        <CardContent className="pt-6">
+    <Card className="h-full">
+      <CardHeader>
+        <CardTitle>Candidatar-se para este evento</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {hasBeenRejected ? (
+          <div className="text-center my-4 p-4 border border-red-300 bg-red-50 rounded-lg">
+            <p className="text-red-600 font-medium">Sua candidatura para este evento foi rejeitada.</p>
+            <p className="text-gray-600 mt-2">Infelizmente, você não pode se candidatar novamente para este evento.</p>
+          </div>
+        ) : showSuccess ? (
+          <ApplicationSuccess />
+        ) : userApplication ? (
           <ExistingApplication 
             userApplication={userApplication}
-            onCancelApplication={handleCancelApplication}
+            onCancelApplication={handleCancel}
           />
-        </CardContent>
-      ) : (
-        <CardContent className="pt-6">
-          <h3 className="font-medium text-lg mb-3">Candidatar-se a este evento</h3>
+        ) : (
           <ApplicationFormContent 
-            userServices={userServices}
+            event={event}
+            onSubmit={handleSubmit}
             submitting={submitting}
-            onSubmit={handleSubmitApplication}
           />
-        </CardContent>
+        )}
+      </CardContent>
+      {!userApplication && !showSuccess && !hasBeenRejected && (
+        <CardFooter className="flex justify-end border-t p-4">
+          <Button 
+            disabled={submitting} 
+            type="submit" 
+            form="application-form"
+          >
+            {submitting ? 'Enviando...' : 'Enviar Candidatura'}
+          </Button>
+        </CardFooter>
       )}
     </Card>
   );
