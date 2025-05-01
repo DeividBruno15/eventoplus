@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { EventApplication } from '@/types/events';
 import { User } from '@supabase/supabase-js';
+import { toast } from '@/components/ui/use-toast';
 
 /**
  * Hook to check if the current user has applied to an event
@@ -49,19 +50,23 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
           // Create a formatted provider object with null checks
           let providerData = undefined;
           
-          // Using a type assertion after ensuring the object has the required properties
+          // First verify that provider exists and is an object
           if (data.provider && typeof data.provider === 'object') {
-            const provider = data.provider as Record<string, unknown>;
+            // Create a safe object for accessing properties
+            const safeProvider: Record<string, any> = data.provider;
             
-            if ('id' in provider && 
-                'first_name' in provider && 
-                'last_name' in provider) {
-              // Now TypeScript knows this object is safe to access
+            // Check if it has all required properties before attempting to use them
+            if (safeProvider && 
+                typeof safeProvider.id === 'string' && 
+                typeof safeProvider.first_name === 'string' && 
+                typeof safeProvider.last_name === 'string') {
+              
+              // Now we can safely create the provider data object
               providerData = {
-                id: provider.id as string,
-                first_name: provider.first_name as string,
-                last_name: provider.last_name as string,
-                avatar_url: provider.avatar_url as string | undefined
+                id: safeProvider.id,
+                first_name: safeProvider.first_name,
+                last_name: safeProvider.last_name,
+                avatar_url: safeProvider.avatar_url as string | undefined
               };
             }
           }
@@ -122,19 +127,23 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
               // Create a formatted provider object with null checks
               let providerData = undefined;
               
-              // Using a type assertion after ensuring the object has the required properties
+              // Use the same safe approach for the realtime data
               if (data.provider && typeof data.provider === 'object') {
-                const provider = data.provider as Record<string, unknown>;
+                // Create a safe object for accessing properties
+                const safeProvider: Record<string, any> = data.provider;
                 
-                if ('id' in provider && 
-                    'first_name' in provider && 
-                    'last_name' in provider) {
-                  // Now TypeScript knows this object is safe to access
+                // Check if it has all required properties before attempting to use them
+                if (safeProvider && 
+                    typeof safeProvider.id === 'string' && 
+                    typeof safeProvider.first_name === 'string' && 
+                    typeof safeProvider.last_name === 'string') {
+                  
+                  // Now we can safely create the provider data object
                   providerData = {
-                    id: provider.id as string,
-                    first_name: provider.first_name as string,
-                    last_name: provider.last_name as string,
-                    avatar_url: provider.avatar_url as string | undefined
+                    id: safeProvider.id,
+                    first_name: safeProvider.first_name,
+                    last_name: safeProvider.last_name,
+                    avatar_url: safeProvider.avatar_url as string | undefined
                   };
                 }
               }
