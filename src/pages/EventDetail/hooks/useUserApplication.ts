@@ -54,6 +54,8 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
             }
           };
           
+          console.log('Current application status:', applicationData.status);
+          
           // Use type assertion since we're ensuring the structure is compatible
           setUserApplication(applicationData as EventApplication);
         } else {
@@ -78,7 +80,7 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
         table: 'event_applications',
         filter: `provider_id=eq.${user?.id ?? ''} AND event_id=eq.${eventId ?? ''}`
       }, (payload) => {
-        console.log('Application status changed:', payload);
+        console.log('Application status changed in realtime:', payload);
         if (payload.new) {
           // Always create a properly formatted application object for consistency
           const updatedApplication = {
@@ -91,8 +93,11 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
             }
           };
           
+          console.log('Updated application status via realtime:', updatedApplication.status);
+          
           // Use type assertion since we're ensuring the structure is compatible
           setUserApplication(updatedApplication as EventApplication);
+          setUserHasApplied(true);
         }
       })
       .subscribe();

@@ -34,12 +34,21 @@ export const EventActionPanel = ({
   console.log("Event contractor ID:", event.contractor_id);
   console.log("Current user ID:", userId);
   console.log("Is user the event contractor?", event.contractor_id === userId);
+  console.log("Current user application:", userApplication);
+
+  useEffect(() => {
+    if (userApplication) {
+      console.log("User application status in EventActionPanel:", userApplication.status);
+    }
+  }, [userApplication]);
 
   // Check if there are any accepted applications for this event
   const hasAcceptedApplications = applications.some(app => app.status === 'accepted');
   
   // Verifica se a candidatura atual do usuário foi rejeitada
   const isRejected = userApplication?.status === 'rejected';
+  
+  console.log("Is application rejected?", isRejected);
   
   return (
     <div className="grid gap-6 lg:grid-cols-2">

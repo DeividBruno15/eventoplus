@@ -10,22 +10,28 @@ import { toast } from 'sonner';
 export const updateApplicationStatus = async (applicationId: string, status: 'accepted' | 'rejected'): Promise<void> => {
   console.log(`Updating application ${applicationId} to status: ${status}`);
   
-  const { data, error } = await supabase
-    .from('event_applications')
-    .update({ status })
-    .eq('id', applicationId)
-    .select();
+  try {
+    const { data, error } = await supabase
+      .from('event_applications')
+      .update({ status })
+      .eq('id', applicationId)
+      .select();
 
-  if (error) {
-    console.error(`Error updating application to ${status}:`, error);
-    toast.error(`Erro ao atualizar status da aplicação: ${error.message}`);
+    if (error) {
+      console.error(`Error updating application to ${status}:`, error);
+      toast.error(`Erro ao atualizar status da aplicação: ${error.message}`);
+      throw error;
+    }
+    
+    console.log(`Application ${applicationId} updated successfully to ${status}`, data);
+    
+    // Se for uma rejeição, registramos no console que o prestador não poderá se candidatar novamente
+    if (status === 'rejected') {
+      console.log(`Provider for application ${applicationId} has been rejected and cannot apply again`);
+    }
+  } catch (error: any) {
+    console.error('Error in updateApplicationStatus:', error);
+    toast.error(`Erro ao atualizar status: ${error.message}`);
     throw error;
-  }
-  
-  console.log(`Application ${applicationId} updated successfully to ${status}`, data);
-  
-  // Se for uma rejeição, registramos no console que o prestador não poderá se candidatar novamente
-  if (status === 'rejected') {
-    console.log(`Provider for application ${applicationId} has been rejected and cannot apply again`);
   }
 };

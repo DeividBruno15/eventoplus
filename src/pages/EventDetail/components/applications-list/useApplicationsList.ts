@@ -1,15 +1,16 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { EventApplication, EventStatus } from '@/types/events';
 
 export const useApplicationsList = (initialApplications: EventApplication[]) => {
   const [processingIds, setProcessingIds] = useState<string[]>([]);
   const [localApplications, setLocalApplications] = useState<EventApplication[]>(initialApplications);
   
-  // Initialize local applications from props on first render
-  useState(() => {
+  // Update local applications whenever the props change
+  useEffect(() => {
+    console.log('Applications list updated from props:', initialApplications);
     setLocalApplications(initialApplications);
-  });
+  }, [initialApplications]);
   
   const handleApprove = async (
     applicationId: string, 

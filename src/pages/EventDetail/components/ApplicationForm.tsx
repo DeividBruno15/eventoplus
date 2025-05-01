@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ApplicationFormContent } from './application-form/ApplicationFormContent';
@@ -25,6 +25,17 @@ export const ApplicationForm = ({
   isRejected
 }: ApplicationFormProps) => {
   const [showSuccess, setShowSuccess] = useState(false);
+  const [applicationStatus, setApplicationStatus] = useState<string | null>(null);
+  
+  // Update local state when userApplication changes
+  useEffect(() => {
+    if (userApplication) {
+      console.log('Application status updated in form:', userApplication.status);
+      setApplicationStatus(userApplication.status);
+    } else {
+      setApplicationStatus(null);
+    }
+  }, [userApplication]);
   
   const handleSubmit = async (message: string, serviceCategory?: string) => {
     await onSubmit(message, serviceCategory);
@@ -38,10 +49,11 @@ export const ApplicationForm = ({
   };
   
   // Verificar se a aplicação já foi rejeitada
-  const hasBeenRejected = isRejected || userApplication?.status === 'rejected';
+  const hasBeenRejected = isRejected || applicationStatus === 'rejected' || userApplication?.status === 'rejected';
   
-  console.log('Application status check:', {
+  console.log('Application form rendering with status:', {
     isRejected,
+    applicationStatus,
     userApplicationStatus: userApplication?.status,
     hasBeenRejected
   });
