@@ -18,6 +18,7 @@ export const useApplicationsList = (initialApplications: EventApplication[]) => 
     onApprove: (applicationId: string, providerId: string) => Promise<void>
   ) => {
     try {
+      console.log(`Approving application ${applicationId} for provider ${providerId}`);
       setProcessingIds(prev => [...prev, applicationId]);
       await onApprove(applicationId, providerId);
       
@@ -27,6 +28,9 @@ export const useApplicationsList = (initialApplications: EventApplication[]) => 
           app.id === applicationId ? { ...app, status: 'accepted' } : app
         )
       );
+      console.log(`Application ${applicationId} approved successfully`);
+    } catch (error) {
+      console.error(`Error approving application ${applicationId}:`, error);
     } finally {
       setProcessingIds(prev => prev.filter(id => id !== applicationId));
     }
@@ -38,6 +42,7 @@ export const useApplicationsList = (initialApplications: EventApplication[]) => 
     onReject: (applicationId: string, providerId: string) => Promise<void>
   ) => {
     try {
+      console.log(`Rejecting application ${applicationId} for provider ${providerId}`);
       setProcessingIds(prev => [...prev, applicationId]);
       await onReject(applicationId, providerId);
       
@@ -47,6 +52,9 @@ export const useApplicationsList = (initialApplications: EventApplication[]) => 
           app.id === applicationId ? { ...app, status: 'rejected' } : app
         )
       );
+      console.log(`Application ${applicationId} rejected successfully`);
+    } catch (error) {
+      console.error(`Error rejecting application ${applicationId}:`, error);
     } finally {
       setProcessingIds(prev => prev.filter(id => id !== applicationId));
     }

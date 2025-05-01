@@ -13,8 +13,8 @@ export const useEventApplicationsList = (eventId?: string, user?: User | null, u
   const { loading, fetchApplications } = useFetchApplications();
   
   // Function to update application status locally
-  const updateApplicationStatus = useCallback((applicationId: string, status: 'accepted' | 'rejected' = 'accepted') => {
-    console.log(`Updating application status locally: ${applicationId} to ${status}`);
+  const updateApplicationStatus = useCallback((applicationId: string, status: 'accepted' | 'rejected') => {
+    console.log(`Updating application status locally in useEventApplicationsList: ${applicationId} to ${status}`);
     setApplications(prevApplications => {
       const updated = prevApplications.map(app => 
         app.id === applicationId ? { ...app, status } : app
@@ -67,14 +67,16 @@ export const useEventApplicationsList = (eventId?: string, user?: User | null, u
       .channel('event_applications_changes')
       .on('postgres_changes', 
         { 
-          event: 'UPDATE', 
+          event: '*', // Mudar para capturar todos os eventos (INSERT, UPDATE, DELETE)
           schema: 'public', 
           table: 'event_applications',
           filter: eventId ? `event_id=eq.${eventId}` : undefined
         }, 
         (payload) => {
           console.log('Realtime update received for application:', payload);
-          if (payload.new && payload.new.id) {
+          
+          if (payload.eventType === 'UPDATE' && payload.new) {
+            // Para atualizações
             const updatedApp = payload.new as any;
             console.log('Updating application in realtime with new status:', updatedApp.status);
             
@@ -83,11 +85,15 @@ export const useEventApplicationsList = (eventId?: string, user?: User | null, u
                 app.id === updatedApp.id ? {...app, ...updatedApp} : app
               )
             );
-            
-            // Forçar atualização após receber atualização em tempo real
-            setTimeout(() => {
-              refreshApplications();
-            }, 500);
+          } else if (payload.eventType === 'DELETE' && payload.old) {
+            // Para exclusões
+            const deletedApp = payload.old as any;
+            setApplications(currentApps => 
+              currentApps.filter(app => app.id !== deletedApp.id)
+            );
+          } else if (payload.eventType === 'INSERT' && payload.new) {
+            // Para inserções
+            refreshApplications();
           }
         }
       )

@@ -43,21 +43,9 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
         if (data) {
           console.log('User application data retrieved:', data);
           
-          // Create a properly formatted application object regardless of the provider data structure
-          const applicationData = {
-            ...data,
-            provider: {
-              id: user.id,
-              first_name: user.user_metadata?.first_name || '',
-              last_name: user.user_metadata?.last_name || '',
-              avatar_url: user.user_metadata?.avatar_url || null
-            }
-          };
-          
-          console.log('Current application status:', applicationData.status);
-          
-          // Use type assertion since we're ensuring the structure is compatible
-          setUserApplication(applicationData as EventApplication);
+          // Cast data to EventApplication to ensure correct structure
+          setUserApplication(data as EventApplication);
+          console.log('Current application status:', data.status);
         } else {
           setUserApplication(null);
         }
@@ -82,25 +70,22 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
       }, (payload) => {
         console.log('Application status changed in realtime:', payload);
         if (payload.new) {
-          // Fix: Make sure we're accessing the correct fields from payload.new
           const newData = payload.new as any;
-          
           console.log('Realtime update received with new status:', newData.status);
           
-          // Always create a properly formatted application object for consistency
-          const updatedApplication = {
-            ...newData, // This includes all fields including status
-            provider: {
-              id: user?.id || '',
-              first_name: user?.user_metadata?.first_name || '',
-              last_name: user?.user_metadata?.last_name || '',
-              avatar_url: user?.user_metadata?.avatar_url || null
-            }
-          } as EventApplication;
+          // Ensure we have all necessary application data
+          setUserApplication(prev => {
+            if (!prev) return newData as EventApplication;
+            
+            // Merge the previous application data with the new data
+            return {
+              ...prev,
+              ...newData,
+              // Preserve provider info if it exists in previous state
+              provider: prev.provider
+            } as EventApplication;
+          });
           
-          console.log('Updated application status via realtime:', updatedApplication.status);
-          
-          setUserApplication(updatedApplication);
           setUserHasApplied(true);
         }
       })

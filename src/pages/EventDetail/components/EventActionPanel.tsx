@@ -49,6 +49,7 @@ export const EventActionPanel = ({
   const isRejected = userApplication?.status === 'rejected';
   
   console.log("Is application rejected?", isRejected);
+  console.log("User application full data:", userApplication);
   
   // Debug: Visualizar todas as aplicações e seus status
   useEffect(() => {

@@ -4,6 +4,7 @@ import { EventApplication, EventStatus } from '@/types/events';
 import { ApplicationCard } from './ApplicationCard';
 import { EmptyApplications } from './EmptyApplications';
 import { useApplicationsList } from './useApplicationsList';
+import { useEffect } from 'react';
 
 interface ApplicationsListProps {
   applications: EventApplication[];
@@ -26,6 +27,10 @@ export const ApplicationsList = ({
     handleReject,
     isButtonDisabled
   } = useApplicationsList(applications);
+  
+  useEffect(() => {
+    console.log("ApplicationsList - Applications received:", applications);
+  }, [applications]);
   
   // Use localApplications for rendering
   const applicationsToShow = localApplications.length > 0 ? localApplications : applications;

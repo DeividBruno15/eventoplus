@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { sendProviderNotification } from '../useEventNotifications';
 import { updateApplicationStatus } from './utils/applicationStatus';
 
-export const useApplicationRejection = (event: Event | null, onStatusUpdate?: (applicationId: string) => void) => {
+export const useApplicationRejection = (event: Event | null, onStatusUpdate?: (applicationId: string, status: 'accepted' | 'rejected') => void) => {
   const [rejecting, setRejecting] = useState(false);
 
   /**
@@ -19,11 +19,13 @@ export const useApplicationRejection = (event: Event | null, onStatusUpdate?: (a
       console.log('Rejecting application:', applicationId, 'for provider:', providerId);
       
       // Update the application status to rejected
-      await updateApplicationStatus(applicationId, 'rejected');
+      const updatedApplication = await updateApplicationStatus(applicationId, 'rejected');
+      
+      console.log('Application rejected successfully, updated data:', updatedApplication);
       
       // Update local state to reflect the change immediately
       if (onStatusUpdate) {
-        onStatusUpdate(applicationId);
+        onStatusUpdate(applicationId, 'rejected');
       }
       
       // Send notification to provider

@@ -8,22 +8,12 @@ export const useApplicationManagement = (event: Event | null, updateApplicationS
   const { 
     isApproving, 
     handleApproveApplication 
-  } = useApplicationApproval(
-    event, 
-    updateApplicationStatus ? 
-      (id: string) => updateApplicationStatus(id, 'accepted') : 
-      undefined
-  );
+  } = useApplicationApproval(event, updateApplicationStatus);
     
   const { 
     rejecting, 
     handleRejectApplication 
-  } = useApplicationRejection(
-    event, 
-    updateApplicationStatus ? 
-      (id: string) => updateApplicationStatus(id, 'rejected') : 
-      undefined
-  );
+  } = useApplicationRejection(event, updateApplicationStatus);
   
   // Combine into a single submitting state for the UI
   const submitting = isApproving || rejecting;
