@@ -1,14 +1,22 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { EventApplication, EventStatus } from '@/types/events';
 
 export const useApplicationsList = (initialApplications: EventApplication[]) => {
   const [processingIds, setProcessingIds] = useState<string[]>([]);
   const [localApplications, setLocalApplications] = useState<EventApplication[]>(initialApplications);
   
-  // Initialize local applications from props on first render
+  // Update local applications whenever the props change
   useEffect(() => {
-    setLocalApplications(initialApplications);
+    console.log('Applications list updated from props:', initialApplications);
+    
+    // Verificar se há diferenças entre as listas antes de atualizar
+    const hasChanges = JSON.stringify(initialApplications) !== JSON.stringify(localApplications);
+    
+    if (hasChanges) {
+      console.log('Detected changes in applications, updating local state');
+      setLocalApplications(initialApplications);
+    }
   }, [initialApplications]);
   
   const handleApprove = async (
@@ -26,6 +34,7 @@ export const useApplicationsList = (initialApplications: EventApplication[]) => 
           app.id === applicationId ? { ...app, status: 'accepted' } : app
         )
       );
+      console.log(`Application ${applicationId} marked as accepted in local state`);
     } finally {
       setProcessingIds(prev => prev.filter(id => id !== applicationId));
     }
@@ -46,6 +55,7 @@ export const useApplicationsList = (initialApplications: EventApplication[]) => 
           app.id === applicationId ? { ...app, status: 'rejected' } : app
         )
       );
+      console.log(`Application ${applicationId} marked as rejected in local state`);
     } finally {
       setProcessingIds(prev => prev.filter(id => id !== applicationId));
     }

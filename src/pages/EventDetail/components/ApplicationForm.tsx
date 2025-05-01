@@ -48,14 +48,17 @@ export const ApplicationForm = ({
     }
   };
   
-  // Verificar se a aplicação já foi rejeitada
-  const hasBeenRejected = isRejected || applicationStatus === 'rejected' || userApplication?.status === 'rejected';
+  // Verificar se a aplicação já foi rejeitada - múltiplas checagens para garantir
+  const hasBeenRejected = 
+    isRejected ||
+    applicationStatus === 'rejected' ||
+    userApplication?.status === 'rejected';
   
   console.log('Application form rendering with status:', {
-    isRejected,
-    applicationStatus,
+    explicitRejected: isRejected,
+    localStatus: applicationStatus,
     userApplicationStatus: userApplication?.status,
-    hasBeenRejected
+    combinedRejectedStatus: hasBeenRejected
   });
   
   return (

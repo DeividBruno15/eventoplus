@@ -16,7 +16,7 @@ export const updateApplicationStatus = async (applicationId: string, status: 'ac
       .from('event_applications')
       .update({ status })
       .eq('id', applicationId)
-      .select();
+      .select('*');
 
     if (error) {
       console.error(`Error updating application to ${status}:`, error);
@@ -25,6 +25,11 @@ export const updateApplicationStatus = async (applicationId: string, status: 'ac
     }
     
     console.log(`Application ${applicationId} updated successfully to ${status}`, data);
+    
+    // Verificar se os dados retornados são válidos
+    if (!data || data.length === 0) {
+      console.warn(`No data returned after updating application ${applicationId}`);
+    }
     
     // Adicionar mais log para ajudar na depuração
     if (status === 'rejected') {

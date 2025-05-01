@@ -50,6 +50,16 @@ export const EventActionPanel = ({
   
   console.log("Is application rejected?", isRejected);
   
+  // Debug: Visualizar todas as aplicações e seus status
+  useEffect(() => {
+    if (applications.length > 0) {
+      console.log("All applications and their statuses:");
+      applications.forEach(app => {
+        console.log(`Application ${app.id} - Status: ${app.status} - Provider: ${app.provider_id}`);
+      });
+    }
+  }, [applications]);
+  
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       {userRole === 'provider' && (

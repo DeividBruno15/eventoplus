@@ -16,6 +16,11 @@ interface ExistingApplicationProps {
 export const ExistingApplication = ({ userApplication, onCancelApplication }: ExistingApplicationProps) => {
   const [conversationId, setConversationId] = useState<string | undefined>(undefined);
   
+  // Log status on render para debug
+  useEffect(() => {
+    console.log('ExistingApplication rendering with status:', userApplication.status);
+  }, [userApplication.status]);
+  
   // Fetch conversation ID if application is accepted
   useEffect(() => {
     const fetchConversation = async () => {
@@ -64,9 +69,10 @@ export const ExistingApplication = ({ userApplication, onCancelApplication }: Ex
   
   // Set container class based on status
   const containerClass = cn(
+    'border p-4 rounded-lg',
     userApplication.status === 'accepted' ? 'border-green-500 bg-green-50' : 
     userApplication.status === 'rejected' ? 'border-red-500 bg-red-50' : 
-    ''
+    'border-gray-300'
   );
   
   return (
@@ -98,8 +104,8 @@ export const ExistingApplication = ({ userApplication, onCancelApplication }: Ex
       )}
       
       {userApplication.status === 'rejected' && (
-        <div className="text-center my-4 p-4">
-          <p className="text-red-600">Sua candidatura para este evento foi rejeitada.</p>
+        <div className="text-center my-4 p-4 bg-red-50 rounded-lg">
+          <p className="text-red-600 font-medium">Sua candidatura para este evento foi rejeitada.</p>
           <p className="text-gray-600 mt-2">Você pode procurar outros eventos disponíveis ou entrar em contato para mais informações.</p>
         </div>
       )}

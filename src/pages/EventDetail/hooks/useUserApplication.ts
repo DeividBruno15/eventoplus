@@ -83,7 +83,9 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
         console.log('Application status changed in realtime:', payload);
         if (payload.new) {
           // Fix: Make sure we're accessing the correct fields from payload.new
-          const newData = payload.new as any; // Use any temporarily to extract data
+          const newData = payload.new as any;
+          
+          console.log('Realtime update received with new status:', newData.status);
           
           // Always create a properly formatted application object for consistency
           const updatedApplication = {
@@ -94,12 +96,11 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
               last_name: user?.user_metadata?.last_name || '',
               avatar_url: user?.user_metadata?.avatar_url || null
             }
-          };
+          } as EventApplication;
           
           console.log('Updated application status via realtime:', updatedApplication.status);
           
-          // Use type assertion since we're ensuring the structure is compatible
-          setUserApplication(updatedApplication as EventApplication);
+          setUserApplication(updatedApplication);
           setUserHasApplied(true);
         }
       })
@@ -107,6 +108,7 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
     
     // Clean up subscription
     return () => {
+      console.log('Cleaning up realtime subscription');
       supabase.removeChannel(channel);
     };
   }, [eventId, user]);
