@@ -5,10 +5,10 @@ import { toast } from 'sonner';
 import { Event } from '@/types/events';
 import { sendProviderNotification } from '../useEventNotifications';
 import { createOrGetConversation } from './utils/conversation';
-import { updateApplicationStatus } from './utils/applicationStatus';
+import { updateApplicationStatus as updateAppStatus } from './utils/applicationStatus';
 import { supabase } from '@/integrations/supabase/client';
 
-export const useApplicationApproval = (event: Event | null, updateApplicationStatus?: (applicationId: string) => void) => {
+export const useApplicationApproval = (event: Event | null, onStatusUpdate?: (applicationId: string) => void) => {
   const [isApproving, setIsApproving] = useState(false);
   const navigate = useNavigate();
 
@@ -21,7 +21,7 @@ export const useApplicationApproval = (event: Event | null, updateApplicationSta
       const eventId = event.id;
       
       // 1. Update application status
-      await updateApplicationStatus(applicationId, 'accepted');
+      await updateAppStatus(applicationId, 'accepted');
 
       // 2. Get contractor name for the notification
       const { data: userData, error: userError } = await supabase
@@ -46,8 +46,8 @@ export const useApplicationApproval = (event: Event | null, updateApplicationSta
       );
 
       // Update local state if callback provided
-      if (updateApplicationStatus) {
-        updateApplicationStatus(applicationId);
+      if (onStatusUpdate) {
+        onStatusUpdate(applicationId);
       }
 
       toast.success("Candidatura aprovada com sucesso.");
