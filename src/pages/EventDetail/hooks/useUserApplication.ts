@@ -82,9 +82,12 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
       }, (payload) => {
         console.log('Application status changed in realtime:', payload);
         if (payload.new) {
+          // Fix: Make sure we're accessing the correct fields from payload.new
+          const newData = payload.new as any; // Use any temporarily to extract data
+          
           // Always create a properly formatted application object for consistency
           const updatedApplication = {
-            ...payload.new,
+            ...newData, // This includes all fields including status
             provider: {
               id: user?.id || '',
               first_name: user?.user_metadata?.first_name || '',
