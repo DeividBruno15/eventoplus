@@ -23,16 +23,16 @@ export const ApplicationCard = ({
   onReject, 
   isDisabled 
 }: ApplicationCardProps) => {
-  // Adicionar estado local para controlar o status durante transições
-  const [localStatus, setLocalStatus] = useState(application.status);
+  // Use typed local state for status
+  const [localStatus, setLocalStatus] = useState<"pending" | "accepted" | "rejected">(application.status);
   
-  // Atualizar o estado local quando a prop muda
+  // Update the local state when the prop changes
   useEffect(() => {
     setLocalStatus(application.status);
     console.log(`ApplicationCard: Status atualizado para ${application.status} para aplicação ${application.id}`);
   }, [application.status, application.id]);
   
-  // Handlers com feedback imediato na UI
+  // Handlers with immediate UI feedback
   const handleApprove = async () => {
     setLocalStatus('accepted');
     await onApprove(application.id, application.provider_id);
@@ -47,7 +47,7 @@ export const ApplicationCard = ({
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   };
 
-  // Usar o localStatus para a UI para feedback imediato
+  // Use localStatus for UI for immediate feedback
   return (
     <Card 
       className={cn(

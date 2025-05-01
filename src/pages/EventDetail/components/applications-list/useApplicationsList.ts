@@ -25,7 +25,7 @@ export const useApplicationsList = (initialApplications: EventApplication[]) => 
       // Update local state to show application as approved
       setLocalApplications(prev => 
         prev.map(app => 
-          app.id === applicationId ? { ...app, status: 'accepted' } : app
+          app.id === applicationId ? { ...app, status: 'accepted' as const } : app
         )
       );
       console.log(`Application ${applicationId} approved successfully`);
@@ -50,7 +50,7 @@ export const useApplicationsList = (initialApplications: EventApplication[]) => 
       console.log(`Updating local application ${applicationId} state to rejected`);
       setLocalApplications(prev => {
         const updated = prev.map(app => 
-          app.id === applicationId ? { ...app, status: 'rejected' } : app
+          app.id === applicationId ? { ...app, status: 'rejected' as const } : app
         );
         console.log('Updated local applications:', updated);
         return updated;
