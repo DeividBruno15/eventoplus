@@ -16,7 +16,7 @@ export const updateApplicationStatus = async (applicationId: string, status: 'ac
       .from('event_applications')
       .select('status')
       .eq('id', applicationId)
-      .single();
+      .maybeSingle(); // Use maybeSingle() instead of single() to handle case where no row is found
     
     if (fetchError) {
       console.error('Error fetching current application status:', fetchError);
@@ -32,14 +32,13 @@ export const updateApplicationStatus = async (applicationId: string, status: 'ac
     
     console.log(`Proceeding with update of application ${applicationId} from ${currentApplication?.status} to ${status}`);
     
-    // Importante: Usar .single() ao invés de .limit(1) para garantir que o retorno seja o objeto atualizado
-    // e não um array. Isto ajuda a garantir que o retorno seja consistente.
+    // Using maybeSingle() to properly handle the update query result
     const { data, error } = await supabase
       .from('event_applications')
       .update({ status })
       .eq('id', applicationId)
       .select()
-      .single();
+      .maybeSingle(); // Change from .single() to .maybeSingle()
 
     if (error) {
       console.error(`Error updating application to ${status}:`, error);
@@ -52,7 +51,12 @@ export const updateApplicationStatus = async (applicationId: string, status: 'ac
     // Check if we have valid data returned
     if (!data) {
       console.warn(`No data returned after updating application ${applicationId}`);
-      return null;
+      // Instead of returning null, return a constructed object with the updated status
+      // This ensures consistent return types even when no row is returned
+      return {
+        id: applicationId,
+        status
+      };
     }
     
     // Adicionar mais log para ajudar na depuração

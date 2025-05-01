@@ -28,19 +28,35 @@ export const ApplicationCard = ({
   
   // Update the local state when the prop changes
   useEffect(() => {
-    setLocalStatus(application.status);
-    console.log(`ApplicationCard: Status atualizado para ${application.status} para aplicação ${application.id}`);
-  }, [application.status, application.id]);
+    if (application.status !== localStatus) {
+      console.log(`ApplicationCard: Status updating from ${localStatus} to ${application.status} for application ${application.id}`);
+      setLocalStatus(application.status);
+    }
+  }, [application.status, application.id, localStatus]);
   
   // Handlers with immediate UI feedback
   const handleApprove = async () => {
-    setLocalStatus('accepted');
-    await onApprove(application.id, application.provider_id);
+    try {
+      setLocalStatus('accepted');
+      console.log(`Setting local status to accepted for application ${application.id}`);
+      await onApprove(application.id, application.provider_id);
+    } catch (error) {
+      // In case of error, revert to the original status
+      console.error('Error approving application, reverting status:', error);
+      setLocalStatus(application.status);
+    }
   };
   
   const handleReject = async () => {
-    setLocalStatus('rejected');
-    await onReject(application.id, application.provider_id);
+    try {
+      setLocalStatus('rejected');
+      console.log(`Setting local status to rejected for application ${application.id}`);
+      await onReject(application.id, application.provider_id);
+    } catch (error) {
+      // In case of error, revert to the original status
+      console.error('Error rejecting application, reverting status:', error);
+      setLocalStatus(application.status);
+    }
   };
   
   const getInitials = (firstName: string = '', lastName: string = '') => {
