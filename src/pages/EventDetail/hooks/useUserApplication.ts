@@ -99,17 +99,23 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
     checkUserApplication();
     
     // Set up realtime subscription to track application status changes
+    // Removendo o filtro composto e fazendo filtragem manual no callback
     const channel = supabase
       .channel('user-application-changes')
       .on('postgres_changes', {
         event: 'UPDATE',
         schema: 'public',
-        table: 'event_applications',
-        filter: `provider_id=eq.${user?.id ?? ''} AND event_id=eq.${eventId ?? ''}`
+        table: 'event_applications'
       }, async (payload) => {
-        console.log('Application status changed in realtime:', payload);
-        if (payload.new) {
-          const newData = payload.new as any;
+        // Filtrando manualmente os eventos relevantes
+        const newData = payload.new as any;
+        
+        // Verificando se o evento é relevante para este usuário e este evento
+        if (newData && 
+            newData.provider_id === user?.id && 
+            newData.event_id === eventId) {
+            
+          console.log('Application status changed in realtime:', payload);
           console.log('Realtime update received with new status:', newData.status);
           
           // When we get a realtime update, fetch the complete application data with provider info
