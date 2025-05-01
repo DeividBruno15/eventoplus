@@ -29,6 +29,13 @@ export const useEventState = () => {
   } = useEventApplications(event, updateApplicationStatus);
   
   console.log("Applications in useEventState:", applications);
+  
+  // Para debugging - monitorar alterações na aplicação do usuário
+  useEffect(() => {
+    if (userApplication) {
+      console.log("User application status in useEventState:", userApplication.status);
+    }
+  }, [userApplication]);
 
   return {
     id,

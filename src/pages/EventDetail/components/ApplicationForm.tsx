@@ -50,7 +50,7 @@ export const ApplicationForm = ({
   
   // Verificar se a aplicação já foi rejeitada - múltiplas checagens para garantir
   const hasBeenRejected = 
-    isRejected ||
+    isRejected === true ||
     applicationStatus === 'rejected' ||
     userApplication?.status === 'rejected';
   

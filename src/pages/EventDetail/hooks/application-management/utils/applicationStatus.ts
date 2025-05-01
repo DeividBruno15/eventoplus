@@ -30,13 +30,16 @@ export const updateApplicationStatus = async (applicationId: string, status: 'ac
       return currentApplication;
     }
     
-    // Proceed with update since status is different
-    // Usar .select('*') para retornar os dados atualizados
+    console.log(`Proceeding with update of application ${applicationId} from ${currentApplication?.status} to ${status}`);
+    
+    // Proceed with update since status is different - use upsert with returning: 'representation'
+    // to ensure we get the complete updated record back
     const { data, error } = await supabase
       .from('event_applications')
       .update({ status })
       .eq('id', applicationId)
-      .select('*');
+      .select('*')
+      .limit(1);
 
     if (error) {
       console.error(`Error updating application to ${status}:`, error);
@@ -44,9 +47,9 @@ export const updateApplicationStatus = async (applicationId: string, status: 'ac
       throw error;
     }
     
-    console.log(`Application ${applicationId} updated successfully to ${status}`, data);
+    console.log(`Application ${applicationId} updated successfully to ${status}:`, data);
     
-    // Verificar se os dados retornados são válidos
+    // Check if we have valid data returned
     if (!data || data.length === 0) {
       console.warn(`No data returned after updating application ${applicationId}`);
       return null;
@@ -57,7 +60,7 @@ export const updateApplicationStatus = async (applicationId: string, status: 'ac
       console.log(`Provider for application ${applicationId} has been rejected and cannot apply again`);
     }
     
-    // Retornar os dados para que possam ser usados para atualizar o estado
+    // Return the updated application data
     return data[0];
   } catch (error: any) {
     console.error('Error in updateApplicationStatus:', error);
