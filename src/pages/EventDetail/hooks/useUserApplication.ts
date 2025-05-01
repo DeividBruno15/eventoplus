@@ -46,6 +46,17 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
           // Create a properly typed EventApplication object, ensuring status is properly typed
           const status = data.status as "pending" | "accepted" | "rejected";
           
+          // Create a formatted provider object with null checks
+          const providerData = data.provider && 
+            typeof data.provider === 'object' && 
+            !('error' in data.provider) ? 
+            {
+              id: data.provider.id,
+              first_name: data.provider.first_name,
+              last_name: data.provider.last_name,
+              avatar_url: data.provider.avatar_url
+            } : undefined;
+          
           // Create a properly formatted EventApplication object with proper type casting
           const formattedApplication: EventApplication = {
             id: data.id,
@@ -55,12 +66,7 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
             service_category: data.service_category,
             message: data.message,
             created_at: data.created_at,
-            provider: data.provider && typeof data.provider === 'object' && !('error' in data.provider) ? {
-              id: data.provider.id,
-              first_name: data.provider.first_name,
-              last_name: data.provider.last_name,
-              avatar_url: data.provider.avatar_url
-            } : undefined
+            provider: providerData
           };
           
           setUserApplication(formattedApplication);
@@ -104,6 +110,17 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
               // Ensure status is properly typed
               const status = data.status as "pending" | "accepted" | "rejected";
               
+              // Create a formatted provider object with null checks
+              const providerData = data.provider && 
+                typeof data.provider === 'object' && 
+                !('error' in data.provider) ? 
+                {
+                  id: data.provider.id,
+                  first_name: data.provider.first_name,
+                  last_name: data.provider.last_name,
+                  avatar_url: data.provider.avatar_url
+                } : undefined;
+              
               // Create a properly formatted EventApplication object with proper type checking
               const formattedApplication: EventApplication = {
                 id: data.id,
@@ -113,12 +130,7 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
                 service_category: data.service_category,
                 message: data.message,
                 created_at: data.created_at,
-                provider: data.provider && typeof data.provider === 'object' && !('error' in data.provider) ? {
-                  id: data.provider.id,
-                  first_name: data.provider.first_name,
-                  last_name: data.provider.last_name,
-                  avatar_url: data.provider.avatar_url
-                } : undefined
+                provider: providerData
               };
               
               setUserApplication(formattedApplication);
