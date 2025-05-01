@@ -49,21 +49,17 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
           // Create a formatted provider object with null checks
           let providerData = undefined;
           
-          if (data.provider) {
-            // Fully type-guard the data.provider object
-            const safeProvider = data.provider as {
-              id: string;
-              first_name: string;
-              last_name: string;
-              avatar_url?: string | null;
-            };
-            
+          if (data.provider && 
+              typeof data.provider === 'object' && 
+              'id' in data.provider && 
+              'first_name' in data.provider && 
+              'last_name' in data.provider) {
             // Now TypeScript knows this object is safe to access
             providerData = {
-              id: safeProvider.id,
-              first_name: safeProvider.first_name,
-              last_name: safeProvider.last_name,
-              avatar_url: safeProvider.avatar_url
+              id: data.provider.id,
+              first_name: data.provider.first_name,
+              last_name: data.provider.last_name,
+              avatar_url: data.provider.avatar_url
             };
           }
           
@@ -123,21 +119,17 @@ export const useUserApplication = (eventId?: string, user?: User | null) => {
               // Create a formatted provider object with null checks
               let providerData = undefined;
               
-              if (data.provider) {
-                // Fully type-guard the data.provider object
-                const safeProvider = data.provider as {
-                  id: string;
-                  first_name: string;
-                  last_name: string;
-                  avatar_url?: string | null;
-                };
-                
+              if (data.provider && 
+                  typeof data.provider === 'object' && 
+                  'id' in data.provider && 
+                  'first_name' in data.provider && 
+                  'last_name' in data.provider) {
                 // Now TypeScript knows this object is safe to access
                 providerData = {
-                  id: safeProvider.id,
-                  first_name: safeProvider.first_name,
-                  last_name: safeProvider.last_name,
-                  avatar_url: safeProvider.avatar_url
+                  id: data.provider.id,
+                  first_name: data.provider.first_name,
+                  last_name: data.provider.last_name,
+                  avatar_url: data.provider.avatar_url
                 };
               }
               
