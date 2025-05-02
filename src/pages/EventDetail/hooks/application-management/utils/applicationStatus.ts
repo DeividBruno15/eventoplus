@@ -6,69 +6,36 @@ import { toast } from 'sonner';
  * Updates the status of an application
  * @param applicationId ID of the application
  * @param status New status ('accepted' or 'rejected')
+ * @returns The updated application data
+ * @throws Error if the update fails
  */
-export const updateApplicationStatus = async (applicationId: string, status: 'accepted' | 'rejected'): Promise<any> => {
-  console.log(`Atualizando application ${applicationId} para status: ${status}`);
-  
+export const updateApplicationStatus = async (applicationId: string, status: 'accepted' | 'rejected') => {
   try {
-    // First, check current status to ensure we're actually changing it
-    const { data: currentApplication, error: fetchError } = await supabase
-      .from('event_applications')
-      .select('status')
-      .eq('id', applicationId)
-      .maybeSingle(); // Use maybeSingle() instead of single() to handle case where no row is found
-    
-    if (fetchError) {
-      console.error('Error fetching current application status:', fetchError);
-      toast.error(`Erro ao verificar status atual: ${fetchError.message}`);
-      throw fetchError;
-    }
-    
-    // If status is already the requested status, log and return early
-    if (currentApplication && currentApplication.status === status) {
-      console.log(`Application ${applicationId} already has status ${status}, skipping update`);
-      return currentApplication;
-    }
-    
-    console.log(`Proceeding with update of application ${applicationId} from ${currentApplication?.status} to ${status}`);
-    
-    // Using maybeSingle() to properly handle the update query result
+    // Update the application status in the database
     const { data, error } = await supabase
       .from('event_applications')
       .update({ status })
       .eq('id', applicationId)
       .select()
-      .maybeSingle(); // Change from .single() to .maybeSingle()
+      .maybeSingle();
 
     if (error) {
       console.error(`Error updating application to ${status}:`, error);
-      toast.error(`Erro ao atualizar status da aplicação: ${error.message}`);
       throw error;
     }
     
-    console.log(`Application ${applicationId} updated successfully to ${status}:`, data);
-    
-    // Check if we have valid data returned
+    // If no data was returned but no error occurred, construct a minimal response
     if (!data) {
-      console.warn(`No data returned after updating application ${applicationId}`);
-      // Instead of returning null, return a constructed object with the updated status
-      // This ensures consistent return types even when no row is returned
       return {
         id: applicationId,
         status
       };
     }
     
-    // Adicionar mais log para ajudar na depuração
-    if (status === 'rejected') {
-      console.log(`Provider for application ${applicationId} has been rejected and cannot apply again`);
-    }
-    
     // Return the updated application data
     return data;
   } catch (error: any) {
     console.error('Error in updateApplicationStatus:', error);
-    toast.error(`Erro ao atualizar status: ${error.message}`);
     throw error;
   }
-};
+}
