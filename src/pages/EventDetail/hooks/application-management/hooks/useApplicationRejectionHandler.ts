@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Event } from '@/types/events';
 import { useApplicationRejection } from '../useApplicationRejection';
@@ -12,12 +11,27 @@ export const useApplicationRejectionHandler = (
 ) => {
   const { 
     rejecting, 
-    handleRejectApplication 
-  } = useApplicationRejection(event, (applicationId: string) => {
-    // Ensure we're only passing the applicationId to match the expected signature
-    // and the status 'rejected' is hardcoded for rejection
-    if (updateCallback) updateCallback(applicationId, 'rejected');
+    handleRejectApplication: originalHandleReject 
+  } = useApplicationRejection(event, (applicationId: string, status: 'accepted' | 'rejected') => {
+    console.log(`Rejection handler received update for ${applicationId} with status ${status}`);
+    // Notificar callback externo para que a UI seja atualizada
+    if (updateCallback) {
+      console.log(`Notificando callback externo sobre rejeição de ${applicationId}`);
+      updateCallback(applicationId, status);
+    }
   });
+
+  // Wrapper para adicionar logs específicos para rejeição
+  const handleRejectApplication = async (applicationId: string, providerId: string, reason?: string): Promise<void> => {
+    console.log(`[RejectHandler] Iniciando rejeição de candidatura ${applicationId}${reason ? ` com motivo: ${reason}` : ''}`);
+    try {
+      await originalHandleReject(applicationId, providerId, reason);
+      console.log(`[RejectHandler] Rejeição de candidatura ${applicationId} bem-sucedida`);
+    } catch (error) {
+      console.error(`[RejectHandler] Erro ao rejeitar candidatura ${applicationId}:`, error);
+      throw error; // Propagar erro para tratamento superior
+    }
+  };
 
   return {
     rejecting,

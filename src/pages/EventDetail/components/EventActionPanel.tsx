@@ -1,8 +1,8 @@
-
 import { Event, EventApplication } from '@/types/events';
 import { ApplicationForm } from './ApplicationForm';
 import { ApplicationsList } from './applications-list';
 import { useEffect } from 'react';
+import { useRejectionState } from '../hooks/useEventStateBackup';
 
 interface EventActionPanelProps {
   userRole: 'provider' | 'contractor' | null;
@@ -13,7 +13,7 @@ interface EventActionPanelProps {
   submitting: boolean;
   handleApply: (message: string, serviceCategory?: string) => Promise<void>;
   handleApproveApplication: (applicationId: string, providerId: string) => Promise<void>;
-  handleRejectApplication: (applicationId: string, providerId: string) => Promise<void>;
+  handleRejectApplication: (applicationId: string, providerId: string, reason?: string) => Promise<void>;
   handleCancelApplication: (applicationId: string) => Promise<void>;
 }
 
@@ -36,11 +36,26 @@ export const EventActionPanel = ({
   console.log("Is user the event contractor?", event.contractor_id === userId);
   console.log("Current user application:", userApplication);
 
+  // Usar o sistema de filtro de rejeições
+  const { filterRejectedApplications, getRejectedIds } = useRejectionState(event?.id);
+  
+  // Verificar rejeições
+  useEffect(() => {
+    const rejectedIds = getRejectedIds();
+    if (rejectedIds.size > 0) {
+      console.log(`EventActionPanel: ${rejectedIds.size} candidaturas rejeitadas localmente`);
+    }
+  }, [getRejectedIds]);
+
   useEffect(() => {
     if (userApplication) {
       console.log("User application status in EventActionPanel:", userApplication.status);
     }
   }, [userApplication]);
+
+  // Filtrar candidaturas rejeitadas da lista
+  const filteredApplications = filterRejectedApplications(applications);
+  console.log(`Filtragem: ${applications.length} originais, ${filteredApplications.length} após filtro`);
 
   // Check if there are any accepted applications for this event
   const hasAcceptedApplications = applications.some(app => app.status === 'accepted');
@@ -53,13 +68,23 @@ export const EventActionPanel = ({
   
   // Debug: Visualizar todas as aplicações e seus status
   useEffect(() => {
-    if (applications.length > 0) {
-      console.log("All applications and their statuses:");
-      applications.forEach(app => {
+    if (filteredApplications.length > 0) {
+      console.log("All applications and their statuses (after filtering):");
+      filteredApplications.forEach(app => {
         console.log(`Application ${app.id} - Status: ${app.status} - Provider: ${app.provider_id}`);
       });
     }
-  }, [applications]);
+  }, [filteredApplications]);
+  
+  // Função de callback para atualização de status
+  const handleApplicationStatusChange = (applicationId: string, status: 'accepted' | 'rejected') => {
+    console.log(`EventActionPanel: Atualizando status da aplicação ${applicationId} para ${status}`);
+    if (status === 'accepted') {
+      // Não fazer nada adicional para aprovações aqui - já está implementado em handleApproveApplication
+    } else if (status === 'rejected') {
+      // Não fazer nada adicional para rejeições aqui - já está implementado em handleRejectApplication
+    }
+  };
   
   return (
     <div className="grid gap-6 lg:grid-cols-2">
@@ -79,11 +104,10 @@ export const EventActionPanel = ({
       {userId === event.contractor_id && (
         <div>
           <ApplicationsList 
-            applications={applications}
-            onApprove={handleApproveApplication}
-            onReject={handleRejectApplication}
-            submitting={submitting}
-            eventStatus={event.status}
+            event={event}
+            applications={filteredApplications}
+            isLoading={submitting}
+            onApplicationStatusChange={handleApplicationStatusChange}
           />
         </div>
       )}

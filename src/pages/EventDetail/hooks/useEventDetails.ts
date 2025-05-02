@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { Event, EventApplication } from '@/types/events';
 import { User } from '@supabase/supabase-js';
@@ -7,6 +6,7 @@ import { useEventData } from './useEventData';
 import { useEventUserRole } from './useEventUserRole';
 import { useUserApplication } from './user-application';
 import { useEventApplicationsList } from './applications-list';
+import { useRejectionState } from './useEventStateBackup';
 
 interface EventDetailsProps {
   id?: string;
@@ -36,17 +36,23 @@ export const useEventDetails = ({ id, user: passedUser }: EventDetailsProps): Ev
   const { userRole } = useEventUserRole(user);
   const { userHasApplied, userApplication } = useUserApplication(id, user);
   const { applications, updateApplicationStatus } = useEventApplicationsList(id, user, userRole);
+  
+  // Filtrar candidaturas rejeitadas usando a lista persistente
+  const { filterRejectedApplications } = useRejectionState(id);
+  const filteredApplications = filterRejectedApplications(applications);
 
   // Debug logging
   useEffect(() => {
     if (userApplication) {
       console.log('Current user application status:', userApplication.status);
     }
-  }, [userApplication]);
+    
+    console.log(`Applications before filtering: ${applications.length}, after: ${filteredApplications.length}`);
+  }, [userApplication, applications, filteredApplications]);
 
   return {
     event,
-    applications,
+    applications: filteredApplications,
     userRole,
     loading,
     userHasApplied,
