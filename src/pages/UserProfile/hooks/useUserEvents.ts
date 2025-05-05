@@ -78,30 +78,32 @@ export const useUserEvents = (userId: string, userRole: 'contractor' | 'provider
           }
           
           // Extract events from applications and type them correctly
-          const typedEvents = (applications || []).map(app => {
-            const eventData = app.event;
-            if (!eventData) return null;
-            
-            // Initialize with a default status
-            let status: 'open' | 'closed' | 'published' | 'draft' = 'published';
-            
-            // Map the database status to our allowed types if it exists and is valid
-            if (eventData && typeof eventData === 'object' && eventData.status && 
-                ['open', 'closed', 'published', 'draft'].includes(eventData.status)) {
-              status = eventData.status as 'open' | 'closed' | 'published' | 'draft';
-            }
-            
-            // Create the event object with proper type checking
-            return {
-              id: eventData && typeof eventData === 'object' ? eventData.id || '' : '',
-              name: eventData && typeof eventData === 'object' ? eventData.name || '' : '',
-              description: eventData && typeof eventData === 'object' ? eventData.description || '' : '',
-              event_date: eventData && typeof eventData === 'object' ? eventData.event_date || '' : '',
-              location: eventData && typeof eventData === 'object' ? eventData.location || '' : '',
-              image_url: eventData && typeof eventData === 'object' ? eventData.image_url || '' : '',
-              status: status
-            } as Event;
-          }).filter(Boolean) as Event[];
+          const typedEvents = (applications || [])
+            .map(app => {
+              const eventData = app.event;
+              if (!eventData) return null;
+              
+              // Initialize with a default status
+              let status: 'open' | 'closed' | 'published' | 'draft' = 'published';
+              
+              // Map the database status to our allowed types if it exists and is valid
+              if (eventData && typeof eventData === 'object' && eventData.status && 
+                  ['open', 'closed', 'published', 'draft'].includes(eventData.status)) {
+                status = eventData.status as 'open' | 'closed' | 'published' | 'draft';
+              }
+              
+              // Create the event object with proper type checking
+              return {
+                id: eventData && typeof eventData === 'object' ? eventData.id || '' : '',
+                name: eventData && typeof eventData === 'object' ? eventData.name || '' : '',
+                description: eventData && typeof eventData === 'object' ? eventData.description || '' : '',
+                event_date: eventData && typeof eventData === 'object' ? eventData.event_date || '' : '',
+                location: eventData && typeof eventData === 'object' ? eventData.location || '' : '',
+                image_url: eventData && typeof eventData === 'object' ? eventData.image_url || '' : '',
+                status: status
+              } as Event;
+            })
+            .filter(Boolean) as Event[]; // Filter out null values and type assertion
           
           setEvents(typedEvents);
         }
