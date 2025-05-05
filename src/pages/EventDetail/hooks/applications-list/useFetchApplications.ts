@@ -1,101 +1,84 @@
-import { useState, useCallback } from 'react';
+
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { EventApplication } from '@/types/events';
-import { toast } from 'sonner';
-import { User } from '@supabase/supabase-js';
 
-/**
- * Hook for fetching applications for an event
- */
-export const useFetchApplications = () => {
-  const [loading, setLoading] = useState(false);
+export const useFetchApplications = (eventId: string) => {
+  const [applications, setApplications] = useState<EventApplication[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
-  /**
-   * Obtém IDs de candidaturas rejeitadas do localStorage
-   */
-  const getRejectedIds = useCallback((eventId: string) => {
-    try {
-      const storedRejectedIds = localStorage.getItem(`rejected_apps_${eventId}`);
-      if (storedRejectedIds) {
-        return new Set(JSON.parse(storedRejectedIds));
-      }
-    } catch (err) {
-      console.warn('Erro ao carregar IDs rejeitados do localStorage:', err);
-    }
-    return new Set();
-  }, []);
-
-  /**
-   * Fetches applications for a specific event
-   */
-  const fetchApplications = async (
-    eventId: string, 
-    user: User
-  ): Promise<EventApplication[]> => {
-    try {
+  useEffect(() => {
+    const fetchApplications = async () => {
       setLoading(true);
-      console.log("Fetching applications for contractor:", user.id);
-      
-      // Obter IDs de candidaturas rejeitadas
-      const rejectedIds = getRejectedIds(eventId);
-      console.log(`Encontrados ${rejectedIds.size} IDs de candidaturas rejeitadas para filtrar`);
-      
-      // First get applications
-      const { data: appsData, error: appsError } = await supabase
-        .from('event_applications')
-        .select('*')
-        .eq('event_id', eventId)
-        .order('created_at', { ascending: false });
-        
-      if (appsError) {
-        console.error('Error fetching applications:', appsError);
-        toast.error("Erro ao carregar candidaturas");
-        return [];
-      }
-      
-      if (!appsData || appsData.length === 0) {
-        console.log('No applications found for this event');
-        return [];
-      }
-      
-      // Filtrar candidaturas rejeitadas
-      const filteredApps = appsData.filter(app => !rejectedIds.has(app.id));
-      console.log(`Filtradas ${appsData.length - filteredApps.length} candidaturas rejeitadas`);
-      
-      // Buscar os perfis dos prestadores
-      const { data: providerProfiles, error: profilesError } = await supabase
-        .from('user_profiles')
-        .select('id, first_name, last_name, avatar_url')
-        .in('id', filteredApps.map(app => app.provider_id));
-        
-      if (profilesError) {
-        console.error('Error fetching provider profiles:', profilesError);
-        // Continuar sem os dados dos perfis
-      }
-      
-      // Mapear os perfis por ID
-      const profilesMap = new Map();
-      if (providerProfiles) {
-        providerProfiles.forEach(profile => {
-          profilesMap.set(profile.id, profile);
+      setError(null);
+
+      try {
+        const { data, error: fetchError } = await supabase
+          .from('event_applications')
+          .select(`
+            *,
+            provider:provider_id (
+              id,
+              first_name,
+              last_name,
+              avatar_url
+            )
+          `)
+          .eq('event_id', eventId)
+          .order('created_at', { ascending: false });
+
+        if (fetchError) {
+          throw new Error(`Error fetching applications: ${fetchError.message}`);
+        }
+
+        if (!data) {
+          setApplications([]);
+          return;
+        }
+
+        // Transform the data to match EventApplication interface
+        const formattedApplications: EventApplication[] = data.map(app => {
+          // Ensure the status is one of the allowed types
+          let typedStatus: "pending" | "accepted" | "rejected" = "pending";
+          
+          if (app.status === "accepted") {
+            typedStatus = "accepted";
+          } else if (app.status === "rejected") {
+            typedStatus = "rejected";
+          }
+          
+          return {
+            id: app.id,
+            event_id: app.event_id,
+            provider_id: app.provider_id,
+            status: typedStatus,
+            message: app.message,
+            service_category: app.service_category || '',
+            created_at: app.created_at || '',
+            rejection_reason: app.rejection_reason || '',
+            provider: app.provider ? {
+              id: app.provider.id,
+              first_name: app.provider.first_name,
+              last_name: app.provider.last_name,
+              avatar_url: app.provider.avatar_url
+            } : undefined
+          };
         });
+
+        setApplications(formattedApplications);
+      } catch (err) {
+        console.error('Error in useFetchApplications:', err);
+        setError(err instanceof Error ? err : new Error('Unknown error fetching applications'));
+      } finally {
+        setLoading(false);
       }
-      
-      // Juntar os dados das candidaturas com os perfis
-      const enrichedApplications = filteredApps.map(app => ({
-        ...app,
-        provider: profilesMap.get(app.provider_id) || null
-      }));
-      
-      return enrichedApplications;
-    } catch (error) {
-      console.error('Error in fetchApplications:', error);
-      toast.error("Erro ao carregar candidaturas");
-      return [];
-    } finally {
-      setLoading(false);
+    };
+
+    if (eventId) {
+      fetchApplications();
     }
-  };
-  
-  return { loading, fetchApplications };
+  }, [eventId]);
+
+  return { applications, loading, error, refetch: () => {} };
 };

@@ -1,136 +1,74 @@
-import { useState } from 'react';
-import { Event } from '@/types/events';
-import { toast } from 'sonner';
-import { sendProviderNotification } from '../useEventNotifications';
-import { updateApplicationStatus } from './utils/applicationStatus';
+
+import { useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { useApplicationApprovalHandler } from './hooks/useApplicationApprovalHandler';
+import { sendNotification } from '@/services/notifications';
+import { Event } from '@/types/events';
+import { createConversation } from './utils/conversation';
 
-export const useApplicationApproval = (event: Event | null, onStatusUpdate?: (applicationId: string, status: 'accepted' | 'rejected') => void) => {
-  const [approving, setApproving] = useState(false);
-  const [loadedEvent, setLoadedEvent] = useState<Event | null>(event);
+export interface ApplicationApprovalConfig {
+  eventId: string;
+  onSuccess?: (applicationId: string, providerId: string) => Promise<void>;
+}
 
-  // Atualizar evento quando ele mudar externamente
-  if (event && event !== loadedEvent) {
-    setLoadedEvent(event);
-  }
+export const useApplicationApproval = (eventId: string) => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
-  /**
-   * Approves an application for an event
-   */
-  const handleApproveApplication = async (applicationId: string, providerId: string): Promise<void> => {
-    if (!applicationId) {
-      console.error('ID da candidatura não fornecido');
-      toast.error('Não foi possível aprovar a candidatura: ID não fornecido');
-      return;
-    }
-    
-    if (!providerId) {
-      console.error('ID do prestador não fornecido');
-      toast.error('Não foi possível aprovar a candidatura: ID do prestador não fornecido');
-      return;
-    }
-    
-    let eventData = loadedEvent;
-    
-    // Se não temos o evento, tentar buscá-lo a partir da candidatura
-    if (!eventData) {
-      console.log('Evento não encontrado, tentando buscar do banco de dados');
-      try {
-        const { data: applicationData, error } = await supabase
-          .from('event_applications')
-          .select('event_id')
-          .eq('id', applicationId)
-          .single();
-        
-        if (error || !applicationData) {
-          console.error('Não foi possível encontrar a candidatura:', error);
-          toast.error('Não foi possível aprovar a candidatura: candidatura não encontrada');
-          return;
-        }
-        
-        const { data: eventInfo, error: eventError } = await supabase
-          .from('events')
-          .select('*')
-          .eq('id', applicationData.event_id)
-          .single();
-        
-        if (eventError || !eventInfo) {
-          console.error('Não foi possível encontrar o evento:', eventError);
-          toast.error('Não foi possível aprovar a candidatura: evento não encontrado');
-          return;
-        }
-        
-        eventData = eventInfo as Event;
-        setLoadedEvent(eventData);
-        console.log('Evento encontrado e carregado:', eventData.name);
-      } catch (error: any) {
-        console.error('Erro ao buscar dados do evento:', error);
-        toast.error('Erro ao buscar dados do evento');
-        return;
-      }
-    }
-    
-    if (!eventData) {
-      console.error('Evento não encontrado mesmo após tentativa de busca');
-      toast.error('Não foi possível aprovar a candidatura: evento não encontrado');
-      return;
-    }
-    
-    if (approving) {
-      console.log('Já existe uma operação de aprovação em andamento');
-      return;
-    }
-    
+  const notifyApplicant = useCallback(async (providerId: string, eventName: string) => {
+    await sendNotification({
+      userId: providerId,
+      title: 'Candidatura aprovada!',
+      content: `Sua candidatura para o evento "${eventName}" foi aprovada.`,
+      type: 'application_accepted',
+      link: `/events/${eventId}`
+    });
+  }, [eventId]);
+
+  const handleSuccessfulApproval = useCallback(async (applicationId: string, providerId: string) => {
     try {
-      setApproving(true);
-      console.log('Iniciando aprovação de candidatura:', applicationId, 'para prestador:', providerId);
-      
-      try {
-        const updatedApplication = await updateApplicationStatus(applicationId, 'accepted');
-        console.log('Status atualizado com sucesso:', updatedApplication);
-        
-        // Atualizar estado local
-        if (onStatusUpdate) {
-          console.log('Notificando callback de atualização');
-          onStatusUpdate(applicationId, 'accepted');
-        }
-        
-        // Enviar notificação ao prestador
-        try {
-          await sendProviderNotification(
-            eventData,
-            providerId,
-            "Candidatura aprovada",
-            `Parabéns! Sua candidatura para o evento "${eventData.name}" foi aprovada.`,
-            "application_accepted"
-          );
-          console.log('Notificação enviada ao prestador');
-        } catch (notificationError: any) {
-          console.error('Erro ao enviar notificação:', notificationError);
-          // Não impedimos o fluxo se a notificação falhar
-        }
-        
-        toast.success("Candidatura aprovada com sucesso");
-      } catch (error: any) {
-        console.error('Erro ao aprovar candidatura:', error);
-        
-        let errorMessage = 'Erro ao aprovar candidatura';
-        if (error.message) {
-          errorMessage = error.message;
-        }
-        
-        toast.error(errorMessage);
-        throw error;
+      // Get event details to include in notification
+      const { data: eventData, error: eventError } = await supabase
+        .from('events')
+        .select('*')
+        .eq('id', eventId)
+        .single();
+
+      if (eventError) {
+        throw eventError;
       }
-    } catch (error: any) {
-      console.error('Erro geral ao aprovar candidatura:', error);
-      toast.error('Ocorreu um erro ao aprovar a candidatura');
-      throw error;
-    } finally {
-      console.log('Finalizando operação de aprovação');
-      setApproving(false);
+
+      // Convert to Event type with type assertion and handle the service_requests property
+      const event = {
+        ...eventData,
+        service_requests: eventData.service_requests ? 
+          (Array.isArray(eventData.service_requests) ? 
+            eventData.service_requests : 
+            []
+          ) : 
+          []
+      } as unknown as Event;
+
+      // Create conversation between contractor and provider
+      if (user && event.contractor_id && providerId) {
+        await createConversation(user.id, providerId);
+      }
+
+      // Send notification to the provider
+      await notifyApplicant(providerId, event.name);
+    } catch (error) {
+      console.error('Error in post-approval processing:', error);
     }
+  }, [eventId, user, notifyApplicant]);
+
+  const config: ApplicationApprovalConfig = {
+    eventId,
+    onSuccess: handleSuccessfulApproval
   };
+
+  const { approving, handleApproveApplication } = useApplicationApprovalHandler(config);
 
   return {
     approving,

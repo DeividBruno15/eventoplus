@@ -8,17 +8,7 @@ import { PlusCircle, MapPin, Users, Calendar, Edit, Trash2, Eye } from 'lucide-r
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { Badge } from '@/components/ui/badge';
-
-interface Venue {
-  id: string;
-  name: string;
-  city: string;
-  state: string;
-  min_capacity: number;
-  max_capacity: number;
-  status: string;
-  is_approved: boolean;
-}
+import { Venue } from '@/types/venues';
 
 const Venues = () => {
   const navigate = useNavigate();
@@ -32,6 +22,16 @@ const Venues = () => {
       if (!user) return;
       
       try {
+        // Check if venues table exists first
+        const { data: tableExists } = await supabase.rpc('check_table_exists', { table_name: 'venues' });
+        
+        if (!tableExists) {
+          setVenues([]);
+          setLoading(false);
+          return;
+        }
+        
+        // If table exists, proceed with the query
         const { data, error } = await supabase
           .from('venues')
           .select('*')
@@ -39,7 +39,7 @@ const Venues = () => {
           .order('created_at', { ascending: false });
           
         if (error) throw error;
-        setVenues(data || []);
+        setVenues(data as Venue[] || []);
       } catch (error: any) {
         console.error('Error fetching venues:', error);
         toast({
@@ -70,6 +70,19 @@ const Venues = () => {
   const handleDeleteVenue = async (id: string) => {
     // Confirmation dialog would be implemented here
     try {
+      // Check if venues table exists first
+      const { data: tableExists } = await supabase.rpc('check_table_exists', { table_name: 'venues' });
+      
+      if (!tableExists) {
+        toast({
+          title: "Erro",
+          description: "A funcionalidade ainda não está disponível.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // If table exists, proceed with the query
       const { error } = await supabase
         .from('venues')
         .delete()

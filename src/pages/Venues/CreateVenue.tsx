@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/ui/use-toast';
+import { Venue } from '@/types/venues';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -103,6 +104,19 @@ const CreateVenue = () => {
     setIsSubmitting(true);
 
     try {
+      // Check if venues table exists first
+      const { data: tableExists } = await supabase.rpc('check_table_exists', { table_name: 'venues' });
+      
+      if (!tableExists) {
+        toast({
+          title: "Erro",
+          description: "Esta funcionalidade ainda não está disponível.",
+          variant: "destructive"
+        });
+        setIsSubmitting(false);
+        return;
+      }
+      
       // Transform amenities array to JSON object
       const amenitiesObject: Record<string, boolean> = {};
       values.amenities.forEach(item => {
