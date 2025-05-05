@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -83,16 +84,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     // Mapear 'advertiser' para um role aceito pelo banco de dados
     // Assumindo que 'customer' é o role equivalente para anunciantes
-    let validatedRole = profileData.role;
-    if (validatedRole === "advertiser") {
-      validatedRole = "customer";
-    } else if (!validRoles.includes(validatedRole)) {
-      validatedRole = "contractor"; // Valor padrão se não for um dos roles válidos
+    // Note: We're creating a separate variable for the database role
+    let dbRole: string;
+    if (profileData.role === "advertiser") {
+      dbRole = "customer";
+    } else if (!validRoles.includes(profileData.role)) {
+      dbRole = "contractor"; // Valor padrão se não for um dos roles válidos
+    } else {
+      dbRole = profileData.role;
     }
     
     try {
       setLoading(true);
-      console.log('Registering with role:', validatedRole, 'original role:', profileData.role);
+      console.log('Registering with role:', dbRole, 'original role:', profileData.role);
       
       const { error } = await supabase.auth.signUp({
         email,
@@ -100,7 +104,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         options: {
           data: {
             ...profileData,
-            role: validatedRole, // Usar o role mapeado/validado
+            role: dbRole, // Usar o role mapeado/validado
           },
         },
       });
