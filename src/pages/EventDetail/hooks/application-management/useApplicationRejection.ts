@@ -3,7 +3,7 @@ import { useState, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
-import { sendNotification } from '@/services/notifications';
+import { notificationsService } from '@/services/notifications';
 import { Event } from '@/types/events';
 
 export const useApplicationRejection = (eventId: string) => {
@@ -12,7 +12,7 @@ export const useApplicationRejection = (eventId: string) => {
   const [rejecting, setRejecting] = useState(false);
 
   const notifyApplicant = useCallback(async (providerId: string, reason: string, eventName: string) => {
-    await sendNotification({
+    await notificationsService.sendNotification({
       userId: providerId,
       title: 'Candidatura rejeitada',
       content: `Sua candidatura para o evento "${eventName}" foi rejeitada. Motivo: ${reason || 'Não informado'}.`,
@@ -21,7 +21,7 @@ export const useApplicationRejection = (eventId: string) => {
     });
   }, [eventId]);
 
-  const handleRejectApplication = useCallback(async (applicationId: string, providerId: string, reason: string) => {
+  const handleRejectApplication = useCallback(async (applicationId: string, providerId: string, reason: string = 'Candidatura não aprovada') => {
     setRejecting(true);
     
     try {

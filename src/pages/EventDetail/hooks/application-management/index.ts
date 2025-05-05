@@ -15,7 +15,7 @@ export const useApplicationManagement = (
 ) => {
   // Use the split hooks for approval and rejection
   const { 
-    isApproving, 
+    approving, 
     handleApproveApplication 
   } = useApplicationApprovalHandler(event, updateApplicationStatus);
     
@@ -25,7 +25,7 @@ export const useApplicationManagement = (
   } = useApplicationRejectionHandler(event, updateApplicationStatus);
   
   // Combine into a single submitting state for the UI
-  const submitting = useSubmittingState([isApproving, rejecting]);
+  const submitting = useSubmittingState([approving, rejecting]);
 
   return {
     submitting, 

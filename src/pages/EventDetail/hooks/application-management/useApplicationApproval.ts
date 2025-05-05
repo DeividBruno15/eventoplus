@@ -4,9 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useApplicationApprovalHandler } from './hooks/useApplicationApprovalHandler';
-import { sendNotification } from '@/services/notifications';
+import { notificationsService } from '@/services/notifications';
 import { Event } from '@/types/events';
-import { createConversation } from './utils/conversation';
+import { createOrGetConversation } from './utils/conversation';
 
 export interface ApplicationApprovalConfig {
   eventId: string;
@@ -18,7 +18,7 @@ export const useApplicationApproval = (eventId: string) => {
   const navigate = useNavigate();
 
   const notifyApplicant = useCallback(async (providerId: string, eventName: string) => {
-    await sendNotification({
+    await notificationsService.sendNotification({
       userId: providerId,
       title: 'Candidatura aprovada!',
       content: `Sua candidatura para o evento "${eventName}" foi aprovada.`,
@@ -53,7 +53,7 @@ export const useApplicationApproval = (eventId: string) => {
 
       // Create conversation between contractor and provider
       if (user && event.contractor_id && providerId) {
-        await createConversation(user.id, providerId);
+        await createOrGetConversation(user.id, providerId);
       }
 
       // Send notification to the provider

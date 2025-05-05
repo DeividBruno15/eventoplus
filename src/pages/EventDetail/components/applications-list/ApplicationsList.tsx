@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { EventApplication, EventStatus } from '@/types/events';
 import { ApplicationCard } from './ApplicationCard';
@@ -72,8 +73,9 @@ export const ApplicationsList = ({
   }, [applications, rejectedIds]);
   
   // Hooks para aprovação e rejeição
-  const { rejecting, handleRejectApplication } = useApplicationRejection(event, onStatusUpdate);
-  const { approving, handleApproveApplication } = useApplicationApproval(event, onStatusUpdate);
+  const eventId = event?.id || '';
+  const { rejecting, handleRejectApplication } = useApplicationRejection(eventId);
+  const { approving, handleApproveApplication } = useApplicationApproval(eventId);
   
   // Desabilitar botões quando uma operação está em andamento
   const isProcessing = rejecting || approving;
@@ -94,7 +96,7 @@ export const ApplicationsList = ({
       setLocalApplications(prev => prev.filter(app => app.id !== applicationId));
       
       // Processar a rejeição no backend
-      await handleRejectApplication(applicationId, providerId, reason);
+      await handleRejectApplication(applicationId, providerId, reason || 'Candidatura não aprovada');
       
       console.log(`ApplicationsList: Candidatura ${applicationId} rejeitada e removida com sucesso`);
     } catch (error: any) {

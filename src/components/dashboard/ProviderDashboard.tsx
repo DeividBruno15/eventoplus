@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 
 // Define an interface for our service request data
-interface ServiceRequest {
+interface DashboardServiceRequest {
   id: string;
   event_type: string;
   city: string;
@@ -33,7 +33,7 @@ const ProviderDashboard = () => {
         .limit(5);
 
       if (error) throw error;
-      return data as ServiceRequest[];
+      return data as DashboardServiceRequest[];
     }
   });
 

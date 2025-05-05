@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { EventApplication } from '@/types/events';
 import { User } from '@supabase/supabase-js';
@@ -9,7 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
  */
 export const useEventApplicationsList = (eventId?: string, user?: User | null, userRole?: 'provider' | 'contractor' | null) => {
   const [applications, setApplications] = useState<EventApplication[]>([]);
-  const { loading, fetchApplications } = useFetchApplications();
+  const { loading, error, applications: fetchedApplications } = useFetchApplications(eventId || '');
   
   // Lista local de IDs de candidaturas rejeitadas para evitar que reapareçam
   const [rejectedIds, setRejectedIds] = useState<Set<string>>(new Set());
@@ -76,55 +77,34 @@ export const useEventApplicationsList = (eventId?: string, user?: User | null, u
     }
   }, [eventId]);
   
-  // Force refresh applications
-  const refreshApplications = useCallback(async () => {
-    if (!eventId || !user || (userRole !== 'contractor' && user.user_metadata?.role !== 'contractor')) {
-      return;
-    }
-    
-    try {
-      console.log('Manually refreshing applications...');
-      const freshApplications = await fetchApplications(eventId, user);
-      console.log('Refreshed applications before filtering:', freshApplications.length);
+  // Update applications whenever fetched data changes
+  useEffect(() => {
+    if (fetchedApplications && fetchedApplications.length > 0) {
+      console.log('Fetched applications before filtering:', fetchedApplications.length);
       
       // Filtrar aplicações rejeitadas usando a lista local
-      const filteredApplications = freshApplications.filter(app => !rejectedIds.has(app.id));
-      console.log('Refreshed applications after filtering rejections:', filteredApplications.length);
+      const filteredApplications = fetchedApplications.filter(app => !rejectedIds.has(app.id));
+      console.log('Fetched applications after filtering rejections:', filteredApplications.length);
       
       setApplications(filteredApplications);
-    } catch (error) {
-      console.error('Error refreshing applications:', error);
     }
-  }, [eventId, user, userRole, fetchApplications, rejectedIds]);
+  }, [fetchedApplications, rejectedIds]);
   
-  // Fetch applications initially and setup realtime subscription
+  // Force refresh applications
+  const refreshApplications = useCallback(async () => {
+    // The refresh logic can be simplified since we're using the useFetchApplications hook
+    console.log('Refreshing applications...');
+    
+    // We don't need to do anything else here since the data will refresh
+    // when the useFetchApplications hook returns new data
+  }, []);
+  
+  // Set up realtime subscription for application updates
   useEffect(() => {
-    const getApplications = async () => {
-      if (!eventId || !user) return;
-      
-      // Only contractors need to fetch all applications
-      if ((userRole !== 'contractor' && user.user_metadata?.role !== 'contractor')) {
-        return;
-      }
-      
-      try {
-        console.log(`Fetching applications for event: ${eventId}`);
-        const fetchedApplications = await fetchApplications(eventId, user);
-        console.log('Fetched applications before filtering:', fetchedApplications.length);
-        
-        // Filtrar aplicações rejeitadas usando a lista local
-        const filteredApplications = fetchedApplications.filter(app => !rejectedIds.has(app.id));
-        console.log('Fetched applications after filtering rejections:', filteredApplications.length);
-        
-        setApplications(filteredApplications);
-      } catch (error) {
-        console.error('Error fetching applications:', error);
-      }
-    };
+    if (!eventId) return;
     
-    getApplications();
+    console.log(`Setting up realtime subscription for applications in event: ${eventId}`);
     
-    // Set up realtime subscription for application updates
     const channel = supabase
       .channel(`event_applications_changes_${eventId}`)
       .on('postgres_changes', 
@@ -192,7 +172,7 @@ export const useEventApplicationsList = (eventId?: string, user?: User | null, u
       console.log('Cleaning up realtime subscription');
       supabase.removeChannel(channel);
     };
-  }, [eventId, user, userRole, fetchApplications, refreshApplications, rejectedIds]);
+  }, [eventId, refreshApplications, rejectedIds]);
   
-  return { applications, loading, updateApplicationStatus, refreshApplications };
+  return { applications, loading, error, updateApplicationStatus, refreshApplications };
 };

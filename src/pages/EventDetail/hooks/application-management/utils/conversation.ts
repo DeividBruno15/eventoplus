@@ -2,31 +2,24 @@
 import { supabase } from '@/integrations/supabase/client';
 
 /**
- * Creates or gets a conversation between two users
- * @param contractorId ID of the contractor
- * @param providerId ID of the provider
- * @returns The conversation ID
+ * Creates or retrieves a conversation between two users
  */
-export const createOrGetConversation = async (contractorId: string, providerId: string): Promise<string> => {
+export const createOrGetConversation = async (userIdOne: string, userIdTwo: string): Promise<string | null> => {
   try {
-    const { data: conversationData, error: conversationError } = await supabase.rpc(
-      // We need to use 'as any' here because TypeScript doesn't know about this function
-      'create_or_get_conversation' as any, 
-      { 
-        user_id_one: contractorId,
-        user_id_two: providerId
-      }
-    );
-
-    if (conversationError) {
-      console.error('Error creating conversation:', conversationError);
-      throw conversationError;
+    // Use the RPC function to create or get a conversation
+    const { data, error } = await supabase.rpc('create_or_get_conversation', {
+      user_id_one: userIdOne,
+      user_id_two: userIdTwo
+    });
+    
+    if (error) {
+      console.error('Error creating conversation:', error);
+      return null;
     }
-
-    // The conversation ID is directly returned as a UUID from our function
-    return conversationData;
+    
+    return data;
   } catch (error) {
     console.error('Error in createOrGetConversation:', error);
-    throw error;
+    return null;
   }
 };
