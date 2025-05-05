@@ -37,7 +37,8 @@ export const useUserEvents = (userId: string, userRole: 'contractor' | 'provider
             let status: 'open' | 'closed' | 'published' | 'draft' = 'published';
             
             // Map the database status to our allowed types
-            if (['open', 'closed', 'published', 'draft'].includes(event.status)) {
+            if (event.status && 
+                ['open', 'closed', 'published', 'draft'].includes(event.status)) {
               status = event.status as 'open' | 'closed' | 'published' | 'draft';
             }
             
