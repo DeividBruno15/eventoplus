@@ -55,15 +55,18 @@ export const RegisterForm = () => {
     try {
       setSubmitting(true);
       
+      // Log form data for debugging
+      console.log('Submitting registration with data:', values);
+      
       // Garantir que is_onboarding_complete seja enviado como booleano
       const completeFormData: RegisterFormData = {
         ...values,
         is_onboarding_complete: false, // Set to false initially, will be updated in onboarding flow
       };
       
-      console.log('Submitting registration with data:', completeFormData);
       await signUp(completeFormData);
       
+      console.log('Registration submitted successfully');
       // A tela de confirmação é exibida dentro do hook useAuth
     } catch (error: any) {
       console.error('Registration error:', error);

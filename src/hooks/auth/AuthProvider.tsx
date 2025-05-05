@@ -81,15 +81,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true);
       
-      // Now we can use the role directly since we've updated the database constraint
       console.log('Registrando com papel:', profileData.role);
+      
+      // Use the correct redirect URL format - don't include protocol in the redirect URL
+      const redirectTo = `${window.location.origin}/login`;
+      console.log('Configurando redirect para:', redirectTo);
       
       const { error, data } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: profileData,
-          emailRedirectTo: `${window.location.origin}/login`,
+          emailRedirectTo: redirectTo,
         },
       });
       
@@ -97,6 +100,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error('Erro durante o registro:', error);
         throw error;
       }
+
+      // Log success for debugging
+      console.log('Registro bem-sucedido:', data);
 
       // Mostrar diálogo de confirmação
       setConfirmationEmail(email);
