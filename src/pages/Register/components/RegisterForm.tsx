@@ -65,18 +65,15 @@ export const RegisterForm = () => {
       return;
     }
     
-    // Complete form submission with is_onboarding_complete set to true
-    const completeFormData = {
-      ...values,
-      is_onboarding_complete: true,
-    };
-    
     try {
-      await signUp(completeFormData as RegisterFormData);
-      toast({
-        title: "Cadastro realizado",
-        description: "Seu cadastro foi realizado com sucesso!"
-      });
+      // Complete form submission with is_onboarding_complete set to true
+      const completeFormData = {
+        ...values,
+        is_onboarding_complete: true,
+      };
+      
+      await signUp(completeFormData);
+      // A tela de confirmação é exibida dentro do hook useAuth
     } catch (error: any) {
       toast({
         title: "Erro ao cadastrar",

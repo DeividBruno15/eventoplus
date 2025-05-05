@@ -1,6 +1,10 @@
+
 import { useState, useEffect, createContext, useContext } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 interface AuthContextType {
   session: Session | null;
@@ -22,6 +26,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
+  const [confirmationEmail, setConfirmationEmail] = useState('');
 
   useEffect(() => {
     // First setup the auth state change listener
@@ -88,19 +94,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = async (formData: any) => {
     const { email, password, ...profileData } = formData;
     
+    // Ensure role is one of the valid options (contractor, provider, advertiser)
+    const validatedRole = ["contractor", "provider", "advertiser"].includes(profileData.role) 
+      ? profileData.role 
+      : "contractor";
+    
     try {
+      setLoading(true);
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          data: profileData,
+          data: {
+            ...profileData,
+            role: validatedRole,  // Use validated role
+          },
         },
       });
       
       if (error) throw error;
+
+      // Show confirmation dialog
+      setConfirmationEmail(email);
+      setShowEmailConfirmation(true);
     } catch (error) {
       console.error('Error during registration:', error);
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -131,24 +152,52 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const closeConfirmationDialog = () => {
+    setShowEmailConfirmation(false);
+  };
+
   return (
-    <AuthContext.Provider
-      value={{
-        session,
-        user,
-        loading,
-        login,
-        logout,
-        signup,
-        resetPassword,
-        updatePassword,
-        register,
-        signInWithGoogle,
-        updateOnboardingStatus,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+    <>
+      <AuthContext.Provider
+        value={{
+          session,
+          user,
+          loading,
+          login,
+          logout,
+          signup,
+          resetPassword,
+          updatePassword,
+          register,
+          signInWithGoogle,
+          updateOnboardingStatus,
+        }}
+      >
+        {children}
+      </AuthContext.Provider>
+
+      <Dialog open={showEmailConfirmation} onOpenChange={closeConfirmationDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Cadastro realizado com sucesso!</DialogTitle>
+            <DialogDescription>
+              Enviamos um e-mail de confirmação para <strong>{confirmationEmail}</strong>. 
+              Por favor, verifique sua caixa de entrada e clique no link para ativar sua conta.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 mt-4">
+            <p className="text-sm text-muted-foreground">
+              Se você não receber o e-mail em poucos minutos, verifique sua pasta de spam ou lixo eletrônico.
+            </p>
+            <div className="flex justify-center">
+              <Button asChild>
+                <Link to="/login">Ir para login</Link>
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 

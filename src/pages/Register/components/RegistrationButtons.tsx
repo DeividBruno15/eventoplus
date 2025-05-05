@@ -17,7 +17,7 @@ export const RegistrationButtons = ({ isSubmitting, onGoogleLogin }: Registratio
         className="w-full"
         disabled={isSubmitting}
       >
-        {isSubmitting ? 'Cadastrando...' : 'Finalizar Cadastro'}
+        {isSubmitting ? 'Processando...' : 'Finalizar Cadastro'}
       </Button>
 
       <Card className="mt-6">
