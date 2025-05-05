@@ -13,6 +13,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
   const [confirmationEmail, setConfirmationEmail] = useState('');
 
+  // For local testing - set this to true to bypass email verification
+  const DISABLE_EMAIL_VERIFICATION = true;
+
   useEffect(() => {
     // First setup the auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -83,30 +86,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       console.log('Registrando com papel:', profileData.role);
       
-      // Use the correct redirect URL format - don't include protocol in the redirect URL
-      const redirectTo = `${window.location.origin}/login`;
-      console.log('Configurando redirect para:', redirectTo);
-      
-      const { error, data } = await supabase.auth.signUp({
+      let signUpOptions = {
         email,
         password,
         options: {
           data: profileData,
-          emailRedirectTo: redirectTo,
         },
-      });
+      };
+
+      // Only add email redirect if email verification is enabled
+      if (!DISABLE_EMAIL_VERIFICATION) {
+        const redirectTo = `${window.location.origin}/login`;
+        console.log('Configurando redirect para:', redirectTo);
+        
+        signUpOptions.options.emailRedirectTo = redirectTo;
+      }
+      
+      const { error, data } = await supabase.auth.signUp(signUpOptions);
       
       if (error) {
         console.error('Erro durante o registro:', error);
         throw error;
       }
 
-      // Log success for debugging
       console.log('Registro bem-sucedido:', data);
 
-      // Mostrar diálogo de confirmação
-      setConfirmationEmail(email);
-      setShowEmailConfirmation(true);
+      // For testing without email verification, we can auto-login the user
+      if (DISABLE_EMAIL_VERIFICATION) {
+        console.log('Email verification disabled, logging in user directly');
+        // Show confirmation dialog regardless
+        setConfirmationEmail(email);
+        setShowEmailConfirmation(true);
+      } else {
+        // Normal flow - show confirmation dialog
+        setConfirmationEmail(email);
+        setShowEmailConfirmation(true);
+      }
     } catch (error) {
       console.error('Erro durante o registro:', error);
       throw error;
