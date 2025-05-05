@@ -33,7 +33,7 @@ export const useUserEvents = (userId: string, userRole: 'contractor' | 'provider
           }
           
           // Type casting the event data
-          const typedEvents = eventData?.map(event => {
+          const typedEvents = (eventData || []).map(event => {
             let status: 'open' | 'closed' | 'published' | 'draft' = 'published';
             
             // Map the database status to our allowed types
@@ -51,7 +51,7 @@ export const useUserEvents = (userId: string, userRole: 'contractor' | 'provider
               image_url: event && typeof event === 'object' ? event.image_url || '' : '',
               status: status
             } as Event;
-          }) || [];
+          });
           
           setEvents(typedEvents);
         } else {
@@ -78,7 +78,7 @@ export const useUserEvents = (userId: string, userRole: 'contractor' | 'provider
           }
           
           // Extract events from applications and type them correctly
-          const typedEvents = applications?.map(app => {
+          const typedEvents = (applications || []).map(app => {
             const eventData = app.event;
             if (!eventData) return null;
             

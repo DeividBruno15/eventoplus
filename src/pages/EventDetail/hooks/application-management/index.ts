@@ -17,12 +17,18 @@ export const useApplicationManagement = (
   const { 
     approving, 
     handleApproveApplication 
-  } = useApplicationApprovalHandler(event, updateApplicationStatus);
+  } = useApplicationApprovalHandler({ 
+    eventId: event?.id || '',
+    onSuccess: updateApplicationStatus ? 
+      async (applicationId: string, providerId: string) => {
+        await updateApplicationStatus(applicationId, 'accepted');
+      } : undefined
+  });
     
   const { 
     rejecting, 
     handleRejectApplication 
-  } = useApplicationRejectionHandler(event);
+  } = useApplicationRejectionHandler(event, updateApplicationStatus);
   
   // Combine into a single submitting state for the UI
   const submitting = useSubmittingState([approving, rejecting]);
