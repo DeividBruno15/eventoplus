@@ -56,7 +56,7 @@ export const RegisterForm = () => {
       setSubmitting(true);
       
       // Garantir que is_onboarding_complete seja enviado como booleano
-      const completeFormData = {
+      const completeFormData: RegisterFormData = {
         ...values,
         is_onboarding_complete: true,
       };

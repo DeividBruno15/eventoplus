@@ -1,9 +1,9 @@
-
 import { useState, useEffect } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { AuthContext } from './AuthContext';
 import { EmailConfirmationDialog } from './EmailConfirmationDialog';
+import { RegisterFormData } from '@/pages/Register/types';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
@@ -74,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error) throw error;
   };
 
-  const register = async (formData: any) => {
+  const register = async (formData: RegisterFormData) => {
     const { email, password, ...profileData } = formData;
     
     // Verificar se o role é válido para o banco de dados
