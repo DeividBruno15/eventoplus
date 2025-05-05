@@ -53,7 +53,7 @@ const CallToAction = () => {
             transition={{ delay: 0.3 }}
             className="text-4xl font-bold text-white mb-6 leading-tight"
           >
-            Pronto para simplificar o planejamento do seu evento?
+            Pronto para simplificar o planejamento de eventos?
           </motion.h2>
           
           <motion.p 
@@ -63,7 +63,7 @@ const CallToAction = () => {
             transition={{ delay: 0.4 }}
             className="text-xl text-white/90 mb-10"
           >
-            Cadastre-se gratuitamente e comece a conectar-se com os melhores profissionais para o seu evento.
+            Cadastre-se gratuitamente e comece a conectar-se com os melhores profissionais para o seu evento ou anuncie seus espaços.
           </motion.p>
           
           <motion.div 
@@ -71,17 +71,22 @@ const CallToAction = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.5 }}
-            className="flex flex-col sm:flex-row justify-center gap-6"
+            className="flex flex-col sm:flex-row justify-center gap-4"
           >
             <Link to="/register?type=contratante">
-              <Button className="bg-white text-primary hover:bg-white/90 px-8 py-6 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
+              <Button className="bg-white text-primary hover:bg-white/90 px-6 py-6 text-sm md:text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group w-full sm:w-auto">
                 Cadastrar como Contratante
                 <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
             <Link to="/register?type=prestador">
-              <Button className="bg-accent text-white hover:bg-accent/90 px-8 py-6 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+              <Button className="bg-accent text-white hover:bg-accent/90 px-6 py-6 text-sm md:text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 w-full sm:w-auto">
                 Cadastrar como Prestador
+              </Button>
+            </Link>
+            <Link to="/register?type=anunciante">
+              <Button className="bg-secondary text-white hover:bg-secondary/90 px-6 py-6 text-sm md:text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 w-full sm:w-auto">
+                Cadastrar como Anunciante
               </Button>
             </Link>
           </motion.div>

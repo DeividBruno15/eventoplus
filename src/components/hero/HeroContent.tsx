@@ -13,10 +13,10 @@ const HeroContent = () => {
         className="space-y-6"
       >
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-gray-900">
-          Organize eventos com facilidade e encontre os melhores prestadores
+          Organize eventos, encontre profissionais e locais perfeitos
         </h1>
         <p className="text-lg md:text-xl text-gray-600 max-w-lg leading-relaxed">
-          Conectamos contratantes a prestadores de serviços qualificados para tornar seu evento inesquecível.
+          Conectamos contratantes, prestadores de serviços e anunciantes de espaços para criar eventos inesquecíveis.
         </p>
       </motion.div>
 

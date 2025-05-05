@@ -1,13 +1,15 @@
+
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   Camera, Music, Utensils, PartyPopper, 
-  Palette, Sparkles, Users, Lightbulb 
+  Palette, Sparkles, Users, Lightbulb,
+  MapPin, Building, Home, Globe 
 } from 'lucide-react';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Badge } from '@/components/ui/badge';
 
-const categories = [
+const serviceCategories = [
   { 
     icon: Camera, 
     name: "Fotografia", 
@@ -58,6 +60,33 @@ const categories = [
   }
 ];
 
+const venueCategories = [
+  { 
+    icon: Building, 
+    name: "Salões", 
+    description: "Espaços amplos",
+    color: "from-blue-500/10 to-blue-600/10" 
+  },
+  { 
+    icon: Home, 
+    name: "Casas", 
+    description: "Ambientes aconchegantes",
+    color: "from-purple-500/10 to-purple-600/10"
+  },
+  { 
+    icon: Globe, 
+    name: "Áreas Externas", 
+    description: "Eventos ao ar livre",
+    color: "from-green-500/10 to-green-600/10"
+  },
+  { 
+    icon: MapPin, 
+    name: "Sítios", 
+    description: "Locais rurais",
+    color: "from-yellow-500/10 to-yellow-600/10"
+  }
+];
+
 const ServiceCategories = () => {
   return (
     <section className="py-20 bg-white">
@@ -68,34 +97,63 @@ const ServiceCategories = () => {
           viewport={{ once: true }}
           className="text-center max-w-3xl mx-auto mb-16"
         >
-          <Badge className="mb-3 px-3 py-1 bg-primary/10 text-primary border-none">Serviços</Badge>
+          <Badge className="mb-3 px-3 py-1 bg-primary/10 text-primary border-none">Serviços & Espaços</Badge>
           <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80">
-            Serviços para todos os tipos de eventos
+            Tudo para seu evento perfeito
           </h2>
           <p className="text-lg text-gray-600">
-            Encontre os melhores profissionais em cada categoria para tornar seu evento inesquecível
+            Encontre os melhores profissionais e espaços para tornar seu evento inesquecível
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-          {categories.map((category, index) => (
-            <motion.div
-              key={category.name}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.05 }}
-              className="h-full relative overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:border-primary/20"
-            >
-              <div className="p-6">
-                <div className={`inline-flex p-3 rounded-lg bg-gradient-to-br ${category.color} mb-4`}>
-                  <category.icon className="w-6 h-6 text-primary" />
+        {/* Serviços */}
+        <div className="mb-16">
+          <h3 className="text-2xl font-semibold text-center mb-8">Serviços para eventos</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+            {serviceCategories.map((category, index) => (
+              <motion.div
+                key={category.name}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.05 }}
+                className="h-full relative overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:border-primary/20"
+              >
+                <div className="p-6">
+                  <div className={`inline-flex p-3 rounded-lg bg-gradient-to-br ${category.color} mb-4`}>
+                    <category.icon className="w-6 h-6 text-primary" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">{category.name}</h3>
+                  <p className="text-gray-600 text-sm">{category.description}</p>
                 </div>
-                <h3 className="text-lg font-semibold mb-2">{category.name}</h3>
-                <p className="text-gray-600 text-sm">{category.description}</p>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        {/* Espaços */}
+        <div>
+          <h3 className="text-2xl font-semibold text-center mb-8">Espaços para eventos</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {venueCategories.map((category, index) => (
+              <motion.div
+                key={category.name}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.05 }}
+                className="h-full relative overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:border-primary/20"
+              >
+                <div className="p-6">
+                  <div className={`inline-flex p-3 rounded-lg bg-gradient-to-br ${category.color} mb-4`}>
+                    <category.icon className="w-6 h-6 text-primary" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">{category.name}</h3>
+                  <p className="text-gray-600 text-sm">{category.description}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

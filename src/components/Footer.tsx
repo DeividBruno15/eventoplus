@@ -11,7 +11,7 @@ const Footer = () => {
               <span className="text-2xl font-bold text-primary">Evento<span className="text-secondary">+</span></span>
             </Link>
             <p className="mt-4 text-sm">
-              Conectando contratantes a prestadores de serviços para eventos de forma rápida, segura e personalizada.
+              Conectando contratantes, prestadores de serviços e anunciantes de espaços para eventos de forma rápida, segura e personalizada.
             </p>
           </div>
           
@@ -25,6 +25,9 @@ const Footer = () => {
                 <Link to="/service-providers" className="hover:text-primary transition-colors">Prestadores</Link>
               </li>
               <li>
+                <Link to="/venues" className="hover:text-primary transition-colors">Locais para Eventos</Link>
+              </li>
+              <li>
                 <Link to="/about" className="hover:text-primary transition-colors">Sobre</Link>
               </li>
               <li>
@@ -34,7 +37,7 @@ const Footer = () => {
           </div>
           
           <div>
-            <h3 className="font-semibold mb-4">Serviços</h3>
+            <h3 className="font-semibold mb-4">Serviços & Espaços</h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link to="/service-providers?category=buffet" className="hover:text-primary transition-colors">Buffet</Link>
@@ -46,10 +49,10 @@ const Footer = () => {
                 <Link to="/service-providers?category=fotografia" className="hover:text-primary transition-colors">Fotografia</Link>
               </li>
               <li>
-                <Link to="/service-providers?category=decoracao" className="hover:text-primary transition-colors">Decoração</Link>
+                <Link to="/venues?category=saloes" className="hover:text-primary transition-colors">Salões de Festa</Link>
               </li>
               <li>
-                <Link to="/service-providers?category=iluminacao" className="hover:text-primary transition-colors">Iluminação</Link>
+                <Link to="/venues?category=sitios" className="hover:text-primary transition-colors">Sítios</Link>
               </li>
             </ul>
           </div>
