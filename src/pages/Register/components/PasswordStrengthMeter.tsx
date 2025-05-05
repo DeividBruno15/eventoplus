@@ -1,59 +1,44 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
 interface PasswordStrengthMeterProps {
   password: string;
 }
 
 export const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({ password }) => {
-  const [strength, setStrength] = useState(0);
-  const [label, setLabel] = useState('');
-
-  useEffect(() => {
-    const calculateStrength = () => {
-      let score = 0;
-      
-      if (!password) {
-        setStrength(0);
-        setLabel('');
-        return;
-      }
-      
-      // Award points for length
-      if (password.length >= 8) score += 1;
-      if (password.length >= 10) score += 1;
-      
-      // Award points for complexity
-      if (/[A-Z]/.test(password)) score += 1;
-      if (/[a-z]/.test(password)) score += 1;
-      if (/[0-9]/.test(password)) score += 1;
-      if (/[^A-Za-z0-9]/.test(password)) score += 1;
-      
-      // Penalize repetition
-      if (/(.)\1\1/.test(password)) score -= 1;
-      
-      // Make sure score is at least 0
-      score = Math.max(0, score);
-      
-      // Cap at 5
-      score = Math.min(5, score);
-      
-      setStrength(score);
-      
-      // Set label based on score
-      if (score === 0) setLabel('');
-      else if (score === 1) setLabel('Muito fraca');
-      else if (score === 2) setLabel('Fraca');
-      else if (score === 3) setLabel('Média');
-      else if (score === 4) setLabel('Forte');
-      else setLabel('Muito forte');
-    };
-    
-    calculateStrength();
-  }, [password]);
-
   // Don't show the meter for empty passwords
   if (!password) return null;
+
+  // Calculate strength based on password length and complexity
+  let strength = 0;
+  let label = '';
+  
+  // Award points for length
+  if (password.length >= 8) strength += 1;
+  if (password.length >= 10) strength += 1;
+  
+  // Award points for complexity
+  if (/[A-Z]/.test(password)) strength += 1;
+  if (/[a-z]/.test(password)) strength += 1;
+  if (/[0-9]/.test(password)) strength += 1;
+  if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+  
+  // Penalize repetition
+  if (/(.)\1\1/.test(password)) strength -= 1;
+  
+  // Make sure score is at least 0
+  strength = Math.max(0, strength);
+  
+  // Cap at 5
+  strength = Math.min(5, strength);
+  
+  // Set label based on score
+  if (strength === 0) label = '';
+  else if (strength === 1) label = 'Muito fraca';
+  else if (strength === 2) label = 'Fraca';
+  else if (strength === 3) label = 'Média';
+  else if (strength === 4) label = 'Forte';
+  else label = 'Muito forte';
 
   const getColor = () => {
     if (strength === 0 || strength === 1) return 'bg-red-500';

@@ -2,7 +2,7 @@
 import { Form } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { BasicInfoFields } from './BasicInfoFields';
 import { AddressFields } from '@/components/address/AddressFields';
 import { DocumentFields } from './DocumentFields';
@@ -16,18 +16,11 @@ import { RegistrationButtons } from './RegistrationButtons';
 import { PersonTypeSelector } from './PersonTypeSelector';
 import { RoleSelector } from './RoleSelector';
 import { PhoneField } from './PhoneField';
+import { usePasswordValidation } from '@/hooks/usePasswordValidation';
 
 export const RegisterForm = () => {
   const { register: signUp, signInWithGoogle, loading } = useAuth();
   const { toast } = useToast();
-  const [password, setPassword] = useState('');
-  const [passwordRequirements, setPasswordRequirements] = useState({
-    length: false,
-    uppercase: false,
-    lowercase: false,
-    number: false,
-    special: false
-  });
   const [submitting, setSubmitting] = useState(false);
 
   const form = useForm<RegisterFormData>({
@@ -40,21 +33,14 @@ export const RegisterForm = () => {
 
   const selectedRole = form.watch('role');
   const watchPassword = form.watch('password', '');
-
-  useEffect(() => {
-    setPassword(watchPassword);
-    
-    // Check password requirements
-    setPasswordRequirements({
-      length: watchPassword.length >= 8,
-      uppercase: /[A-Z]/.test(watchPassword),
-      lowercase: /[a-z]/.test(watchPassword),
-      number: /[0-9]/.test(watchPassword),
-      special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(watchPassword),
-    });
-  }, [watchPassword]);
-
-  const allRequirementsMet = Object.values(passwordRequirements).every(req => req === true);
+  
+  // Use our custom password validation hook
+  const { 
+    passwordRequirements, 
+    allRequirementsMet,
+    passwordStrength, 
+    strengthLabel 
+  } = usePasswordValidation(watchPassword);
 
   const onSubmit = async (values: RegisterFormData) => {
     if (!allRequirementsMet) {
@@ -96,7 +82,7 @@ export const RegisterForm = () => {
         
         <div className="space-y-2">
           <PasswordRequirements passwordRequirements={passwordRequirements} />
-          <PasswordStrengthMeter password={password} />
+          <PasswordStrengthMeter password={watchPassword} />
         </div>
 
         {/* Phone field moved below password requirements */}
