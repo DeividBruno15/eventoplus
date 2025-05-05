@@ -1,5 +1,4 @@
 
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/auth';
 import { useToast } from '@/components/ui/use-toast';
@@ -11,21 +10,23 @@ import { mainMenuItems, supportMenuItems } from './sidebar/menu-data';
 import { useUnreadMessages } from './sidebar/useUnreadMessages';
 import { useUserRoles } from './sidebar/useUserRoles';
 import { SidebarNavigationProps } from './sidebar/types';
+import { useNavigationState } from './sidebar/useNavigationState';
 
-export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationProps) => {
+export const SidebarNavigation = ({ activePath: propActivePath, onNavigate }: SidebarNavigationProps) => {
   const navigate = useNavigate();
   const { session, user, logout } = useAuth();
-  const { toast: toastUI } = useToast();
+  const { toast } = useToast();
+  
+  // Use our custom hooks
+  const { activePath, handleLinkClick } = useNavigationState(onNavigate);
+  const unreadMessages = useUnreadMessages(user?.id);
+  const { hasProviderRole, hasContractorRole } = useUserRoles(user);
   
   const firstName = user?.user_metadata?.first_name || '';
   const lastName = user?.user_metadata?.last_name || '';
   const avatarUrl = user?.user_metadata?.avatar_url;
   const userRole = user?.user_metadata?.role || 'contractor';
 
-  // Use our custom hooks
-  const unreadMessages = useUnreadMessages(user?.id);
-  const { hasProviderRole, hasContractorRole } = useUserRoles(user);
-  
   // Update menu items with unread message count
   const updatedMainMenuItems = mainMenuItems.map(item => {
     if (item.path === '/chat' && unreadMessages > 0) {
@@ -34,21 +35,16 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
     return item;
   });
 
-  const handleLinkClick = (path: string) => {
-    console.log('Sidebar item clicked:', path);
-    onNavigate(path);
-  };
-
   const handleLogout = async () => {
     try {
       await logout();
-      toastUI({
+      toast({
         title: "Logout realizado",
         description: "Você foi desconectado com sucesso."
       });
       navigate('/');
     } catch (error: any) {
-      toastUI({
+      toast({
         title: "Erro ao fazer logout",
         description: error.message,
         variant: "destructive"
@@ -68,31 +64,31 @@ export const SidebarNavigation = ({ activePath, onNavigate }: SidebarNavigationP
         hasContractorRole={hasContractorRole}
       />
 
-      <div className="px-3 py-2">
-        <Separator className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
-      </div>
+      <SidebarSeparator />
       
       <MenuGroup 
         items={updatedMainMenuItems} 
-        activePath={activePath} 
+        activePath={propActivePath || activePath} 
         onItemClick={handleLinkClick} 
       />
       
-      <div className="px-3 py-2">
-        <Separator className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
-      </div>
+      <SidebarSeparator />
       
       <MenuGroup 
         items={supportMenuItems} 
-        activePath={activePath} 
+        activePath={propActivePath || activePath} 
         onItemClick={handleLinkClick} 
       />
 
-      <div className="px-3 py-2">
-        <Separator className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
-      </div>
+      <SidebarSeparator />
 
       <LogoutButton onLogout={handleLogout} />
     </div>
   );
 };
+
+const SidebarSeparator = () => (
+  <div className="px-3 py-2">
+    <Separator className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+  </div>
+);
