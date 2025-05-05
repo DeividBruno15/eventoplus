@@ -80,8 +80,10 @@ export const useUserEvents = (userId: string, userRole: 'contractor' | 'provider
           // Extract events from applications and type them correctly
           const typedEvents = (applications || [])
             .map(app => {
+              // Check if app is an object and has event property
+              if (!app || typeof app !== 'object' || !app.event) return null;
+              
               const eventData = app.event;
-              if (!eventData) return null;
               
               // Initialize with a default status
               let status: 'open' | 'closed' | 'published' | 'draft' = 'published';
