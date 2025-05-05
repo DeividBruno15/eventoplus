@@ -81,19 +81,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true);
       
-      // Map advertiser role to customer for database compatibility
-      const dbRole = profileData.role === "advertiser" ? "customer" : profileData.role;
+      // Now we can use the role directly since we've updated the database constraint
+      console.log('Registrando com papel:', profileData.role);
       
-      console.log('Registrando com papel:', dbRole, 'papel original:', profileData.role);
-      
-      const { error } = await supabase.auth.signUp({
+      const { error, data } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          data: {
-            ...profileData,
-            role: dbRole, // Use the database-compatible role
-          },
+          data: profileData,
+          emailRedirectTo: `${window.location.origin}/login`,
         },
       });
       

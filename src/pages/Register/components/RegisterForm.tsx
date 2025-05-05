@@ -58,17 +58,31 @@ export const RegisterForm = () => {
       // Garantir que is_onboarding_complete seja enviado como booleano
       const completeFormData: RegisterFormData = {
         ...values,
-        is_onboarding_complete: true,
+        is_onboarding_complete: false, // Set to false initially, will be updated in onboarding flow
       };
       
       console.log('Submitting registration with data:', completeFormData);
       await signUp(completeFormData);
+      
       // A tela de confirmação é exibida dentro do hook useAuth
     } catch (error: any) {
       console.error('Registration error:', error);
+      let errorMessage = "Ocorreu um erro ao processar seu cadastro";
+      
+      // Handle specific Supabase errors
+      if (error.message) {
+        if (error.message.includes("User already registered")) {
+          errorMessage = "Este email já está cadastrado. Por favor, tente fazer login.";
+        } else if (error.message.includes("Email not confirmed")) {
+          errorMessage = "Email não confirmado. Verifique sua caixa de entrada.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       toast({
         title: "Erro ao cadastrar",
-        description: error.message || "Ocorreu um erro ao processar seu cadastro",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
