@@ -37,18 +37,18 @@ export const useUserEvents = (userId: string, userRole: 'contractor' | 'provider
             let status: 'open' | 'closed' | 'published' | 'draft' = 'published';
             
             // Map the database status to our allowed types
-            if (event.status && 
+            if (event && event.status && 
                 ['open', 'closed', 'published', 'draft'].includes(event.status)) {
               status = event.status as 'open' | 'closed' | 'published' | 'draft';
             }
             
             return {
-              id: event.id,
-              name: event.name,
-              description: event.description || '',
-              event_date: event.event_date,
-              location: event.location,
-              image_url: event.image_url || '',
+              id: event?.id || '',
+              name: event?.name || '',
+              description: event?.description || '',
+              event_date: event?.event_date || '',
+              location: event?.location || '',
+              image_url: event?.image_url || '',
               status: status
             } as Event;
           }) || [];
@@ -85,18 +85,18 @@ export const useUserEvents = (userId: string, userRole: 'contractor' | 'provider
             let status: 'open' | 'closed' | 'published' | 'draft' = 'published';
             
             // Map the database status to our allowed types
-            if (eventData.status && 
+            if (eventData && eventData.status && 
                 ['open', 'closed', 'published', 'draft'].includes(eventData.status)) {
               status = eventData.status as 'open' | 'closed' | 'published' | 'draft';
             }
             
             return {
-              id: eventData.id,
-              name: eventData.name,
-              description: eventData.description || '',
-              event_date: eventData.event_date,
-              location: eventData.location,
-              image_url: eventData.image_url || '',
+              id: eventData?.id || '',
+              name: eventData?.name || '',
+              description: eventData?.description || '',
+              event_date: eventData?.event_date || '',
+              location: eventData?.location || '',
+              image_url: eventData?.image_url || '',
               status: status
             } as Event;
           }).filter(Boolean) as Event[];

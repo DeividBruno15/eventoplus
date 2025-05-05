@@ -22,7 +22,7 @@ export const useApplicationManagement = (
   const { 
     rejecting, 
     handleRejectApplication 
-  } = useApplicationRejectionHandler(event, updateApplicationStatus);
+  } = useApplicationRejectionHandler(event);
   
   // Combine into a single submitting state for the UI
   const submitting = useSubmittingState([approving, rejecting]);
