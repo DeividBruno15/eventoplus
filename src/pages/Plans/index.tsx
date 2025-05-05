@@ -168,7 +168,7 @@ const Plans = () => {
                       {plan.featured && <span className="ml-2 text-xs bg-primary text-white px-2 py-1 rounded">RECOMENDADO</span>}
                     </CardTitle>
                     <div className="mt-2">
-                      <span className="text-3xl font-bold">R$ {plan.price}</span>
+                      <span className="text-3xl font-bold">R$ {plan.price.toFixed(2).replace('.', ',')}</span>
                       <span className="text-muted-foreground">/mês</span>
                     </div>
                   </CardHeader>

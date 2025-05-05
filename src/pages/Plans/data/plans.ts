@@ -127,65 +127,69 @@ export const contractorPlans: Plan[] = [
 
 export const advertiserPlans: Plan[] = [
   {
-    id: "advertiser-basic",
-    name: "Básico",
-    description: "Ideal para começar a anunciar locais",
-    price: 19.90,
+    id: "advertiser-divulgue",
+    name: "Divulgue",
+    description: "Para quem está começando",
+    price: 0,
     benefits: [
-      "1 local anunciado",
-      "Fotos do espaço",
-      "Descrição detalhada",
-      "Suporte via FAQ"
+      "Cadastro de 1 local com fotos, descrição e localização",
+      "Aparecimento no diretório básico de locais",
+      "Recebimento de até 3 leads por mês",
+      "Estatísticas simples (visualizações do local)",
+      "Visibilidade geográfica limitada (prioriza buscas locais)"
     ],
     features: [
-      "1 local anunciado",
-      "Fotos do espaço",
-      "Descrição detalhada",
-      "Suporte via FAQ"
+      "Cadastro de 1 local com fotos, descrição e localização",
+      "Aparecimento no diretório básico de locais",
+      "Recebimento de até 3 leads por mês",
+      "Estatísticas simples (visualizações do local)",
+      "Visibilidade geográfica limitada (prioriza buscas locais)"
     ],
     featured: false
   },
   {
-    id: "advertiser-premium",
-    name: "Premium",
-    description: "Para anunciantes profissionais",
-    price: 39.90,
+    id: "advertiser-alcance",
+    name: "Alcance",
+    description: "Para quem busca mais visibilidade",
+    price: 14.90,
     benefits: [
-      "Até 5 locais anunciados",
-      "Destaque nas buscas",
-      "Estatísticas de visualização",
-      "Suporte prioritário",
-      "Selo de verificação"
+      "Cadastro de até 5 locais",
+      "Destaque intermediário nas buscas por espaço",
+      "Leads ilimitados (via formulário ou contato direto)",
+      "Visibilidade segmentada por categoria de evento",
+      "Estatísticas completas (cliques, leads e perfil de quem visualizou)",
+      "Suporte via e-mail"
     ],
     features: [
-      "Até 5 locais anunciados",
-      "Destaque nas buscas",
-      "Estatísticas de visualização",
-      "Suporte prioritário",
-      "Selo de verificação"
+      "Cadastro de até 5 locais",
+      "Destaque intermediário nas buscas por espaço",
+      "Leads ilimitados (via formulário ou contato direto)",
+      "Visibilidade segmentada por categoria de evento",
+      "Estatísticas completas (cliques, leads e perfil de quem visualizou)",
+      "Suporte via e-mail"
     ],
     featured: true
   },
   {
-    id: "advertiser-enterprise",
-    name: "Enterprise",
-    description: "Potencialize seus anúncios",
-    price: 79.90,
+    id: "advertiser-vitrine",
+    name: "Vitrine",
+    description: "Para quem quer ocupar o topo das buscas",
+    price: 29.90,
     benefits: [
       "Locais ilimitados",
-      "Destaque máximo",
-      "Estatísticas completas",
-      "Suporte VIP",
-      "Integração com calendário",
-      "Agendamento automático"
+      "Posição de destaque nas buscas com selo 'Espaço em destaque'",
+      "Exibição em páginas de eventos compatíveis",
+      "Adição de vídeos e tours virtuais no perfil do local",
+      "Insights de comportamento dos organizadores (quem viu, clicou, etc)",
+      "Suporte prioritário + consultoria mensal de otimização"
     ],
     features: [
       "Locais ilimitados",
-      "Destaque máximo",
-      "Estatísticas completas",
-      "Suporte VIP",
-      "Integração com calendário",
-      "Agendamento automático"
+      "Posição de destaque nas buscas com selo 'Espaço em destaque'",
+      "Exibição em páginas de eventos compatíveis",
+      "Adição de vídeos e tours virtuais no perfil do local",
+      "Insights de comportamento dos organizadores (quem viu, clicou, etc)",
+      "Suporte prioritário + consultoria mensal de otimização"
     ],
     featured: false
   }

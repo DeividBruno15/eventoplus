@@ -1,3 +1,4 @@
+
 import { 
   Tabs, 
   TabsContent, 
@@ -5,7 +6,7 @@ import {
   TabsTrigger 
 } from "@/components/ui/tabs";
 import { PricingTable } from "../pages/Plans/components/PricingTable";
-import { providerPlans, contractorPlans } from "../pages/Plans/data/plans";
+import { providerPlans, contractorPlans, advertiserPlans } from "../pages/Plans/data/plans";
 
 const PlanSection = () => {
   return (
@@ -19,9 +20,10 @@ const PlanSection = () => {
         </div>
 
         <Tabs defaultValue="providers" className="space-y-12">
-          <TabsList className="grid w-full grid-cols-2 max-w-[400px] mx-auto">
+          <TabsList className="grid w-full grid-cols-3 max-w-[600px] mx-auto">
             <TabsTrigger value="providers">Para Prestadores</TabsTrigger>
             <TabsTrigger value="contractors">Para Contratantes</TabsTrigger>
+            <TabsTrigger value="advertisers">Para Anunciantes</TabsTrigger>
           </TabsList>
           
           <TabsContent value="providers" className="space-y-4">
@@ -30,6 +32,10 @@ const PlanSection = () => {
           
           <TabsContent value="contractors" className="space-y-4">
             <PricingTable plans={contractorPlans} />
+          </TabsContent>
+          
+          <TabsContent value="advertisers" className="space-y-4">
+            <PricingTable plans={advertiserPlans} />
           </TabsContent>
         </Tabs>
       </div>

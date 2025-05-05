@@ -46,7 +46,7 @@ export const PricingTable = ({ plans }: PricingTableProps) => {
             <CardContent className="flex-1">
               <div className="mb-6">
                 <span className="text-3xl font-bold">
-                  R$ {plan.price.toFixed(2)}
+                  R$ {plan.price.toFixed(2).replace('.', ',')}
                 </span>
                 <span className="text-muted-foreground">/mês</span>
               </div>
