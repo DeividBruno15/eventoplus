@@ -26,7 +26,7 @@ export const useUserEvents = (userId: string, userRole: 'contractor' | 'provider
               status
             `)
             .eq('contractor_id', userId)
-            .order('event_date', { ascending: false });
+            .order('event_date', { ascending: false }) as unknown as { data: Event[]; error: any };
             
           if (error) {
             throw error;
@@ -71,7 +71,7 @@ export const useUserEvents = (userId: string, userRole: 'contractor' | 'provider
               )
             `)
             .eq('provider_id', userId)
-            .eq('status', 'accepted');
+            .eq('status', 'accepted') as unknown as { data: { event: Event }[]; error: any };
             
           if (error) {
             throw error;
