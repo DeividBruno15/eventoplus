@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Event } from '@/types/events';
+import { Event } from '../types';
 
 export const useUserEvents = (userId: string, userRole: 'contractor' | 'provider') => {
   const [events, setEvents] = useState<Event[]>([]);
@@ -22,7 +22,8 @@ export const useUserEvents = (userId: string, userRole: 'contractor' | 'provider
               description,
               event_date,
               location,
-              image_url
+              image_url,
+              status
             `)
             .eq('contractor_id', userId)
             .order('event_date', { ascending: false });
@@ -33,19 +34,21 @@ export const useUserEvents = (userId: string, userRole: 'contractor' | 'provider
           
           // Type casting the event data
           const typedEvents = eventData?.map(event => {
+            let status: 'open' | 'closed' | 'published' | 'draft' = 'published';
+            
+            // Map the database status to our allowed types
+            if (['open', 'closed', 'published', 'draft'].includes(event.status)) {
+              status = event.status as 'open' | 'closed' | 'published' | 'draft';
+            }
+            
             return {
               id: event.id,
               name: event.name,
-              description: event.description,
+              description: event.description || '',
               event_date: event.event_date,
               location: event.location,
               image_url: event.image_url || '',
-              contractor_id: userId,
-              user_id: userId, // assuming user_id is the same as contractor_id for events
-              created_at: '', // default values for required fields
-              service_type: '', // default values for required fields
-              status: 'published' as const, // default values for required fields
-              service_requests: [] // default values for required fields
+              status: status
             } as Event;
           }) || [];
           
@@ -55,13 +58,15 @@ export const useUserEvents = (userId: string, userRole: 'contractor' | 'provider
           const { data: applications, error } = await supabase
             .from('event_applications')
             .select(`
-              event:event_id (
+              event_id,
+              event:events(
                 id,
                 name,
                 description,
                 event_date,
                 location,
-                image_url
+                image_url,
+                status
               )
             `)
             .eq('provider_id', userId)
@@ -73,22 +78,26 @@ export const useUserEvents = (userId: string, userRole: 'contractor' | 'provider
           
           // Extract events from applications and type them correctly
           const typedEvents = applications?.map(app => {
-            const event = app.event;
+            const eventData = app.event;
+            if (!eventData) return null;
+            
+            let status: 'open' | 'closed' | 'published' | 'draft' = 'published';
+            
+            // Map the database status to our allowed types
+            if (['open', 'closed', 'published', 'draft'].includes(eventData.status)) {
+              status = eventData.status as 'open' | 'closed' | 'published' | 'draft';
+            }
+            
             return {
-              id: event.id,
-              name: event.name,
-              description: event.description,
-              event_date: event.event_date,
-              location: event.location,
-              image_url: event.image_url || '',
-              contractor_id: '', // We don't have this data here
-              user_id: '', // We don't have this data here
-              created_at: '', // default values for required fields
-              service_type: '', // default values for required fields
-              status: 'published' as const, // default values for required fields
-              service_requests: [] // default values for required fields
+              id: eventData.id,
+              name: eventData.name,
+              description: eventData.description || '',
+              event_date: eventData.event_date,
+              location: eventData.location,
+              image_url: eventData.image_url || '',
+              status: status
             } as Event;
-          }) || [];
+          }).filter(Boolean) as Event[];
           
           setEvents(typedEvents);
         }

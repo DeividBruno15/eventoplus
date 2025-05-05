@@ -33,7 +33,22 @@ const ProviderDashboard = () => {
         .limit(5);
 
       if (error) throw error;
-      return data as DashboardServiceRequest[];
+      
+      // Properly format the data to match our interface
+      const formattedData = data?.map(item => ({
+        id: item.id,
+        event_type: item.event_type,
+        city: item.city,
+        contractor: Array.isArray(item.contractor) && item.contractor.length > 0 
+          ? {
+              id: item.contractor[0].id,
+              first_name: item.contractor[0].first_name,
+              last_name: item.contractor[0].last_name
+            }
+          : null
+      })) as DashboardServiceRequest[];
+      
+      return formattedData;
     }
   });
 

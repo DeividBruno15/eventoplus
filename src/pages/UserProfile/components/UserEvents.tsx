@@ -3,6 +3,7 @@ import { useUserEvents } from '../hooks/useUserEvents';
 import { EventsLoading } from './events/EventsLoading';
 import { EventsEmpty } from './events/EventsEmpty';
 import { EventsList } from './events/EventsList';
+import { Event as UserProfileEvent } from '../types';
 
 interface UserEventsProps {
   userId: string;
@@ -20,5 +21,5 @@ export const UserEvents = ({ userId, userRole }: UserEventsProps) => {
     return <EventsEmpty userRole={userRole} />;
   }
 
-  return <EventsList events={events} userRole={userRole} />;
+  return <EventsList events={events as UserProfileEvent[]} userRole={userRole} />;
 };
