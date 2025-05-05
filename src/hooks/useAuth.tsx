@@ -94,25 +94,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = async (formData: any) => {
     const { email, password, ...profileData } = formData;
     
-    // Ensure role is one of the valid options (contractor, provider, advertiser)
-    const validatedRole = ["contractor", "provider", "advertiser"].includes(profileData.role) 
+    // Explicitly validate the role to ensure it's one of the allowed values
+    const validRoles = ["contractor", "provider", "advertiser"];
+    const validatedRole = validRoles.includes(profileData.role) 
       ? profileData.role 
       : "contractor";
     
     try {
       setLoading(true);
+      console.log('Registering with role:', validatedRole, 'original role:', profileData.role);
+      
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             ...profileData,
-            role: validatedRole,  // Use validated role
+            role: validatedRole,
           },
         },
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error during registration:', error);
+        throw error;
+      }
 
       // Show confirmation dialog
       setConfirmationEmail(email);

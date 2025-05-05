@@ -28,6 +28,7 @@ export const RegisterForm = () => {
     number: false,
     special: false
   });
+  const [submitting, setSubmitting] = useState(false);
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerFormSchema),
@@ -66,6 +67,7 @@ export const RegisterForm = () => {
     }
     
     try {
+      setSubmitting(true);
       // Complete form submission with is_onboarding_complete set to true
       const completeFormData = {
         ...values,
@@ -80,6 +82,8 @@ export const RegisterForm = () => {
         description: error.message || "Ocorreu um erro ao processar seu cadastro",
         variant: "destructive",
       });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -107,7 +111,7 @@ export const RegisterForm = () => {
         )}
 
         <RegistrationButtons 
-          isSubmitting={loading} 
+          isSubmitting={submitting || loading} 
           onGoogleLogin={signInWithGoogle} 
         />
       </form>
