@@ -1,15 +1,16 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Check } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useSession } from '@/contexts/SessionContext';
 import { useSubscription } from '@/hooks/useSubscription';
 import { providerPlans, contractorPlans, advertiserPlans } from "./data/plans";
-import { Badge } from '@/components/ui/badge';
+import { PlansHeader } from './components/PlansHeader';
+import { ProviderPlans } from './components/ProviderPlans';
+import { ContractorPlans } from './components/ContractorPlans';
+import { AdvertiserPlans } from './components/AdvertiserPlans';
+import { NotLoggedInPlans } from './components/NotLoggedInPlans';
 
 const Plans = () => {
   const navigate = useNavigate();
@@ -67,141 +68,29 @@ const Plans = () => {
   return (
     <div className="min-h-screen bg-page">
       <main className="container py-12">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900 mb-4">
-            Planos e Benefícios
-          </h1>
-          <p className="text-lg text-muted-foreground">
-            Escolha o plano ideal para suas necessidades e comece a crescer conosco
-          </p>
-          {subscription && (
-            <div className="mt-4">
-              <Badge variant="subscription" className="px-3 py-1 text-base">
-                Você possui o plano <strong>{subscription.plan_name}</strong> ativo até {new Date(subscription.expires_at).toLocaleDateString('pt-BR')}
-              </Badge>
-            </div>
-          )}
-        </div>
+        <PlansHeader subscription={subscription} />
 
         <div className="space-y-8">
           {userRole === 'provider' ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {providerPlans.map((plan) => (
-                <Card key={plan.id} className={`${plan.featured ? 'border-primary shadow-lg' : ''} flex flex-col`}>
-                  <CardHeader>
-                    <CardTitle>
-                      {plan.name}
-                      {plan.featured && <span className="ml-2 text-xs bg-primary text-white px-2 py-1 rounded">RECOMENDADO</span>}
-                    </CardTitle>
-                    <div className="mt-2">
-                      <span className="text-3xl font-bold">R$ {plan.price}</span>
-                      <span className="text-muted-foreground">/mês</span>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="flex-grow">
-                    <ul className="space-y-2">
-                      {plan.features.map((feature, i) => (
-                        <li key={i} className="flex items-start">
-                          <Check className="h-5 w-5 text-primary shrink-0 mr-2" />
-                          <span>{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                  <CardFooter>
-                    <Button 
-                      className="w-full" 
-                      variant={plan.featured ? "default" : "outline"}
-                      onClick={() => handleSubscribe(plan.id)}
-                      disabled={isSubscribing}
-                    >
-                      {isSubscribing ? "Processando..." : "Assinar Plano"}
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
+            <ProviderPlans 
+              plans={providerPlans} 
+              onSubscribe={handleSubscribe} 
+              isSubscribing={isSubscribing} 
+            />
           ) : userRole === 'contractor' ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {contractorPlans.map((plan) => (
-                <Card key={plan.id} className={`${plan.featured ? 'border-primary shadow-lg' : ''} flex flex-col`}>
-                  <CardHeader>
-                    <CardTitle>
-                      {plan.name}
-                      {plan.featured && <span className="ml-2 text-xs bg-primary text-white px-2 py-1 rounded">RECOMENDADO</span>}
-                    </CardTitle>
-                    <div className="mt-2">
-                      <span className="text-3xl font-bold">R$ {plan.price}</span>
-                      <span className="text-muted-foreground">/mês</span>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="flex-grow">
-                    <ul className="space-y-2">
-                      {plan.features.map((feature, i) => (
-                        <li key={i} className="flex items-start">
-                          <Check className="h-5 w-5 text-primary shrink-0 mr-2" />
-                          <span>{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                  <CardFooter>
-                    <Button 
-                      className="w-full" 
-                      variant={plan.featured ? "default" : "outline"}
-                      onClick={() => handleSubscribe(plan.id)}
-                      disabled={isSubscribing}
-                    >
-                      {isSubscribing ? "Processando..." : "Assinar Plano"}
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
+            <ContractorPlans 
+              plans={contractorPlans} 
+              onSubscribe={handleSubscribe} 
+              isSubscribing={isSubscribing} 
+            />
           ) : userRole === 'advertiser' ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {advertiserPlans.map((plan) => (
-                <Card key={plan.id} className={`${plan.featured ? 'border-primary shadow-lg' : ''} flex flex-col`}>
-                  <CardHeader>
-                    <CardTitle>
-                      {plan.name}
-                      {plan.featured && <span className="ml-2 text-xs bg-primary text-white px-2 py-1 rounded">RECOMENDADO</span>}
-                    </CardTitle>
-                    <div className="mt-2">
-                      <span className="text-3xl font-bold">R$ {plan.price.toFixed(2).replace('.', ',')}</span>
-                      <span className="text-muted-foreground">/mês</span>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="flex-grow">
-                    <ul className="space-y-2">
-                      {plan.features.map((feature, i) => (
-                        <li key={i} className="flex items-start">
-                          <Check className="h-5 w-5 text-primary shrink-0 mr-2" />
-                          <span>{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                  <CardFooter>
-                    <Button 
-                      className="w-full" 
-                      variant={plan.featured ? "default" : "outline"}
-                      onClick={() => handleSubscribe(plan.id)}
-                      disabled={isSubscribing}
-                    >
-                      {isSubscribing ? "Processando..." : "Assinar Plano"}
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
+            <AdvertiserPlans 
+              plans={advertiserPlans} 
+              onSubscribe={handleSubscribe} 
+              isSubscribing={isSubscribing} 
+            />
           ) : (
-            <div className="text-center py-10">
-              <p className="text-lg text-muted-foreground mb-4">
-                Você precisa estar logado e ter um tipo de conta definido para ver os planos disponíveis.
-              </p>
-              <Button onClick={() => navigate('/login')}>Fazer Login</Button>
-            </div>
+            <NotLoggedInPlans />
           )}
         </div>
       </main>
