@@ -44,14 +44,18 @@ export const useUserRoles = (user: any) => {
         }
         
         // Check if user has created any venues as an advertiser
-        const { data: advertiserData, error: advertiserError } = await supabase
-          .from('venues')
-          .select('id')
-          .eq('user_id', user.id)
-          .limit(1);
-          
-        if (!advertiserError && advertiserData && advertiserData.length > 0) {
-          setHasAdvertiserRole(true);
+        try {
+          const { data: advertiserData, error: advertiserError } = await supabase
+            .from('venues')
+            .select('id')
+            .eq('user_id', user.id)
+            .limit(1);
+            
+          if (!advertiserError && advertiserData && advertiserData.length > 0) {
+            setHasAdvertiserRole(true);
+          }
+        } catch (error) {
+          console.error('Error checking advertiser role:', error);
         }
         
       } catch (error) {
