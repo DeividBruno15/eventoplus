@@ -12,7 +12,7 @@ export const registerFormSchema = z.object({
   last_name: z.string(),
   person_type: z.enum(['fisica', 'juridica']),
   document_number: z.string().min(11, 'CPF/CNPJ inválido'),
-  role: z.enum(['contractor', 'provider']),
+  role: z.enum(['contractor', 'provider', 'advertiser']),
   phone_number: z.string().min(10, 'Telefone inválido'),
   zipcode: z.string().min(8, 'CEP inválido'),
   street: z.string().min(2, 'Rua é obrigatória'),

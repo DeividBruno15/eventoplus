@@ -98,6 +98,7 @@ export type Database = {
           id: string
           message: string
           provider_id: string
+          rejection_reason: string | null
           service_category: string | null
           status: string
         }
@@ -107,6 +108,7 @@ export type Database = {
           id?: string
           message: string
           provider_id: string
+          rejection_reason?: string | null
           service_category?: string | null
           status?: string
         }
@@ -116,6 +118,7 @@ export type Database = {
           id?: string
           message?: string
           provider_id?: string
+          rejection_reason?: string | null
           service_category?: string | null
           status?: string
         }
@@ -128,6 +131,72 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      event_rejection_log: {
+        Row: {
+          application_id: string
+          applied_to_main_table: boolean | null
+          event_id: string
+          id: string
+          provider_id: string
+          reason: string | null
+          rejected_by: string | null
+          rejection_date: string | null
+        }
+        Insert: {
+          application_id: string
+          applied_to_main_table?: boolean | null
+          event_id: string
+          id?: string
+          provider_id: string
+          reason?: string | null
+          rejected_by?: string | null
+          rejection_date?: string | null
+        }
+        Update: {
+          application_id?: string
+          applied_to_main_table?: boolean | null
+          event_id?: string
+          id?: string
+          provider_id?: string
+          reason?: string | null
+          rejected_by?: string | null
+          rejection_date?: string | null
+        }
+        Relationships: []
+      }
+      event_rejections: {
+        Row: {
+          application_data: Json | null
+          application_id: string
+          event_id: string
+          id: string
+          provider_id: string
+          reason: string | null
+          rejected_by: string | null
+          rejection_date: string | null
+        }
+        Insert: {
+          application_data?: Json | null
+          application_id: string
+          event_id: string
+          id?: string
+          provider_id: string
+          reason?: string | null
+          rejected_by?: string | null
+          rejection_date?: string | null
+        }
+        Update: {
+          application_data?: Json | null
+          application_id?: string
+          event_id?: string
+          id?: string
+          provider_id?: string
+          reason?: string | null
+          rejected_by?: string | null
+          rejection_date?: string | null
+        }
+        Relationships: []
       }
       events: {
         Row: {
@@ -180,6 +249,27 @@ export type Database = {
           status?: string
           user_id?: string
           zipcode?: string | null
+        }
+        Relationships: []
+      }
+      logs: {
+        Row: {
+          created_at: string | null
+          details: Json | null
+          id: number
+          message: string
+        }
+        Insert: {
+          created_at?: string | null
+          details?: Json | null
+          id?: number
+          message: string
+        }
+        Update: {
+          created_at?: string | null
+          details?: Json | null
+          id?: number
+          message?: string
         }
         Relationships: []
       }
@@ -289,6 +379,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      provider_services_edits: {
+        Row: {
+          edit_date: string | null
+          id: string
+          next_allowed_edit_date: string | null
+          provider_id: string
+        }
+        Insert: {
+          edit_date?: string | null
+          id?: string
+          next_allowed_edit_date?: string | null
+          provider_id: string
+        }
+        Update: {
+          edit_date?: string | null
+          id?: string
+          next_allowed_edit_date?: string | null
+          provider_id?: string
+        }
+        Relationships: []
       }
       service_categories: {
         Row: {
@@ -523,9 +634,29 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_edit_provider_services: {
+        Args: { provider_id_param: string }
+        Returns: boolean
+      }
       create_or_get_conversation: {
         Args: { user_id_one: string; user_id_two: string }
         Returns: string
+      }
+      delete_application: {
+        Args: { app_id: string }
+        Returns: boolean
+      }
+      ensure_rejection_log_table: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      force_delete_application: {
+        Args: { app_id: string }
+        Returns: boolean
+      }
+      force_update_application_status: {
+        Args: { app_id: string; new_status: string; reason_text: string }
+        Returns: boolean
       }
       get_conversation_details: {
         Args: { p_conversation_id: string; p_user_id: string }
@@ -549,6 +680,10 @@ export type Database = {
       get_user_role: {
         Args: { user_id: string }
         Returns: string
+      }
+      reject_application: {
+        Args: { application_id: string; rejection_text: string }
+        Returns: boolean
       }
     }
     Enums: {

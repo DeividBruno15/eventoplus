@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 import { Check } from 'lucide-react';
 
 interface RoleCardProps {
-  role: 'contractor' | 'provider';
+  role: 'contractor' | 'provider' | 'advertiser';
   selected: boolean;
   onClick: () => void;
 }
@@ -11,12 +11,14 @@ interface RoleCardProps {
 export const RoleCard = ({ role, selected, onClick }: RoleCardProps) => {
   const titles = {
     contractor: 'Contratante',
-    provider: 'Prestador de Serviços'
+    provider: 'Prestador de Serviços',
+    advertiser: 'Anunciante de Locais'
   };
 
   const descriptions = {
     contractor: 'Estou procurando profissionais para organizar meus eventos',
-    provider: 'Ofereço serviços e quero ser encontrado por potenciais clientes'
+    provider: 'Ofereço serviços e quero ser encontrado por potenciais clientes',
+    advertiser: 'Possuo espaços para eventos e quero anunciá-los na plataforma'
   };
 
   return (

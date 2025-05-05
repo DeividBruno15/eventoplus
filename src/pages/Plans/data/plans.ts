@@ -124,3 +124,69 @@ export const contractorPlans: Plan[] = [
     featured: false
   }
 ];
+
+export const advertiserPlans: Plan[] = [
+  {
+    id: "advertiser-basic",
+    name: "Básico",
+    description: "Ideal para começar a anunciar locais",
+    price: 19.90,
+    benefits: [
+      "1 local anunciado",
+      "Fotos do espaço",
+      "Descrição detalhada",
+      "Suporte via FAQ"
+    ],
+    features: [
+      "1 local anunciado",
+      "Fotos do espaço",
+      "Descrição detalhada",
+      "Suporte via FAQ"
+    ],
+    featured: false
+  },
+  {
+    id: "advertiser-premium",
+    name: "Premium",
+    description: "Para anunciantes profissionais",
+    price: 39.90,
+    benefits: [
+      "Até 5 locais anunciados",
+      "Destaque nas buscas",
+      "Estatísticas de visualização",
+      "Suporte prioritário",
+      "Selo de verificação"
+    ],
+    features: [
+      "Até 5 locais anunciados",
+      "Destaque nas buscas",
+      "Estatísticas de visualização",
+      "Suporte prioritário",
+      "Selo de verificação"
+    ],
+    featured: true
+  },
+  {
+    id: "advertiser-enterprise",
+    name: "Enterprise",
+    description: "Potencialize seus anúncios",
+    price: 79.90,
+    benefits: [
+      "Locais ilimitados",
+      "Destaque máximo",
+      "Estatísticas completas",
+      "Suporte VIP",
+      "Integração com calendário",
+      "Agendamento automático"
+    ],
+    features: [
+      "Locais ilimitados",
+      "Destaque máximo",
+      "Estatísticas completas",
+      "Suporte VIP",
+      "Integração com calendário",
+      "Agendamento automático"
+    ],
+    featured: false
+  }
+];

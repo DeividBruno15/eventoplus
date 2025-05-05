@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 export const useUserRoles = (user: any) => {
   const [hasProviderRole, setHasProviderRole] = useState<boolean | null>(null);
   const [hasContractorRole, setHasContractorRole] = useState<boolean | null>(null);
+  const [hasAdvertiserRole, setHasAdvertiserRole] = useState<boolean | null>(null);
   
   useEffect(() => {
     const checkUserRoles = async () => {
@@ -16,6 +17,8 @@ export const useUserRoles = (user: any) => {
           setHasProviderRole(true);
         } else if (user.user_metadata?.role === 'contractor') {
           setHasContractorRole(true);
+        } else if (user.user_metadata?.role === 'advertiser') {
+          setHasAdvertiserRole(true);
         }
         
         // Check if user has a provider profile
@@ -40,6 +43,17 @@ export const useUserRoles = (user: any) => {
           setHasContractorRole(true);
         }
         
+        // Check if user has created any venues as an advertiser
+        const { data: advertiserData, error: advertiserError } = await supabase
+          .from('venues')
+          .select('id')
+          .eq('user_id', user.id)
+          .limit(1);
+          
+        if (!advertiserError && advertiserData && advertiserData.length > 0) {
+          setHasAdvertiserRole(true);
+        }
+        
       } catch (error) {
         console.error('Error checking user roles:', error);
       }
@@ -48,5 +62,5 @@ export const useUserRoles = (user: any) => {
     checkUserRoles();
   }, [user]);
 
-  return { hasProviderRole, hasContractorRole };
+  return { hasProviderRole, hasContractorRole, hasAdvertiserRole };
 };

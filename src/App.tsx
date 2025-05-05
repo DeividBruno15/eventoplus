@@ -29,6 +29,8 @@ import ResetPassword from "./pages/ResetPassword";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import UserProfilePage from "./pages/UserProfile";
+import Venues from "./pages/Venues";
+import CreateVenue from "./pages/Venues/CreateVenue";
 import { Toaster } from "./components/ui/sonner";
 import { AuthProvider } from "./hooks/useAuth";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -71,6 +73,9 @@ function App() {
                 <Route path="/provider/:id" element={<ProviderProfile />} />
                 <Route path="/request-quote/:id?" element={<RequestQuote />} />
                 <Route path="/user-profile/:id" element={<UserProfilePage />} />
+                {/* Venue routes */}
+                <Route path="/venues" element={<Venues />} />
+                <Route path="/venues/create" element={<CreateVenue />} />
               </Route>
               
               {/* 404 route */}
