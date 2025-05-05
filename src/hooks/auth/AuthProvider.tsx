@@ -78,27 +78,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = async (formData: RegisterFormData) => {
     const { email, password, ...profileData } = formData;
     
-    // Apenas estes papéis são aceitos pelo banco de dados
-    const validRoles = ["contractor", "provider", "customer"];
-    
-    // Mapear roles para valores válidos no banco
-    let dbRole: string;
-    
-    // Se for "advertiser", mapeamos para "customer"
-    if (profileData.role === "advertiser") {
-      dbRole = "customer";
-    } 
-    // Se não for um dos papéis válidos, usamos um valor padrão
-    else if (!validRoles.includes(profileData.role as any)) {
-      dbRole = "contractor"; 
-    } 
-    // Caso contrário, mantemos o papel original
-    else {
-      dbRole = profileData.role;
-    }
-    
     try {
       setLoading(true);
+      
+      // Map advertiser role to customer for database compatibility
+      const dbRole = profileData.role === "advertiser" ? "customer" : profileData.role;
+      
       console.log('Registrando com papel:', dbRole, 'papel original:', profileData.role);
       
       const { error } = await supabase.auth.signUp({
@@ -107,7 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         options: {
           data: {
             ...profileData,
-            role: dbRole, // Usar o papel mapeado para o banco de dados
+            role: dbRole, // Use the database-compatible role
           },
         },
       });
