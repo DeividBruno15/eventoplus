@@ -77,11 +77,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = async (formData: any) => {
     const { email, password, ...profileData } = formData;
     
-    // Explicitly validate the role to ensure it's one of the allowed values
-    const validRoles = ["contractor", "provider", "advertiser"];
-    const validatedRole = validRoles.includes(profileData.role) 
-      ? profileData.role 
-      : "contractor";
+    // Verificar se o role é válido para o banco de dados
+    // Alterado para garantir que o role seja um dos permitidos no banco
+    const validRoles = ["contractor", "provider", "customer"];
+    
+    // Mapear 'advertiser' para um role aceito pelo banco de dados
+    // Assumindo que 'customer' é o role equivalente para anunciantes
+    let validatedRole = profileData.role;
+    if (validatedRole === "advertiser") {
+      validatedRole = "customer";
+    } else if (!validRoles.includes(validatedRole)) {
+      validatedRole = "contractor"; // Valor padrão se não for um dos roles válidos
+    }
     
     try {
       setLoading(true);
@@ -93,7 +100,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         options: {
           data: {
             ...profileData,
-            role: validatedRole,
+            role: validatedRole, // Usar o role mapeado/validado
           },
         },
       });

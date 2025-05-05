@@ -54,15 +54,18 @@ export const RegisterForm = () => {
     
     try {
       setSubmitting(true);
-      // Complete form submission with is_onboarding_complete set to true
+      
+      // Garantir que is_onboarding_complete seja enviado como booleano
       const completeFormData = {
         ...values,
         is_onboarding_complete: true,
       };
       
+      console.log('Submitting registration with data:', completeFormData);
       await signUp(completeFormData);
       // A tela de confirmação é exibida dentro do hook useAuth
     } catch (error: any) {
+      console.error('Registration error:', error);
       toast({
         title: "Erro ao cadastrar",
         description: error.message || "Ocorreu um erro ao processar seu cadastro",
