@@ -78,25 +78,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = async (formData: RegisterFormData) => {
     const { email, password, ...profileData } = formData;
     
-    // Verificar se o role é válido para o banco de dados
-    // Alterado para garantir que o role seja um dos permitidos no banco
+    // Apenas estes papéis são aceitos pelo banco de dados
     const validRoles = ["contractor", "provider", "customer"];
     
-    // Mapear 'advertiser' para um role aceito pelo banco de dados
-    // Assumindo que 'customer' é o role equivalente para anunciantes
-    // Note: We're creating a separate variable for the database role
+    // Mapear roles para valores válidos no banco
     let dbRole: string;
+    
+    // Se for "advertiser", mapeamos para "customer"
     if (profileData.role === "advertiser") {
       dbRole = "customer";
-    } else if (!validRoles.includes(profileData.role)) {
-      dbRole = "contractor"; // Valor padrão se não for um dos roles válidos
-    } else {
+    } 
+    // Se não for um dos papéis válidos, usamos um valor padrão
+    else if (!validRoles.includes(profileData.role as any)) {
+      dbRole = "contractor"; 
+    } 
+    // Caso contrário, mantemos o papel original
+    else {
       dbRole = profileData.role;
     }
     
     try {
       setLoading(true);
-      console.log('Registering with role:', dbRole, 'original role:', profileData.role);
+      console.log('Registrando com papel:', dbRole, 'papel original:', profileData.role);
       
       const { error } = await supabase.auth.signUp({
         email,
@@ -104,21 +107,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         options: {
           data: {
             ...profileData,
-            role: dbRole, // Usar o role mapeado/validado
+            role: dbRole, // Usar o papel mapeado para o banco de dados
           },
         },
       });
       
       if (error) {
-        console.error('Error during registration:', error);
+        console.error('Erro durante o registro:', error);
         throw error;
       }
 
-      // Show confirmation dialog
+      // Mostrar diálogo de confirmação
       setConfirmationEmail(email);
       setShowEmailConfirmation(true);
     } catch (error) {
-      console.error('Error during registration:', error);
+      console.error('Erro durante o registro:', error);
       throw error;
     } finally {
       setLoading(false);
