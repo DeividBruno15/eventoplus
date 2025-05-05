@@ -62,7 +62,7 @@ const HeroContent = () => {
           <div className="bg-primary/10 rounded-full p-1">
             <Check className="text-primary h-4 w-4" />
           </div>
-          <span className="text-sm text-gray-600">Orçamentos personalizados</span>
+          <span className="text-sm text-gray-600">Divulgação de espaços</span>
         </div>
       </motion.div>
     </div>

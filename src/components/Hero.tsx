@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import ChatAnimation from './hero/ChatAnimation';
 import EventCreationAnimation from './hero/EventCreationAnimation';
+import VenueListingAnimation from './hero/VenueListingAnimation';
 import HeroContent from './hero/HeroContent';
 
 const Hero = () => {
@@ -19,6 +20,13 @@ const Hero = () => {
         }
       } else if (animationPhase === 'event') {
         if (animationStep === 3) { // Number of event steps - 1
+          setAnimationPhase('venue');
+          setAnimationStep(0);
+        } else {
+          setAnimationStep(prev => prev + 1);
+        }
+      } else if (animationPhase === 'venue') {
+        if (animationStep === 3) { // Number of venue steps - 1
           setAnimationPhase('chat');
           setAnimationStep(0);
         } else {
@@ -38,8 +46,10 @@ const Hero = () => {
         <div className="relative">
           {animationPhase === 'chat' ? (
             <ChatAnimation animationStep={animationStep} />
-          ) : (
+          ) : animationPhase === 'event' ? (
             <EventCreationAnimation animationStep={animationStep} />
+          ) : (
+            <VenueListingAnimation animationStep={animationStep} />
           )}
         </div>
       </div>
