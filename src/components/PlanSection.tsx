@@ -35,6 +35,12 @@ const PlanSection = () => {
           </TabsContent>
           
           <TabsContent value="advertisers" className="space-y-4">
+            <div className="max-w-3xl mx-auto mb-8">
+              <p className="text-center text-gray-600">
+                Para proprietários de espaços e locais que desejam aumentar a visibilidade 
+                e atrair mais eventos. Anuncie seu espaço e conecte-se diretamente com organizadores de eventos.
+              </p>
+            </div>
             <PricingTable plans={advertiserPlans} />
           </TabsContent>
         </Tabs>

@@ -10,6 +10,9 @@ export const NotLoggedInPlans = () => {
       <p className="text-lg text-muted-foreground mb-4">
         Você precisa estar logado e ter um tipo de conta definido para ver os planos disponíveis.
       </p>
+      <p className="text-md text-muted-foreground mb-6">
+        Temos planos específicos para prestadores de serviços, contratantes e anunciantes de locais.
+      </p>
       <Button onClick={() => navigate('/login')}>Fazer Login</Button>
     </div>
   );

@@ -68,7 +68,7 @@ const Plans = () => {
   return (
     <div className="min-h-screen bg-page">
       <main className="container py-12">
-        <PlansHeader subscription={subscription} />
+        <PlansHeader subscription={subscription} userRole={userRole} />
 
         <div className="space-y-8">
           {userRole === 'provider' ? (
