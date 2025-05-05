@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/card';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/auth';
 import { LoginForm } from '@/components/auth/LoginForm';
 
 const Login = () => {

@@ -7,7 +7,7 @@ import { BasicInfoFields } from './BasicInfoFields';
 import { AddressFields } from '@/components/address/AddressFields';
 import { DocumentFields } from './DocumentFields';
 import { registerFormSchema, RegisterFormData } from '../types';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/auth';
 import { useToast } from '@/hooks/use-toast';
 import { ServiceCategoriesField } from './ServiceCategoriesField';
 import { PasswordStrengthMeter } from './PasswordStrengthMeter';

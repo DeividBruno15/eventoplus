@@ -1,0 +1,36 @@
+
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+
+interface EmailConfirmationDialogProps {
+  open: boolean;
+  onClose: () => void;
+  email: string;
+}
+
+export const EmailConfirmationDialog = ({ open, onClose, email }: EmailConfirmationDialogProps) => {
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Cadastro realizado com sucesso!</DialogTitle>
+          <DialogDescription>
+            Enviamos um e-mail de confirmação para <strong>{email}</strong>. 
+            Por favor, verifique sua caixa de entrada e clique no link para ativar sua conta.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex flex-col gap-4 mt-4">
+          <p className="text-sm text-muted-foreground">
+            Se você não receber o e-mail em poucos minutos, verifique sua pasta de spam ou lixo eletrônico.
+          </p>
+          <div className="flex justify-center">
+            <Button asChild>
+              <Link to="/login">Ir para login</Link>
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};

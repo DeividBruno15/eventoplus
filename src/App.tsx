@@ -32,7 +32,7 @@ import UserProfilePage from "./pages/UserProfile";
 import Venues from "./pages/Venues";
 import CreateVenue from "./pages/Venues/CreateVenue";
 import { Toaster } from "./components/ui/sonner";
-import { AuthProvider } from "./hooks/useAuth";
+import { AuthProvider } from "./hooks/auth";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import DashboardLayout from "./layouts/DashboardLayout";
 
