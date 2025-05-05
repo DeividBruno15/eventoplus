@@ -20,7 +20,7 @@ export const useApplicationManagement = (
   } = useApplicationApprovalHandler({ 
     eventId: event?.id || '',
     onSuccess: updateApplicationStatus ? 
-      async (applicationId: string, providerId: string) => {
+      async (applicationId: string) => {
         await updateApplicationStatus(applicationId, 'accepted');
       } : undefined
   });
