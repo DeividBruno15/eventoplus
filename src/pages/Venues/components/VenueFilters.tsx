@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Search, SortAsc } from "lucide-react";
+import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { venueTypes, ratingOptions, sortingOptions } from "../constants/venueFiltersConstants";
+import { venueTypes, ratingOptions } from "../constants/venueFiltersConstants";
 
 export interface FiltersState {
   searchQuery: string;
@@ -64,7 +64,7 @@ const VenueFilters = ({ filters, onFilterChange, resultsCount }: VenueFiltersPro
     <div className="space-y-4">
       {/* Barra de busca e filtros em linha */}
       <div className="flex flex-wrap gap-3 items-center">
-        {/* Barra de busca mais larga */}
+        {/* Barra de busca */}
         <div className="relative w-64 flex-shrink">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
@@ -74,24 +74,6 @@ const VenueFilters = ({ filters, onFilterChange, resultsCount }: VenueFiltersPro
             className="pl-8 h-9"
           />
         </div>
-        
-        {/* Ordenação */}
-        <Select 
-          value={filters.sortBy} 
-          onValueChange={(value) => updateFilter("sortBy", value)}
-        >
-          <SelectTrigger className="w-[160px] h-9">
-            <div className="flex items-center gap-2">
-              <SortAsc className="h-4 w-4" />
-              <SelectValue placeholder="Ordenar por" />
-            </div>
-          </SelectTrigger>
-          <SelectContent>
-            {sortingOptions.map((option) => (
-              <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
         
         {/* Filtro de tipo de local */}
         <Select 
