@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { UserProfileHeader } from "./components/UserProfileHeader";
@@ -14,7 +13,7 @@ import { UserProfileData } from "./types";
 
 const UserProfile = () => {
   const { id } = useParams();
-  const { userData, loading, error } = useUserProfileData(id || "");
+  const { userData, loading } = useUserProfileData(id || "");
   const { ratings, loading: ratingsLoading, averageRating, totalRatings } = useUserRatings({ userId: id || "" });
   const [activeTab, setActiveTab] = useState("sobre");
   const [eventCount, setEventCount] = useState(0);
@@ -66,7 +65,7 @@ const UserProfile = () => {
     );
   }
 
-  if (error || !userData) {
+  if (!userData) {
     return (
       <div className="container mx-auto px-4 py-20 text-center">
         <h2 className="text-2xl font-bold mb-2">Usuário não encontrado</h2>

@@ -97,6 +97,17 @@ export function NotificationsMenu() {
                 <NotificationItem
                   key={notification.id}
                   notification={notification}
+                  onClick={(notification) => {
+                    // Navegar para o link da notificação se existir
+                    if (notification.link) {
+                      window.location.href = notification.link;
+                      setOpen(false);
+                    }
+                    // Marcar como lida ao clicar
+                    if (!notification.read) {
+                      markAsRead(notification.id);
+                    }
+                  }}
                   onMarkAsRead={() => markAsRead(notification.id)}
                   onDelete={() => deleteNotification(notification.id)}
                 />

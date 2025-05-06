@@ -22,3 +22,13 @@ export interface UserProfileData {
   companies?: Company[];
   services?: Service[];
 }
+
+export interface Event {
+  id: string;
+  name: string;
+  description: string;
+  event_date: string;
+  location: string;
+  image_url?: string;
+  status: 'open' | 'closed' | 'published' | 'draft';
+}
