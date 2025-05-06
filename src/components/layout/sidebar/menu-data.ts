@@ -1,4 +1,6 @@
-import { Home, Calendar, Users, CheckSquare, UserPlus, Briefcase, MessageSquare, Star, CreditCard } from 'lucide-react';
+
+import { Home, Calendar, Users, CheckSquare, UserPlus, Briefcase, MessageSquare, Star, CreditCard, HelpCircle, Settings } from 'lucide-react';
+import { MenuItem } from './types';
 
 export const menuItems = [
   {
@@ -55,4 +57,29 @@ export const menuItems = [
     icon: CreditCard,
     roles: ['all']
   },
+];
+
+// Função para obter itens de menu baseado no papel do usuário
+export const getMainMenuItems = (userRole: string): MenuItem[] => {
+  return menuItems
+    .filter(item => item.roles.includes('all') || item.roles.includes(userRole))
+    .map(item => ({
+      path: item.href,
+      name: item.label,
+      icon: item.icon
+    }));
+};
+
+// Itens do menu de suporte
+export const supportMenuItems: MenuItem[] = [
+  {
+    path: '/help-center',
+    name: 'Central de Ajuda',
+    icon: HelpCircle
+  },
+  {
+    path: '/settings',
+    name: 'Configurações',
+    icon: Settings
+  }
 ];

@@ -6,7 +6,7 @@ import { PaymentHistory } from '@/components/payment/PaymentHistory';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Tab, Tabs, TabList, TabPanel } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsContent, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 
@@ -90,14 +90,14 @@ const Payments = () => {
         
         <div className="col-span-2">
           <Tabs defaultValue="history">
-            <TabList>
-              <Tab value="history">Histórico</Tab>
-              <Tab value="methods">Métodos de Pagamento</Tab>
-            </TabList>
-            <TabPanel value="history">
+            <TabsList>
+              <TabsTrigger value="history">Histórico</TabsTrigger>
+              <TabsTrigger value="methods">Métodos de Pagamento</TabsTrigger>
+            </TabsList>
+            <TabsContent value="history">
               <PaymentHistory />
-            </TabPanel>
-            <TabPanel value="methods">
+            </TabsContent>
+            <TabsContent value="methods">
               <Card>
                 <CardHeader>
                   <CardTitle>Métodos de Pagamento</CardTitle>
@@ -112,7 +112,7 @@ const Payments = () => {
                   <Button className="w-full">Adicionar Método de Pagamento</Button>
                 </CardFooter>
               </Card>
-            </TabPanel>
+            </TabsContent>
           </Tabs>
         </div>
       </div>

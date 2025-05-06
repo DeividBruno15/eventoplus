@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
 import Index from "./pages/Index";
@@ -62,13 +63,8 @@ function App() {
                 <Route path="/providers/:id" element={<ProviderProfile />} />
                 <Route path="/onboarding" element={<Onboarding />} />
 
-                <Route path="/dashboard" element={<DashboardLayout />}>
-                  <Route index element={<Dashboard />} />
-                  <Route path="profile" element={<Profile />} />
-                  <Route path="settings" element={<Settings />} />
-                </Route>
-
                 <Route path="/" element={<DashboardLayout />}>
+                  <Route path="dashboard" element={<Dashboard />} />
                   <Route path="events" element={<Events />} />
                   <Route path="events/:id" element={<EventDetail />} />
                   <Route path="events/create" element={<CreateEvent />} />
@@ -82,11 +78,10 @@ function App() {
 
                   <Route path="chat" element={<Chat />} />
                   <Route path="chat/:conversationId" element={<Conversation />} />
+                  <Route path="payments" element={<Payments />} />
                   <Route path="profile" element={<Profile />} />
                   <Route path="settings" element={<Settings />} />
                 </Route>
-
-                <Route path="/payments" element={<Payments />} />
 
                 <Route path="*" element={<NotFound />} />
               </Routes>
