@@ -7,7 +7,7 @@ import {
   Settings,
   HelpCircle,
   LifeBuoy,
-  Building
+  Store
 } from 'lucide-react';
 import { MenuItem } from './types';
 
@@ -19,7 +19,7 @@ export const getMainMenuItems = (userRole: string): MenuItem[] => {
   
   // Add events/announcements item based on user role
   if (userRole === 'advertiser') {
-    baseItems.push({ path: '/venues', name: 'Anúncios', icon: Building });
+    baseItems.push({ path: '/venues', name: 'Anúncios', icon: Store });
   } else {
     baseItems.push({ path: '/events', name: 'Eventos', icon: Calendar });
   }
