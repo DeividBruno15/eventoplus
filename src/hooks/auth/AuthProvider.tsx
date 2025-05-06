@@ -86,7 +86,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       console.log('Registrando com papel:', profileData.role);
       
-      let signUpOptions: {
+      // Define the sign up parameters with proper TypeScript typing
+      const signUpParams: {
         email: string;
         password: string;
         options: {
@@ -98,7 +99,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         password,
         options: {
           data: profileData,
-        },
+        }
       };
 
       // Only add email redirect if email verification is enabled
@@ -106,10 +107,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const redirectTo = `${window.location.origin}/login`;
         console.log('Configurando redirect para:', redirectTo);
         
-        signUpOptions.options.emailRedirectTo = redirectTo;
+        signUpParams.options.emailRedirectTo = redirectTo;
       }
       
-      const { error, data } = await supabase.auth.signUp(signUpOptions);
+      const { error, data } = await supabase.auth.signUp(signUpParams);
       
       if (error) {
         console.error('Erro durante o registro:', error);
