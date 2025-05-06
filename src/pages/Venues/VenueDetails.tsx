@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Calendar } from "@/components/ui/calendar";
@@ -41,7 +40,7 @@ interface VenueDetails {
     city: string;
     state: string;
     zipcode: string;
-  };
+  } | null; // Mark venue as potentially null
 }
 
 const amenityLabels: Record<string, string> = {
@@ -287,22 +286,26 @@ const VenueDetailsPage = () => {
           
           <Separator />
           
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold">Local</h2>
-            <div className="space-y-2">
-              <p className="text-gray-700">
-                <span className="font-medium">{venue.venue.name}</span>
-              </p>
-              <p className="text-gray-700">
-                {venue.venue.street}, {venue.venue.number} - {venue.venue.neighborhood}
-              </p>
-              <p className="text-gray-700">
-                {venue.venue.city}/{venue.venue.state} - CEP: {venue.venue.zipcode}
-              </p>
-            </div>
-          </div>
-          
-          <Separator />
+          {/* Modificação aqui para verificar se venue.venue existe antes de acessá-lo */}
+          {venue.venue && (
+            <>
+              <div className="space-y-4">
+                <h2 className="text-xl font-semibold">Local</h2>
+                <div className="space-y-2">
+                  <p className="text-gray-700">
+                    <span className="font-medium">{venue.venue.name}</span>
+                  </p>
+                  <p className="text-gray-700">
+                    {venue.venue.street}, {venue.venue.number} - {venue.venue.neighborhood}
+                  </p>
+                  <p className="text-gray-700">
+                    {venue.venue.city}/{venue.venue.state} - CEP: {venue.venue.zipcode}
+                  </p>
+                </div>
+              </div>
+              <Separator />
+            </>
+          )}
           
           <div className="space-y-4">
             <h2 className="text-xl font-semibold">Comodidades</h2>
