@@ -25,9 +25,15 @@ export const getSidebarMenuItems = (userRole: string) => {
   ];
   
   // Adiciona eventos apenas para provider e contractor
-  if (userRole === 'provider' || userRole === 'contractor') {
+  if (userRole === 'provider') {
     mainMenuItems.push({
       name: "Eventos",
+      path: "/events",
+      icon: Calendar,
+    });
+  } else if (userRole === 'contractor') {
+    mainMenuItems.push({
+      name: "Meus Eventos",
       path: "/events",
       icon: Calendar,
     });

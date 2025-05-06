@@ -22,10 +22,17 @@ export const menuItems: MenuItem[] = [
     path: "/dashboard",
   },
   {
+    name: "Meus Eventos",
+    icon: Calendar,
+    path: "/events",
+    roles: ["contractor"],
+    badge: 0,
+  },
+  {
     name: "Eventos",
     icon: Calendar,
     path: "/events",
-    roles: ["provider", "contractor"],
+    roles: ["provider"],
     badge: 0,
   },
   {
