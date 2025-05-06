@@ -15,7 +15,11 @@ const VenueCard = ({ announcement }: VenueCardProps) => {
     <Card key={announcement.id} className="overflow-hidden hover:shadow-md transition-shadow">
       <div 
         className="h-48 bg-gray-200 bg-cover bg-center"
-        style={{ backgroundImage: announcement.image_url ? `url(${announcement.image_url})` : undefined }}
+        style={{ 
+          backgroundImage: announcement.image_url 
+            ? `url(${announcement.image_url})` 
+            : undefined 
+        }}
       />
       <CardContent className="p-6">
         <h3 className="font-semibold text-lg mb-2">{announcement.title}</h3>

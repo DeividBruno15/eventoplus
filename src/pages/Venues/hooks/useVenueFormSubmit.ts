@@ -113,6 +113,8 @@ export const useVenueFormSubmit = (venueImages: ImageFile[], selectedDates: Date
       const imageUrls = await uploadImagesToStorage();
       const mainImageUrl = imageUrls.length > 0 ? imageUrls[0] : null;
       
+      console.log("Main image URL:", mainImageUrl);
+      
       // Format social media links
       const socialLinks = formatSocialLinks(data);
       

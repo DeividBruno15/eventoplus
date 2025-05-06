@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -294,8 +293,12 @@ const EditVenuePage = () => {
     try {
       // For this example, we'll use the first image as the main image
       const mainImage = venueImages[0];
+      if (!user) return null;
+      
       const fileExt = mainImage.file.name.split('.').pop();
-      const filePath = `venue_images/${user?.id}/${uuidv4()}.${fileExt}`;
+      const filePath = `${user.id}/${uuidv4()}.${fileExt}`;
+      
+      console.log("Uploading new image to:", filePath);
       
       const { error: uploadError } = await supabase.storage
         .from('venue_images')
@@ -307,8 +310,10 @@ const EditVenuePage = () => {
       const { data } = supabase.storage
         .from('venue_images')
         .getPublicUrl(filePath);
+      
+      console.log("New image public URL:", data?.publicUrl);
         
-      return data.publicUrl;
+      return data?.publicUrl || null;
     } catch (error) {
       console.error('Error uploading image:', error);
       toast.error('Falha ao fazer upload da imagem');
@@ -385,6 +390,7 @@ const EditVenuePage = () => {
       let imageUrl = currentImageUrl;
       if (venueImages.length > 0) {
         imageUrl = await uploadImagesToStorage();
+        console.log("Updated image URL:", imageUrl);
       }
       
       // Format social media links
