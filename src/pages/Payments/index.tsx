@@ -3,8 +3,6 @@ import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PaymentForm } from '@/components/payment/PaymentForm';
 import { PaymentHistory } from '@/components/payment/PaymentHistory';
-import DashboardLayout from '@/layouts/DashboardLayout';
-import { Outlet } from 'react-router-dom';
 
 const PaymentsPage = () => {
   const [activeTab, setActiveTab] = useState('history');
