@@ -60,8 +60,8 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white shadow-sm sticky top-0 z-50">
-      <div className="container mx-auto py-4 flex items-center justify-between">
+    <nav className="bg-white shadow-sm sticky top-0 z-50 w-full">
+      <div className="max-w-[1440px] mx-auto px-4 md:px-6 lg:px-8 py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center">
           <span className="text-2xl font-bold text-primary">Evento<span className="text-secondary">+</span></span>
         </Link>
@@ -132,7 +132,7 @@ const Navbar = () => {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden bg-white shadow-md absolute w-full py-4 animate-fade-in">
-          <div className="container mx-auto flex flex-col space-y-4">
+          <div className="px-4 flex flex-col space-y-4">
             <Link to="/" className="font-medium hover:text-primary transition-colors py-2" onClick={toggleMenu}>Home</Link>
             <Link to="/about" className="font-medium hover:text-primary transition-colors py-2" onClick={toggleMenu}>Sobre</Link>
             <Link to="/contact" className="font-medium hover:text-primary transition-colors py-2" onClick={toggleMenu}>Contato</Link>

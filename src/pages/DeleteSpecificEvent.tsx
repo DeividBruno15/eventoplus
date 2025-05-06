@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { deleteEventById } from "@/utils/events/eventDeletion";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 const DeleteSpecificEvent = () => {
   const { id } = useParams<{ id: string }>();
@@ -31,10 +32,11 @@ const DeleteSpecificEvent = () => {
   }, [id, navigate]);
 
   return (
-    <div className="w-full h-screen flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-xl font-semibold">Excluindo evento...</h1>
-        <p className="text-muted-foreground mt-2">Você será redirecionado em instantes.</p>
+    <div className="w-full h-screen flex items-center justify-center bg-gray-50">
+      <div className="text-center p-8 bg-white rounded-lg shadow-md">
+        <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+        <h1 className="text-xl font-semibold mb-2">Excluindo evento...</h1>
+        <p className="text-muted-foreground">Você será redirecionado em instantes.</p>
       </div>
     </div>
   );

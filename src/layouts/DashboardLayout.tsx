@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { 
@@ -82,7 +83,7 @@ const DashboardLayout = () => {
           </SidebarContent>
         </Sidebar>
 
-        <div className="flex flex-col flex-1 min-w-0">
+        <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
           <header className="sticky top-0 z-40 w-full bg-white border-b px-8 py-4 flex justify-between items-center">
             <h1 className="text-xl font-semibold text-gray-900">
               {getPageTitle()}
@@ -94,8 +95,8 @@ const DashboardLayout = () => {
             </div>
           </header>
 
-          <main className="flex-1 p-8 bg-gray-50">
-            <div className="animate-fade-in">
+          <main className="flex-1 p-8 bg-gray-50 overflow-auto">
+            <div className="animate-fade-in max-w-[1440px] mx-auto">
               <Outlet />
             </div>
           </main>

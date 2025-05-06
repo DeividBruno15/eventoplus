@@ -28,7 +28,7 @@ const Login = () => {
     <div className="min-h-screen flex flex-col bg-page">
       <Navbar />
       <div className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <Card className="w-full max-w-md">
+        <Card className="w-full max-w-md mx-auto shadow-lg">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold">Acesse sua conta</CardTitle>
             <CardDescription>
