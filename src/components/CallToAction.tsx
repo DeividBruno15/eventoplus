@@ -18,7 +18,7 @@ const CallToAction = () => {
             <Button 
               variant="secondary" 
               size="lg"
-              className="px-6 py-5 h-auto text-md font-medium bg-white text-primary hover:bg-white/90 w-full sm:w-auto"
+              className="px-6 py-4 h-auto text-md font-medium bg-white text-primary hover:bg-white/90 w-full sm:w-auto"
             >
               Cadastrar como Contratante
             </Button>
@@ -27,7 +27,7 @@ const CallToAction = () => {
             <Button 
               variant="outline"
               size="lg"
-              className="px-6 py-5 h-auto text-md font-medium border-white text-white hover:bg-white/20 w-full sm:w-auto"
+              className="px-6 py-4 h-auto text-md font-medium border-white text-white bg-primary/30 hover:bg-white/20 w-full sm:w-auto"
             >
               Cadastrar como Prestador
             </Button>
@@ -36,7 +36,7 @@ const CallToAction = () => {
             <Button 
               variant="outline"
               size="lg"
-              className="px-6 py-5 h-auto text-md font-medium border-white text-white hover:bg-white/20 w-full sm:w-auto"
+              className="px-6 py-4 h-auto text-md font-medium border-accent bg-accent/80 text-white hover:bg-accent w-full sm:w-auto"
             >
               Cadastrar como Anunciante
             </Button>

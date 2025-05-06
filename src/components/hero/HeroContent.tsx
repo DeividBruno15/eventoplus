@@ -31,7 +31,7 @@ const HeroContent = () => {
           <Button 
             variant="default"
             size="lg"
-            className="px-8 py-6 h-auto text-lg font-medium shadow-lg shadow-primary/20"
+            className="px-6 py-3 h-auto text-base font-medium shadow-lg shadow-primary/20"
           >
             Começar agora
           </Button>
@@ -40,7 +40,7 @@ const HeroContent = () => {
           <Button
             variant="outline"
             size="lg"
-            className="px-8 py-6 h-auto text-lg font-medium border-primary text-primary hover:bg-primary/5"
+            className="px-6 py-3 h-auto text-base font-medium border-primary text-primary hover:bg-primary/5"
           >
             Saiba mais
           </Button>

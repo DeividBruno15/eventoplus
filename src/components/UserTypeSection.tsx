@@ -1,5 +1,5 @@
 
-import { Users, Briefcase, Badge } from 'lucide-react';
+import { Users, Briefcase, Store } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const UserTypeCard = ({ 
@@ -58,7 +58,7 @@ const UserTypeSection = () => {
           <UserTypeCard 
             title="Anunciante de Espaços"
             description="Anuncie seu espaço para eventos, aumente sua visibilidade e maximize a ocupação do seu estabelecimento."
-            icon={<Badge className="w-8 h-8 text-white" />}
+            icon={<Store className="w-8 h-8 text-white" />}
             color="bg-accent"
           />
         </div>
