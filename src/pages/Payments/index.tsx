@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PaymentForm } from '@/components/payment/PaymentForm';
 import { PaymentHistory } from '@/components/payment/PaymentHistory';
 import DashboardLayout from '@/layouts/DashboardLayout';
+import { Outlet } from 'react-router-dom';
 
 const PaymentsPage = () => {
   const [activeTab, setActiveTab] = useState('history');
@@ -15,39 +16,31 @@ const PaymentsPage = () => {
   };
 
   return (
-    <>
-      <div className="container mx-auto py-6">
-        <h1 className="text-3xl font-bold mb-6">Pagamentos</h1>
+    <div className="container mx-auto py-6">
+      <h1 className="text-3xl font-bold mb-6">Pagamentos</h1>
+      
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="mb-4">
+          <TabsTrigger value="history">Histórico</TabsTrigger>
+          <TabsTrigger value="new">Novo Pagamento</TabsTrigger>
+        </TabsList>
         
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-4">
-            <TabsTrigger value="history">Histórico</TabsTrigger>
-            <TabsTrigger value="new">Novo Pagamento</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="history" className="space-y-4">
-            <PaymentHistory />
-          </TabsContent>
-          
-          <TabsContent value="new" className="space-y-4">
-            <div className="max-w-md mx-auto">
-              <PaymentForm 
-                amount={5000} // R$ 50,00
-                onSuccess={handlePaymentSuccess} 
-              />
-            </div>
-          </TabsContent>
-        </Tabs>
-      </div>
-    </>
+        <TabsContent value="history" className="space-y-4">
+          <PaymentHistory />
+        </TabsContent>
+        
+        <TabsContent value="new" className="space-y-4">
+          <div className="max-w-md mx-auto">
+            <PaymentForm 
+              amount={5000} // R$ 50,00
+              onSuccess={handlePaymentSuccess} 
+            />
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
 
-// Export the component wrapped in DashboardLayout
-const PaymentsWithLayout = () => (
-  <DashboardLayout>
-    <PaymentsPage />
-  </DashboardLayout>
-);
-
-export default PaymentsWithLayout;
+// Export the PaymentsPage as default
+export default PaymentsPage;
