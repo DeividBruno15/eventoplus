@@ -87,29 +87,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       console.log('Registrando com papel:', profileData.role);
       
-      // Create signUp options with the correct type structure
-      const options: {
-        data: any;
-        emailRedirectTo?: string;
-      } = {
-        data: profileData
+      // Create signUp parameters with properly typed options
+      const signUpParams = {
+        email,
+        password,
+        options: {
+          data: profileData
+        } as {
+          data: any;
+          emailRedirectTo?: string;
+        }
       };
 
       // Only add email redirect if email verification is enabled
       if (!DISABLE_EMAIL_VERIFICATION) {
-        // Use only the origin part of the URL, not the full URL with protocol
-        const redirectTo = `${window.location.origin}/login`;
-        console.log('Configurando redirect para:', redirectTo);
+        // Use just the origin part of the URL for redirection
+        const redirectUrl = `${window.location.origin}/login`;
+        console.log('Configurando redirect para:', redirectUrl);
         
-        options.emailRedirectTo = redirectTo;
+        // Add the redirect URL to the options object
+        signUpParams.options.emailRedirectTo = redirectUrl;
       }
       
-      // Now use the correctly typed options object in signUp
-      const { error, data } = await supabase.auth.signUp({
-        email,
-        password,
-        options
-      });
+      // Use the properly structured signUp parameters
+      const { error, data } = await supabase.auth.signUp(signUpParams);
       
       if (error) {
         console.error('Erro durante o registro:', error);

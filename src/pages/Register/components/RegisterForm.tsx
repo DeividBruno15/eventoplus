@@ -8,7 +8,7 @@ import { AddressFields } from '@/components/address/AddressFields';
 import { DocumentFields } from './DocumentFields';
 import { registerFormSchema, RegisterFormData } from '../types';
 import { useAuth } from '@/hooks/auth';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { ServiceCategoriesField } from './ServiceCategoriesField';
 import { PasswordStrengthMeter } from './PasswordStrengthMeter';
 import { PasswordRequirements } from './PasswordRequirements';
@@ -20,7 +20,6 @@ import { usePasswordValidation } from '@/hooks/usePasswordValidation';
 
 export const RegisterForm = () => {
   const { register: signUp, signInWithGoogle, loading } = useAuth();
-  const { toast } = useToast();
   const [submitting, setSubmitting] = useState(false);
 
   const form = useForm<RegisterFormData>({
@@ -78,6 +77,8 @@ export const RegisterForm = () => {
           errorMessage = "Este email já está cadastrado. Por favor, tente fazer login.";
         } else if (error.message.includes("Email not confirmed")) {
           errorMessage = "Email não confirmado. Verifique sua caixa de entrada.";
+        } else if (error.message.includes("Error sending confirmation email")) {
+          errorMessage = "Erro ao enviar email de confirmação. Verifique se o email está correto.";
         } else {
           errorMessage = error.message;
         }
