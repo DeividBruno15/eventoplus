@@ -100,7 +100,7 @@ const VenueFilters = ({ filters, onFilterChange, resultsCount }: VenueFiltersPro
             <SelectValue placeholder="Avaliação" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={undefined}>Qualquer nota</SelectItem>
+            {/* Removed the "Qualquer nota" item */}
             {ratingOptions.map((option) => (
               <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
             ))}
