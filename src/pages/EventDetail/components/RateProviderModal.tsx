@@ -17,6 +17,11 @@ export const RateProviderModal = ({ application, eventId }: RateProviderModalPro
     setIsOpen(false);
   };
 
+  // Get the provider name from the provider object if available, otherwise use a generic title
+  const providerName = application.provider?.first_name 
+    ? `${application.provider.first_name} ${application.provider.last_name || ''}`
+    : 'Prestador';
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -24,7 +29,7 @@ export const RateProviderModal = ({ application, eventId }: RateProviderModalPro
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Avaliar {application.provider_name}</DialogTitle>
+          <DialogTitle>Avaliar {providerName}</DialogTitle>
         </DialogHeader>
         <div className="py-4">
           <CreateRating 

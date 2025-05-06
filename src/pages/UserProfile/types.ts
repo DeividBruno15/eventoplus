@@ -1,5 +1,6 @@
 
 import { Rating, RatingWithUser } from '@/types/ratings';
+import { Event as CoreEvent } from '@/types/events';
 
 export interface UserProfileData {
   id: string;
@@ -27,6 +28,9 @@ export interface UserProfileData {
     category: string;
   }>;
 }
+
+// Re-export the Event type from the core events type for use in UserProfile components
+export type Event = CoreEvent;
 
 export {
   type Rating,
