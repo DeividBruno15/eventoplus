@@ -1,38 +1,58 @@
+import { Home, Calendar, Users, CheckSquare, UserPlus, Briefcase, MessageSquare, Star, CreditCard } from 'lucide-react';
 
-import { 
-  LayoutDashboard, 
-  User, 
-  Calendar, 
-  MessagesSquare, 
-  Settings,
-  HelpCircle,
-  LifeBuoy,
-  Store
-} from 'lucide-react';
-import { MenuItem } from './types';
-
-export const getMainMenuItems = (userRole: string): MenuItem[] => {
-  const baseItems: MenuItem[] = [
-    { path: '/dashboard', name: 'Dashboard', icon: LayoutDashboard },
-    { path: '/profile', name: 'Perfil', icon: User },
-  ];
-  
-  // Add events/announcements item based on user role
-  if (userRole === 'advertiser') {
-    baseItems.push({ path: '/venues', name: 'Anúncios', icon: Store });
-  } else {
-    baseItems.push({ path: '/events', name: 'Eventos', icon: Calendar });
-  }
-  
-  // Add remaining common items
-  return [
-    ...baseItems,
-    { path: '/chat', name: 'Chat', icon: MessagesSquare },
-    { path: '/settings', name: 'Configurações', icon: Settings },
-  ];
-};
-
-export const supportMenuItems: MenuItem[] = [
-  { path: '/help-center', name: 'Central de Ajuda', icon: HelpCircle },
-  { path: '/support', name: 'Suporte', icon: LifeBuoy },
+export const menuItems = [
+  {
+    label: 'Início',
+    href: '/dashboard',
+    icon: Home,
+    roles: ['all']
+  },
+  {
+    label: 'Eventos',
+    href: '/events',
+    icon: Calendar,
+    roles: ['contractor', 'provider']
+  },
+  {
+    label: 'Prestadores',
+    href: '/providers',
+    icon: Briefcase,
+    roles: ['contractor']
+  },
+  {
+    label: 'Clientes',
+    href: '/contractors',
+    icon: Users,
+    roles: ['provider']
+  },
+  {
+    label: 'Leads',
+    href: '/leads',
+    icon: UserPlus,
+    roles: ['provider']
+  },
+  {
+    label: 'Chat',
+    href: '/chat',
+    icon: MessageSquare,
+    roles: ['contractor', 'provider']
+  },
+  {
+    label: 'Avaliações',
+    href: '/reviews',
+    icon: Star,
+    roles: ['contractor', 'provider']
+  },
+  {
+    label: 'Tarefas',
+    href: '/tasks',
+    icon: CheckSquare,
+    roles: ['contractor', 'provider']
+  },
+  {
+    label: 'Pagamentos',
+    href: '/payments',
+    icon: CreditCard,
+    roles: ['all']
+  },
 ];
