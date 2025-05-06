@@ -1,31 +1,67 @@
 
-import { useParams } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
-import { Card } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { UserProfileHeader } from './components/UserProfileHeader';
-import { ProfileContent } from './components/ProfileContent';
-import { UserRatings } from './components/UserRatings';
-import { UserEvents } from './components/UserEvents';
-import { useUserProfileData } from './hooks/useUserProfileData';
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { UserProfileHeader } from "./components/UserProfileHeader";
+import { ProfileContent } from "./components/ProfileContent";
+import { useUserProfileData } from "./hooks/useUserProfileData";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { UserEvents } from "./components/UserEvents";
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { UserRatings } from "./components/UserRatings";
 
-const UserProfilePage = () => {
-  const { id } = useParams<{ id: string }>();
-  const { userData, ratings, eventCount, averageRating, loading, totalRatings } = useUserProfileData(id);
+const UserProfile = () => {
+  const { id } = useParams();
+  const { profileData, isLoading, error } = useUserProfileData(id || "");
+  const [activeTab, setActiveTab] = useState("sobre");
 
-  if (loading) {
+  useEffect(() => {
+    // Scroll to top when profile loads
+    window.scrollTo(0, 0);
+  }, [id]);
+
+  if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="container mx-auto px-4 py-6">
+        <div className="space-y-8">
+          {/* Header Skeleton */}
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
+                <Skeleton className="w-24 h-24 rounded-full" />
+                <div className="space-y-4 flex-1">
+                  <Skeleton className="h-8 w-48" />
+                  <Skeleton className="h-4 w-full max-w-md" />
+                  <div className="flex gap-2">
+                    <Skeleton className="h-8 w-20" />
+                    <Skeleton className="h-8 w-20" />
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Content Skeleton */}
+          <Card>
+            <CardContent className="p-6">
+              <div className="space-y-4">
+                <Skeleton className="h-8 w-48" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
 
-  if (!userData) {
+  if (error || !profileData) {
     return (
-      <div className="text-center py-12">
-        <h2 className="text-2xl font-semibold mb-2">Perfil não encontrado</h2>
-        <p className="text-muted-foreground">
+      <div className="container mx-auto px-4 py-20 text-center">
+        <h2 className="text-2xl font-bold mb-2">Usuário não encontrado</h2>
+        <p className="text-gray-600 mb-6">
           O perfil que você está procurando não existe ou foi removido.
         </p>
       </div>
@@ -33,46 +69,32 @@ const UserProfilePage = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <UserProfileHeader 
-        userData={userData}
-        averageRating={averageRating}
-        ratingCount={totalRatings}
-        eventCount={eventCount}
-      />
-      
-      <Card>
-        <Tabs defaultValue="sobre" className="w-full">
-          <TabsList className="w-full border-b rounded-none bg-transparent">
-            <TabsTrigger value="sobre" className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary">
-              Sobre
-            </TabsTrigger>
-            <TabsTrigger value="avaliacoes" className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary">
-              Avaliações ({totalRatings})
-            </TabsTrigger>
-            <TabsTrigger value="eventos" className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary">
-              {userData.role === 'contractor' ? 'Eventos' : 'Serviços'}
-            </TabsTrigger>
+    <div className="container mx-auto px-4 py-6">
+      <div className="space-y-8">
+        <UserProfileHeader profile={profileData} />
+
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="mb-4 grid grid-cols-3 w-full max-w-md">
+            <TabsTrigger value="sobre">Sobre</TabsTrigger>
+            <TabsTrigger value="eventos">Eventos</TabsTrigger>
+            <TabsTrigger value="avaliacoes">Avaliações</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="sobre" className="p-6">
-            <ProfileContent userData={userData} />
+          <TabsContent value="sobre">
+            <ProfileContent profile={profileData} />
           </TabsContent>
           
-          <TabsContent value="avaliacoes" className="p-6">
-            {id && <UserRatings userId={id} />}
+          <TabsContent value="eventos">
+            <UserEvents userId={profileData.id} />
           </TabsContent>
           
-          <TabsContent value="eventos" className="p-6">
-            <UserEvents 
-              userId={userData.id} 
-              userRole={userData.role}
-            />
+          <TabsContent value="avaliacoes">
+            <UserRatings userId={profileData.id} />
           </TabsContent>
         </Tabs>
-      </Card>
+      </div>
     </div>
   );
 };
 
-export default UserProfilePage;
+export default UserProfile;

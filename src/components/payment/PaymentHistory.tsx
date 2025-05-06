@@ -14,6 +14,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { Button } from '@/components/ui/button';
+import { PaymentDetails } from '@/components/payment/PaymentDetails';
 
 interface Payment {
   id: string;
@@ -21,11 +23,13 @@ interface Payment {
   status: string;
   created_at: string;
   description: string;
+  stripe_payment_id: string;
 }
 
 export const PaymentHistory = () => {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -62,8 +66,38 @@ export const PaymentHistory = () => {
         return <Badge variant="outline" className="text-yellow-500 border-yellow-500">Pendente</Badge>;
       case 'failed':
         return <Badge variant="destructive">Falhou</Badge>;
+      case 'refunded':
+        return <Badge variant="secondary">Reembolsado</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
+    }
+  };
+  
+  const handleViewDetails = (payment: Payment) => {
+    setSelectedPayment(payment);
+  };
+  
+  const handleCloseDetails = () => {
+    setSelectedPayment(null);
+  };
+  
+  const handleRefundSuccess = async () => {
+    // Recarregar os pagamentos após um reembolso bem-sucedido
+    if (!user?.id) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('payments')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+        
+      if (error) throw error;
+      
+      setPayments(data as Payment[]);
+      setSelectedPayment(null);
+    } catch (error) {
+      console.error('Error refreshing payments:', error);
     }
   };
 
@@ -80,6 +114,16 @@ export const PaymentHistory = () => {
           </div>
         </CardContent>
       </Card>
+    );
+  }
+
+  if (selectedPayment) {
+    return (
+      <PaymentDetails 
+        payment={selectedPayment}
+        onClose={handleCloseDetails}
+        onRefund={handleRefundSuccess}
+      />
     );
   }
 
@@ -103,6 +147,7 @@ export const PaymentHistory = () => {
                   <TableHead>Data</TableHead>
                   <TableHead>Valor</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -117,6 +162,15 @@ export const PaymentHistory = () => {
                     </TableCell>
                     <TableCell>R$ {(payment.amount / 100).toFixed(2)}</TableCell>
                     <TableCell>{getStatusBadge(payment.status)}</TableCell>
+                    <TableCell className="text-right">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleViewDetails(payment)}
+                      >
+                        Detalhes
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

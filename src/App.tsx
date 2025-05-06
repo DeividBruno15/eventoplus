@@ -27,6 +27,8 @@ import CreateEvent from "./pages/CreateEvent";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Payments from './pages/Payments';
+import Notifications from './pages/Notifications';
+import WhatsAppAssistant from './pages/WhatsAppAssistant';
 import { AuthProvider } from "./hooks/auth/AuthProvider";
 import { Toaster } from "sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -79,6 +81,8 @@ function App() {
                   <Route path="chat" element={<Chat />} />
                   <Route path="chat/:conversationId" element={<Conversation />} />
                   <Route path="payments" element={<Payments />} />
+                  <Route path="notifications" element={<Notifications />} />
+                  <Route path="whatsapp" element={<WhatsAppAssistant />} />
                   <Route path="profile" element={<Profile />} />
                   <Route path="settings" element={<Settings />} />
                 </Route>

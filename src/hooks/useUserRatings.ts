@@ -2,31 +2,30 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { RatingWithUser } from '@/types/ratings';
-import { useToast } from '@/components/ui/use-toast';
 
 interface UseUserRatingsProps {
   userId: string;
-  limit?: number;
+  eventId?: string;
 }
 
-export const useUserRatings = ({ userId, limit }: UseUserRatingsProps) => {
+export const useUserRatings = ({ userId, eventId }: UseUserRatingsProps) => {
   const [ratings, setRatings] = useState<RatingWithUser[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [averageRating, setAverageRating] = useState(0);
   const [totalRatings, setTotalRatings] = useState(0);
-  const { toast } = useToast();
 
   useEffect(() => {
     const fetchRatings = async () => {
+      setLoading(true);
+
       try {
-        setLoading(true);
-        
-        // Buscar avaliações
+        // Query para buscar as avaliações com informações do autor
         let query = supabase
           .from('ratings')
           .select(`
             *,
-            reviewer:reviewer_id(
+            reviewer:reviewer_id (
               id,
               first_name,
               last_name,
@@ -35,48 +34,95 @@ export const useUserRatings = ({ userId, limit }: UseUserRatingsProps) => {
           `)
           .eq('user_id', userId)
           .order('created_at', { ascending: false });
-          
-        // Aplicar limite se especificado
-        if (limit) {
-          query = query.limit(limit);
+
+        // Adicionar filtro por evento, se fornecido
+        if (eventId) {
+          query = query.eq('event_id', eventId);
         }
-        
+
         const { data, error } = await query;
-        
+
         if (error) throw error;
-        
-        // Transformar os dados
-        const formattedRatings: RatingWithUser[] = data.map((item: any) => ({
-          ...item,
-          reviewer_name: `${item.reviewer.first_name} ${item.reviewer.last_name || ''}`.trim(),
-          reviewer_avatar: item.reviewer.avatar_url,
+
+        // Transformar dados para o formato esperado
+        const ratingsWithUser = data.map((rating: any): RatingWithUser => ({
+          ...rating,
+          reviewer_name: `${rating.reviewer.first_name} ${rating.reviewer.last_name || ''}`.trim(),
+          reviewer_avatar: rating.reviewer.avatar_url,
         }));
-        
-        setRatings(formattedRatings);
-        
-        // Calcular média de avaliações
-        if (formattedRatings.length > 0) {
-          const sum = formattedRatings.reduce((acc, item) => acc + item.rating, 0);
-          setAverageRating(sum / formattedRatings.length);
-          setTotalRatings(formattedRatings.length);
+
+        setRatings(ratingsWithUser);
+        setTotalRatings(ratingsWithUser.length);
+
+        // Calcular média das avaliações
+        if (ratingsWithUser.length > 0) {
+          const sum = ratingsWithUser.reduce((acc, curr) => acc + curr.rating, 0);
+          setAverageRating(sum / ratingsWithUser.length);
+        } else {
+          setAverageRating(0);
         }
-        
-      } catch (error: any) {
-        console.error('Erro ao buscar avaliações:', error);
-        toast({
-          title: "Erro ao carregar avaliações",
-          description: error.message,
-          variant: "destructive"
-        });
+      } catch (err: any) {
+        console.error('Erro ao buscar avaliações:', err);
+        setError(err.message);
       } finally {
         setLoading(false);
       }
     };
-    
+
     if (userId) {
       fetchRatings();
     }
-  }, [userId, limit, toast]);
-  
-  return { ratings, loading, averageRating, totalRatings };
+  }, [userId, eventId]);
+
+  // Função para atualizar avaliações após adicionar uma nova
+  const refreshRatings = async () => {
+    setLoading(true);
+    
+    try {
+      const { data, error } = await supabase
+        .from('ratings')
+        .select(`
+          *,
+          reviewer:reviewer_id (
+            id,
+            first_name,
+            last_name,
+            avatar_url
+          )
+        `)
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Transformar dados para o formato esperado
+      const ratingsWithUser = data.map((rating: any): RatingWithUser => ({
+        ...rating,
+        reviewer_name: `${rating.reviewer.first_name} ${rating.reviewer.last_name || ''}`.trim(),
+        reviewer_avatar: rating.reviewer.avatar_url,
+      }));
+
+      setRatings(ratingsWithUser);
+      setTotalRatings(ratingsWithUser.length);
+
+      // Calcular média das avaliações
+      if (ratingsWithUser.length > 0) {
+        const sum = ratingsWithUser.reduce((acc, curr) => acc + curr.rating, 0);
+        setAverageRating(sum / ratingsWithUser.length);
+      }
+    } catch (err: any) {
+      console.error('Erro ao atualizar avaliações:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    ratings,
+    loading,
+    error,
+    averageRating,
+    totalRatings,
+    refreshRatings
+  };
 };

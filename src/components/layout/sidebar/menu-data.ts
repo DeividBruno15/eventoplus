@@ -1,85 +1,73 @@
 
-import { Home, Calendar, Users, CheckSquare, UserPlus, Briefcase, MessageSquare, Star, CreditCard, HelpCircle, Settings } from 'lucide-react';
-import { MenuItem } from './types';
+import {
+  LayoutDashboard,
+  Calendar,
+  MessageSquare,
+  Settings,
+  User,
+  CreditCard,
+  Building2,
+  Bell,
+  MapPin,
+  Phone,
+} from "lucide-react";
+import { MenuItem } from "./types";
 
-export const menuItems = [
+export const menuItems: MenuItem[] = [
   {
-    label: 'Início',
-    href: '/dashboard',
-    icon: Home,
-    roles: ['all']
+    title: "Dashboard",
+    icon: LayoutDashboard,
+    href: "/dashboard",
   },
   {
-    label: 'Eventos',
-    href: '/events',
+    title: "Eventos",
     icon: Calendar,
-    roles: ['contractor', 'provider']
+    href: "/events",
+    roles: ["provider", "contractor", "advertiser"],
+    badge: "new",
   },
   {
-    label: 'Prestadores',
-    href: '/providers',
-    icon: Briefcase,
-    roles: ['contractor']
-  },
-  {
-    label: 'Clientes',
-    href: '/contractors',
-    icon: Users,
-    roles: ['provider']
-  },
-  {
-    label: 'Leads',
-    href: '/leads',
-    icon: UserPlus,
-    roles: ['provider']
-  },
-  {
-    label: 'Chat',
-    href: '/chat',
+    title: "Mensagens",
     icon: MessageSquare,
-    roles: ['contractor', 'provider']
+    href: "/chat",
+    roles: ["provider", "contractor", "advertiser"],
+    notificationKey: "messages",
   },
   {
-    label: 'Avaliações',
-    href: '/reviews',
-    icon: Star,
-    roles: ['contractor', 'provider']
-  },
-  {
-    label: 'Tarefas',
-    href: '/tasks',
-    icon: CheckSquare,
-    roles: ['contractor', 'provider']
-  },
-  {
-    label: 'Pagamentos',
-    href: '/payments',
+    title: "Pagamentos",
     icon: CreditCard,
-    roles: ['all']
-  },
-];
-
-// Função para obter itens de menu baseado no papel do usuário
-export const getMainMenuItems = (userRole: string): MenuItem[] => {
-  return menuItems
-    .filter(item => item.roles.includes('all') || item.roles.includes(userRole))
-    .map(item => ({
-      path: item.href,
-      name: item.label,
-      icon: item.icon
-    }));
-};
-
-// Itens do menu de suporte
-export const supportMenuItems: MenuItem[] = [
-  {
-    path: '/help-center',
-    name: 'Central de Ajuda',
-    icon: HelpCircle
+    href: "/payments",
+    roles: ["provider", "contractor", "advertiser"],
   },
   {
-    path: '/settings',
-    name: 'Configurações',
-    icon: Settings
-  }
+    title: "Espaços",
+    icon: Building2,
+    href: "/venues",
+    roles: ["contractor", "advertiser"],
+  },
+  {
+    title: "Notificações",
+    icon: Bell,
+    href: "/notifications",
+    roles: ["provider", "contractor", "advertiser"],
+  },
+  {
+    title: "WhatsApp",
+    icon: Phone,
+    href: "/whatsapp",
+    roles: ["provider", "contractor", "advertiser"],
+    badge: "beta",
+  },
+  {
+    title: "Perfil",
+    icon: User,
+    href: "/profile",
+    roles: ["provider", "contractor", "advertiser"],
+  },
+  {
+    title: "Configurações",
+    icon: Settings,
+    href: "/settings",
+    roles: ["provider", "contractor", "advertiser"],
+  },
 ];

@@ -1,108 +1,76 @@
 
-import { useState, useEffect } from 'react';
-import { useNavigate, useLocation, Outlet } from 'react-router-dom';
-import { 
-  SidebarProvider, 
-  Sidebar,
-  SidebarContent,
-  SidebarHeader
-} from '@/components/ui/sidebar';
-import { useAuth } from '@/hooks/useAuth';
-import { Loader2 } from 'lucide-react';
-import { NotificationsMenu } from '@/components/layout/notifications/NotificationsMenu';
-import { SidebarNavigation } from '@/components/layout/SidebarNavigation';
-import { UserMenu } from '@/components/layout/UserMenu';
+import { Outlet } from "react-router-dom";
+import { SidebarNavigation } from "@/components/layout/SidebarNavigation";
+import { UserMenu } from "@/components/layout/UserMenu";
+import { NotificationsMenu } from "@/components/layout/notifications/NotificationsMenu";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { Navigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
+import { PageTransition } from "@/components/ui/page-transition";
+import { AnimatePresence } from "framer-motion";
 
 const DashboardLayout = () => {
-  const { session, loading } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [activePath, setActivePath] = useState(location.pathname);
+  // Inicialmente, defina como null para não redirecionar imediatamente durante a verificação
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+  const { user } = useAuth();
 
+  // Verificar status de autenticação
   useEffect(() => {
-    setActivePath(location.pathname);
-  }, [location.pathname]);
-
-  useEffect(() => {
-    // Only redirect to login if there's no session and loading is complete
-    if (!loading && !session) {
-      console.log('No session found, redirecting to login');
-      navigate('/login');
+    if (user) {
+      setIsLoggedIn(true);
+    } else {
+      // Pequeno delay para verificar se o usuário está realmente deslogado
+      // ou se apenas está carregando a sessão ainda
+      const timer = setTimeout(() => {
+        setIsLoggedIn(false);
+      }, 500);
+      
+      return () => clearTimeout(timer);
     }
-  }, [session, loading, navigate]);
+  }, [user]);
 
-  const handleNavigation = (path: string) => {
-    navigate(path);
-  };
-
-  if (loading) {
+  // Estado de carregamento
+  if (isLoggedIn === null) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-gray-600">Carregando sua experiência...</p>
+      <div className="h-screen w-screen flex items-center justify-center">
+        <div className="flex flex-col items-center">
+          <Loader2 className="h-12 w-12 animate-spin mb-4 text-primary" />
+          <p className="text-muted-foreground">Verificando autenticação...</p>
         </div>
       </div>
     );
   }
 
-  if (!session) {
-    return null;
+  // Redirecionar se não estiver logado
+  if (isLoggedIn === false) {
+    return <Navigate to="/login" replace />;
   }
 
-  const getPageTitle = () => {
-    const route = location.pathname;
-    
-    if (route.startsWith('/dashboard')) return 'Dashboard';
-    if (route.startsWith('/profile')) return 'Perfil';
-    if (route.startsWith('/events')) return 'Eventos';
-    if (route.startsWith('/events/create')) return 'Criar Evento';
-    if (route.startsWith('/chat')) return 'Chat';
-    if (route.startsWith('/settings')) return 'Configurações';
-    if (route.startsWith('/help-center')) return 'Central de Ajuda';
-    if (route.startsWith('/support')) return 'Suporte';
-    if (route.startsWith('/service-providers')) return 'Prestadores de Serviços';
-    
-    return 'Dashboard';
-  };
-
   return (
-    <SidebarProvider defaultOpen={true}>
-      <div className="min-h-screen flex w-full bg-gray-50">
-        <Sidebar className="border-r border-gray-100 shadow-sm bg-white">
-          <SidebarHeader className="px-6 py-8">
-            <div className="font-bold text-2xl bg-gradient-to-r from-primary to-indigo-600 bg-clip-text text-transparent">
-              Evento<span className="text-accent">+</span>
-            </div>
-          </SidebarHeader>
-          <SidebarContent className="px-4">
-            <SidebarNavigation 
-              activePath={activePath} 
-              onNavigate={handleNavigation} 
-            />
-          </SidebarContent>
-        </Sidebar>
-
-        <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-          <header className="sticky top-0 z-40 w-full bg-white border-b px-8 py-4 flex justify-between items-center">
-            <h1 className="text-xl font-semibold text-gray-900">
-              {getPageTitle()}
-            </h1>
-            
+    <div className="flex flex-col md:flex-row min-h-screen">
+      <SidebarNavigation />
+      <div className="flex-grow">
+        {/* Header com menu do usuário */}
+        <header className="sticky top-0 z-10 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="flex h-14 items-center justify-end px-4">
             <div className="flex items-center gap-4">
               <NotificationsMenu />
               <UserMenu />
             </div>
-          </header>
+          </div>
+        </header>
 
-          <main className="flex-1 p-8 bg-gray-50 overflow-auto">
-            <div className="animate-fade-in max-w-[1440px] mx-auto">
+        {/* Conteúdo principal com transição de página animada */}
+        <main className="flex-1 p-4 pb-20">
+          <AnimatePresence mode="wait">
+            <PageTransition>
               <Outlet />
-            </div>
-          </main>
-        </div>
+            </PageTransition>
+          </AnimatePresence>
+        </main>
       </div>
-    </SidebarProvider>
+    </div>
   );
 };
 
