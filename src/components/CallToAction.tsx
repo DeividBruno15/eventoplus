@@ -8,7 +8,7 @@ const CallToAction = () => {
       <div className="absolute inset-0 bg-gradient-to-br from-primary to-secondary/80 z-[-1]"></div>
       <div className="container mx-auto text-center">
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-          Pronto para criar eventos incríveis?
+          Pronto para transformar suas ideias em eventos incríveis?
         </h2>
         <p className="text-white/90 text-lg max-w-2xl mx-auto mb-8">
           Junte-se à comunidade Evento+ e conecte-se com profissionais qualificados e espaços perfeitos para seus eventos.
