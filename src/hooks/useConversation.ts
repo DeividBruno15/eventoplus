@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Message } from '@/types/chat';
 import { useAuth } from '@/hooks/useAuth';
 import { useMessages } from './chat/useMessages';
@@ -20,6 +20,7 @@ export function useConversation(conversationId: string): ConversationDetails & {
   fetchMessages: () => Promise<void>;
 } {
   const { user } = useAuth();
+  const [initialized, setInitialized] = useState(false);
   
   // Get message-related functions
   const { 
@@ -40,13 +41,22 @@ export function useConversation(conversationId: string): ConversationDetails & {
   
   // Verify conversation when component mounts
   useEffect(() => {
-    if (!conversationId) return;
-    verifyConversation(fetchMessages);
-  }, [conversationId, user]);
+    console.log('useConversation effect:', conversationId, user?.id, initialized);
+    
+    if (!conversationId || !user?.id || initialized) return;
+    
+    const initialize = async () => {
+      console.log('Inicializando conversa...');
+      await verifyConversation(fetchMessages);
+      setInitialized(true);
+    };
+    
+    initialize();
+  }, [conversationId, user?.id]);
 
   return {
     messages,
-    loading,
+    loading: loading || !initialized,
     otherUser,
     sendMessage,
     fetchMessages
