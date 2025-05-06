@@ -20,6 +20,11 @@ interface VenueAnnouncement {
   price_per_hour: number;
 }
 
+// Define the structure of what Supabase returns for user_venues
+interface UserVenue {
+  name: string;
+}
+
 const VenuesPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -57,7 +62,8 @@ const VenuesPage = () => {
           title: item.title,
           description: item.description,
           image_url: item.image_url,
-          venue_name: item.user_venues?.name || 'Local não especificado',
+          // Fix the type issue here - accessing the venue name properly
+          venue_name: item.user_venues ? (item.user_venues as unknown as UserVenue).name : 'Local não especificado',
           created_at: item.created_at,
           views: item.views,
           venue_type: item.venue_type,
