@@ -24,3 +24,11 @@ export const ratingOptions = [
   { value: "4.5", label: "4.5 ou mais" },
   { value: "5", label: "5.0" }
 ];
+
+// Sorting options
+export const sortingOptions = [
+  { value: "newest", label: "Mais recentes" },
+  { value: "priceAsc", label: "Menor preço" },
+  { value: "priceDesc", label: "Maior preço" },
+  { value: "ratingDesc", label: "Melhor avaliação" }
+];
