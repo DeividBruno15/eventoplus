@@ -30,7 +30,7 @@ import { AuthProvider } from "./hooks/auth/AuthProvider";
 import { Toaster } from "sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
-import { DeleteSpecificEvent } from "./pages/DeleteSpecificEvent";
+import DeleteSpecificEvent from "./pages/DeleteSpecificEvent";
 import VenuesPage from "./pages/Venues";
 import CreateVenuePage from "./pages/Venues/CreateVenue";
 import VenueDetailsPage from "./pages/Venues/VenueDetails";
