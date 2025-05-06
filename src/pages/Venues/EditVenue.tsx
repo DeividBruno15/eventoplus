@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -12,7 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Camera, X, Calendar as CalendarIcon, Facebook, Instagram, Twitter } from "lucide-react";
+import { Camera, X, Calendar as CalendarIcon, Facebook, Instagram, Twitter, ArrowLeft } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -35,7 +35,6 @@ import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { cn } from "@/lib/utils";
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
 const MAX_IMAGES = 10;
@@ -81,52 +80,18 @@ interface SocialMediaLink {
   url: string;
 }
 
-const detectSocialMediaType = (url: string): string | null => {
-  if (!url) return null;
-  
-  if (url.includes('instagram.com')) return 'instagram';
-  if (url.includes('facebook.com')) return 'facebook';
-  if (url.includes('twitter.com') || url.includes('x.com')) return 'twitter';
-  if (url.includes('tiktok.com')) return 'tiktok';
-  
-  return null;
-};
-
-const formatSocialLinks = (formValues: VenueFormValues): SocialMediaLink[] => {
-  const links: SocialMediaLink[] = [];
-  
-  if (formValues.social_instagram) {
-    links.push({ type: 'instagram', url: formValues.social_instagram });
-  }
-  
-  if (formValues.social_facebook) {
-    links.push({ type: 'facebook', url: formValues.social_facebook });
-  }
-  
-  if (formValues.social_twitter) {
-    links.push({ type: 'twitter', url: formValues.social_twitter });
-  }
-  
-  if (formValues.external_link) {
-    const type = detectSocialMediaType(formValues.external_link);
-    if (type) {
-      links.push({ type, url: formValues.external_link });
-    }
-  }
-  
-  return links;
-};
-
-const CreateVenuePage = () => {
+const EditVenuePage = () => {
+  const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [venues, setVenues] = useState<Venue[]>([]);
-  const [isLoadingVenues, setIsLoadingVenues] = useState(true);
   const [venueImages, setVenueImages] = useState<ImageFile[]>([]);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [venueAddress, setVenueAddress] = useState<string>('');
+  const [currentImageUrl, setCurrentImageUrl] = useState<string | null>(null);
 
   const form = useForm<VenueFormValues>({
     resolver: zodResolver(venueFormSchema),
@@ -147,36 +112,108 @@ const CreateVenuePage = () => {
     },
   });
 
-  // Fetch user venues
+  // Fetch venue data
   useEffect(() => {
-    const fetchUserVenues = async () => {
-      if (!user) return;
-      
+    const fetchVenueData = async () => {
+      if (!id || !user) return;
+
       try {
-        setIsLoadingVenues(true);
+        setLoading(true);
+
+        // First fetch the announcement details
         const { data, error } = await supabase
-          .from("user_venues")
-          .select("id, name, street, number, neighborhood, city, state, zipcode")
-          .eq("user_id", user.id)
-          .order("name");
-          
+          .from('venue_announcements')
+          .select('*, user_venues(id, name, street, number, neighborhood, city, state, zipcode)')
+          .eq('id', id)
+          .eq('user_id', user.id) // Ensure the user owns this announcement
+          .single();
+
         if (error) throw error;
+
+        if (!data) {
+          toast.error('Anúncio não encontrado ou você não tem permissão para editá-lo');
+          navigate('/venues');
+          return;
+        }
+
+        // Set current image URL
+        setCurrentImageUrl(data.image_url);
         
-        setVenues(data || []);
+        // Parse available dates if they exist
+        if (data.available_dates) {
+          const parsedDates = data.available_dates.map((dateStr: string) => new Date(dateStr));
+          setSelectedDates(parsedDates);
+        }
+
+        // Extract social links
+        const socialLinks: Record<string, string> = {};
+        if (data.social_links) {
+          data.social_links.forEach((link: SocialMediaLink) => {
+            if (link.type === 'instagram') socialLinks.social_instagram = link.url;
+            if (link.type === 'facebook') socialLinks.social_facebook = link.url;
+            if (link.type === 'twitter') socialLinks.social_twitter = link.url;
+          });
+        }
+
+        // Set venue address if available
+        if (data.user_venues) {
+          const venue = data.user_venues;
+          setVenueAddress(`${venue.street}, ${venue.number} - ${venue.neighborhood}, ${venue.city}/${venue.state}`);
+        }
+
+        // Format the form data
+        form.reset({
+          title: data.title,
+          description: data.description,
+          venue_type: data.venue_type,
+          max_capacity: String(data.max_capacity),
+          price_per_day: String(data.price_per_hour), // Using price_per_hour field but treating as price_per_day
+          is_rentable: data.is_rentable === undefined ? true : data.is_rentable,
+          amenities: data.amenities || [],
+          rules: data.rules || "",
+          external_link: data.external_link || "",
+          venue_id: data.venue_id,
+          social_instagram: socialLinks.social_instagram || "",
+          social_facebook: socialLinks.social_facebook || "",
+          social_twitter: socialLinks.social_twitter || "",
+        });
+
+        // Also fetch all venues for the dropdown
+        await fetchUserVenues();
       } catch (error) {
-        console.error("Error fetching venues:", error);
-        toast.error("Erro ao carregar seus locais");
+        console.error('Error fetching venue data for editing:', error);
+        toast.error('Erro ao carregar dados do anúncio');
+        navigate('/venues');
       } finally {
-        setIsLoadingVenues(false);
+        setLoading(false);
       }
     };
+
+    fetchVenueData();
+  }, [id, user, navigate, form]);
+
+  // Fetch user venues
+  const fetchUserVenues = async () => {
+    if (!user) return;
     
-    fetchUserVenues();
-  }, [user]);
+    try {
+      const { data, error } = await supabase
+        .from("user_venues")
+        .select("id, name, street, number, neighborhood, city, state, zipcode")
+        .eq("user_id", user.id)
+        .order("name");
+        
+      if (error) throw error;
+      
+      setVenues(data || []);
+    } catch (error) {
+      console.error("Error fetching venues:", error);
+      toast.error("Erro ao carregar seus locais");
+    }
+  };
 
   // Create URL previews and cleanup on unmount
   useEffect(() => {
-    // Cleanup function to revoke object URLs to avoid memory leaks
     return () => {
       venueImages.forEach(image => URL.revokeObjectURL(image.preview));
     };
@@ -230,6 +267,7 @@ const CreateVenuePage = () => {
     
     if (newImages.length > 0) {
       setVenueImages(prev => [...prev, ...newImages]);
+      setCurrentImageUrl(null); // Clear the current image URL as we're going to replace it
     }
     
     // Reset the input
@@ -246,37 +284,72 @@ const CreateVenuePage = () => {
     }));
   };
 
-  const uploadImagesToStorage = async (): Promise<string[]> => {
-    if (venueImages.length === 0) return [];
+  const removeSavedImage = () => {
+    setCurrentImageUrl(null);
+  };
+
+  const uploadImagesToStorage = async (): Promise<string | null> => {
+    if (venueImages.length === 0) return currentImageUrl; // Return existing image URL if no new images
     
     try {
-      const uploadedUrls: string[] = [];
+      // For this example, we'll use the first image as the main image
+      const mainImage = venueImages[0];
+      const fileExt = mainImage.file.name.split('.').pop();
+      const filePath = `venue_images/${user?.id}/${uuidv4()}.${fileExt}`;
       
-      // Process each image
-      for (const image of venueImages) {
-        const fileExt = image.file.name.split('.').pop();
-        const filePath = `venue_images/${user?.id}/${uuidv4()}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage
+        .from('venue_images')
+        .upload(filePath, mainImage.file);
         
-        const { error: uploadError } = await supabase.storage
-          .from('venue_images')
-          .upload(filePath, image.file);
-          
-        if (uploadError) throw uploadError;
-        
-        // Get the public URL for the uploaded image
-        const { data } = supabase.storage
-          .from('venue_images')
-          .getPublicUrl(filePath);
-          
-        uploadedUrls.push(data.publicUrl);
-      }
+      if (uploadError) throw uploadError;
       
-      return uploadedUrls;
+      // Get the public URL for the uploaded image
+      const { data } = supabase.storage
+        .from('venue_images')
+        .getPublicUrl(filePath);
+        
+      return data.publicUrl;
     } catch (error) {
-      console.error('Error uploading images:', error);
-      toast.error('Falha ao fazer upload das imagens');
-      return [];
+      console.error('Error uploading image:', error);
+      toast.error('Falha ao fazer upload da imagem');
+      return null;
     }
+  };
+
+  const formatSocialLinks = (formValues: VenueFormValues): SocialMediaLink[] => {
+    const links: SocialMediaLink[] = [];
+    
+    if (formValues.social_instagram) {
+      links.push({ type: 'instagram', url: formValues.social_instagram });
+    }
+    
+    if (formValues.social_facebook) {
+      links.push({ type: 'facebook', url: formValues.social_facebook });
+    }
+    
+    if (formValues.social_twitter) {
+      links.push({ type: 'twitter', url: formValues.social_twitter });
+    }
+    
+    if (formValues.external_link) {
+      const type = detectSocialMediaType(formValues.external_link);
+      if (type) {
+        links.push({ type, url: formValues.external_link });
+      }
+    }
+    
+    return links;
+  };
+
+  const detectSocialMediaType = (url: string): string | null => {
+    if (!url) return null;
+    
+    if (url.includes('instagram.com')) return 'instagram';
+    if (url.includes('facebook.com')) return 'facebook';
+    if (url.includes('twitter.com') || url.includes('x.com')) return 'twitter';
+    if (url.includes('tiktok.com')) return 'tiktok';
+    
+    return null;
   };
 
   const amenitiesList = [
@@ -300,31 +373,31 @@ const CreateVenuePage = () => {
   ];
 
   const onSubmit = async (data: VenueFormValues) => {
-    if (!user) {
-      toast.error("Você precisa estar logado para criar um anúncio");
+    if (!user || !id) {
+      toast.error("Você precisa estar logado para editar um anúncio");
       return;
     }
     
     setSubmitting(true);
     
     try {
-      // First upload images if any
-      const imageUrls = await uploadImagesToStorage();
-      const mainImageUrl = imageUrls.length > 0 ? imageUrls[0] : null;
+      // Handle image upload if there are new images
+      let imageUrl = currentImageUrl;
+      if (venueImages.length > 0) {
+        imageUrl = await uploadImagesToStorage();
+      }
       
       // Format social media links
       const socialLinks = formatSocialLinks(data);
       
-      // Converter valores de string para número
+      // Convert string values to numbers
       const maxCapacity = parseInt(data.max_capacity);
       const pricePerDay = parseFloat(data.price_per_day);
       
-      // Inserir o anúncio no banco de dados
-      const { data: insertData, error } = await supabase
+      // Update the announcement
+      const { error } = await supabase
         .from('venue_announcements')
-        .insert({
-          user_id: user.id,
-          venue_id: data.venue_id,
+        .update({
           title: data.title,
           description: data.description,
           venue_type: data.venue_type,
@@ -334,32 +407,62 @@ const CreateVenuePage = () => {
           amenities: data.amenities,
           rules: data.rules || null,
           external_link: data.external_link || null,
-          image_url: mainImageUrl,
+          image_url: imageUrl,
           available_dates: selectedDates.map(date => format(date, 'yyyy-MM-dd')),
-          social_links: socialLinks.length > 0 ? socialLinks : null
+          social_links: socialLinks.length > 0 ? socialLinks : null,
+          venue_id: data.venue_id,
+          updated_at: new Date().toISOString()
         })
-        .select('id')
-        .single();
+        .eq('id', id)
+        .eq('user_id', user.id); // Ensure the user owns this announcement
 
       if (error) throw error;
       
-      toast.success("Anúncio criado com sucesso!");
-      navigate("/venues");
+      toast.success("Anúncio atualizado com sucesso!");
+      navigate(`/venues/details/${id}`);
     } catch (error: any) {
-      console.error("Error submitting venue announcement:", error);
-      toast.error(error.message || "Erro ao criar anúncio");
+      console.error("Error updating venue announcement:", error);
+      toast.error(error.message || "Erro ao atualizar anúncio");
     } finally {
       setSubmitting(false);
     }
   };
   
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-2xl font-bold">Editar Anúncio</h2>
+          <p className="text-muted-foreground">
+            Carregando informações do anúncio...
+          </p>
+        </div>
+        
+        <div className="h-96 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold">Criar Anúncio</h2>
-        <p className="text-muted-foreground">
-          Preencha os detalhes do seu espaço para eventos
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">Editar Anúncio</h2>
+          <p className="text-muted-foreground">
+            Atualize as informações do seu espaço para eventos
+          </p>
+        </div>
+        
+        <Button
+          variant="ghost"
+          onClick={() => navigate("/venues")}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Voltar
+        </Button>
       </div>
       
       <Card className="p-6">
@@ -389,6 +492,7 @@ const CreateVenuePage = () => {
                     <Select 
                       onValueChange={field.onChange} 
                       defaultValue={field.value}
+                      value={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -419,6 +523,25 @@ const CreateVenuePage = () => {
               </div>
               
               <div className="flex items-center gap-4">
+                {/* Current image display */}
+                {currentImageUrl && (
+                  <div className="relative flex-shrink-0">
+                    <img
+                      src={currentImageUrl}
+                      alt="Venue image"
+                      className="w-32 h-32 object-cover rounded-md"
+                    />
+                    <button
+                      type="button"
+                      onClick={removeSavedImage}
+                      className="absolute top-1 right-1 bg-white rounded-full p-1 shadow-sm hover:bg-red-50 transition-colors"
+                    >
+                      <X className="w-4 h-4 text-red-500" />
+                    </button>
+                  </div>
+                )}
+                
+                {/* Upload button */}
                 <label
                   htmlFor="image-upload"
                   className="flex items-center justify-center w-32 h-32 border-2 border-dashed rounded-md cursor-pointer hover:bg-gray-50 transition-colors"
@@ -437,6 +560,7 @@ const CreateVenuePage = () => {
                   />
                 </label>
                 
+                {/* Newly uploaded images */}
                 {venueImages.length > 0 && (
                   <div className="flex gap-3 overflow-x-auto pb-2">
                     {venueImages.map(image => (
@@ -467,10 +591,6 @@ const CreateVenuePage = () => {
               {uploadError && (
                 <p className="text-sm text-red-500">{uploadError}</p>
               )}
-              
-              <p className="text-xs text-muted-foreground">
-                {venueImages.length} de {MAX_IMAGES} imagens
-              </p>
             </div>
             
             <FormField
@@ -505,7 +625,7 @@ const CreateVenuePage = () => {
                       field.onChange(value);
                       handleVenueSelection(value);
                     }}
-                    defaultValue={field.value}
+                    value={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -513,11 +633,7 @@ const CreateVenuePage = () => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {isLoadingVenues ? (
-                        <SelectItem value="loading" disabled>
-                          Carregando locais...
-                        </SelectItem>
-                      ) : venues.length > 0 ? (
+                      {venues.length > 0 ? (
                         venues.map((venue) => (
                           <SelectItem key={venue.id} value={venue.id}>
                             {venue.name} ({venue.street}, {venue.number})
@@ -790,7 +906,7 @@ const CreateVenuePage = () => {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate("/venues")}
+                onClick={() => navigate(`/venues/details/${id}`)}
               >
                 Cancelar
               </Button>
@@ -798,7 +914,7 @@ const CreateVenuePage = () => {
                 type="submit" 
                 disabled={submitting}
               >
-                {submitting ? "Criando..." : "Criar Anúncio"}
+                {submitting ? "Salvando..." : "Salvar alterações"}
               </Button>
             </div>
           </form>
@@ -808,4 +924,4 @@ const CreateVenuePage = () => {
   );
 };
 
-export default CreateVenuePage;
+export default EditVenuePage;
