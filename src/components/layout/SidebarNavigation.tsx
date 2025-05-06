@@ -6,11 +6,15 @@ import { Separator } from '@/components/ui/separator';
 import { UserProfile } from './sidebar/UserProfile';
 import { MenuGroup } from './sidebar/MenuGroup';
 import { LogoutButton } from './sidebar/LogoutButton';
-import { menuItems, supportMenuItems, getMainMenuItems } from './sidebar/menu-data';
+import { menuItems } from './sidebar/menu-data';
 import { useUnreadMessages } from './sidebar/useUnreadMessages';
 import { useUserRoles } from './sidebar/useUserRoles';
 import { SidebarNavigationProps } from './sidebar/types';
 import { useNavigationState } from './sidebar/useNavigationState';
+import { Sidebar, SidebarContent } from '@/components/ui/sidebar';
+
+// Import missing getMainMenuItems and supportMenuItems helpers
+import { getSidebarMenuItems } from './sidebar/sidebar-helpers';
 
 export const SidebarNavigation = ({ activePath: propActivePath, onNavigate }: SidebarNavigationProps) => {
   const navigate = useNavigate();
@@ -28,7 +32,7 @@ export const SidebarNavigation = ({ activePath: propActivePath, onNavigate }: Si
   const userRole = user?.user_metadata?.role || 'contractor';
 
   // Get menu items based on user role
-  const mainMenuItems = getMainMenuItems(userRole);
+  const { mainMenuItems, supportMenuItems } = getSidebarMenuItems(userRole);
 
   // Update menu items with unread message count
   const updatedMainMenuItems = mainMenuItems.map(item => {
@@ -56,37 +60,41 @@ export const SidebarNavigation = ({ activePath: propActivePath, onNavigate }: Si
   };
 
   return (
-    <div className="flex flex-col gap-8 animate-fade-in">
-      <UserProfile 
-        user={user}
-        firstName={firstName}
-        lastName={lastName}
-        avatarUrl={avatarUrl}
-        userRole={userRole}
-        hasProviderRole={hasProviderRole}
-        hasContractorRole={hasContractorRole}
-      />
+    <Sidebar>
+      <SidebarContent>
+        <div className="flex flex-col gap-8 animate-fade-in">
+          <UserProfile 
+            user={user}
+            firstName={firstName}
+            lastName={lastName}
+            avatarUrl={avatarUrl}
+            userRole={userRole}
+            hasProviderRole={hasProviderRole}
+            hasContractorRole={hasContractorRole}
+          />
 
-      <SidebarSeparator />
-      
-      <MenuGroup 
-        items={updatedMainMenuItems} 
-        activePath={propActivePath || activePath} 
-        onItemClick={handleLinkClick} 
-      />
-      
-      <SidebarSeparator />
-      
-      <MenuGroup 
-        items={supportMenuItems} 
-        activePath={propActivePath || activePath} 
-        onItemClick={handleLinkClick} 
-      />
+          <SidebarSeparator />
+          
+          <MenuGroup 
+            items={updatedMainMenuItems} 
+            activePath={propActivePath || activePath} 
+            onItemClick={handleLinkClick} 
+          />
+          
+          <SidebarSeparator />
+          
+          <MenuGroup 
+            items={supportMenuItems} 
+            activePath={propActivePath || activePath} 
+            onItemClick={handleLinkClick} 
+          />
 
-      <SidebarSeparator />
+          <SidebarSeparator />
 
-      <LogoutButton onLogout={handleLogout} />
-    </div>
+          <LogoutButton onLogout={handleLogout} />
+        </div>
+      </SidebarContent>
+    </Sidebar>
   );
 };
 

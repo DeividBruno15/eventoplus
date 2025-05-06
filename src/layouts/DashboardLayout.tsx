@@ -9,6 +9,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { PageTransition } from "@/components/ui/page-transition";
 import { AnimatePresence } from "framer-motion";
+import { SidebarProvider } from "@/components/ui/sidebar/context";
 
 const DashboardLayout = () => {
   // Inicialmente, defina como null para não redirecionar imediatamente durante a verificação
@@ -55,32 +56,34 @@ const DashboardLayout = () => {
   }
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen">
-      <SidebarNavigation 
-        activePath={location.pathname} 
-        onNavigate={handleNavigate}
-      />
-      <div className="flex-grow">
-        {/* Header com menu do usuário */}
-        <header className="sticky top-0 z-10 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="flex h-14 items-center justify-end px-4">
-            <div className="flex items-center gap-4">
-              <NotificationsMenu />
-              <UserMenu />
+    <SidebarProvider>
+      <div className="flex flex-col md:flex-row min-h-screen w-full">
+        <SidebarNavigation 
+          activePath={location.pathname} 
+          onNavigate={handleNavigate}
+        />
+        <div className="flex-grow">
+          {/* Header com menu do usuário */}
+          <header className="sticky top-0 z-10 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="flex h-14 items-center justify-end px-4">
+              <div className="flex items-center gap-4">
+                <NotificationsMenu />
+                <UserMenu />
+              </div>
             </div>
-          </div>
-        </header>
+          </header>
 
-        {/* Conteúdo principal com transição de página animada */}
-        <main className="flex-1 p-4 pb-20">
-          <AnimatePresence mode="wait">
-            <PageTransition>
-              <Outlet />
-            </PageTransition>
-          </AnimatePresence>
-        </main>
+          {/* Conteúdo principal com transição de página animada */}
+          <main className="flex-1 p-4 pb-20">
+            <AnimatePresence mode="wait">
+              <PageTransition>
+                <Outlet />
+              </PageTransition>
+            </AnimatePresence>
+          </main>
+        </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 
