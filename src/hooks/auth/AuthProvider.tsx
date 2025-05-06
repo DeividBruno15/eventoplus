@@ -86,7 +86,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       console.log('Registrando com papel:', profileData.role);
       
-      let signUpOptions = {
+      let signUpOptions: {
+        email: string;
+        password: string;
+        options: {
+          data: any;
+          emailRedirectTo?: string;
+        }
+      } = {
         email,
         password,
         options: {
