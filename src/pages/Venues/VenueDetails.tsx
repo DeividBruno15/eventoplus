@@ -14,6 +14,7 @@ import { VenueSocialLinks } from "./components/VenueSocialLinks";
 import { VenueSidebar } from "./components/VenueSidebar";
 import { VenueDetailsLoading } from "./components/VenueDetailsLoading";
 import { VenueNotFound } from "./components/VenueNotFound";
+import VenueRatingsSection from "./components/VenueRatingsSection";
 
 const VenueDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -29,6 +30,9 @@ const VenueDetailsPage = () => {
   }
   
   const isOwner = user?.id === venue.user_id;
+  
+  // Extrair URLs das imagens quando houver suporte para múltiplas imagens
+  const imageUrls = venue.image_url ? [venue.image_url] : [];
   
   return (
     <div className="space-y-6">
@@ -48,9 +52,16 @@ const VenueDetailsPage = () => {
             isRentable={venue.is_rentable} 
           />
           
-          <VenueImage imageUrl={venue.image_url} title={venue.title} />
+          <VenueImage 
+            imageUrl={venue.image_url} 
+            title={venue.title}
+            imageUrls={imageUrls}
+          />
           
-          <VenueDescription description={venue.description} />
+          <VenueDescription 
+            description={venue.description} 
+            externalLink={venue.external_link} 
+          />
           
           <Separator />
           
@@ -60,7 +71,17 @@ const VenueDetailsPage = () => {
           
           <VenueRules rules={venue.rules} />
           
-          <VenueSocialLinks socialLinks={venue.social_links} />
+          <VenueSocialLinks 
+            socialLinks={venue.social_links} 
+            externalLink={venue.external_link}
+          />
+          
+          {/* Seção de avaliações */}
+          <VenueRatingsSection 
+            venueId={venue.id}
+            ownerId={venue.user_id}
+            initialRatings={[]}  // As avaliações serão carregadas pelo componente
+          />
         </div>
         
         <VenueSidebar 

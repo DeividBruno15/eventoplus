@@ -1,13 +1,13 @@
 
 import React, { useState } from 'react';
-import { Star, Reply, ThumbsUp, Flag } from 'lucide-react';
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
-import { VenueRating } from '../types';
-import { useAuth } from '@/hooks/useAuth';
-import { format } from 'date-fns';
+import { StarRating } from './StarRating';
+import { formatDistanceToNow, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { VenueRating } from '../types';
 
 interface VenueRatingItemProps {
   rating: VenueRating;
@@ -15,37 +15,23 @@ interface VenueRatingItemProps {
   onReply: (ratingId: string, response: string) => Promise<void>;
 }
 
-export const VenueRatingItem: React.FC<VenueRatingItemProps> = ({ 
+export const VenueRatingItem: React.FC<VenueRatingItemProps> = ({
   rating,
   isOwner,
-  onReply 
+  onReply
 }) => {
-  const { user } = useAuth();
   const [isReplying, setIsReplying] = useState(false);
-  const [response, setResponse] = useState('');
+  const [replyText, setReplyText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const renderStars = (score: number) => {
-    const stars = [];
-    for (let i = 0; i < 5; i++) {
-      stars.push(
-        <Star 
-          key={i} 
-          className={`h-4 w-4 ${i < score ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} 
-        />
-      );
-    }
-    return stars;
-  };
-
-  const handleReplySubmit = async () => {
-    if (!response.trim()) return;
+  const handleReply = async () => {
+    if (!replyText.trim()) return;
     
+    setIsSubmitting(true);
     try {
-      setIsSubmitting(true);
-      await onReply(rating.id, response);
+      await onReply(rating.id, replyText);
       setIsReplying(false);
-      setResponse('');
+      setReplyText('');
     } catch (error) {
       console.error('Erro ao responder avaliação:', error);
     } finally {
@@ -53,152 +39,142 @@ export const VenueRatingItem: React.FC<VenueRatingItemProps> = ({
     }
   };
 
-  const getInitials = (name?: string) => {
-    if (!name) return 'U';
-    return name.charAt(0).toUpperCase();
-  };
-
   const formatDate = (dateString: string) => {
     try {
-      return format(new Date(dateString), "d 'de' MMMM 'de' yyyy", { locale: ptBR });
-    } catch (e) {
+      return formatDistanceToNow(parseISO(dateString), {
+        addSuffix: true,
+        locale: ptBR
+      });
+    } catch {
       return dateString;
     }
   };
 
+  // Extrair iniciais do nome para o avatar fallback
+  const getInitials = (name?: string) => {
+    if (!name) return '?';
+    return name.split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
+  };
+
   return (
-    <div className="border rounded-lg p-4 mb-4 bg-white">
-      <div className="flex items-start gap-4">
-        <Avatar className="h-10 w-10">
-          <AvatarImage src={rating.user?.avatar_url} alt={`${rating.user?.first_name || 'Usuário'}`} />
-          <AvatarFallback>
-            {getInitials(rating.user?.first_name)}
-          </AvatarFallback>
-        </Avatar>
-        
-        <div className="flex-1">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
-            <h4 className="font-semibold">
-              {rating.user?.first_name} {rating.user?.last_name}
-            </h4>
-            <span className="text-xs text-gray-500">{formatDate(rating.created_at)}</span>
-          </div>
-          
-          <div className="flex mt-1 mb-2">
-            {renderStars(rating.overall_rating)}
-          </div>
-
-          {/* Avaliações detalhadas em lista horizontal */}
-          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs my-2">
-            {rating.location_rating && (
-              <div className="flex items-center">
-                <span className="text-gray-600 mr-1">Localização:</span>
-                <span className="font-medium">{rating.location_rating}</span>
+    <Card>
+      <CardHeader className="pb-3">
+        <div className="flex justify-between">
+          <div className="flex items-center gap-3">
+            <Avatar>
+              <AvatarImage src={rating.user_avatar} alt={rating.user_name} />
+              <AvatarFallback>{getInitials(rating.user_name)}</AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="font-medium">{rating.user_name || 'Usuário'}</p>
+              <div className="flex items-center gap-2">
+                <StarRating value={rating.overall_rating} readOnly size="sm" />
+                <span className="text-sm text-muted-foreground">
+                  {formatDate(rating.created_at)}
+                </span>
               </div>
-            )}
-            {rating.value_rating && (
-              <div className="flex items-center">
-                <span className="text-gray-600 mr-1">Custo-benefício:</span>
-                <span className="font-medium">{rating.value_rating}</span>
-              </div>
-            )}
-            {rating.service_rating && (
-              <div className="flex items-center">
-                <span className="text-gray-600 mr-1">Atendimento:</span>
-                <span className="font-medium">{rating.service_rating}</span>
-              </div>
-            )}
-            {rating.cleanliness_rating && (
-              <div className="flex items-center">
-                <span className="text-gray-600 mr-1">Limpeza:</span>
-                <span className="font-medium">{rating.cleanliness_rating}</span>
-              </div>
-            )}
-            {rating.amenities_rating && (
-              <div className="flex items-center">
-                <span className="text-gray-600 mr-1">Comodidades:</span>
-                <span className="font-medium">{rating.amenities_rating}</span>
-              </div>
-            )}
-          </div>
-
-          <p className="text-gray-700 mt-1">{rating.comment}</p>
-          
-          <div className="flex justify-between mt-3">
-            <div className="flex space-x-2">
-              <Button variant="ghost" size="sm">
-                <ThumbsUp className="h-4 w-4 mr-1" />
-                <span className="text-xs">Útil</span>
-              </Button>
-              {isOwner && !rating.owner_response && !isReplying && (
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => setIsReplying(true)}
-                >
-                  <Reply className="h-4 w-4 mr-1" />
-                  <span className="text-xs">Responder</span>
-                </Button>
-              )}
             </div>
-            
-            <Button variant="ghost" size="sm">
-              <Flag className="h-4 w-4 mr-1" />
-              <span className="text-xs">Denunciar</span>
-            </Button>
           </div>
-          
-          {/* Área de resposta */}
-          {isReplying && (
-            <div className="mt-3 border-t pt-3">
-              <Textarea
-                placeholder="Digite sua resposta..."
-                value={response}
-                onChange={(e) => setResponse(e.target.value)}
-                className="min-h-[100px] mb-3"
-              />
-              <div className="flex justify-end space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setIsReplying(false);
-                    setResponse('');
-                  }}
-                  disabled={isSubmitting}
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={handleReplySubmit}
-                  disabled={!response.trim() || isSubmitting}
-                >
-                  {isSubmitting ? 'Enviando...' : 'Responder'}
-                </Button>
-              </div>
+        </div>
+      </CardHeader>
+      
+      <CardContent className="pb-3">
+        <p className="text-gray-700">{rating.comment}</p>
+        
+        {/* Detalhes das avaliações específicas */}
+        <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-4">
+          {rating.location_rating && (
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-500">Localização</span>
+              <StarRating value={rating.location_rating} readOnly size="sm" />
             </div>
           )}
           
-          {/* Exibir resposta se existir */}
-          {rating.owner_response && (
-            <div className="mt-4 bg-gray-50 p-3 rounded-md border">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Avatar className="h-6 w-6">
-                    <AvatarFallback>A</AvatarFallback>
-                  </Avatar>
-                  <span className="font-medium text-sm">Resposta do anunciante</span>
-                </div>
-                <span className="text-xs text-gray-500">
-                  {formatDate(rating.owner_response.created_at)}
-                </span>
-              </div>
-              <p className="mt-2 text-sm">{rating.owner_response.response}</p>
+          {rating.value_rating && (
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-500">Custo-benefício</span>
+              <StarRating value={rating.value_rating} readOnly size="sm" />
+            </div>
+          )}
+          
+          {rating.service_rating && (
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-500">Atendimento</span>
+              <StarRating value={rating.service_rating} readOnly size="sm" />
+            </div>
+          )}
+          
+          {rating.cleanliness_rating && (
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-500">Limpeza</span>
+              <StarRating value={rating.cleanliness_rating} readOnly size="sm" />
+            </div>
+          )}
+          
+          {rating.amenities_rating && (
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-500">Comodidades</span>
+              <StarRating value={rating.amenities_rating} readOnly size="sm" />
             </div>
           )}
         </div>
-      </div>
-    </div>
+        
+        {/* Resposta do proprietário, se houver */}
+        {rating.owner_response && (
+          <div className="mt-4 bg-gray-50 p-3 rounded-md">
+            <p className="text-sm font-medium">Resposta do proprietário</p>
+            <p className="text-sm mt-1">{rating.owner_response.response}</p>
+            <p className="text-xs text-gray-500 mt-1">
+              {formatDate(rating.owner_response.created_at)}
+            </p>
+          </div>
+        )}
+        
+        {/* Interface de resposta */}
+        {isReplying && (
+          <div className="mt-4 space-y-3">
+            <Textarea
+              value={replyText}
+              onChange={(e) => setReplyText(e.target.value)}
+              placeholder="Escreva sua resposta..."
+              className="resize-none"
+            />
+          </div>
+        )}
+      </CardContent>
+      
+      {isOwner && !rating.owner_response && (
+        <CardFooter className="flex justify-end gap-2 pt-0">
+          {isReplying ? (
+            <>
+              <Button 
+                variant="outline" 
+                onClick={() => setIsReplying(false)}
+                disabled={isSubmitting}
+              >
+                Cancelar
+              </Button>
+              <Button 
+                onClick={handleReply}
+                disabled={!replyText.trim() || isSubmitting}
+              >
+                {isSubmitting ? "Enviando..." : "Responder"}
+              </Button>
+            </>
+          ) : (
+            <Button 
+              variant="outline" 
+              onClick={() => setIsReplying(true)}
+            >
+              Responder
+            </Button>
+          )}
+        </CardFooter>
+      )}
+    </Card>
   );
 };

@@ -1,240 +1,295 @@
 
-import React, { useState } from 'react';
-import { Star } from 'lucide-react';
+import React from 'react';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import { toast } from "sonner";
+import { StarRating } from './StarRating';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/auth';
+import { toast } from 'sonner';
 import { VenueRating } from '../types';
 
 interface CreateVenueRatingProps {
   venueId: string;
   onSuccess: (rating: VenueRating) => void;
-  onCancel?: () => void;
+  onCancel: () => void;
 }
 
-const CreateVenueRating: React.FC<CreateVenueRatingProps> = ({
-  venueId,
-  onSuccess,
-  onCancel
+// Schema para validação do formulário
+const ratingSchema = z.object({
+  overall_rating: z.number().min(1, "Avaliação geral é obrigatória").max(5),
+  location_rating: z.number().min(1, "Avaliação de localização é obrigatória").max(5),
+  value_rating: z.number().min(1, "Avaliação de custo-benefício é obrigatória").max(5),
+  service_rating: z.number().min(1, "Avaliação de atendimento é obrigatória").max(5),
+  cleanliness_rating: z.number().min(1, "Avaliação de limpeza é obrigatória").max(5),
+  amenities_rating: z.number().min(1, "Avaliação de comodidades é obrigatória").max(5),
+  comment: z.string().min(3, "O comentário deve ter pelo menos 3 caracteres").max(500, "O comentário deve ter no máximo 500 caracteres"),
+});
+
+type RatingForm = z.infer<typeof ratingSchema>;
+
+const CreateVenueRating: React.FC<CreateVenueRatingProps> = ({ 
+  venueId, 
+  onSuccess, 
+  onCancel 
 }) => {
-  const [overallRating, setOverallRating] = useState<number>(0);
-  const [locationRating, setLocationRating] = useState<number>(0);
-  const [valueRating, setValueRating] = useState<number>(0);
-  const [serviceRating, setServiceRating] = useState<number>(0);
-  const [cleanlinessRating, setCleanlinessRating] = useState<number>(0);
-  const [amenitiesRating, setAmenitiesRating] = useState<number>(0);
-  const [comment, setComment] = useState<string>('');
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [hoveredRating, setHoveredRating] = useState<Record<string, number>>({});
-
-  const handleStarClick = (rating: number, type: string) => {
-    switch(type) {
-      case 'overall':
-        setOverallRating(rating);
-        break;
-      case 'location':
-        setLocationRating(rating);
-        break;
-      case 'value':
-        setValueRating(rating);
-        break;
-      case 'service':
-        setServiceRating(rating);
-        break;
-      case 'cleanliness':
-        setCleanlinessRating(rating);
-        break;
-      case 'amenities':
-        setAmenitiesRating(rating);
-        break;
-    }
-  };
-
-  const handleMouseEnter = (rating: number, type: string) => {
-    setHoveredRating({
-      ...hoveredRating,
-      [type]: rating
-    });
-  };
-
-  const handleMouseLeave = (type: string) => {
-    setHoveredRating({
-      ...hoveredRating,
-      [type]: 0
-    });
-  };
-
-  const renderStars = (rating: number, type: string) => {
-    const currentRating = {
-      overall: overallRating,
-      location: locationRating,
-      value: valueRating,
-      service: serviceRating,
-      cleanliness: cleanlinessRating,
-      amenities: amenitiesRating
-    }[type];
-
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
-        <Star 
-          key={i}
-          className={`h-6 w-6 cursor-pointer transition-colors ${
-            i <= (hoveredRating[type] || currentRating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
-          }`}
-          onClick={() => handleStarClick(i, type)}
-          onMouseEnter={() => handleMouseEnter(i, type)}
-          onMouseLeave={() => handleMouseLeave(type)}
-        />
-      );
-    }
-    return stars;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (overallRating === 0) {
-      toast.error('Por favor, selecione uma avaliação geral');
-      return;
-    }
-    
-    if (comment.trim() === '') {
-      toast.error('Por favor, adicione um comentário à sua avaliação');
+  const { user } = useAuth();
+  const form = useForm<RatingForm>({
+    resolver: zodResolver(ratingSchema),
+    defaultValues: {
+      overall_rating: 0,
+      location_rating: 0,
+      value_rating: 0,
+      service_rating: 0,
+      cleanliness_rating: 0,
+      amenities_rating: 0,
+      comment: "",
+    },
+  });
+  
+  const isSubmitting = form.formState.isSubmitting;
+  
+  const onSubmit = async (data: RatingForm) => {
+    if (!user) {
+      toast.error("Você precisa estar logado para enviar uma avaliação");
       return;
     }
     
     try {
-      setIsSubmitting(true);
+      const { data: ratingData, error } = await supabase
+        .from('venue_ratings')
+        .insert([
+          {
+            venue_id: venueId,
+            user_id: user.id,
+            overall_rating: data.overall_rating,
+            location_rating: data.location_rating,
+            value_rating: data.value_rating,
+            service_rating: data.service_rating,
+            cleanliness_rating: data.cleanliness_rating,
+            amenities_rating: data.amenities_rating,
+            comment: data.comment,
+          }
+        ])
+        .select('*, user_profiles:user_id(first_name, last_name, avatar_url)')
+        .single();
+        
+      if (error) throw error;
       
-      // Criando um mock de avaliação para simulação
-      // Em uma implementação real, isso seria um POST para uma API
+      // Formatar dados para o componente pai
       const newRating: VenueRating = {
-        id: `temp-${Date.now()}`,
-        venue_id: venueId,
-        user_id: 'mock-user-id',
-        overall_rating: overallRating,
-        location_rating: locationRating || undefined,
-        value_rating: valueRating || undefined,
-        service_rating: serviceRating || undefined,
-        cleanliness_rating: cleanlinessRating || undefined,
-        amenities_rating: amenitiesRating || undefined,
-        comment: comment,
-        created_at: new Date().toISOString(),
-        user: {
-          first_name: 'Usuário',
-          last_name: 'Atual'
-        }
+        id: ratingData.id,
+        venue_id: ratingData.venue_id,
+        user_id: ratingData.user_id,
+        overall_rating: ratingData.overall_rating,
+        location_rating: ratingData.location_rating,
+        value_rating: ratingData.value_rating,
+        service_rating: ratingData.service_rating,
+        cleanliness_rating: ratingData.cleanliness_rating,
+        amenities_rating: ratingData.amenities_rating,
+        comment: ratingData.comment,
+        created_at: ratingData.created_at,
+        user_name: `${ratingData.user_profiles.first_name} ${ratingData.user_profiles.last_name}`,
+        user_avatar: ratingData.user_profiles.avatar_url,
       };
       
-      // Simulação de uma chamada assíncrona
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      toast.success('Avaliação enviada com sucesso!');
+      toast.success("Avaliação enviada com sucesso!");
       onSuccess(newRating);
-      
-    } catch (error) {
-      console.error('Erro ao enviar avaliação:', error);
-      toast.error('Erro ao enviar avaliação. Tente novamente.');
-    } finally {
-      setIsSubmitting(false);
+    } catch (error: any) {
+      console.error("Erro ao enviar avaliação:", error);
+      toast.error(error.message || "Erro ao enviar avaliação");
     }
   };
 
   return (
-    <div className="border rounded-lg p-6 bg-white">
-      <h3 className="text-lg font-semibold mb-4">Avalie este local</h3>
+    <Card>
+      <CardHeader>
+        <CardTitle>Avalie este espaço</CardTitle>
+        <CardDescription>
+          Compartilhe sua experiência para ajudar outros usuários
+        </CardDescription>
+      </CardHeader>
       
-      <form onSubmit={handleSubmit}>
-        <div className="space-y-4">
-          {/* Avaliação geral */}
-          <div>
-            <label className="block mb-2 font-medium">Avaliação geral</label>
-            <div className="flex">
-              {renderStars(overallRating, 'overall')}
-            </div>
-            {overallRating === 0 && (
-              <p className="text-sm text-red-500 mt-1">Esta avaliação é obrigatória</p>
-            )}
-          </div>
-          
-          {/* Avaliações detalhadas */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block mb-2 text-sm">Localização</label>
-              <div className="flex">
-                {renderStars(locationRating, 'location')}
-              </div>
-            </div>
-            
-            <div>
-              <label className="block mb-2 text-sm">Custo-benefício</label>
-              <div className="flex">
-                {renderStars(valueRating, 'value')}
-              </div>
-            </div>
-            
-            <div>
-              <label className="block mb-2 text-sm">Atendimento</label>
-              <div className="flex">
-                {renderStars(serviceRating, 'service')}
-              </div>
-            </div>
-            
-            <div>
-              <label className="block mb-2 text-sm">Limpeza</label>
-              <div className="flex">
-                {renderStars(cleanlinessRating, 'cleanliness')}
-              </div>
-            </div>
-            
-            <div>
-              <label className="block mb-2 text-sm">Comodidades</label>
-              <div className="flex">
-                {renderStars(amenitiesRating, 'amenities')}
-              </div>
-            </div>
-          </div>
-          
-          {/* Comentário */}
-          <div>
-            <label htmlFor="comment" className="block mb-2 font-medium">
-              Seu comentário
-            </label>
-            <Textarea
-              id="comment"
-              rows={4}
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              placeholder="Conte sua experiência neste local..."
-              className="w-full"
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <CardContent className="space-y-4">
+            {/* Avaliação geral */}
+            <FormField
+              control={form.control}
+              name="overall_rating"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Avaliação geral</FormLabel>
+                  <FormControl>
+                    <StarRating
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {comment.trim() === '' && (
-              <p className="text-sm text-red-500 mt-1">Este campo é obrigatório</p>
-            )}
-          </div>
+            
+            {/* Grid para as outras categorias de avaliação */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Localização */}
+              <FormField
+                control={form.control}
+                name="location_rating"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Localização</FormLabel>
+                    <FormControl>
+                      <StarRating
+                        value={field.value}
+                        onChange={field.onChange}
+                        size="sm"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              {/* Custo-benefício */}
+              <FormField
+                control={form.control}
+                name="value_rating"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Custo-benefício</FormLabel>
+                    <FormControl>
+                      <StarRating
+                        value={field.value}
+                        onChange={field.onChange}
+                        size="sm"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              {/* Atendimento */}
+              <FormField
+                control={form.control}
+                name="service_rating"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Atendimento</FormLabel>
+                    <FormControl>
+                      <StarRating
+                        value={field.value}
+                        onChange={field.onChange}
+                        size="sm"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              {/* Limpeza */}
+              <FormField
+                control={form.control}
+                name="cleanliness_rating"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Limpeza</FormLabel>
+                    <FormControl>
+                      <StarRating
+                        value={field.value}
+                        onChange={field.onChange}
+                        size="sm"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              {/* Comodidades */}
+              <FormField
+                control={form.control}
+                name="amenities_rating"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Comodidades</FormLabel>
+                    <FormControl>
+                      <StarRating
+                        value={field.value}
+                        onChange={field.onChange}
+                        size="sm"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            
+            {/* Comentário */}
+            <FormField
+              control={form.control}
+              name="comment"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Comentário</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Conte sua experiência neste espaço..."
+                      className="resize-none"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    {field.value.length}/500 caracteres
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
           
-          <div className="flex justify-end space-x-2">
-            {onCancel && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onCancel}
-                disabled={isSubmitting}
-              >
-                Cancelar
-              </Button>
-            )}
+          <CardFooter className="flex justify-end gap-2">
             <Button
-              type="submit"
-              disabled={overallRating === 0 || comment.trim() === '' || isSubmitting}
+              type="button"
+              variant="outline"
+              onClick={onCancel}
+              disabled={isSubmitting}
             >
-              {isSubmitting ? 'Enviando...' : 'Enviar avaliação'}
+              Cancelar
             </Button>
-          </div>
-        </div>
-      </form>
-    </div>
+            <Button 
+              type="submit"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Enviando..." : "Enviar avaliação"}
+            </Button>
+          </CardFooter>
+        </form>
+      </Form>
+    </Card>
   );
 };
 
