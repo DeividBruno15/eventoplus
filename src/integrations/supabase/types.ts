@@ -629,6 +629,45 @@ export type Database = {
         }
         Relationships: []
       }
+      user_venues: {
+        Row: {
+          city: string
+          created_at: string
+          id: string
+          name: string
+          neighborhood: string
+          number: string
+          state: string
+          street: string
+          user_id: string
+          zipcode: string
+        }
+        Insert: {
+          city: string
+          created_at?: string
+          id?: string
+          name: string
+          neighborhood: string
+          number: string
+          state: string
+          street: string
+          user_id: string
+          zipcode: string
+        }
+        Update: {
+          city?: string
+          created_at?: string
+          id?: string
+          name?: string
+          neighborhood?: string
+          number?: string
+          state?: string
+          street?: string
+          user_id?: string
+          zipcode?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

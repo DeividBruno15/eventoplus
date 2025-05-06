@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/auth";
 import { VenueForm } from "./VenueForm";
 import { 
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle
 } from "@/components/ui/dialog";
@@ -159,6 +160,9 @@ export const UserVenues = () => {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Adicionar Local</DialogTitle>
+            <DialogDescription>
+              Preencha os dados do local para cadastrá-lo em sua conta
+            </DialogDescription>
           </DialogHeader>
           <VenueForm 
             onSuccess={handleFormSuccess}

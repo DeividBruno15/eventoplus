@@ -144,24 +144,22 @@ export function VenueForm({ onSuccess, onCancel }: VenueFormProps) {
             name="street"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Rua</FormLabel>
+                <FormLabel>Endereço</FormLabel>
                 <div className="flex gap-2">
-                  <div className="flex-1">
-                    <FormControl>
-                      <Input 
-                        placeholder="Rua exemplo" 
-                        {...field} 
-                      />
-                    </FormControl>
-                  </div>
-                  <div className="w-24">
-                    <FormControl>
-                      <Input 
-                        placeholder="Nº" 
-                        {...form.register("number")} 
-                      />
-                    </FormControl>
-                  </div>
+                  <FormControl>
+                    <Input 
+                      placeholder="Rua exemplo" 
+                      className="flex-1"
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormControl>
+                    <Input 
+                      placeholder="Nº" 
+                      className="w-24"
+                      {...form.register("number")} 
+                    />
+                  </FormControl>
                 </div>
                 <FormMessage />
               </FormItem>
@@ -169,6 +167,7 @@ export function VenueForm({ onSuccess, onCancel }: VenueFormProps) {
           />
         </div>
         
+        {/* Hidden number field - we handle this in the street field layout */}
         <FormField
           control={form.control}
           name="number"
