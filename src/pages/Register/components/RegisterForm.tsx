@@ -17,10 +17,13 @@ import { PersonTypeSelector } from './PersonTypeSelector';
 import { RoleSelector } from './RoleSelector';
 import { PhoneField } from './PhoneField';
 import { usePasswordValidation } from '@/hooks/usePasswordValidation';
+import { EmailConfirmationDialog } from '@/hooks/auth/EmailConfirmationDialog';
 
 export const RegisterForm = () => {
   const { register: signUp, signInWithGoogle, loading } = useAuth();
   const [submitting, setSubmitting] = useState(false);
+  const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
+  const [confirmationEmail, setConfirmationEmail] = useState('');
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerFormSchema),
@@ -66,7 +69,9 @@ export const RegisterForm = () => {
       await signUp(completeFormData);
       
       console.log('Registration submitted successfully');
-      // A tela de confirmação é exibida dentro do hook useAuth
+      // Mostrar diálogo de confirmação
+      setConfirmationEmail(values.email);
+      setShowEmailConfirmation(true);
     } catch (error: any) {
       console.error('Registration error:', error);
       let errorMessage = "Ocorreu um erro ao processar seu cadastro";
@@ -94,34 +99,46 @@ export const RegisterForm = () => {
     }
   };
 
+  const closeConfirmationDialog = () => {
+    setShowEmailConfirmation(false);
+  };
+
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <RoleSelector form={form} selectedRole={selectedRole} />
-        
-        <BasicInfoFields form={form} />
-        
-        <div className="space-y-2">
-          <PasswordRequirements passwordRequirements={passwordRequirements} />
-          <PasswordStrengthMeter password={watchPassword} />
-        </div>
+    <>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <RoleSelector form={form} selectedRole={selectedRole} />
+          
+          <BasicInfoFields form={form} />
+          
+          <div className="space-y-2">
+            <PasswordRequirements passwordRequirements={passwordRequirements} />
+            <PasswordStrengthMeter password={watchPassword} />
+          </div>
 
-        {/* Phone field below password requirements */}
-        <PhoneField form={form} />
-        
-        <PersonTypeSelector form={form} />
-        <DocumentFields form={form} />
-        <AddressFields form={form} />
-        
-        {selectedRole === 'provider' && (
-          <ServiceCategoriesField form={form} />
-        )}
+          {/* Phone field below password requirements */}
+          <PhoneField form={form} />
+          
+          <PersonTypeSelector form={form} />
+          <DocumentFields form={form} />
+          <AddressFields form={form} />
+          
+          {selectedRole === 'provider' && (
+            <ServiceCategoriesField form={form} />
+          )}
 
-        <RegistrationButtons 
-          isSubmitting={submitting || loading} 
-          onGoogleLogin={signInWithGoogle} 
-        />
-      </form>
-    </Form>
+          <RegistrationButtons 
+            isSubmitting={submitting || loading} 
+            onGoogleLogin={signInWithGoogle} 
+          />
+        </form>
+      </Form>
+      
+      <EmailConfirmationDialog
+        open={showEmailConfirmation}
+        onClose={closeConfirmationDialog}
+        email={confirmationEmail}
+      />
+    </>
   );
 };

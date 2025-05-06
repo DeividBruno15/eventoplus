@@ -40,52 +40,50 @@ const queryClient = new QueryClient();
 
 function App() {
   return (
-    <>
-      <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
         <AuthProvider>
-          <BrowserRouter>
-            <Routes>
-              {/* Public routes */}
-              <Route path="/" element={<Index />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              
-              {/* Dashboard routes - all wrapped with DashboardLayout */}
-              <Route path="/" element={<DashboardLayout />}>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/events" element={<Events />} />
-                <Route path="/events/create" element={<CreateEvent />} />
-                <Route path="/events/:id" element={<EventDetail />} />
-                <Route path="/events/:id/edit" element={<CreateEvent />} />
-                <Route path="/chat" element={<Chat />} />
-                <Route path="/chat/:id" element={<Conversation />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/help-center" element={<HelpCenter />} />
-                <Route path="/support" element={<Support />} />
-                <Route path="/plans" element={<Plans />} />
-                <Route path="/onboarding" element={<Onboarding />} />
-                <Route path="/service-providers" element={<ServiceProviders />} />
-                <Route path="/provider/:id" element={<ProviderProfile />} />
-                <Route path="/request-quote/:id?" element={<RequestQuote />} />
-                <Route path="/user-profile/:id" element={<UserProfilePage />} />
-                {/* Venue routes */}
-                <Route path="/venues" element={<Venues />} />
-                <Route path="/venues/create" element={<CreateVenue />} />
-              </Route>
-              
-              {/* 404 route */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            
+            {/* Dashboard routes - all wrapped with DashboardLayout */}
+            <Route path="/" element={<DashboardLayout />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/events" element={<Events />} />
+              <Route path="/events/create" element={<CreateEvent />} />
+              <Route path="/events/:id" element={<EventDetail />} />
+              <Route path="/events/:id/edit" element={<CreateEvent />} />
+              <Route path="/chat" element={<Chat />} />
+              <Route path="/chat/:id" element={<Conversation />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/help-center" element={<HelpCenter />} />
+              <Route path="/support" element={<Support />} />
+              <Route path="/plans" element={<Plans />} />
+              <Route path="/onboarding" element={<Onboarding />} />
+              <Route path="/service-providers" element={<ServiceProviders />} />
+              <Route path="/provider/:id" element={<ProviderProfile />} />
+              <Route path="/request-quote/:id?" element={<RequestQuote />} />
+              <Route path="/user-profile/:id" element={<UserProfilePage />} />
+              {/* Venue routes */}
+              <Route path="/venues" element={<Venues />} />
+              <Route path="/venues/create" element={<CreateVenue />} />
+            </Route>
+            
+            {/* 404 route */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
           <Toaster position="top-right" />
         </AuthProvider>
-      </QueryClientProvider>
-    </>
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 }
 

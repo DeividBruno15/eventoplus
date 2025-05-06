@@ -1,7 +1,7 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface EmailConfirmationDialogProps {
   open: boolean;
@@ -10,6 +10,13 @@ interface EmailConfirmationDialogProps {
 }
 
 export const EmailConfirmationDialog = ({ open, onClose, email }: EmailConfirmationDialogProps) => {
+  const navigate = useNavigate();
+  
+  const handleGoToLogin = () => {
+    onClose();
+    navigate("/login");
+  };
+  
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
@@ -25,8 +32,8 @@ export const EmailConfirmationDialog = ({ open, onClose, email }: EmailConfirmat
             Se você não receber o e-mail em poucos minutos, verifique sua pasta de spam ou lixo eletrônico.
           </p>
           <div className="flex justify-center">
-            <Button asChild>
-              <Link to="/login">Ir para login</Link>
+            <Button onClick={handleGoToLogin}>
+              Ir para login
             </Button>
           </div>
         </div>

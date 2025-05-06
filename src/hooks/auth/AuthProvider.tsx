@@ -164,30 +164,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <>
-      <AuthContext.Provider
-        value={{
-          session,
-          user,
-          loading,
-          login,
-          logout,
-          signup,
-          resetPassword,
-          updatePassword,
-          register,
-          signInWithGoogle,
-          updateOnboardingStatus,
-        }}
-      >
-        {children}
-      </AuthContext.Provider>
-
-      <EmailConfirmationDialog 
-        open={showEmailConfirmation} 
-        onClose={closeConfirmationDialog} 
-        email={confirmationEmail} 
-      />
-    </>
+    <AuthContext.Provider
+      value={{
+        session,
+        user,
+        loading,
+        login,
+        logout,
+        signup,
+        resetPassword,
+        updatePassword,
+        register,
+        signInWithGoogle,
+        updateOnboardingStatus,
+      }}
+    >
+      {children}
+      
+      {/* The EmailConfirmationDialog will be rendered by the RegisterForm instead */}
+    </AuthContext.Provider>
   );
 }
