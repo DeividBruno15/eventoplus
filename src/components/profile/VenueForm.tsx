@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/auth";
 import { consultarCep, formatCep } from "@/utils/cep";
 import {
   Form,
@@ -93,7 +93,7 @@ export function VenueForm({ onSuccess, onCancel }: VenueFormProps) {
       onSuccess();
     } catch (error: any) {
       console.error("Error creating venue:", error);
-      toast.error(error.message || "Erro ao cadastrar local");
+      toast.error("Erro ao cadastrar local");
     } finally {
       setSubmitting(false);
     }
@@ -119,38 +119,50 @@ export function VenueForm({ onSuccess, onCancel }: VenueFormProps) {
           )}
         />
         
-        <div className="grid grid-cols-2 gap-4">
+        <FormField
+          control={form.control}
+          name="zipcode"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>CEP</FormLabel>
+              <FormControl>
+                <Input 
+                  placeholder="00000-000" 
+                  {...field} 
+                  onChange={handleCepChange}
+                  maxLength={9}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <div className="grid grid-cols-1 gap-4">
           <FormField
             control={form.control}
-            name="zipcode"
+            name="street"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>CEP</FormLabel>
-                <FormControl>
-                  <Input 
-                    placeholder="00000-000" 
-                    {...field} 
-                    onChange={handleCepChange}
-                    maxLength={9}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="number"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Número</FormLabel>
-                <FormControl>
-                  <Input 
-                    placeholder="123" 
-                    {...field} 
-                  />
-                </FormControl>
+                <FormLabel>Rua</FormLabel>
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <FormControl>
+                      <Input 
+                        placeholder="Rua exemplo" 
+                        {...field} 
+                      />
+                    </FormControl>
+                  </div>
+                  <div className="w-24">
+                    <FormControl>
+                      <Input 
+                        placeholder="Nº" 
+                        {...form.register("number")} 
+                      />
+                    </FormControl>
+                  </div>
+                </div>
                 <FormMessage />
               </FormItem>
             )}
@@ -159,15 +171,12 @@ export function VenueForm({ onSuccess, onCancel }: VenueFormProps) {
         
         <FormField
           control={form.control}
-          name="street"
+          name="number"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Rua</FormLabel>
+            <FormItem className="sr-only">
+              <FormLabel>Número</FormLabel>
               <FormControl>
-                <Input 
-                  placeholder="Rua exemplo" 
-                  {...field} 
-                />
+                <Input {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
