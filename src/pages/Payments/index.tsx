@@ -40,5 +40,4 @@ const PaymentsPage = () => {
   );
 };
 
-// Export the PaymentsPage as default
 export default PaymentsPage;
