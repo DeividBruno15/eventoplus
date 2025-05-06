@@ -1,12 +1,12 @@
 
 import { useState } from 'react';
-import { Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { useToast } from '@/components/ui/use-toast';
+import { Star } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
+import { notificationsService } from '@/services/notifications';
 
 interface CreateRatingProps {
   userId: string;
@@ -15,118 +15,178 @@ interface CreateRatingProps {
 }
 
 export const CreateRating = ({ userId, eventId, onSuccess }: CreateRatingProps) => {
-  const [rating, setRating] = useState(0);
-  const [hoverRating, setHoverRating] = useState(0);
-  const [comment, setComment] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
+  const [rating, setRating] = useState<number>(0);
+  const [hoveredRating, setHoveredRating] = useState<number>(0);
+  const [comment, setComment] = useState<string>('');
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const { user } = useAuth();
+  const { toast } = useToast();
 
-  const handleSubmit = async () => {
-    if (!user) {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    if (!user?.id) {
       toast({
-        title: "Erro ao enviar avaliação",
-        description: "Você precisa estar logado para avaliar",
-        variant: "destructive"
+        title: "Erro",
+        description: "Você precisa estar logado para enviar uma avaliação.",
+        variant: "destructive",
       });
       return;
     }
-
+    
     if (rating === 0) {
       toast({
-        title: "Erro ao enviar avaliação",
-        description: "Selecione uma classificação de 1 a 5 estrelas",
-        variant: "destructive"
+        title: "Erro",
+        description: "Por favor, escolha uma classificação de 1 a 5 estrelas.",
+        variant: "destructive",
       });
       return;
     }
-
-    if (comment.trim().length < 5) {
+    
+    if (!comment.trim()) {
       toast({
-        title: "Erro ao enviar avaliação",
-        description: "O comentário deve ter pelo menos 5 caracteres",
-        variant: "destructive"
+        title: "Erro",
+        description: "Por favor, escreva um comentário para sua avaliação.",
+        variant: "destructive",
       });
       return;
     }
-
+    
+    setIsSubmitting(true);
+    
     try {
-      setIsSubmitting(true);
-
-      const { error } = await supabase
+      // Step 1: Create the rating in the database
+      const { data: ratingData, error } = await supabase
         .from('ratings')
         .insert({
           user_id: userId,
           reviewer_id: user.id,
           rating,
           comment,
-          event_id: eventId || null,
-          created_at: new Date().toISOString()
+          event_id: eventId,
+        })
+        .select('*, reviewer:reviewer_id(first_name, last_name)')
+        .single();
+        
+      if (error) {
+        if (error.code === '23505') {
+          toast({
+            title: "Erro",
+            description: "Você já avaliou este usuário para este evento.",
+            variant: "destructive",
+          });
+        } else {
+          console.error('Error creating rating:', error);
+          toast({
+            title: "Erro",
+            description: "Não foi possível enviar sua avaliação. Tente novamente mais tarde.",
+            variant: "destructive",
+          });
+        }
+        return;
+      }
+      
+      // Step 2: Fetch the provider's name for the notification
+      const { data: providerData } = await supabase
+        .from('user_profiles')
+        .select('first_name, last_name')
+        .eq('id', userId)
+        .single();
+      
+      // Step 3: Send a notification to the rated user
+      if (providerData) {
+        const providerName = `${providerData.first_name} ${providerData.last_name || ''}`;
+        const reviewerName = ratingData?.reviewer?.first_name || 'Alguém';
+        
+        await notificationsService.sendNotification({
+          userId,
+          title: "Nova avaliação recebida",
+          content: `${reviewerName} deixou uma avaliação de ${rating} estrelas para você.`,
+          type: "rating",
+          link: `/users/${userId}` // Link to the user profile page
         });
-
-      if (error) throw error;
-
+      }
+      
       toast({
-        title: "Avaliação enviada com sucesso",
-        description: "Obrigado pelo seu feedback!",
+        title: "Sucesso",
+        description: "Sua avaliação foi enviada com sucesso!",
       });
-
-      // Limpar formulário
+      
       setRating(0);
       setComment('');
       
-      // Callback de sucesso
-      if (onSuccess) onSuccess();
-      
-    } catch (error: any) {
+      if (onSuccess) {
+        onSuccess();
+      }
+    } catch (error) {
+      console.error('Error submitting rating:', error);
       toast({
-        title: "Erro ao enviar avaliação",
-        description: error.message || "Ocorreu um erro ao processar sua avaliação",
-        variant: "destructive"
+        title: "Erro",
+        description: "Não foi possível enviar sua avaliação. Tente novamente mais tarde.",
+        variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);
     }
   };
-
+  
+  // Generate an array of 5 stars
+  const stars = Array.from({ length: 5 }, (_, i) => i + 1);
+  
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Avaliar</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex justify-center">
-          {[1, 2, 3, 4, 5].map((index) => (
-            <Star
-              key={index}
-              className={`w-8 h-8 cursor-pointer transition-colors ${
-                index <= (hoverRating || rating) 
-                  ? 'text-yellow-500 fill-yellow-500' 
-                  : 'text-gray-300'
-              }`}
-              onMouseEnter={() => setHoverRating(index)}
-              onMouseLeave={() => setHoverRating(0)}
-              onClick={() => setRating(index)}
-            />
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Star rating */}
+      <div>
+        <p className="text-sm font-medium mb-2">Classificação:</p>
+        <div className="flex gap-1">
+          {stars.map((star) => (
+            <button
+              key={star}
+              type="button"
+              onClick={() => setRating(star)}
+              onMouseEnter={() => setHoveredRating(star)}
+              onMouseLeave={() => setHoveredRating(0)}
+              className="focus:outline-none"
+            >
+              <Star
+                size={24}
+                className={`
+                  ${
+                    (hoveredRating ? star <= hoveredRating : star <= rating)
+                      ? 'text-yellow-400 fill-yellow-400'
+                      : 'text-gray-300'
+                  }
+                  transition-colors
+                `}
+              />
+            </button>
           ))}
         </div>
+      </div>
+      
+      {/* Comment */}
+      <div>
+        <label htmlFor="comment" className="text-sm font-medium">
+          Comentário:
+        </label>
         <Textarea
-          placeholder="Compartilhe sua opinião sobre esta experiência..."
+          id="comment"
           value={comment}
           onChange={(e) => setComment(e.target.value)}
+          placeholder="Compartilhe sua experiência..."
+          className="mt-1"
           rows={4}
-          className="resize-none"
         />
-      </CardContent>
-      <CardFooter>
-        <Button 
-          onClick={handleSubmit}
-          disabled={isSubmitting || rating === 0 || comment.trim().length < 5}
-          className="w-full"
-        >
-          {isSubmitting ? "Enviando..." : "Enviar Avaliação"}
-        </Button>
-      </CardFooter>
-    </Card>
+      </div>
+      
+      {/* Submit button */}
+      <Button
+        type="submit"
+        disabled={isSubmitting || rating === 0 || !comment.trim()}
+        className="w-full"
+      >
+        {isSubmitting ? 'Enviando...' : 'Enviar avaliação'}
+      </Button>
+    </form>
   );
 };

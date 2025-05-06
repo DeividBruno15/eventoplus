@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from '@/components/ui/button';
 import { CreateRating } from '@/components/ratings/CreateRating';
 import { EventApplication } from '@/types/events';
+import { toast } from 'sonner';
 
 interface RateProviderModalProps {
   application: EventApplication;
@@ -15,6 +16,7 @@ export const RateProviderModal = ({ application, eventId }: RateProviderModalPro
 
   const onSuccess = () => {
     setIsOpen(false);
+    toast.success("Avaliação enviada com sucesso!");
   };
 
   // Get the provider name from the provider object if available, otherwise use a generic title
