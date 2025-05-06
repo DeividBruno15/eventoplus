@@ -1,123 +1,46 @@
 
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/auth';
+import { useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PaymentForm } from '@/components/payment/PaymentForm';
 import { PaymentHistory } from '@/components/payment/PaymentHistory';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsList, TabsContent, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import DashboardLayout from '@/layouts/DashboardLayout';
 
-const Payments = () => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
+const PaymentsPage = () => {
   const [activeTab, setActiveTab] = useState('history');
-  const [subscription, setSubscription] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
 
-  useEffect(() => {
-    if (!user) {
-      navigate('/login');
-    }
-  }, [user, navigate]);
-
-  // Este efeito simula a busca de dados de assinatura do usuário
-  // Em uma implementação real, você buscaria isso do Supabase
-  useEffect(() => {
-    // Simulação de busca de dados de assinatura
-    setTimeout(() => {
-      setSubscription({
-        active: true,
-        plan: 'Premium',
-        nextBilling: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-      });
-      setLoading(false);
-    }, 1000);
-  }, []);
-
-  const handleUpgrade = () => {
-    navigate('/plans');
+  const handlePaymentSuccess = () => {
+    setPaymentSuccess(true);
+    setActiveTab('history');
   };
 
-  if (!user) return null;
-
   return (
-    <div className="container py-10">
-      <h1 className="text-3xl font-bold mb-8">Pagamentos e Assinaturas</h1>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Status da Assinatura</CardTitle>
-            <CardDescription>
-              {loading ? 'Verificando assinatura...' : 'Status atual do seu plano'}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <p>Carregando...</p>
-            ) : error ? (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            ) : (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Plano:</span>
-                  <Badge className="bg-indigo-100 text-indigo-800 hover:bg-indigo-200">{subscription?.plan}</Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Status:</span>
-                  <Badge variant="outline" className="bg-green-100 text-green-800">Ativo</Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Próxima cobrança:</span>
-                  <span>{subscription?.nextBilling?.toLocaleDateString('pt-BR')}</span>
-                </div>
-              </div>
-            )}
-          </CardContent>
-          <CardFooter>
-            <Button onClick={handleUpgrade} className="w-full">
-              {subscription?.active ? 'Gerenciar Assinatura' : 'Assinar Plano'}
-            </Button>
-          </CardFooter>
-        </Card>
+    <DashboardLayout>
+      <div className="container mx-auto py-6">
+        <h1 className="text-3xl font-bold mb-6">Pagamentos</h1>
         
-        <div className="col-span-2">
-          <Tabs defaultValue="history">
-            <TabsList>
-              <TabsTrigger value="history">Histórico</TabsTrigger>
-              <TabsTrigger value="methods">Métodos de Pagamento</TabsTrigger>
-            </TabsList>
-            <TabsContent value="history">
-              <PaymentHistory />
-            </TabsContent>
-            <TabsContent value="methods">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Métodos de Pagamento</CardTitle>
-                  <CardDescription>Gerencie seus cartões e contas</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-center text-muted-foreground py-8">
-                    Você não possui métodos de pagamento salvos.
-                  </p>
-                </CardContent>
-                <CardFooter>
-                  <Button className="w-full">Adicionar Método de Pagamento</Button>
-                </CardFooter>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="mb-4">
+            <TabsTrigger value="history">Histórico</TabsTrigger>
+            <TabsTrigger value="new">Novo Pagamento</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="history" className="space-y-4">
+            <PaymentHistory />
+          </TabsContent>
+          
+          <TabsContent value="new" className="space-y-4">
+            <div className="max-w-md mx-auto">
+              <PaymentForm 
+                amount={5000} // R$ 50,00
+                onSuccess={handlePaymentSuccess} 
+              />
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 
-export default Payments;
+export default PaymentsPage;

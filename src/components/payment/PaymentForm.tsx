@@ -4,25 +4,27 @@ import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-
 import { loadStripe } from '@stripe/stripe-js';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { useToast } from '@/components/ui/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
+import { usePayment } from '@/hooks/usePayment';
 
 const stripePromise = loadStripe('pk_test_51RIrXYKX6FbUQvI6kGNBD9xg8LZ0ESHXdiLYhQMaFXAFeCXOx5vGvsS9dZEvKD6XMKeuH2KqG3iQImvVciizh3Ey00eeZ6U3vC');
 
 interface CheckoutFormProps {
   onSuccess: () => void;
   amount: number;
+  paymentId: string;
 }
 
-const CheckoutForm = ({ onSuccess, amount }: CheckoutFormProps) => {
+const CheckoutForm = ({ onSuccess, amount, paymentId }: CheckoutFormProps) => {
   const stripe = useStripe();
   const elements = useElements();
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { toast } = useToast();
+  const { updatePaymentStatus } = usePayment();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,11 +37,9 @@ const CheckoutForm = ({ onSuccess, amount }: CheckoutFormProps) => {
     setErrorMessage(null);
 
     try {
-      const { error } = await stripe.confirmPayment({
+      const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
-        confirmParams: {
-          return_url: `${window.location.origin}/dashboard`,
-        },
+        redirect: 'if_required',
       });
 
       if (error) {
@@ -49,13 +49,19 @@ const CheckoutForm = ({ onSuccess, amount }: CheckoutFormProps) => {
           description: error.message,
           variant: "destructive"
         });
-      } else {
-        onSuccess();
+        
+        // Atualizar status para falha
+        await updatePaymentStatus(paymentId, 'failed');
+      } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+        // Atualizar status para sucesso
+        await updatePaymentStatus(paymentId, 'succeeded');
+        
         toast({
           title: "Pagamento bem-sucedido",
           description: "Seu pagamento foi processado com sucesso!",
-          variant: "default"
         });
+        
+        onSuccess();
       }
     } catch (error: any) {
       setErrorMessage(error.message || "Ocorreu um erro inesperado");
@@ -102,26 +108,33 @@ const CheckoutForm = ({ onSuccess, amount }: CheckoutFormProps) => {
 
 interface PaymentFormProps {
   amount: number;
-  planId: string;
+  planId?: string;
+  eventId?: string;
   onSuccess: () => void;
 }
 
-export const PaymentForm = ({ amount, planId, onSuccess }: PaymentFormProps) => {
+export const PaymentForm = ({ amount, planId, eventId, onSuccess }: PaymentFormProps) => {
   const [clientSecret, setClientSecret] = useState<string>();
+  const [paymentId, setPaymentId] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const { toast } = useToast();
+  const { createPayment } = usePayment();
 
   useEffect(() => {
-    const createPaymentIntent = async () => {
+    const initializePayment = async () => {
       setIsLoading(true);
       try {
-        const { data, error } = await supabase.functions.invoke('create-payment-intent', {
-          body: { amount, planId }
+        const result = await createPayment({ 
+          amount,
+          planId, 
+          eventId
         });
 
-        if (error) throw error;
-        setClientSecret(data.clientSecret);
+        if (!result.success) throw new Error(result.error);
+        
+        setClientSecret(result.clientSecret);
+        if (result.paymentId) setPaymentId(result.paymentId);
       } catch (error: any) {
         toast({
           title: "Erro",
@@ -134,8 +147,8 @@ export const PaymentForm = ({ amount, planId, onSuccess }: PaymentFormProps) => 
       }
     };
 
-    createPaymentIntent();
-  }, [amount, planId, toast]);
+    initializePayment();
+  }, [amount, planId, eventId, createPayment, toast]);
 
   const handleSuccess = () => {
     setPaymentStatus('success');
@@ -216,7 +229,7 @@ export const PaymentForm = ({ amount, planId, onSuccess }: PaymentFormProps) => 
           <CardDescription>Preencha os dados do cartão para concluir sua compra</CardDescription>
         </CardHeader>
         <CardContent>
-          <CheckoutForm onSuccess={handleSuccess} amount={amount} />
+          <CheckoutForm onSuccess={handleSuccess} amount={amount} paymentId={paymentId} />
         </CardContent>
       </Card>
     </Elements>

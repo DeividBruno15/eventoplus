@@ -42,10 +42,10 @@ serve(async (req) => {
       throw new Error('User not authenticated')
     }
 
-    const { amount, planId } = await req.json()
+    const { amount, planId, eventId } = await req.json()
     
     // Descrição do pagamento baseado no plano
-    let paymentDescription = 'Assinatura de Plano'
+    let paymentDescription = 'Pagamento'
     if (planId === 'provider-professional') {
       paymentDescription = 'Plano Provider Professional'
     } else if (planId === 'provider-premium') {
@@ -54,6 +54,8 @@ serve(async (req) => {
       paymentDescription = 'Plano Contractor Connect'
     } else if (planId === 'contractor-management') {
       paymentDescription = 'Plano Contractor Management'
+    } else if (eventId) {
+      paymentDescription = `Pagamento para evento ${eventId}`
     }
     
     // Criar intent de pagamento
@@ -64,6 +66,7 @@ serve(async (req) => {
       metadata: {
         planId,
         userId,
+        eventId,
       },
     })
 
@@ -80,8 +83,15 @@ serve(async (req) => {
       console.error('Error inserting payment record:', dbError)
     }
 
+    // Configurar webhook para receber atualizações de pagamento
+    const origin = req.headers.get('origin') || 'http://localhost:3000'
+    
+    // Enviar resposta com client secret
     return new Response(
-      JSON.stringify({ clientSecret: paymentIntent.client_secret }),
+      JSON.stringify({ 
+        clientSecret: paymentIntent.client_secret,
+        paymentId: paymentIntent.id,
+      }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
