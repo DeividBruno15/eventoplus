@@ -17,6 +17,7 @@ export const useNotifications = (userId?: string) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
   const fetchNotifications = async () => {
     if (!userId) return;
@@ -35,6 +36,7 @@ export const useNotifications = (userId?: string) => {
       if (data) {
         setNotifications(data as Notification[]);
         setUnreadCount(data.filter(n => !n.read).length);
+        setLastUpdated(new Date());
       }
     } catch (error) {
       console.error('Error fetching notifications:', error);
@@ -46,20 +48,92 @@ export const useNotifications = (userId?: string) => {
   const markAsRead = async (notificationId: string) => {
     try {
       await notificationsService.markAsRead(notificationId);
-      await fetchNotifications();
+      
+      // Update local state without refetching
+      setNotifications(prev => 
+        prev.map(notification => 
+          notification.id === notificationId 
+            ? { ...notification, read: true } 
+            : notification
+        )
+      );
+      
+      // Update unread count
+      setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (error) {
       console.error('Error marking notification as read:', error);
+    }
+  };
+
+  const markAllAsRead = async () => {
+    if (!userId || notifications.length === 0) return;
+    
+    try {
+      const unreadIds = notifications
+        .filter(n => !n.read)
+        .map(n => n.id);
+        
+      if (unreadIds.length === 0) return;
+      
+      await notificationsService.markAllAsRead(userId);
+      
+      // Update local state
+      setNotifications(prev => 
+        prev.map(notification => ({ ...notification, read: true }))
+      );
+      
+      // Reset unread count
+      setUnreadCount(0);
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+    }
+  };
+
+  const deleteNotification = async (notificationId: string) => {
+    try {
+      await notificationsService.deleteNotification(notificationId);
+      
+      // Update local state
+      setNotifications(prev => 
+        prev.filter(notification => notification.id !== notificationId)
+      );
+      
+      // Update unread count if needed
+      const wasUnread = notifications.find(n => n.id === notificationId && !n.read);
+      if (wasUnread) {
+        setUnreadCount(prev => Math.max(0, prev - 1));
+      }
+    } catch (error) {
+      console.error('Error deleting notification:', error);
     }
   };
 
   const subscribeToNotifications = () => {
     if (!userId) return () => {};
     
-    const unsubscribe = notificationsService.subscribeToNotifications(userId, () => {
-      fetchNotifications();
-    });
+    // Subscribe to changes in the notifications table for this user
+    const subscription = supabase
+      .channel(`notifications:${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen for all events (insert, update, delete)
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${userId}`
+        },
+        (payload) => {
+          console.log('Notification change received:', payload);
+          
+          // Refetch notifications when changes occur
+          fetchNotifications();
+        }
+      )
+      .subscribe();
     
-    return unsubscribe;
+    return () => {
+      subscription.unsubscribe();
+    };
   };
 
   useEffect(() => {
@@ -78,6 +152,9 @@ export const useNotifications = (userId?: string) => {
     unreadCount,
     isLoading,
     markAsRead,
-    fetchNotifications
+    markAllAsRead,
+    deleteNotification,
+    fetchNotifications,
+    lastUpdated
   };
 };
