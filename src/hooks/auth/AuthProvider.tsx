@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,6 +13,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [confirmationEmail, setConfirmationEmail] = useState('');
 
   // For local testing - set this to true to bypass email verification
+  // Alterar para false em produção para habilitar a verificação de email
   const DISABLE_EMAIL_VERIFICATION = true;
 
   useEffect(() => {
@@ -87,14 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('Registrando com papel:', profileData.role);
       
       // Define the sign up parameters with proper TypeScript typing
-      const signUpParams: {
-        email: string;
-        password: string;
-        options: {
-          data: any;
-          emailRedirectTo?: string;
-        }
-      } = {
+      const signUpParams = {
         email,
         password,
         options: {
@@ -104,10 +97,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Only add email redirect if email verification is enabled
       if (!DISABLE_EMAIL_VERIFICATION) {
+        // Use only the origin part of the URL, not the full URL with protocol
         const redirectTo = `${window.location.origin}/login`;
         console.log('Configurando redirect para:', redirectTo);
         
-        signUpParams.options.emailRedirectTo = redirectTo;
+        signUpParams.options = {
+          ...signUpParams.options,
+          emailRedirectTo: redirectTo
+        };
       }
       
       const { error, data } = await supabase.auth.signUp(signUpParams);
