@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -39,7 +38,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<void> => {
     setLoading(true);
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -47,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error('Login error:', error);
         throw { error }; // Forward the error for custom handling
       }
-      return data;
+      // We don't need to return data, just ensure the function returns void
     } finally {
       setLoading(false);
     }
