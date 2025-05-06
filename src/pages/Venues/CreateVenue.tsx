@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -30,16 +31,16 @@ import { useAuth } from "@/hooks/auth";
 import { toast } from "sonner";
 
 const venueFormSchema = z.object({
-  name: z.string().min(3, "Nome deve ter pelo menos 3 caracteres"),
+  title: z.string().min(3, "Título deve ter pelo menos 3 caracteres"),
   description: z.string().min(10, "Descrição muito curta").max(1000, "Descrição muito longa"),
   venue_type: z.string().min(1, "Selecione o tipo de espaço"),
   max_capacity: z.string().min(1, "Informe a capacidade máxima"),
   price_per_hour: z.string().min(1, "Informe o preço por hora"),
   is_rentable: z.boolean().default(true),
-  amenities: z.array(z.string()).optional(),
+  amenities: z.array(z.string()).default([]),
   rules: z.string().max(500, "Regras muito longas").optional(),
   external_link: z.string().url("URL inválida").or(z.string().length(0)).optional(),
-  venue_id: z.string().optional(),
+  venue_id: z.string().min(1, "Selecione um local cadastrado"),
 });
 
 type VenueFormValues = z.infer<typeof venueFormSchema>;
@@ -63,7 +64,7 @@ const CreateVenuePage = () => {
   const form = useForm<VenueFormValues>({
     resolver: zodResolver(venueFormSchema),
     defaultValues: {
-      name: "",
+      title: "",
       description: "",
       venue_type: "",
       max_capacity: "",
@@ -132,8 +133,31 @@ const CreateVenuePage = () => {
     setSubmitting(true);
     
     try {
-      // Placeholder for the actual submission logic
-      console.log("Form data to submit:", data);
+      // Converter valores de string para número
+      const maxCapacity = parseInt(data.max_capacity);
+      const pricePerHour = parseFloat(data.price_per_hour);
+      
+      // Inserir o anúncio no banco de dados
+      const { data: insertData, error } = await supabase
+        .from('venue_announcements')
+        .insert({
+          user_id: user.id,
+          venue_id: data.venue_id,
+          title: data.title,
+          description: data.description,
+          venue_type: data.venue_type,
+          max_capacity: maxCapacity,
+          price_per_hour: pricePerHour,
+          is_rentable: data.is_rentable,
+          amenities: data.amenities,
+          rules: data.rules || null,
+          external_link: data.external_link || null,
+        })
+        .select('id')
+        .single();
+
+      if (error) throw error;
+      
       toast.success("Anúncio criado com sucesso!");
       navigate("/venues");
     } catch (error: any) {
@@ -159,10 +183,10 @@ const CreateVenuePage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 control={form.control}
-                name="name"
+                name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nome do anúncio</FormLabel>
+                    <FormLabel>Título do anúncio</FormLabel>
                     <FormControl>
                       <Input placeholder="Digite o título do anúncio" {...field} />
                     </FormControl>
@@ -221,44 +245,6 @@ const CreateVenuePage = () => {
               )}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="max_capacity"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Capacidade máxima</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        placeholder="Ex: 100" 
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="price_per_hour"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Preço por hora (R$)</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        placeholder="Ex: 150" 
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
             <FormField
               control={form.control}
               name="venue_id"
@@ -299,6 +285,44 @@ const CreateVenuePage = () => {
                 </FormItem>
               )}
             />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="max_capacity"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Capacidade máxima</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        placeholder="Ex: 100" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="price_per_hour"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Preço por hora (R$)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        placeholder="Ex: 150" 
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <FormField
               control={form.control}

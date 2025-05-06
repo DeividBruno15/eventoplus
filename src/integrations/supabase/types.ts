@@ -668,6 +668,71 @@ export type Database = {
         }
         Relationships: []
       }
+      venue_announcements: {
+        Row: {
+          amenities: string[] | null
+          created_at: string
+          description: string
+          external_link: string | null
+          id: string
+          image_url: string | null
+          is_rentable: boolean | null
+          max_capacity: number
+          price_per_hour: number
+          rules: string | null
+          title: string
+          updated_at: string
+          user_id: string
+          venue_id: string
+          venue_type: string
+          views: number | null
+        }
+        Insert: {
+          amenities?: string[] | null
+          created_at?: string
+          description: string
+          external_link?: string | null
+          id?: string
+          image_url?: string | null
+          is_rentable?: boolean | null
+          max_capacity: number
+          price_per_hour: number
+          rules?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+          venue_id: string
+          venue_type: string
+          views?: number | null
+        }
+        Update: {
+          amenities?: string[] | null
+          created_at?: string
+          description?: string
+          external_link?: string | null
+          id?: string
+          image_url?: string | null
+          is_rentable?: boolean | null
+          max_capacity?: number
+          price_per_hour?: number
+          rules?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          venue_id?: string
+          venue_type?: string
+          views?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "venue_announcements_venue_id_fkey"
+            columns: ["venue_id"]
+            isOneToOne: false
+            referencedRelation: "user_venues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

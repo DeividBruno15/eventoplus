@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PlusCircle } from "lucide-react";
@@ -5,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/auth";
+import { toast } from "sonner";
 
 interface VenueAnnouncement {
   id: string;
@@ -14,6 +16,8 @@ interface VenueAnnouncement {
   venue_name: string;
   created_at: string;
   views: number;
+  venue_type: string;
+  price_per_hour: number;
 }
 
 const VenuesPage = () => {
@@ -28,18 +32,42 @@ const VenuesPage = () => {
 
       try {
         setLoading(true);
-        // This is a placeholder - the actual query would depend on your database structure
         const { data, error } = await supabase
           .from('venue_announcements')
-          .select('*')
+          .select(`
+            id, 
+            title, 
+            description,
+            image_url,
+            venue_type,
+            price_per_hour,
+            created_at,
+            views,
+            venue_id,
+            user_venues(name)
+          `)
           .eq('user_id', user.id)
           .order('created_at', { ascending: false });
 
         if (error) throw error;
         
-        setAnnouncements(data || []);
+        // Formata os dados para o formato esperado pelo componente
+        const formattedData = data?.map(item => ({
+          id: item.id,
+          title: item.title,
+          description: item.description,
+          image_url: item.image_url,
+          venue_name: item.user_venues?.name || 'Local não especificado',
+          created_at: item.created_at,
+          views: item.views,
+          venue_type: item.venue_type,
+          price_per_hour: item.price_per_hour
+        })) || [];
+        
+        setAnnouncements(formattedData);
       } catch (error) {
         console.error('Error fetching venue announcements:', error);
+        toast.error('Falha ao carregar anúncios');
       } finally {
         setLoading(false);
       }
@@ -94,7 +122,13 @@ const VenuesPage = () => {
                 <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
                   {announcement.description}
                 </p>
-                <p className="text-xs text-gray-500">Local: {announcement.venue_name}</p>
+                <div className="flex flex-col gap-1 mt-2">
+                  <p className="text-xs text-gray-600">Local: {announcement.venue_name}</p>
+                  <p className="text-xs text-gray-600">Tipo: {announcement.venue_type}</p>
+                  <p className="text-sm font-semibold text-primary">
+                    R$ {announcement.price_per_hour.toFixed(2)}/hora
+                  </p>
+                </div>
                 <div className="flex items-center gap-2 mt-2">
                   <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
                     {announcement.views} visualizações
