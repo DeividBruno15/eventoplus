@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { venueTypes, ratingOptions } from "../constants/venueFiltersConstants";
+import { venueTypes, ratingOptions, sortingOptions } from "../constants/venueFiltersConstants";
 
 export interface FiltersState {
   searchQuery: string;
@@ -120,6 +120,21 @@ const VenueFilters = ({ filters, onFilterChange, resultsCount }: VenueFiltersPro
             />
           </div>
         </div>
+        
+        {/* Ordenação */}
+        <Select 
+          value={filters.sortBy}
+          onValueChange={(value) => updateFilter("sortBy", value)}
+        >
+          <SelectTrigger className="w-[160px] h-9">
+            <SelectValue placeholder="Ordenar por" />
+          </SelectTrigger>
+          <SelectContent>
+            {sortingOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         
         {/* Botão de limpar filtros */}
         {activeFilters > 0 && (

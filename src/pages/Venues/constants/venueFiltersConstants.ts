@@ -1,3 +1,4 @@
+
 // Constants for venue filters
 
 // Tipos de locais de eventos
@@ -24,8 +25,7 @@ export const ratingOptions = [
   { value: "5", label: "5.0" }
 ];
 
-// We're keeping the sorting options in the constants file for future use
-// even though they're not currently being used in the UI
+// Sorting options to be used in the UI
 export const sortingOptions = [
   { value: "newest", label: "Mais recentes" },
   { value: "priceAsc", label: "Menor preço" },
