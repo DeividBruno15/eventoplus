@@ -1,9 +1,13 @@
 
+import { ElementType } from "react";
+
 export type MenuItem = {
-  path: string;
   name: string;
-  icon: React.ElementType;
+  path: string;
+  icon: ElementType;
+  roles?: string[];
   badge?: number;
+  notificationKey?: string;
 }
 
 export type SidebarNavigationProps = {

@@ -13,61 +13,80 @@ import {
 } from "lucide-react";
 import { MenuItem } from "./types";
 
+// Menu principal
 export const menuItems: MenuItem[] = [
   {
-    title: "Dashboard",
+    name: "Dashboard",
     icon: LayoutDashboard,
-    href: "/dashboard",
+    path: "/dashboard",
   },
   {
-    title: "Eventos",
+    name: "Eventos",
     icon: Calendar,
-    href: "/events",
+    path: "/events",
     roles: ["provider", "contractor", "advertiser"],
-    badge: "new",
+    badge: 0, // convertido para número
   },
   {
-    title: "Mensagens",
+    name: "Mensagens",
     icon: MessageSquare,
-    href: "/chat",
+    path: "/chat",
     roles: ["provider", "contractor", "advertiser"],
     notificationKey: "messages",
   },
   {
-    title: "Pagamentos",
+    name: "Pagamentos",
     icon: CreditCard,
-    href: "/payments",
+    path: "/payments",
     roles: ["provider", "contractor", "advertiser"],
   },
   {
-    title: "Espaços",
+    name: "Espaços",
     icon: Building2,
-    href: "/venues",
+    path: "/venues",
     roles: ["contractor", "advertiser"],
   },
   {
-    title: "Notificações",
+    name: "Notificações",
     icon: Bell,
-    href: "/notifications",
+    path: "/notifications",
     roles: ["provider", "contractor", "advertiser"],
   },
   {
-    title: "WhatsApp",
+    name: "WhatsApp",
     icon: Phone,
-    href: "/whatsapp",
+    path: "/whatsapp",
     roles: ["provider", "contractor", "advertiser"],
-    badge: "beta",
+    badge: 0, // convertido para número
   },
   {
-    title: "Perfil",
+    name: "Perfil",
     icon: User,
-    href: "/profile",
+    path: "/profile",
     roles: ["provider", "contractor", "advertiser"],
   },
   {
-    title: "Configurações",
+    name: "Configurações",
     icon: Settings,
-    href: "/settings",
+    path: "/settings",
     roles: ["provider", "contractor", "advertiser"],
   },
 ];
+
+// Menu de suporte
+export const supportMenuItems: MenuItem[] = [
+  {
+    name: "Suporte",
+    icon: MapPin,
+    path: "/support",
+  }
+];
+
+// Função para obter os itens do menu com base no papel do usuário
+export const getMainMenuItems = (userRole: string): MenuItem[] => {
+  if (!userRole) return menuItems;
+  
+  return menuItems.filter(item => 
+    !item.roles || item.roles.includes(userRole)
+  );
+};

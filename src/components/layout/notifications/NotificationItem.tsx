@@ -8,9 +8,16 @@ import { type Notification } from '@/hooks/useNotifications';
 type NotificationItemProps = {
   notification: Notification;
   onClick: (notification: Notification) => void;
+  onMarkAsRead?: () => Promise<void>;
+  onDelete?: () => Promise<void>;
 }
 
-export const NotificationItem: React.FC<NotificationItemProps> = ({ notification, onClick }) => {
+export const NotificationItem: React.FC<NotificationItemProps> = ({ 
+  notification, 
+  onClick,
+  onMarkAsRead,
+  onDelete 
+}) => {
   return (
     <DropdownMenuItem 
       key={notification.id} 

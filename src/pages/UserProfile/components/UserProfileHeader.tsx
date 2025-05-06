@@ -6,16 +6,16 @@ import { UserProfileData } from '../types';
 
 interface UserProfileHeaderProps {
   userData: UserProfileData;
-  averageRating: number;
-  ratingCount: number;
-  eventCount: number;
+  averageRating?: number;
+  ratingCount?: number;
+  eventCount?: number;
 }
 
 export const UserProfileHeader = ({ 
   userData, 
-  averageRating, 
-  ratingCount, 
-  eventCount 
+  averageRating = 0, 
+  ratingCount = 0, 
+  eventCount = 0 
 }: UserProfileHeaderProps) => {
   const fullName = `${userData.first_name} ${userData.last_name || ''}`;
   const location = userData.city && userData.state ? `${userData.city}, ${userData.state}` : '';

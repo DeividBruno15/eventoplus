@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -19,6 +18,7 @@ interface WhatsAppMessage {
   direction: 'inbound' | 'outbound';
   created_at: string;
   is_auto_reply?: boolean;
+  sending?: boolean; // Adicionamos essa prop como opcional
 }
 
 const WhatsAppAssistant = () => {
@@ -111,7 +111,7 @@ const WhatsAppAssistant = () => {
         message: newMessage,
         direction: 'outbound' as const,
         created_at: new Date().toISOString(),
-        sending: true
+        sending: true // Aqui usamos a prop
       };
       
       setMessages(prev => [...prev, optimisticMsg]);

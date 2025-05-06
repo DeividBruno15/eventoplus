@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import { PaymentForm } from '@/components/payment/PaymentForm';
 import { PaymentHistory } from '@/components/payment/PaymentHistory';
 import { PaymentPlans } from '@/components/payment/PaymentPlans';

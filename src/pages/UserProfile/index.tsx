@@ -9,18 +9,27 @@ import { UserEvents } from "./components/UserEvents";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UserRatings } from "./components/UserRatings";
+import { useUserRatings } from "@/hooks/useUserRatings";
+import { UserProfileData } from "./types";
 
 const UserProfile = () => {
   const { id } = useParams();
-  const { profileData, isLoading, error } = useUserProfileData(id || "");
+  const { userData, loading, error } = useUserProfileData(id || "");
+  const { ratings, loading: ratingsLoading, averageRating, totalRatings } = useUserRatings({ userId: id || "" });
   const [activeTab, setActiveTab] = useState("sobre");
+  const [eventCount, setEventCount] = useState(0);
 
   useEffect(() => {
+    // Obter contagem de eventos (mock por enquanto)
+    if (userData) {
+      setEventCount(Math.floor(Math.random() * 10)); // Simular entre 0-10 eventos
+    }
+    
     // Scroll to top when profile loads
     window.scrollTo(0, 0);
-  }, [id]);
+  }, [id, userData]);
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="container mx-auto px-4 py-6">
         <div className="space-y-8">
@@ -57,7 +66,7 @@ const UserProfile = () => {
     );
   }
 
-  if (error || !profileData) {
+  if (error || !userData) {
     return (
       <div className="container mx-auto px-4 py-20 text-center">
         <h2 className="text-2xl font-bold mb-2">Usuário não encontrado</h2>
@@ -71,7 +80,12 @@ const UserProfile = () => {
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="space-y-8">
-        <UserProfileHeader profile={profileData} />
+        <UserProfileHeader 
+          userData={userData} 
+          averageRating={averageRating} 
+          ratingCount={totalRatings}
+          eventCount={eventCount}
+        />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="mb-4 grid grid-cols-3 w-full max-w-md">
@@ -81,15 +95,15 @@ const UserProfile = () => {
           </TabsList>
           
           <TabsContent value="sobre">
-            <ProfileContent profile={profileData} />
+            <ProfileContent userData={userData} />
           </TabsContent>
           
           <TabsContent value="eventos">
-            <UserEvents userId={profileData.id} />
+            <UserEvents userId={userData.id} userRole={userData.role} />
           </TabsContent>
           
           <TabsContent value="avaliacoes">
-            <UserRatings userId={profileData.id} />
+            <UserRatings userId={userData.id} />
           </TabsContent>
         </Tabs>
       </div>

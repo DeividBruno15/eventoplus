@@ -6,7 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import { UserProfile } from './sidebar/UserProfile';
 import { MenuGroup } from './sidebar/MenuGroup';
 import { LogoutButton } from './sidebar/LogoutButton';
-import { getMainMenuItems, supportMenuItems } from './sidebar/menu-data';
+import { menuItems, supportMenuItems, getMainMenuItems } from './sidebar/menu-data';
 import { useUnreadMessages } from './sidebar/useUnreadMessages';
 import { useUserRoles } from './sidebar/useUserRoles';
 import { SidebarNavigationProps } from './sidebar/types';

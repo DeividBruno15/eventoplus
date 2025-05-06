@@ -1,11 +1,11 @@
 
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { SidebarNavigation } from "@/components/layout/SidebarNavigation";
 import { UserMenu } from "@/components/layout/UserMenu";
 import { NotificationsMenu } from "@/components/layout/notifications/NotificationsMenu";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { PageTransition } from "@/components/ui/page-transition";
 import { AnimatePresence } from "framer-motion";
@@ -14,6 +14,8 @@ const DashboardLayout = () => {
   // Inicialmente, defina como null para não redirecionar imediatamente durante a verificação
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const { user } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   // Verificar status de autenticação
   useEffect(() => {
@@ -29,6 +31,11 @@ const DashboardLayout = () => {
       return () => clearTimeout(timer);
     }
   }, [user]);
+
+  // Função para navegação
+  const handleNavigate = (path: string) => {
+    navigate(path);
+  };
 
   // Estado de carregamento
   if (isLoggedIn === null) {
@@ -49,7 +56,10 @@ const DashboardLayout = () => {
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen">
-      <SidebarNavigation />
+      <SidebarNavigation 
+        activePath={location.pathname} 
+        onNavigate={handleNavigate}
+      />
       <div className="flex-grow">
         {/* Header com menu do usuário */}
         <header className="sticky top-0 z-10 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

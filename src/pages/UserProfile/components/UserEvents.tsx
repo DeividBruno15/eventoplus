@@ -7,10 +7,10 @@ import { Event as UserProfileEvent } from '../types';
 
 interface UserEventsProps {
   userId: string;
-  userRole: 'contractor' | 'provider';
+  userRole?: 'contractor' | 'provider';
 }
 
-export const UserEvents = ({ userId, userRole }: UserEventsProps) => {
+export const UserEvents = ({ userId, userRole = 'contractor' }: UserEventsProps) => {
   const { events, loading } = useUserEvents(userId, userRole);
 
   if (loading) {
