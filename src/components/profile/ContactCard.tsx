@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { MapPin, Mail, Phone, Edit } from "lucide-react";
 import { UserProfile } from "@/types/profile";
 
 interface ContactCardProps {
@@ -9,84 +10,66 @@ interface ContactCardProps {
 }
 
 export const ContactCard = ({ userData, onEditAddress }: ContactCardProps) => {
-  const formatAddress = () => {
-    const parts = [];
+  // Format full address from all address components
+  const formatFullAddress = () => {
+    const components = [];
     
-    if (userData.street && userData.number) {
-      parts.push(`${userData.street}, ${userData.number}`);
-    }
+    if (userData.street) components.push(userData.street);
+    if (userData.number) components.push(`nº ${userData.number}`);
+    if (userData.neighborhood) components.push(`- ${userData.neighborhood}`);
+    if (userData.city) components.push(`- ${userData.city}`);
+    if (userData.state) components.push(`/ ${userData.state}`);
     
-    if (userData.neighborhood) {
-      parts.push(userData.neighborhood);
-    }
-    
-    if (userData.city && userData.state) {
-      parts.push(`${userData.city}, ${userData.state}`);
-    }
-    
-    if (userData.zipcode) {
-      parts.push(`CEP ${userData.zipcode}`);
-    }
-    
-    return parts.join(" - ");
+    return components.length > 0 ? components.join(' ') : "Endereço não cadastrado";
   };
 
-  const fullAddress = formatAddress();
-
-  const showAddressSection = !!(
-    userData.street ||
-    userData.city ||
-    userData.state ||
-    userData.zipcode
-  );
-
-  const showContactSection = !!(userData.email || userData.phone_number);
-
   return (
-    <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-      {showContactSection && (
-        <div className="p-6">
-          <h3 className="text-lg font-medium mb-4">Contato</h3>
-          <div className="space-y-3">
-            {userData.email && (
-              <div className="flex items-center gap-3">
-                <Mail className="h-5 w-5 text-primary" />
-                <span>{userData.email}</span>
-              </div>
-            )}
-            {userData.phone_number && (
-              <div className="flex items-center gap-3">
-                <Phone className="h-5 w-5 text-primary" />
-                <span>{userData.phone_number}</span>
-              </div>
-            )}
+    <Card className="bg-white shadow-sm border overflow-hidden">
+      <div className="p-6">
+        <h3 className="text-lg font-semibold mb-4">Informações de Contato</h3>
+        
+        <div className="space-y-4">
+          <div className="flex items-start gap-3">
+            <Mail className="h-5 w-5 text-primary mt-0.5" />
+            <div>
+              <h4 className="text-sm font-medium text-gray-700">E-mail</h4>
+              <p className="text-sm">{userData.email || "Não informado"}</p>
+            </div>
           </div>
-        </div>
-      )}
-
-      {showContactSection && showAddressSection && (
-        <div className="border-t mx-6"></div>
-      )}
-
-      {showAddressSection && (
-        <div className="p-6">
-          <h3 className="text-lg font-medium mb-4">Endereço</h3>
+          
+          <div className="flex items-start gap-3">
+            <Phone className="h-5 w-5 text-primary mt-0.5" />
+            <div>
+              <h4 className="text-sm font-medium text-gray-700">Telefone</h4>
+              <p className="text-sm">{userData.phone_number || "Não informado"}</p>
+            </div>
+          </div>
+          
           <div className="flex items-start gap-3">
             <MapPin className="h-5 w-5 text-primary mt-0.5" />
-            <span>{fullAddress}</span>
+            <div className="flex-1">
+              <h4 className="text-sm font-medium text-gray-700">Endereço</h4>
+              <p className="text-sm">{formatFullAddress()}</p>
+              {userData.zipcode && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  CEP: {userData.zipcode}
+                </p>
+              )}
+            </div>
           </div>
         </div>
-      )}
-
-      <div className="border-t px-6 py-4">
-        <Button
+      </div>
+      
+      <div className="border-t p-4">
+        <Button 
+          variant="outline" 
+          className="w-full flex items-center gap-2" 
           onClick={onEditAddress}
-          variant="outline"
-          className="w-full"
         >
+          <Edit className="h-4 w-4" />
           Atualizar endereço
         </Button>
       </div>
-    </div>
+    </Card>
   );
 };

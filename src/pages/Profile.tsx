@@ -7,6 +7,7 @@ import { ProfileCard } from "@/components/profile/ProfileCard";
 import { ContactCard } from "@/components/profile/ContactCard";
 import { ServiceCategoriesSection } from "@/components/profile/ServiceCategoriesSection";
 import { UserCompanies } from "@/components/profile/UserCompanies";
+import { UserVenues } from "@/components/profile/UserVenues";
 import { useProfileData } from "@/hooks/useProfileData";
 
 const Profile = () => {
@@ -48,6 +49,7 @@ const Profile = () => {
 
   const isProvider = userData.role === 'provider';
   const isContractor = userData.role === 'contractor';
+  const isAdvertiser = userData.role === 'advertiser';
 
   return (
     <div className="space-y-6">
@@ -83,6 +85,11 @@ const Profile = () => {
       {/* Company management for contractors */}
       {isContractor && (
         <UserCompanies />
+      )}
+
+      {/* Venue management for advertisers */}
+      {isAdvertiser && (
+        <UserVenues />
       )}
 
       {/* Modals */}

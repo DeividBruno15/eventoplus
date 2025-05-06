@@ -1,4 +1,18 @@
+
 export interface UserCompany {
+  id: string;
+  user_id: string;
+  name: string;
+  zipcode: string;
+  street: string;
+  number: string;
+  neighborhood: string;
+  city: string;
+  state: string;
+  created_at?: string;
+}
+
+export interface UserVenue {
   id: string;
   user_id: string;
   name: string;
@@ -17,7 +31,7 @@ export interface UserProfile {
   last_name: string;
   person_type: string;
   document_number: string;
-  role: 'contractor' | 'provider';
+  role: 'contractor' | 'provider' | 'advertiser';
   address?: string | null;
   city: string;
   state: string;
@@ -29,6 +43,7 @@ export interface UserProfile {
   number?: string | null;
   neighborhood?: string | null;
   companies?: UserCompany[];
+  venues?: UserVenue[];
   email?: string;
 }
 

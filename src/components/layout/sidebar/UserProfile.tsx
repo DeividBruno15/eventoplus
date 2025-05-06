@@ -48,7 +48,15 @@ export const UserProfile: React.FC<UserProfileProps> = ({
     try {
       setSwitchingRole(true);
       
-      const newRole = userRole === 'contractor' ? 'provider' : 'contractor';
+      // Determine new role based on current role
+      let newRole;
+      if (userRole === 'contractor') {
+        newRole = 'provider';
+      } else if (userRole === 'provider') {
+        newRole = 'advertiser';
+      } else {
+        newRole = 'contractor';
+      }
       
       // Update role in Supabase Auth
       const { error } = await supabase.auth.updateUser({
@@ -85,6 +93,8 @@ export const UserProfile: React.FC<UserProfileProps> = ({
         return 'Contratante';
       case 'provider':
         return 'Prestador';
+      case 'advertiser':
+        return 'Anunciante';
       default:
         return 'Usuário';
     }
@@ -125,7 +135,10 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               <DialogHeader>
                 <DialogTitle>Trocar tipo de conta</DialogTitle>
                 <DialogDescription>
-                  Deseja trocar para o perfil de {userRole === 'contractor' ? 'Prestador' : 'Contratante'}?
+                  Deseja trocar para o perfil de {
+                    userRole === 'contractor' ? 'Prestador' : 
+                    userRole === 'provider' ? 'Anunciante' : 'Contratante'
+                  }?
                 </DialogDescription>
               </DialogHeader>
               

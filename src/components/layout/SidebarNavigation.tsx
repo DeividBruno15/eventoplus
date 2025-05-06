@@ -6,7 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import { UserProfile } from './sidebar/UserProfile';
 import { MenuGroup } from './sidebar/MenuGroup';
 import { LogoutButton } from './sidebar/LogoutButton';
-import { mainMenuItems, supportMenuItems } from './sidebar/menu-data';
+import { getMainMenuItems, supportMenuItems } from './sidebar/menu-data';
 import { useUnreadMessages } from './sidebar/useUnreadMessages';
 import { useUserRoles } from './sidebar/useUserRoles';
 import { SidebarNavigationProps } from './sidebar/types';
@@ -26,6 +26,9 @@ export const SidebarNavigation = ({ activePath: propActivePath, onNavigate }: Si
   const lastName = user?.user_metadata?.last_name || '';
   const avatarUrl = user?.user_metadata?.avatar_url;
   const userRole = user?.user_metadata?.role || 'contractor';
+
+  // Get menu items based on user role
+  const mainMenuItems = getMainMenuItems(userRole);
 
   // Update menu items with unread message count
   const updatedMainMenuItems = mainMenuItems.map(item => {

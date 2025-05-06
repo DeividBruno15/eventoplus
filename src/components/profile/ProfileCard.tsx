@@ -24,6 +24,19 @@ export const ProfileCard = ({ userData, onAvatarUpdated, onEditProfile }: Profil
       userData.last_name ? userData.last_name.charAt(0) : ""
     }`.toUpperCase();
   };
+  
+  const getRoleLabel = (role: string) => {
+    switch(role) {
+      case 'contractor':
+        return "Contratante";
+      case 'provider':
+        return "Prestador de Serviços";
+      case 'advertiser':
+        return "Anunciante";
+      default:
+        return "Usuário";
+    }
+  };
 
   const uploadAvatar = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
@@ -145,7 +158,7 @@ export const ProfileCard = ({ userData, onAvatarUpdated, onEditProfile }: Profil
               {userData.first_name} {userData.last_name}
             </h3>
             <div className="inline-block bg-primary/10 text-primary text-xs font-medium px-3 py-1 rounded-full">
-              {userData.role === "provider" ? "Prestador de Serviços" : "Contratante"}
+              {getRoleLabel(userData.role)}
             </div>
 
             {userData.bio && (
