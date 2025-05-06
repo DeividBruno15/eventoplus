@@ -80,7 +80,7 @@ const VenueFilters = ({ filters, onFilterChange, resultsCount }: VenueFiltersPro
           value={filters.venueType} 
           onValueChange={(value) => updateFilter("venueType", value)}
         >
-          <SelectTrigger className="w-[160px] h-9">
+          <SelectTrigger className="w-[160px] h-9 text-start">
             <SelectValue placeholder="Tipo de local" />
           </SelectTrigger>
           <SelectContent>
