@@ -14,22 +14,31 @@ const CallToAction = () => {
           Junte-se à comunidade Evento+ e conecte-se com profissionais qualificados e espaços perfeitos para seus eventos.
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <Link to="/register">
+          <Link to="/register?role=contractor">
             <Button 
               variant="secondary" 
               size="lg"
-              className="px-8 py-6 h-auto text-lg font-medium bg-white text-primary hover:bg-white/90"
+              className="px-6 py-5 h-auto text-md font-medium bg-white text-primary hover:bg-white/90 w-full sm:w-auto"
             >
               Cadastrar como Contratante
             </Button>
           </Link>
-          <Link to="/service-providers">
+          <Link to="/register?role=provider">
             <Button 
               variant="outline"
               size="lg"
-              className="px-8 py-6 h-auto text-lg font-medium border-white text-white hover:bg-white/20"
+              className="px-6 py-5 h-auto text-md font-medium border-white text-white hover:bg-white/20 w-full sm:w-auto"
             >
-              Ver prestadores de serviços
+              Cadastrar como Prestador
+            </Button>
+          </Link>
+          <Link to="/register?role=advertiser">
+            <Button 
+              variant="outline"
+              size="lg"
+              className="px-6 py-5 h-auto text-md font-medium border-white text-white hover:bg-white/20 w-full sm:w-auto"
+            >
+              Cadastrar como Anunciante
             </Button>
           </Link>
         </div>

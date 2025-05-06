@@ -2,6 +2,7 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Check } from 'lucide-react';
+import { Button } from '../ui/button';
 
 const HeroContent = () => {
   return (
@@ -26,17 +27,23 @@ const HeroContent = () => {
         transition={{ duration: 0.5, delay: 0.2 }}
         className="flex flex-col sm:flex-row gap-4"
       >
-        <Link 
-          to="/register" 
-          className="btn-primary text-center px-8 py-3 rounded-xl bg-primary hover:bg-primary/90 text-white font-medium transition-colors shadow-lg shadow-primary/20 animate-scale-in"
-        >
-          Começar agora
+        <Link to="/register">
+          <Button 
+            variant="default"
+            size="lg"
+            className="px-8 py-6 h-auto text-lg font-medium shadow-lg shadow-primary/20"
+          >
+            Começar agora
+          </Button>
         </Link>
-        <Link 
-          to="/about" 
-          className="btn-outline text-center px-8 py-3 rounded-xl border-2 border-primary text-primary hover:bg-primary/5 font-medium transition-colors animate-scale-in"
-        >
-          Saiba mais
+        <Link to="/about">
+          <Button
+            variant="outline"
+            size="lg"
+            className="px-8 py-6 h-auto text-lg font-medium border-primary text-primary hover:bg-primary/5"
+          >
+            Saiba mais
+          </Button>
         </Link>
       </motion.div>
 
