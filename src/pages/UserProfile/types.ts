@@ -15,12 +15,14 @@ export interface UserProfileData {
   last_name: string;
   email?: string;
   avatar_url?: string;
-  bio?: string;
+  bio?: string | null;
   city?: string;
   state?: string;
   role: 'provider' | 'contractor' | 'advertiser';
   companies?: Company[];
   services?: Service[];
+  phone_number?: string | null;
+  whatsapp_opt_in?: boolean;
 }
 
 export interface Event {

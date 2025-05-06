@@ -1,6 +1,5 @@
+
 import { useState, useEffect, useRef } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,33 +10,24 @@ import { Send, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-
-interface WhatsAppMessage {
-  id: string;
-  message: string;
-  direction: 'inbound' | 'outbound';
-  created_at: string;
-  is_auto_reply?: boolean;
-  sending?: boolean; // Adicionamos essa prop como opcional
-}
+import { WhatsAppMessage } from '@/types/whatsapp';
+import { useWhatsAppMessages } from '@/hooks/useWhatsAppMessages';
 
 const WhatsAppAssistant = () => {
-  const { user } = useAuth();
-  const [messages, setMessages] = useState<WhatsAppMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
-  const [whatsappEnabled, setWhatsappEnabled] = useState(true);
-  const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (user?.id) {
-      fetchMessages();
-      fetchUserProfile();
-    }
-  }, [user]);
+  
+  // Use our custom hook
+  const { 
+    messages, 
+    isLoading, 
+    phoneNumber, 
+    whatsappEnabled,
+    sendMessage, 
+    toggleWhatsAppPreference 
+  } = useWhatsAppMessages();
 
   useEffect(() => {
     scrollToBottom();
@@ -47,93 +37,30 @@ const WhatsAppAssistant = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const fetchUserProfile = async () => {
-    if (!user?.id) return;
-
-    try {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('phone_number, whatsapp_opt_in')
-        .eq('id', user.id)
-        .single();
-
-      if (error) throw error;
-
-      setPhoneNumber(data.phone_number);
-      setWhatsappEnabled(data.whatsapp_opt_in ?? true);
-    } catch (error) {
-      console.error('Error fetching user profile:', error);
-    }
-  };
-
-  const fetchMessages = async () => {
-    if (!user?.id) return;
-
-    setIsLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('bot_messages')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: true });
-
-      if (error) throw error;
-
-      setMessages(data || []);
-      
-      // Mark all inbound messages as read
-      const unreadIds = data
-        ?.filter(msg => msg.direction === 'inbound' && !msg.read)
-        .map(msg => msg.id) || [];
-      
-      if (unreadIds.length > 0) {
-        await supabase
-          .from('bot_messages')
-          .update({ read: true })
-          .in('id', unreadIds);
-      }
-    } catch (error) {
-      console.error('Error fetching messages:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || isSending || !user?.id) return;
+    if (!newMessage.trim() || isSending) return;
 
     setIsSending(true);
     try {
-      // Otimistic update for better UX
-      const optimisticMsg = {
+      // Optimistic update for better UX
+      const optimisticMsg: WhatsAppMessage = {
         id: `temp-${Date.now()}`,
+        user_id: 'temp',
         message: newMessage,
-        direction: 'outbound' as const,
+        direction: 'outbound',
         created_at: new Date().toISOString(),
-        sending: true // Aqui usamos a prop
+        read: true,
+        sending: true
       };
       
-      setMessages(prev => [...prev, optimisticMsg]);
       setNewMessage('');
 
-      // Send the message through our edge function
-      const { data, error } = await supabase.functions.invoke('send-whatsapp-notification', {
-        body: {
-          user_id: user.id,
-          phone_number: phoneNumber,
-          message: newMessage
-        }
-      });
-
-      if (error) throw error;
-
-      if (!data.success) {
-        throw new Error(data.error || 'Falha ao enviar mensagem');
+      const success = await sendMessage(newMessage);
+      
+      if (!success) {
+        throw new Error('Falha ao enviar mensagem');
       }
-
-      // Remove the optimistic message and add the real one from DB
-      await fetchMessages();
       
       toast({
         title: "Mensagem enviada",
@@ -146,38 +73,22 @@ const WhatsAppAssistant = () => {
         description: error.message || "Não foi possível enviar sua mensagem. Tente novamente mais tarde.",
         variant: "destructive",
       });
-      
-      // Remove the optimistic message on failure
-      setMessages(prev => prev.filter(msg => msg.id !== `temp-${Date.now()}`));
     } finally {
       setIsSending(false);
     }
   };
 
-  const toggleWhatsAppPreference = async () => {
-    if (!user?.id) return;
+  const handleToggleWhatsApp = async () => {
+    const success = await toggleWhatsAppPreference();
     
-    try {
-      const newValue = !whatsappEnabled;
-      setWhatsappEnabled(newValue);
-      
-      const { error } = await supabase
-        .from('user_profiles')
-        .update({ whatsapp_opt_in: newValue })
-        .eq('id', user.id);
-      
-      if (error) throw error;
-      
+    if (success) {
       toast({
-        title: newValue ? "WhatsApp ativado" : "WhatsApp desativado",
-        description: newValue 
-          ? "Você receberá notificações via WhatsApp" 
-          : "Você não receberá mais notificações via WhatsApp",
+        title: whatsappEnabled ? "WhatsApp desativado" : "WhatsApp ativado",
+        description: whatsappEnabled 
+          ? "Você não receberá mais notificações via WhatsApp" 
+          : "Você receberá notificações via WhatsApp",
       });
-    } catch (error: any) {
-      console.error('Error updating WhatsApp preference:', error);
-      setWhatsappEnabled(!whatsappEnabled); // Revert UI on error
-      
+    } else {
       toast({
         title: "Erro",
         description: "Não foi possível atualizar sua preferência de WhatsApp",
@@ -291,17 +202,17 @@ const WhatsAppAssistant = () => {
                 <Switch 
                   id="whatsapp-notifications"
                   checked={whatsappEnabled} 
-                  onCheckedChange={toggleWhatsAppPreference}
+                  onCheckedChange={handleToggleWhatsApp}
                 />
                 <Label htmlFor="whatsapp-notifications">Receber notificações por WhatsApp</Label>
               </div>
               
               {!phoneNumber && (
-                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                <div className="bg-yellow-50 dark:bg-yellow-900/30 border-l-4 border-yellow-400 p-4">
                   <div className="flex">
                     <AlertCircle className="h-5 w-5 text-yellow-400" />
                     <div className="ml-3">
-                      <p className="text-sm text-yellow-700">
+                      <p className="text-sm text-yellow-700 dark:text-yellow-300">
                         Você precisa adicionar um número de telefone ao seu perfil para usar o WhatsApp.
                       </p>
                     </div>

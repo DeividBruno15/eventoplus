@@ -9,6 +9,39 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      bot_messages: {
+        Row: {
+          created_at: string | null
+          direction: string
+          id: string
+          is_auto_reply: boolean | null
+          message: string
+          read: boolean | null
+          twilio_message_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          direction: string
+          id?: string
+          is_auto_reply?: boolean | null
+          message: string
+          read?: boolean | null
+          twilio_message_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          direction?: string
+          id?: string
+          is_auto_reply?: boolean | null
+          message?: string
+          read?: boolean | null
+          twilio_message_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       chat_messages: {
         Row: {
           conversation_id: string | null
@@ -579,6 +612,7 @@ export type Database = {
           state: string
           street: string | null
           updated_at: string | null
+          whatsapp_opt_in: boolean | null
           zipcode: string | null
         }
         Insert: {
@@ -602,6 +636,7 @@ export type Database = {
           state: string
           street?: string | null
           updated_at?: string | null
+          whatsapp_opt_in?: boolean | null
           zipcode?: string | null
         }
         Update: {
@@ -625,6 +660,7 @@ export type Database = {
           state?: string
           street?: string | null
           updated_at?: string | null
+          whatsapp_opt_in?: boolean | null
           zipcode?: string | null
         }
         Relationships: []
