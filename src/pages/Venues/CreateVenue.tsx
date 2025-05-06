@@ -84,52 +84,50 @@ const CreateVenuePage = () => {
       </div>
       
       <Card className="p-6">
-        <FormProvider {...form}>
-          <Form>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-              <VenueBasicInfoFields />
-              
-              <ImageUploadSection 
-                venueImages={venueImages} 
-                setVenueImages={setVenueImages}
-              />
-              
-              <VenueSelector onVenueSelection={handleVenueSelection} />
-              {venueAddress && (
-                <p className="mt-1 text-sm text-gray-600">{venueAddress}</p>
-              )}
-              
-              <VenueAvailabilityCalendar 
-                selectedDates={selectedDates}
-                setSelectedDates={setSelectedDates}
-              />
-              
-              <VenueAmenitiesField />
-              
-              <VenueRulesField />
-              
-              <VenueSocialMediaLinks />
-              
-              <VenueAvailabilityToggle />
-              
-              <div className="flex justify-end gap-4 pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => navigate("/venues")}
-                >
-                  Cancelar
-                </Button>
-                <Button 
-                  type="submit" 
-                  disabled={submitting}
-                >
-                  {submitting ? "Criando..." : "Criar Anúncio"}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </FormProvider>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+            <VenueBasicInfoFields />
+            
+            <ImageUploadSection 
+              venueImages={venueImages} 
+              setVenueImages={setVenueImages}
+            />
+            
+            <VenueSelector onVenueSelection={handleVenueSelection} />
+            {venueAddress && (
+              <p className="mt-1 text-sm text-gray-600">{venueAddress}</p>
+            )}
+            
+            <VenueAvailabilityCalendar 
+              selectedDates={selectedDates}
+              setSelectedDates={setSelectedDates}
+            />
+            
+            <VenueAmenitiesField />
+            
+            <VenueRulesField />
+            
+            <VenueSocialMediaLinks />
+            
+            <VenueAvailabilityToggle />
+            
+            <div className="flex justify-end gap-4 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate("/venues")}
+              >
+                Cancelar
+              </Button>
+              <Button 
+                type="submit" 
+                disabled={submitting}
+              >
+                {submitting ? "Criando..." : "Criar Anúncio"}
+              </Button>
+            </div>
+          </form>
+        </Form>
       </Card>
     </div>
   );
