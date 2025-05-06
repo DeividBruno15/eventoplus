@@ -9,6 +9,7 @@ import { PaymentPlans } from '@/components/payment/PaymentPlans';
 import { useSearchParams } from 'react-router-dom';
 import { usePayment } from '@/hooks/usePayment';
 import { Button } from "@/components/ui/button";
+import { useAuth } from '@/hooks/useAuth';
 
 const PaymentsPage = () => {
   const [searchParams] = useSearchParams();
@@ -18,6 +19,8 @@ const PaymentsPage = () => {
   const [selectedPlan, setSelectedPlan] = useState<{id: string, name: string, price: number} | null>(null);
   const { fetchPaymentHistory } = usePayment();
   const [refreshHistory, setRefreshHistory] = useState(false);
+  const { user } = useAuth();
+  const userRole = user?.user_metadata?.role || 'contractor';
 
   useEffect(() => {
     // Verificar parâmetros da URL para ação de pagamento ou resultado

@@ -6,27 +6,38 @@ import { useVenueAnnouncements } from "./hooks/useVenueAnnouncements";
 import VenueCard from "./components/VenueCard";
 import VenueLoadingSkeleton from "./components/VenueLoadingSkeleton";
 import VenueEmptyState from "./components/VenueEmptyState";
+import { useAuth } from "@/hooks/auth";
 
 const VenuesPage = () => {
   const navigate = useNavigate();
   const { announcements, loading } = useVenueAnnouncements();
+  const { user } = useAuth();
+  const userRole = user?.user_metadata?.role;
+  const isAdvertiser = userRole === 'advertiser';
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold">Meus Anúncios</h2>
+          <h2 className="text-2xl font-bold">
+            {isAdvertiser ? "Meus Anúncios" : "Locais de Eventos"}
+          </h2>
           <p className="text-muted-foreground">
-            Gerencie os anúncios dos seus espaços para eventos
+            {isAdvertiser 
+              ? "Gerencie os anúncios dos seus espaços para eventos"
+              : "Encontre os melhores locais para seus eventos"
+            }
           </p>
         </div>
-        <Button 
-          onClick={() => navigate('/venues/create')}
-          className="flex items-center gap-2"
-        >
-          <PlusCircle className="h-4 w-4" />
-          Criar Anúncio
-        </Button>
+        {isAdvertiser && (
+          <Button 
+            onClick={() => navigate('/venues/create')}
+            className="flex items-center gap-2"
+          >
+            <PlusCircle className="h-4 w-4" />
+            Criar Anúncio
+          </Button>
+        )}
       </div>
 
       {loading ? (

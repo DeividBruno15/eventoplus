@@ -3,16 +3,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Check, Zap } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-
-interface Plan {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  features: string[];
-  highlight?: boolean;
-  role: 'provider' | 'contractor' | 'advertiser';
-}
+import { providerPlans, contractorPlans, advertiserPlans } from "@/pages/Plans/data/plans";
+import { Plan } from "@/pages/Plans/types";
 
 interface PaymentPlansProps {
   onSelectPlan: (plan: {id: string, name: string, price: number}) => void;
@@ -22,146 +14,16 @@ export const PaymentPlans = ({ onSelectPlan }: PaymentPlansProps) => {
   const { user } = useAuth();
   const userRole = user?.user_metadata?.role || 'contractor';
 
-  // Filtrar planos com base na função do usuário
-  const getPlansForRole = () => {
-    let plans: Plan[] = [];
-    
+  // Get plans based on user role
+  const getPlansForRole = (): Plan[] => {
     if (userRole === 'provider') {
-      plans = [
-        {
-          id: 'provider-essential',
-          name: 'Provider Essencial',
-          description: 'Perfeito para começar sua jornada como prestador',
-          price: 0, // Gratuito
-          role: 'provider',
-          features: [
-            'Perfil básico',
-            '1 categoria de serviço',
-            'Visualização de eventos',
-            'Suporte por email'
-          ]
-        },
-        {
-          id: 'provider-professional',
-          name: 'Provider Professional',
-          description: 'Ideal para prestadores que estão crescendo',
-          price: 7900, // R$ 79,00
-          role: 'provider',
-          features: [
-            'Listagem nos resultados de busca',
-            'Até 3 categorias de serviço',
-            'Receba solicitações de eventos',
-            'Suporte por chat'
-          ]
-        },
-        {
-          id: 'provider-premium',
-          name: 'Provider Premium',
-          description: 'Destaque-se e amplie seus negócios',
-          price: 14900, // R$ 149,00
-          role: 'provider',
-          highlight: true,
-          features: [
-            'Posicionamento prioritário nas buscas',
-            'Até 5 categorias de serviço',
-            'Emblema "Premium" no perfil',
-            'Relatórios detalhados',
-            'Suporte prioritário'
-          ]
-        }
-      ];
+      return providerPlans;
     } else if (userRole === 'contractor') {
-      plans = [
-        {
-          id: 'contractor-discover',
-          name: 'Contractor Discover',
-          description: 'Experimente gratuitamente',
-          price: 0, // Gratuito
-          role: 'contractor',
-          features: [
-            'Crie até 1 evento por mês',
-            'Acesso básico a prestadores',
-            'Ferramentas básicas de gerenciamento',
-            'Suporte por email'
-          ]
-        },
-        {
-          id: 'contractor-connect',
-          name: 'Contractor Connect',
-          description: 'Para organizadores de eventos ocasionais',
-          price: 4900, // R$ 49,00
-          role: 'contractor',
-          features: [
-            'Crie até 3 eventos por mês',
-            'Acesso a todos os prestadores',
-            'Ferramentas básicas de gerenciamento',
-            'Suporte por chat'
-          ]
-        },
-        {
-          id: 'contractor-management',
-          name: 'Contractor Management',
-          description: 'Solução completa para produtores profissionais',
-          price: 9900, // R$ 99,00
-          role: 'contractor',
-          highlight: true,
-          features: [
-            'Crie eventos ilimitados',
-            'Ferramentas avançadas de gerenciamento',
-            'Prioridade na resposta de prestadores',
-            'Relatórios detalhados de eventos',
-            'Suporte prioritário'
-          ]
-        }
-      ];
+      return contractorPlans;
     } else if (userRole === 'advertiser') {
-      plans = [
-        {
-          id: 'advertiser-basic',
-          name: 'Advertiser Basic',
-          description: 'Comece a anunciar seu espaço',
-          price: 0, // Gratuito
-          role: 'advertiser',
-          features: [
-            'Anuncie 1 espaço',
-            'Listagem básica',
-            'Visualização limitada',
-            'Suporte por email'
-          ]
-        },
-        {
-          id: 'advertiser-standard',
-          name: 'Advertiser Standard',
-          description: 'Ideal para proprietários de espaços únicos',
-          price: 5900, // R$ 59,00
-          role: 'advertiser',
-          features: [
-            'Anuncie até 3 espaços',
-            'Listagem destacada',
-            'Estatísticas básicas',
-            'Suporte por chat'
-          ]
-        },
-        {
-          id: 'advertiser-premium',
-          name: 'Advertiser Premium',
-          description: 'Para gestão de múltiplos espaços de eventos',
-          price: 11900, // R$ 119,00
-          role: 'advertiser',
-          highlight: true,
-          features: [
-            'Anuncie espaços ilimitados',
-            'Posicionamento prioritário',
-            'Estatísticas detalhadas',
-            'Calendário de disponibilidade',
-            'Suporte prioritário',
-            'Personalização avançada'
-          ]
-        }
-      ];
+      return advertiserPlans;
     }
-    
-    return plans;
+    return [];
   };
   
   const plans = getPlansForRole();
@@ -175,12 +37,12 @@ export const PaymentPlans = ({ onSelectPlan }: PaymentPlansProps) => {
           <Card 
             key={plan.id} 
             className={`${
-              plan.highlight 
+              plan.featured 
                 ? 'border-primary shadow-md relative overflow-hidden' 
                 : ''
             }`}
           >
-            {plan.highlight && (
+            {plan.featured && (
               <div className="absolute top-0 right-0 bg-primary text-white py-1 px-3 text-xs">
                 <Zap className="h-4 w-4 inline mr-1" />
                 RECOMENDADO
@@ -189,19 +51,19 @@ export const PaymentPlans = ({ onSelectPlan }: PaymentPlansProps) => {
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 {plan.name}
-                {plan.highlight && <Zap className="h-5 w-5 text-primary" />}
+                {plan.featured && <Zap className="h-5 w-5 text-primary" />}
               </CardTitle>
               <CardDescription>{plan.description}</CardDescription>
               <div className="mt-2">
                 <span className="text-3xl font-bold">
-                  {plan.price === 0 ? 'Grátis' : `R$ ${(plan.price / 100).toFixed(2)}`}
+                  {plan.price === 0 ? 'Grátis' : `R$ ${plan.price.toFixed(2)}`}
                 </span>
                 {plan.price > 0 && <span className="text-sm text-muted-foreground">/mês</span>}
               </div>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2">
-                {plan.features.map((feature, index) => (
+                {plan.benefits.map((feature, index) => (
                   <li key={index} className="flex items-start">
                     <Check className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
                     <span>{feature}</span>
@@ -212,11 +74,11 @@ export const PaymentPlans = ({ onSelectPlan }: PaymentPlansProps) => {
             <CardFooter>
               <Button
                 className="w-full"
-                variant={plan.highlight ? 'default' : 'outline'}
+                variant={plan.featured ? 'default' : 'outline'}
                 onClick={() => onSelectPlan({
                   id: plan.id,
                   name: plan.name,
-                  price: plan.price
+                  price: plan.price * 100 // Convert to cents for payment processing
                 })}
               >
                 {plan.price === 0 ? 'Selecionar plano gratuito' : 'Assinar plano'}
