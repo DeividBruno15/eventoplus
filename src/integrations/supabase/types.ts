@@ -775,6 +775,62 @@ export type Database = {
           },
         ]
       }
+      venue_ratings: {
+        Row: {
+          amenities_rating: number | null
+          cleanliness_rating: number | null
+          comment: string
+          created_at: string
+          id: string
+          location_rating: number | null
+          overall_rating: number
+          owner_response: Json | null
+          service_rating: number | null
+          updated_at: string
+          user_id: string
+          value_rating: number | null
+          venue_id: string
+        }
+        Insert: {
+          amenities_rating?: number | null
+          cleanliness_rating?: number | null
+          comment: string
+          created_at?: string
+          id?: string
+          location_rating?: number | null
+          overall_rating: number
+          owner_response?: Json | null
+          service_rating?: number | null
+          updated_at?: string
+          user_id: string
+          value_rating?: number | null
+          venue_id: string
+        }
+        Update: {
+          amenities_rating?: number | null
+          cleanliness_rating?: number | null
+          comment?: string
+          created_at?: string
+          id?: string
+          location_rating?: number | null
+          overall_rating?: number
+          owner_response?: Json | null
+          service_rating?: number | null
+          updated_at?: string
+          user_id?: string
+          value_rating?: number | null
+          venue_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "venue_ratings_venue_id_fkey"
+            columns: ["venue_id"]
+            isOneToOne: false
+            referencedRelation: "venue_announcements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

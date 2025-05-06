@@ -77,11 +77,12 @@ const VenueDetailsPage = () => {
           />
           
           {/* Seção de avaliações */}
-          <VenueRatingsSection 
-            venueId={venue.id}
-            ownerId={venue.user_id}
-            initialRatings={[]}  // As avaliações serão carregadas pelo componente
-          />
+          {id && (
+            <VenueRatingsSection 
+              venueId={id}
+              ownerId={venue.user_id}
+            />
+          )}
         </div>
         
         <VenueSidebar 

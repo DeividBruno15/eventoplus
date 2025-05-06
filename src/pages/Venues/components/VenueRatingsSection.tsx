@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { 
   Select,
@@ -12,50 +12,56 @@ import { VenueRating } from '../types';
 import { VenueRatingItem } from './VenueRatingItem';
 import CreateVenueRating from './CreateVenueRating';
 import VenueDetailedRatings from './VenueDetailedRatings';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/auth';
+import { useVenueRatings } from '../hooks/useVenueRatings';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from "sonner";
 
 interface VenueRatingsSectionProps {
   venueId: string;
   ownerId: string;
-  initialRatings: VenueRating[];
 }
 
 const VenueRatingsSection: React.FC<VenueRatingsSectionProps> = ({
   venueId,
   ownerId,
-  initialRatings = []
 }) => {
   const { user } = useAuth();
-  const [ratings, setRatings] = useState<VenueRating[]>(initialRatings);
   const [filter, setFilter] = useState<string>('all');
   const [isAddingRating, setIsAddingRating] = useState<boolean>(false);
+  
+  // Usar o hook para buscar avaliações
+  const { ratings, loading, addRating, updateRating } = useVenueRatings(venueId);
+  
   const isOwner = user?.id === ownerId;
 
   const handleAddRating = (newRating: VenueRating) => {
-    setRatings([newRating, ...ratings]);
+    addRating(newRating);
     setIsAddingRating(false);
   };
 
   const handleReply = async (ratingId: string, response: string) => {
     try {
-      // Em uma aplicação real, isso seria uma chamada de API
-      await new Promise(resolve => setTimeout(resolve, 500));
+      const { error } = await supabase
+        .from('venue_ratings')
+        .update({
+          owner_response: {
+            response,
+            created_at: new Date().toISOString()
+          }
+        })
+        .eq('id', ratingId);
+        
+      if (error) throw error;
       
-      const updatedRatings = ratings.map(rating => {
-        if (rating.id === ratingId) {
-          return {
-            ...rating,
-            owner_response: {
-              response,
-              created_at: new Date().toISOString()
-            }
-          };
+      // Atualizar avaliação no estado local
+      updateRating(ratingId, {
+        owner_response: {
+          response,
+          created_at: new Date().toISOString()
         }
-        return rating;
       });
       
-      setRatings(updatedRatings);
       toast.success('Resposta enviada com sucesso!');
     } catch (error) {
       console.error('Erro ao responder avaliação:', error);
@@ -82,7 +88,7 @@ const VenueRatingsSection: React.FC<VenueRatingsSectionProps> = ({
       <h2 className="text-2xl font-bold mb-4">Avaliações</h2>
       
       {/* Sumário de avaliações */}
-      {ratings.length > 0 && (
+      {ratings.length > 0 && !loading && (
         <>
           <VenueDetailedRatings ratings={ratings} />
           
@@ -132,40 +138,61 @@ const VenueRatingsSection: React.FC<VenueRatingsSectionProps> = ({
       
       {/* Lista de avaliações */}
       <div className="space-y-4">
-        {filteredRatings().length > 0 ? (
-          filteredRatings().map(rating => (
-            <VenueRatingItem 
-              key={rating.id} 
-              rating={rating}
-              isOwner={isOwner}
-              onReply={handleReply}
-            />
-          ))
-        ) : (
-          <div className="text-center py-8 border rounded-lg">
-            {ratings.length > 0 ? (
-              <p className="text-gray-500">
-                Nenhuma avaliação encontrada com o filtro selecionado.
-              </p>
-            ) : (
-              <>
-                <p className="text-gray-500 mb-4">
-                  Este local ainda não possui avaliações.
+        {!loading ? (
+          filteredRatings().length > 0 ? (
+            filteredRatings().map(rating => (
+              <VenueRatingItem 
+                key={rating.id} 
+                rating={rating}
+                isOwner={isOwner}
+                onReply={handleReply}
+              />
+            ))
+          ) : (
+            <div className="text-center py-8 border rounded-lg">
+              {ratings.length > 0 ? (
+                <p className="text-gray-500">
+                  Nenhuma avaliação encontrada com o filtro selecionado.
                 </p>
-                
-                {user && !isOwner && !isAddingRating && (
-                  <Button onClick={() => setIsAddingRating(true)}>
-                    Seja o primeiro a avaliar
-                  </Button>
-                )}
-                
-                {!user && (
-                  <p className="text-sm text-gray-400">
-                    Faça login para avaliar este local
+              ) : (
+                <>
+                  <p className="text-gray-500 mb-4">
+                    Este local ainda não possui avaliações.
                   </p>
-                )}
-              </>
-            )}
+                  
+                  {user && !isOwner && !isAddingRating && (
+                    <Button onClick={() => setIsAddingRating(true)}>
+                      Seja o primeiro a avaliar
+                    </Button>
+                  )}
+                  
+                  {!user && (
+                    <p className="text-sm text-gray-400">
+                      Faça login para avaliar este local
+                    </p>
+                  )}
+                </>
+              )}
+            </div>
+          )
+        ) : (
+          <div className="space-y-4">
+            {[1, 2].map((i) => (
+              <div key={i} className="border rounded-lg p-4 animate-pulse">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+                  <div>
+                    <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded w-24"></div>
+                  </div>
+                </div>
+                <div className="mt-4 space-y-2">
+                  <div className="h-3 bg-gray-200 rounded w-full"></div>
+                  <div className="h-3 bg-gray-200 rounded w-full"></div>
+                  <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
