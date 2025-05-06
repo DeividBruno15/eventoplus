@@ -43,7 +43,7 @@ const Hero = () => {
       <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-[1400px] grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
         <HeroContent />
         
-        <div className="relative">
+        <div className="relative flex justify-center items-center h-[400px]">
           {animationPhase === 'chat' ? (
             <ChatAnimation animationStep={animationStep} />
           ) : animationPhase === 'event' ? (

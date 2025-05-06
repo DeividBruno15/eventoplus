@@ -19,7 +19,7 @@ const ChatAnimation = ({ animationStep }: ChatAnimationProps) => {
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
-      className="bg-white rounded-2xl shadow-xl p-5 relative z-10 max-w-md mx-auto"
+      className="bg-white rounded-2xl shadow-xl p-5 relative z-10 max-w-md mx-auto h-[400px] flex flex-col"
     >
       <div className="border-b pb-3 mb-4">
         <h3 className="font-medium flex items-center gap-2">
@@ -28,7 +28,7 @@ const ChatAnimation = ({ animationStep }: ChatAnimationProps) => {
         </h3>
       </div>
       
-      <div className="space-y-4 mb-4 h-[280px] overflow-hidden">
+      <div className="space-y-4 mb-4 flex-1 overflow-hidden">
         {messageSequence.map((msg, idx) => (
           <motion.div 
             key={idx}
@@ -58,7 +58,7 @@ const ChatAnimation = ({ animationStep }: ChatAnimationProps) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 1.2 }}
-        className="border-t pt-4"
+        className="border-t pt-4 mt-auto"
       >
         <div className="bg-gray-50 rounded-xl p-4">
           <h4 className="font-medium text-sm mb-3 flex items-center gap-2">

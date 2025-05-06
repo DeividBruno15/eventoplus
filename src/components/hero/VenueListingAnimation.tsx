@@ -19,7 +19,7 @@ const VenueListingAnimation = ({ animationStep }: VenueListingAnimationProps) =>
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
-      className="bg-white rounded-2xl shadow-xl p-5 relative z-10 max-w-md mx-auto"
+      className="bg-white rounded-2xl shadow-xl p-5 relative z-10 max-w-md mx-auto h-[400px] flex flex-col"
     >
       <div className="border-b pb-3 mb-4">
         <h3 className="font-medium flex items-center gap-2">
@@ -28,7 +28,7 @@ const VenueListingAnimation = ({ animationStep }: VenueListingAnimationProps) =>
         </h3>
       </div>
       
-      <div className="space-y-6 mb-4">
+      <div className="space-y-6 mb-4 flex-1">
         {venueListingSteps.map((step, idx) => (
           <motion.div
             key={step.step}
@@ -75,7 +75,7 @@ const VenueListingAnimation = ({ animationStep }: VenueListingAnimationProps) =>
           y: animationStep === venueListingSteps.length - 1 ? 0 : 20
         }}
         transition={{ duration: 0.5 }}
-        className="bg-gray-50 rounded-xl p-4 mt-6"
+        className="bg-gray-50 rounded-xl p-4 mt-auto"
       >
         <div className="flex items-center gap-2 text-sm text-gray-600">
           <Check className="w-4 h-4 text-secondary" />
