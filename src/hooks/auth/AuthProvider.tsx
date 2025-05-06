@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -86,13 +87,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       console.log('Registrando com papel:', profileData.role);
       
-      // Define the sign up parameters with proper TypeScript typing
-      const signUpParams = {
-        email,
-        password,
-        options: {
-          data: profileData,
-        }
+      // Create signUp options with the correct type structure
+      const options: {
+        data: any;
+        emailRedirectTo?: string;
+      } = {
+        data: profileData
       };
 
       // Only add email redirect if email verification is enabled
@@ -101,13 +101,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const redirectTo = `${window.location.origin}/login`;
         console.log('Configurando redirect para:', redirectTo);
         
-        signUpParams.options = {
-          ...signUpParams.options,
-          emailRedirectTo: redirectTo
-        };
+        options.emailRedirectTo = redirectTo;
       }
       
-      const { error, data } = await supabase.auth.signUp(signUpParams);
+      // Now use the correctly typed options object in signUp
+      const { error, data } = await supabase.auth.signUp({
+        email,
+        password,
+        options
+      });
       
       if (error) {
         console.error('Erro durante o registro:', error);
