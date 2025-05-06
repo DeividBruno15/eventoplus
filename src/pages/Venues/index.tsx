@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PlusCircle } from "lucide-react";
@@ -167,20 +166,38 @@ const VenuesPage = () => {
                   </span>
                 </div>
                 
-                {/* Social Media Links */}
+                {/* Social Media Links - Only Instagram and external links */}
                 {announcement.social_links && announcement.social_links.length > 0 && (
                   <div className="flex gap-2 mt-3">
-                    {announcement.social_links.map((link, index) => (
-                      <a 
-                        key={index}
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-gray-500 hover:text-primary transition-colors"
-                      >
-                        {getSocialMediaIcon(link.type)}
-                      </a>
-                    ))}
+                    {announcement.social_links
+                      .filter(link => link.type === 'instagram' || link.type === 'external')
+                      .map((link, index) => (
+                        <a 
+                          key={index}
+                          href={link.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-gray-500 hover:text-primary transition-colors"
+                        >
+                          {link.type === 'instagram' ? (
+                            <span className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                              </svg>
+                            </span>
+                          ) : (
+                            <span className="bg-gray-400 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                <polyline points="15 3 21 3 21 9"></polyline>
+                                <line x1="10" y1="14" x2="21" y2="3"></line>
+                              </svg>
+                            </span>
+                          )}
+                        </a>
+                      ))}
                   </div>
                 )}
               </CardContent>
@@ -226,46 +243,29 @@ const VenuesPage = () => {
   );
 };
 
-// Function to get social media icon based on type
+// Function to get social media icon based on type - We don't need this anymore since we're only showing Instagram
 const getSocialMediaIcon = (type: string) => {
-  switch (type.toLowerCase()) {
-    case 'instagram':
-      return <span className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center">
+  // We'll keep this function for compatibility, but we're only using Instagram now
+  if (type === 'instagram') {
+    return (
+      <span className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
           <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
           <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
         </svg>
-      </span>;
-    case 'facebook':
-      return <span className="bg-blue-600 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
-        </svg>
-      </span>;
-    case 'twitter':
-      return <span className="bg-blue-400 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
-        </svg>
-      </span>;
-    case 'tiktok':
-      return <span className="bg-black text-white rounded-full p-1 w-6 h-6 flex items-center justify-center">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M9 12a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"></path>
-          <path d="M13 12V8a4 4 0 0 0 4 4v0a4 4 0 0 0 4-4V5"></path>
-          <line x1="13" y1="5" x2="13" y2="12"></line>
-        </svg>
-      </span>;
-    default:
-      return <span className="bg-gray-400 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="8" x2="12" y2="16"></line>
-          <line x1="8" y1="12" x2="16" y2="12"></line>
-        </svg>
-      </span>;
+      </span>
+    );
   }
+  return (
+    <span className="bg-gray-400 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+        <polyline points="15 3 21 3 21 9"></polyline>
+        <line x1="10" y1="14" x2="21" y2="3"></line>
+      </svg>
+    </span>
+  );
 };
 
 export default VenuesPage;

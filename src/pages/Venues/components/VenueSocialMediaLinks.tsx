@@ -1,7 +1,7 @@
 
 import { FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Instagram, Facebook, Twitter } from "lucide-react";
+import { Instagram } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 
 const VenueSocialMediaLinks = () => {
@@ -33,50 +33,6 @@ const VenueSocialMediaLinks = () => {
             </FormItem>
           )}
         />
-        
-        <FormField
-          control={form.control}
-          name="social_facebook"
-          render={({ field }) => (
-            <FormItem>
-              <div className="flex items-center gap-2">
-                <span className="bg-blue-600 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center">
-                  <Facebook className="h-4 w-4" />
-                </span>
-                <FormLabel>Facebook</FormLabel>
-              </div>
-              <FormControl>
-                <Input 
-                  placeholder="https://facebook.com/sua_pagina" 
-                  {...field} 
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <FormField
-          control={form.control}
-          name="social_twitter"
-          render={({ field }) => (
-            <FormItem>
-              <div className="flex items-center gap-2">
-                <span className="bg-blue-400 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center">
-                  <Twitter className="h-4 w-4" />
-                </span>
-                <FormLabel>Twitter</FormLabel>
-              </div>
-              <FormControl>
-                <Input 
-                  placeholder="https://twitter.com/seu_perfil" 
-                  {...field} 
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
       </div>
 
       <FormField
@@ -92,7 +48,7 @@ const VenueSocialMediaLinks = () => {
               />
             </FormControl>
             <FormDescription>
-              Link para um site ou página de redes sociais com mais informações
+              Link para um site ou página com mais informações
             </FormDescription>
             <FormMessage />
           </FormItem>

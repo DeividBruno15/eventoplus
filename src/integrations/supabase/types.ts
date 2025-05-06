@@ -671,6 +671,7 @@ export type Database = {
       venue_announcements: {
         Row: {
           amenities: string[] | null
+          available_dates: string[] | null
           created_at: string
           description: string
           external_link: string | null
@@ -680,6 +681,7 @@ export type Database = {
           max_capacity: number
           price_per_hour: number
           rules: string | null
+          social_links: Json | null
           title: string
           updated_at: string
           user_id: string
@@ -689,6 +691,7 @@ export type Database = {
         }
         Insert: {
           amenities?: string[] | null
+          available_dates?: string[] | null
           created_at?: string
           description: string
           external_link?: string | null
@@ -698,6 +701,7 @@ export type Database = {
           max_capacity: number
           price_per_hour: number
           rules?: string | null
+          social_links?: Json | null
           title: string
           updated_at?: string
           user_id: string
@@ -707,6 +711,7 @@ export type Database = {
         }
         Update: {
           amenities?: string[] | null
+          available_dates?: string[] | null
           created_at?: string
           description?: string
           external_link?: string | null
@@ -716,6 +721,7 @@ export type Database = {
           max_capacity?: number
           price_per_hour?: number
           rules?: string | null
+          social_links?: Json | null
           title?: string
           updated_at?: string
           user_id?: string

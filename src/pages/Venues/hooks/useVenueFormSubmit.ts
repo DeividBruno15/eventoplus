@@ -25,8 +25,6 @@ interface VenueFormValues {
   external_link?: string;
   venue_id: string;
   social_instagram?: string;
-  social_facebook?: string;
-  social_twitter?: string;
 }
 
 export const useVenueFormSubmit = (venueImages: ImageFile[], selectedDates: Date[]) => {
@@ -36,12 +34,7 @@ export const useVenueFormSubmit = (venueImages: ImageFile[], selectedDates: Date
 
   const detectSocialMediaType = (url: string): string | null => {
     if (!url) return null;
-    
     if (url.includes('instagram.com')) return 'instagram';
-    if (url.includes('facebook.com')) return 'facebook';
-    if (url.includes('twitter.com') || url.includes('x.com')) return 'twitter';
-    if (url.includes('tiktok.com')) return 'tiktok';
-    
     return null;
   };
 
@@ -52,18 +45,12 @@ export const useVenueFormSubmit = (venueImages: ImageFile[], selectedDates: Date
       links.push({ type: 'instagram', url: formValues.social_instagram });
     }
     
-    if (formValues.social_facebook) {
-      links.push({ type: 'facebook', url: formValues.social_facebook });
-    }
-    
-    if (formValues.social_twitter) {
-      links.push({ type: 'twitter', url: formValues.social_twitter });
-    }
-    
     if (formValues.external_link) {
       const type = detectSocialMediaType(formValues.external_link);
       if (type) {
         links.push({ type, url: formValues.external_link });
+      } else if (formValues.external_link) {
+        links.push({ type: 'external', url: formValues.external_link });
       }
     }
     
@@ -78,21 +65,31 @@ export const useVenueFormSubmit = (venueImages: ImageFile[], selectedDates: Date
       
       // Process each image
       for (const image of venueImages) {
-        const fileExt = image.file.name.split('.').pop();
-        const filePath = `venue_images/${user?.id}/${uuidv4()}.${fileExt}`;
+        if (!user) continue;
         
-        const { error: uploadError } = await supabase.storage
+        const fileExt = image.file.name.split('.').pop();
+        const filePath = `${user.id}/${uuidv4()}.${fileExt}`;
+        
+        console.log("Uploading image to path:", filePath);
+        
+        const { error: uploadError, data } = await supabase.storage
           .from('venue_images')
           .upload(filePath, image.file);
           
-        if (uploadError) throw uploadError;
+        if (uploadError) {
+          console.error("Upload error:", uploadError);
+          throw uploadError;
+        }
         
         // Get the public URL for the uploaded image
-        const { data } = supabase.storage
+        const { data: publicUrlData } = supabase.storage
           .from('venue_images')
           .getPublicUrl(filePath);
           
-        uploadedUrls.push(data.publicUrl);
+        if (publicUrlData?.publicUrl) {
+          uploadedUrls.push(publicUrlData.publicUrl);
+          console.log("Image uploaded successfully:", publicUrlData.publicUrl);
+        }
       }
       
       return uploadedUrls;
