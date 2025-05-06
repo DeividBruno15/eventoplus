@@ -50,19 +50,19 @@ const HeroContent = () => {
           <div className="bg-primary/10 rounded-full p-1">
             <Check className="text-primary h-4 w-4" />
           </div>
-          <span className="text-sm text-gray-600">Sem taxas ocultas</span>
+          <span className="text-sm text-gray-600">Profissionais verificados</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="bg-primary/10 rounded-full p-1">
             <Check className="text-primary h-4 w-4" />
           </div>
-          <span className="text-sm text-gray-600">Chat integrado</span>
+          <span className="text-sm text-gray-600">Contratação simplificada</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="bg-primary/10 rounded-full p-1">
             <Check className="text-primary h-4 w-4" />
           </div>
-          <span className="text-sm text-gray-600">Divulgação de espaços</span>
+          <span className="text-sm text-gray-600">Comunicação direta</span>
         </div>
       </motion.div>
     </div>

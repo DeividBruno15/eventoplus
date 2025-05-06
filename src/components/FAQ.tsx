@@ -10,24 +10,28 @@ import { HelpCircle } from "lucide-react";
 const FAQ = () => {
   const faqs = [
     {
-      question: "Como funciona a plataforma?",
-      answer: "A Evento+ conecta pessoas que estão organizando eventos com prestadores de serviços qualificados. Você pode buscar prestadores por categoria, comparar avaliações e solicitar orçamentos diretamente pela plataforma."
+      question: "Como funciona a plataforma Evento+?",
+      answer: "A Evento+ conecta três principais usuários: contratantes que buscam organizar eventos, prestadores de serviços qualificados e anunciantes de espaços para eventos. Nossa plataforma facilita a comunicação, negociação e contratação através de uma interface intuitiva e direta."
     },
     {
-      question: "Quais são os benefícios de usar a Evento+?",
-      answer: "A Evento+ oferece uma maneira simplificada de encontrar e contratar prestadores de serviços para eventos. Economize tempo com nossa busca centralizada, compare prestadores com base em avaliações reais e gerencie todos os seus eventos em um só lugar."
+      question: "Quais tipos de profissionais posso encontrar?",
+      answer: "Nossa plataforma reúne diversos tipos de prestadores de serviços para eventos, incluindo fotógrafos, DJs, buffets, decoradores, cerimonialistas, bartenders, segurança, entre outros. Todos os profissionais passam por uma verificação para garantir a qualidade dos serviços."
     },
     {
-      question: "Como me torno um prestador de serviços?",
-      answer: "Para se tornar um prestador de serviços, basta criar uma conta na plataforma como prestador, preencher seu perfil com informações detalhadas sobre seus serviços, experiência e portfólio. Após a aprovação, seu perfil estará disponível para potenciais clientes."
+      question: "Como faço para anunciar meu espaço para eventos?",
+      answer: "Para anunciar seu espaço para eventos, você precisa criar uma conta como anunciante, preencher as informações detalhadas sobre o local, adicionar fotos de qualidade, definir a disponibilidade e os preços. Após a aprovação, seu espaço estará visível para potenciais clientes."
     },
     {
-      question: "A plataforma cobra alguma taxa?",
-      answer: "A Evento+ oferece planos gratuitos e pagos tanto para contratantes quanto para prestadores de serviços. Os planos pagos oferecem recursos adicionais e benefícios exclusivos para melhorar sua experiência na plataforma."
+      question: "Como funciona o sistema de comunicação entre contratantes e prestadores?",
+      answer: "A Evento+ oferece um sistema de chat integrado que permite comunicação direta entre contratantes e prestadores de serviços. Você pode discutir detalhes do evento, negociar valores e esclarecer dúvidas sem precisar sair da plataforma."
     },
     {
-      question: "Como são feitos os pagamentos?",
-      answer: "Os pagamentos são negociados diretamente entre o contratante e o prestador de serviços. A Evento+ facilita o contato e a comunicação, mas não intermedia pagamentos no momento."
+      question: "É possível gerenciar múltiplos eventos na plataforma?",
+      answer: "Sim! Contratantes podem gerenciar múltiplos eventos simultaneamente, organizando equipes de prestadores, agendamentos e locais em um painel centralizado. Isso facilita o controle e acompanhamento de cada etapa do planejamento."
+    },
+    {
+      question: "Como são garantidas a qualidade e segurança dos serviços?",
+      answer: "A Evento+ implementa um sistema de avaliações e reviews dos prestadores e espaços, permitindo que contratantes anteriores compartilhem suas experiências. Além disso, verificamos as credenciais dos profissionais e incentivamos a transparência na comunicação e negociação."
     }
   ];
 

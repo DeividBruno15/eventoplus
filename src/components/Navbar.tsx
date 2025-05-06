@@ -66,59 +66,64 @@ const Navbar = () => {
           <span className="text-2xl font-bold text-primary">Evento<span className="text-secondary">+</span></span>
         </Link>
 
-        <div className="flex items-center">
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8 mr-6">
+        {/* Centralized Desktop Navigation */}
+        <div className="hidden md:flex items-center justify-center flex-1">
+          <div className="flex items-center space-x-8">
             <Link to="/" className="font-medium hover:text-primary transition-colors">Home</Link>
             <Link to="/about" className="font-medium hover:text-primary transition-colors">Sobre</Link>
             <Link to="/contact" className="font-medium hover:text-primary transition-colors">Contato</Link>
           </div>
+        </div>
 
-          <div className="hidden md:flex items-center space-x-4">
-            {session ? (
-              <div className="flex items-center gap-4">
-                <Link to="/dashboard">
-                  <Button variant="outline" className="border-primary text-primary hover:bg-primary/5">Dashboard</Button>
-                </Link>
-                
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Avatar className="cursor-pointer h-10 w-10 border border-gray-200">
-                      {avatarUrl ? (
-                        <AvatarImage 
-                          src={avatarUrl} 
-                          alt={`${firstName} ${lastName}`} 
-                          className="object-cover"
-                        />
-                      ) : (
-                        <AvatarFallback className="bg-primary text-primary-foreground">
-                          {getInitials()}
-                        </AvatarFallback>
-                      )}
-                    </Avatar>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link to="/profile" className="cursor-pointer w-full">
-                        <User className="mr-2 h-4 w-4" />
-                        Perfil
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-500 focus:text-red-500">
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Sair
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            ) : (
-              <Link to="/login">
-                <Button variant="outline" className="border-primary text-primary hover:bg-primary/5">Entrar</Button>
+        <div className="hidden md:flex items-center space-x-4">
+          {session ? (
+            <div className="flex items-center gap-4">
+              <Link to="/dashboard">
+                <Button variant="outline" className="border-primary text-primary hover:bg-primary/5">Dashboard</Button>
               </Link>
-            )}
-          </div>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Avatar className="cursor-pointer h-10 w-10 border border-gray-200">
+                    {avatarUrl ? (
+                      <AvatarImage 
+                        src={avatarUrl} 
+                        alt={`${firstName} ${lastName}`} 
+                        className="object-cover"
+                      />
+                    ) : (
+                      <AvatarFallback className="bg-primary text-primary-foreground">
+                        {getInitials()}
+                      </AvatarFallback>
+                    )}
+                  </Avatar>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile" className="cursor-pointer w-full">
+                      <User className="mr-2 h-4 w-4" />
+                      Perfil
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-500 focus:text-red-500">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sair
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          ) : (
+            <div className="flex items-center space-x-4">
+              <Link to="/login">
+                <Button variant="ghost" className="text-primary hover:bg-primary/5">Entrar</Button>
+              </Link>
+              <Link to="/register">
+                <Button variant="default">Cadastrar</Button>
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* Mobile Navigation */}
@@ -158,9 +163,14 @@ const Navbar = () => {
                   </Button>
                 </>
               ) : (
-                <Link to="/login" onClick={toggleMenu}>
-                  <Button variant="outline" className="w-full border-primary text-primary">Entrar</Button>
-                </Link>
+                <>
+                  <Link to="/login" onClick={toggleMenu}>
+                    <Button variant="ghost" className="w-full text-primary">Entrar</Button>
+                  </Link>
+                  <Link to="/register" onClick={toggleMenu}>
+                    <Button variant="default" className="w-full">Cadastrar</Button>
+                  </Link>
+                </>
               )}
             </div>
           </div>
