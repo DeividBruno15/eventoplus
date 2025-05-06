@@ -16,7 +16,9 @@ export const AboutTab = ({ tagline, description }: AboutTabProps) => {
       <div className="space-y-2 text-gray-700">
         <p>Email: contato@anafotografia.com</p>
         <p>Telefone: (11) 98765-4321</p>
+        <p>WhatsApp: (11) 98765-4321</p>
         <p>Website: www.anafotografia.com</p>
+        <p>Instagram: @anafotografiaoficial</p>
       </div>
     </>
   );
