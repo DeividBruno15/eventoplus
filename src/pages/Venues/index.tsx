@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { PlusCircle, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -29,7 +29,7 @@ const VenuesPage = () => {
   // Estado para os filtros e busca
   const [searchQuery, setSearchQuery] = useState("");
   const [venueType, setVenueType] = useState<string | undefined>(undefined);
-  const [minRating, setMinRating] = useState(0);
+  const [minRating, setMinRating] = useState<string | undefined>(undefined);
   const [priceRange, setPriceRange] = useState([0, 10000]);
   const [activeFilters, setActiveFilters] = useState(0);
 
@@ -47,6 +47,16 @@ const VenuesPage = () => {
     "Outro"
   ];
 
+  // Ratings options
+  const ratingOptions = [
+    { value: "1", label: "1.0 ou mais" },
+    { value: "2", label: "2.0 ou mais" },
+    { value: "3", label: "3.0 ou mais" },
+    { value: "4", label: "4.0 ou mais" },
+    { value: "4.5", label: "4.5 ou mais" },
+    { value: "5", label: "5.0" }
+  ];
+
   // Filtragem dos anúncios
   const filteredAnnouncements = announcements.filter(announcement => {
     // Filtro de busca
@@ -62,28 +72,33 @@ const VenuesPage = () => {
     // Filtro de preço
     const matchesPrice = announcement.price_per_hour >= priceRange[0] && 
       announcement.price_per_hour <= priceRange[1];
+      
+    // Filtro de avaliação
+    const matchesRating = minRating === undefined || 
+      (announcement.rating !== null && announcement.rating >= parseFloat(minRating));
 
     // Retorna verdadeiro se todos os filtros corresponderem
-    return matchesSearch && matchesType && matchesPrice;
+    return matchesSearch && matchesType && matchesPrice && matchesRating;
   });
 
   // Reset all filters
   const resetFilters = () => {
     setVenueType(undefined);
-    setMinRating(0);
+    setMinRating(undefined);
     setPriceRange([0, 10000]);
     setSearchQuery("");
     setActiveFilters(0);
   };
   
-  // Count active filters
-  const countActiveFilters = () => {
+  // Count active filters - now run automatically with useEffect
+  useEffect(() => {
     let count = 0;
     if (venueType !== undefined) count++;
-    if (minRating > 0) count++;
+    if (minRating !== undefined) count++;
     if (priceRange[0] > 0 || priceRange[1] < 10000) count++;
+    if (searchQuery) count++;
     setActiveFilters(count);
-  };
+  }, [venueType, minRating, priceRange, searchQuery]);
 
   return (
     <div className="space-y-6">
@@ -115,7 +130,7 @@ const VenuesPage = () => {
           {/* Barra de busca e filtros em linha */}
           <div className="flex flex-wrap gap-3 items-center">
             {/* Barra de busca mais compacta */}
-            <div className="relative w-full sm:w-64 flex-shrink">
+            <div className="relative w-56 flex-shrink">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Buscar locais..."
@@ -138,10 +153,23 @@ const VenuesPage = () => {
               </SelectContent>
             </Select>
             
-            {/* Filtros de preço - agora visíveis diretamente na página */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 p-2 border rounded-md bg-background flex-grow">
-              <span className="text-sm font-medium whitespace-nowrap">Preço: R$ {priceRange[0]} - R$ {priceRange[1]}</span>
-              <div className="w-full sm:w-52 mx-2">
+            {/* Filtro de avaliação como dropdown */}
+            <Select value={minRating} onValueChange={setMinRating}>
+              <SelectTrigger className="w-[140px] h-9">
+                <SelectValue placeholder="Avaliação" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={undefined}>Qualquer nota</SelectItem>
+                {ratingOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            
+            {/* Filtros de preço - versão compacta */}
+            <div className="flex items-center gap-2 p-2 border rounded-md bg-background">
+              <span className="text-sm font-medium whitespace-nowrap">Preço: R${priceRange[0]}-R${priceRange[1]}</span>
+              <div className="w-32">
                 <Slider
                   value={priceRange}
                   min={0}
@@ -152,26 +180,8 @@ const VenuesPage = () => {
               </div>
             </div>
             
-            {/* Filtro de avaliação mínima */}
-            <div className="flex items-center gap-2 p-2 border rounded-md">
-              <span className="text-sm font-medium">Avaliação:</span>
-              <div className="flex">
-                {[1, 2, 3, 4, 5].map((rating) => (
-                  <button
-                    key={rating}
-                    className={`w-6 h-6 flex items-center justify-center rounded ${
-                      rating <= minRating ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
-                    }`}
-                    onClick={() => setMinRating(rating === minRating ? 0 : rating)}
-                  >
-                    {rating}
-                  </button>
-                ))}
-              </div>
-            </div>
-            
             {/* Botão de limpar filtros */}
-            {(searchQuery || venueType || minRating > 0 || priceRange[0] > 0 || priceRange[1] < 10000) && (
+            {activeFilters > 0 && (
               <Button 
                 variant="outline" 
                 size="sm"
@@ -179,11 +189,9 @@ const VenuesPage = () => {
                 className="whitespace-nowrap"
               >
                 Limpar filtros
-                {activeFilters > 0 && (
-                  <Badge variant="secondary" className="ml-2">
-                    {activeFilters}
-                  </Badge>
-                )}
+                <Badge variant="secondary" className="ml-2">
+                  {activeFilters}
+                </Badge>
               </Button>
             )}
           </div>
