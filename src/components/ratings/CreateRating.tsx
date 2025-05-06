@@ -6,7 +6,7 @@ import { Star } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { notificationsService } from '@/services/notifications';
+import { sendRatingNotification } from '@/hooks/useEventNotifications';
 
 interface CreateRatingProps {
   userId: string;
@@ -86,26 +86,11 @@ export const CreateRating = ({ userId, eventId, onSuccess }: CreateRatingProps) 
         return;
       }
       
-      // Step 2: Fetch the provider's name for the notification
-      const { data: providerData } = await supabase
-        .from('user_profiles')
-        .select('first_name, last_name')
-        .eq('id', userId)
-        .single();
+      // Step 2: Fetch the reviewer's name for the notification
+      const reviewerName = ratingData?.reviewer?.first_name || 'Alguém';
       
-      // Step 3: Send a notification to the rated user
-      if (providerData) {
-        const providerName = `${providerData.first_name} ${providerData.last_name || ''}`;
-        const reviewerName = ratingData?.reviewer?.first_name || 'Alguém';
-        
-        await notificationsService.sendNotification({
-          userId,
-          title: "Nova avaliação recebida",
-          content: `${reviewerName} deixou uma avaliação de ${rating} estrelas para você.`,
-          type: "rating",
-          link: `/users/${userId}` // Link to the user profile page
-        });
-      }
+      // Step 3: Send a notification to the rated user using our centralized function
+      await sendRatingNotification(userId, rating, reviewerName);
       
       toast({
         title: "Sucesso",
