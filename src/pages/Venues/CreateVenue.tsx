@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm, FormProvider } from "react-hook-form";
@@ -15,6 +16,7 @@ import VenueRulesField from "./components/VenueRulesField";
 import VenueSocialMediaLinks from "./components/VenueSocialMediaLinks";
 import VenueAvailabilityToggle from "./components/VenueAvailabilityToggle";
 import { useVenueFormSubmit } from "./hooks/useVenueFormSubmit";
+import { supabase } from "@/integrations/supabase/client";
 
 const CreateVenuePage = () => {
   const navigate = useNavigate();
@@ -134,5 +136,3 @@ const CreateVenuePage = () => {
 };
 
 export default CreateVenuePage;
-
-import { supabase } from "@/integrations/supabase/client";

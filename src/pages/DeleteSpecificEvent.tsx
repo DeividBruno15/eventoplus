@@ -1,7 +1,7 @@
 
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { deleteEvent } from "@/utils/events/eventDeletion";
+import { deleteEventById } from "@/utils/events/eventDeletion";
 import { toast } from "sonner";
 
 const DeleteSpecificEvent = () => {
@@ -17,7 +17,7 @@ const DeleteSpecificEvent = () => {
 
     const handleDelete = async () => {
       try {
-        await deleteEvent(id);
+        await deleteEventById(id);
         toast.success("Evento excluído com sucesso");
         navigate("/events");
       } catch (error) {
