@@ -4,7 +4,7 @@ import { SidebarNavigation } from "@/components/layout/SidebarNavigation";
 import { UserMenu } from "@/components/layout/UserMenu";
 import { NotificationsMenu } from "@/components/layout/notifications/NotificationsMenu";
 import { useEffect, useState } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/auth";
 import { Navigate, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { PageTransition } from "@/components/ui/page-transition";

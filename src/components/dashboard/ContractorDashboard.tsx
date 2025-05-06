@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/auth";
 import ContractorDashboardContent from "@/components/dashboard/ContractorDashboardContent";
 import ProviderDashboardContent from "@/components/dashboard/ProviderDashboardContent";
 

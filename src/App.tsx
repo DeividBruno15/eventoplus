@@ -29,7 +29,7 @@ import ResetPassword from "./pages/ResetPassword";
 import Payments from './pages/Payments';
 import Notifications from './pages/Notifications';
 import WhatsAppAssistant from './pages/WhatsAppAssistant';
-import { AuthProvider } from "./hooks/auth/AuthProvider";
+import { AuthProvider } from "./hooks/auth";
 import { Toaster } from "sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
