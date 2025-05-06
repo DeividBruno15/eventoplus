@@ -64,8 +64,8 @@ const VenueFilters = ({ filters, onFilterChange, resultsCount }: VenueFiltersPro
     <div className="space-y-4">
       {/* Barra de busca e filtros em linha */}
       <div className="flex flex-wrap gap-3 items-center">
-        {/* Barra de busca mais compacta */}
-        <div className="relative w-56 flex-shrink">
+        {/* Barra de busca mais larga */}
+        <div className="relative w-64 flex-shrink">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Buscar locais..."
@@ -98,7 +98,7 @@ const VenueFilters = ({ filters, onFilterChange, resultsCount }: VenueFiltersPro
           value={filters.venueType} 
           onValueChange={(value) => updateFilter("venueType", value)}
         >
-          <SelectTrigger className="w-[150px] h-9">
+          <SelectTrigger className="w-[160px] h-9">
             <SelectValue placeholder="Tipo de local" />
           </SelectTrigger>
           <SelectContent>
@@ -114,7 +114,7 @@ const VenueFilters = ({ filters, onFilterChange, resultsCount }: VenueFiltersPro
           value={filters.minRating} 
           onValueChange={(value) => updateFilter("minRating", value)}
         >
-          <SelectTrigger className="w-[140px] h-9">
+          <SelectTrigger className="w-[160px] h-9">
             <SelectValue placeholder="Avaliação" />
           </SelectTrigger>
           <SelectContent>
