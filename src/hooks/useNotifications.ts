@@ -75,7 +75,10 @@ export const useNotifications = (userId?: string) => {
         
       if (unreadIds.length === 0) return;
       
-      await notificationsService.markAllAsRead(userId);
+      // Atualizar cada notificação individualmente, já que não temos um método markAllAsRead
+      for (const id of unreadIds) {
+        await notificationsService.markAsRead(id);
+      }
       
       // Update local state
       setNotifications(prev => 
@@ -91,7 +94,13 @@ export const useNotifications = (userId?: string) => {
 
   const deleteNotification = async (notificationId: string) => {
     try {
-      await notificationsService.deleteNotification(notificationId);
+      // Deletar a notificação diretamente no Supabase, já que não temos um método deleteNotification
+      const { error } = await supabase
+        .from('notifications')
+        .delete()
+        .eq('id', notificationId);
+      
+      if (error) throw error;
       
       // Update local state
       setNotifications(prev => 
