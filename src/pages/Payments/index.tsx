@@ -15,7 +15,7 @@ const PaymentsPage = () => {
   };
 
   return (
-    <DashboardLayout>
+    <>
       <div className="container mx-auto py-6">
         <h1 className="text-3xl font-bold mb-6">Pagamentos</h1>
         
@@ -39,8 +39,15 @@ const PaymentsPage = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </DashboardLayout>
+    </>
   );
 };
 
-export default PaymentsPage;
+// Export the component wrapped in DashboardLayout
+const PaymentsWithLayout = () => (
+  <DashboardLayout>
+    <PaymentsPage />
+  </DashboardLayout>
+);
+
+export default PaymentsWithLayout;
