@@ -18,7 +18,7 @@ export const InfoCard = () => {
         <ul className="list-disc pl-5 space-y-1">
           <li>Novos eventos</li>
           <li>Aprovação de aplicações</li>
-          <li>Pagamentos processados</li>
+          <li>Atualizações de assinatura</li>
           <li>Novas avaliações</li>
           <li>Mensagens diretas</li>
         </ul>

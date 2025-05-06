@@ -21,26 +21,43 @@ export const getSidebarMenuItems = (userRole: string) => {
       name: "Dashboard",
       path: "/dashboard",
       icon: Home,
-    },
-    {
-      name: "Eventos",
-      path: "/events",
-      icon: Calendar,
-    },
-    {
-      name: "Chat",
-      path: "/chat",
-      icon: MessageSquare,
-      notificationKey: "unread_messages"
-    },
-    {
-      name: "Pagamentos",
-      path: "/payments",
-      icon: CreditCard,
     }
   ];
   
-  // Add role-specific menu items
+  // Adiciona eventos apenas para provider e contractor
+  if (userRole === 'provider' || userRole === 'contractor') {
+    mainMenuItems.push({
+      name: "Eventos",
+      path: "/events",
+      icon: Calendar,
+    });
+  }
+  
+  // Adiciona "Locais de eventos" apenas para contratante
+  if (userRole === 'contractor') {
+    mainMenuItems.push({
+      name: "Locais de eventos",
+      path: "/venues",
+      icon: Building,
+    });
+  }
+  
+  // Mensagens para todos os tipos
+  mainMenuItems.push({
+    name: "Chat",
+    path: "/chat",
+    icon: MessageSquare,
+    notificationKey: "unread_messages"
+  });
+  
+  // Minha assinatura para todos os tipos
+  mainMenuItems.push({
+    name: "Minha assinatura",
+    path: "/payments",
+    icon: CreditCard,
+  });
+  
+  // Adiciona "Espaços" para anunciantes
   if (userRole === 'advertiser') {
     mainMenuItems.push({
       name: "Espaços",

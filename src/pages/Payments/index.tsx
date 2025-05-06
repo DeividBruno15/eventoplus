@@ -50,7 +50,7 @@ const PaymentsPage = () => {
 
   return (
     <div className="container mx-auto py-6">
-      <h1 className="text-3xl font-bold mb-6">Pagamentos</h1>
+      <h1 className="text-3xl font-bold mb-6">Minha Assinatura</h1>
       
       {paymentSuccess && (
         <Alert className="mb-4 bg-green-50 border-green-500">

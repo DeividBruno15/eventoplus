@@ -10,6 +10,7 @@ import {
   Bell,
   MapPin,
   Phone,
+  Building,
 } from "lucide-react";
 import { MenuItem } from "./types";
 
@@ -24,8 +25,14 @@ export const menuItems: MenuItem[] = [
     name: "Eventos",
     icon: Calendar,
     path: "/events",
-    roles: ["provider", "contractor", "advertiser"],
-    badge: 0, // convertido para número
+    roles: ["provider", "contractor"],
+    badge: 0,
+  },
+  {
+    name: "Locais de eventos",
+    icon: Building,
+    path: "/venues",
+    roles: ["contractor"],
   },
   {
     name: "Mensagens",
@@ -35,7 +42,7 @@ export const menuItems: MenuItem[] = [
     notificationKey: "messages",
   },
   {
-    name: "Pagamentos",
+    name: "Minha assinatura",
     icon: CreditCard,
     path: "/payments",
     roles: ["provider", "contractor", "advertiser"],
@@ -44,7 +51,7 @@ export const menuItems: MenuItem[] = [
     name: "Espaços",
     icon: Building2,
     path: "/venues",
-    roles: ["contractor", "advertiser"],
+    roles: ["advertiser"],
   },
   {
     name: "Notificações",
@@ -57,7 +64,7 @@ export const menuItems: MenuItem[] = [
     icon: Phone,
     path: "/whatsapp",
     roles: ["provider", "contractor", "advertiser"],
-    badge: 0, // convertido para número
+    badge: 0,
   },
   {
     name: "Perfil",
