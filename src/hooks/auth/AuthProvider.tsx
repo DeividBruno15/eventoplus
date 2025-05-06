@@ -86,30 +86,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(true);
       
       console.log('Registrando com papel:', profileData.role);
+      console.log('URL de origem:', window.location.origin);
       
-      // Create signUp parameters with properly typed options
+      // Preparar os parâmetros de registro com opções corretamente tipadas
       const signUpParams = {
         email,
         password,
         options: {
-          data: profileData
-        } as {
-          data: any;
-          emailRedirectTo?: string;
-        }
+          data: profileData,
+          // Sempre definir a URL de redirecionamento, independente da verificação de email
+          emailRedirectTo: `${window.location.origin}/login`
+        } 
       };
-
-      // Only add email redirect if email verification is enabled
-      if (!DISABLE_EMAIL_VERIFICATION) {
-        // Use just the origin part of the URL for redirection
-        const redirectUrl = `${window.location.origin}/login`;
-        console.log('Configurando redirect para:', redirectUrl);
-        
-        // Add the redirect URL to the options object
-        signUpParams.options.emailRedirectTo = redirectUrl;
-      }
       
-      // Use the properly structured signUp parameters
+      console.log('Parâmetros de registro:', JSON.stringify(signUpParams, null, 2));
+      
+      // Usar os parâmetros de registro estruturados corretamente
       const { error, data } = await supabase.auth.signUp(signUpParams);
       
       if (error) {
@@ -118,20 +110,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       console.log('Registro bem-sucedido:', data);
+      console.log('Identidade confirmada:', data.user?.identities);
+      console.log('Email confirmado:', data.user?.email_confirmed_at);
 
-      // For testing without email verification, we can auto-login the user
+      // Para testes sem verificação de email, podemos fazer login automático
       if (DISABLE_EMAIL_VERIFICATION) {
-        console.log('Email verification disabled, logging in user directly');
-        // Show confirmation dialog regardless
+        console.log('Verificação de email desativada, fazendo login direto');
+        // Mostrar diálogo de confirmação de qualquer forma
         setConfirmationEmail(email);
         setShowEmailConfirmation(true);
       } else {
-        // Normal flow - show confirmation dialog
+        // Fluxo normal - mostrar diálogo de confirmação
         setConfirmationEmail(email);
         setShowEmailConfirmation(true);
       }
-    } catch (error) {
-      console.error('Erro durante o registro:', error);
+    } catch (error: any) {
+      console.error('Erro detalhado durante o registro:', error);
       throw error;
     } finally {
       setLoading(false);
