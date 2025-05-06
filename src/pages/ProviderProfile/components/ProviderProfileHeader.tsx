@@ -49,13 +49,18 @@ export const ProviderProfileHeader = ({ provider }: ProviderProfileHeaderProps) 
               <div className="flex items-center mt-2 md:mt-0">
                 <div className="flex items-center bg-white px-3 py-1 rounded-full mr-3 shadow-sm">
                   <Star className="w-5 h-5 text-yellow-400 fill-yellow-400 mr-1" />
-                  <span className="font-medium">{provider.rating}</span>
+                  <span className="font-medium">{provider.rating.toFixed(1)}</span>
                   <span className="text-gray-500 text-sm ml-1">({provider.reviewCount})</span>
                 </div>
                 <Link to={`/request-quote/${provider.id}`}>
                   <Button className="bg-primary">Solicitar orçamento</Button>
                 </Link>
               </div>
+            </div>
+            <div className="flex mt-2">
+              <Link to={`/users/${provider.id}`} className="text-sm text-primary md:text-primary-foreground hover:underline">
+                Ver perfil completo
+              </Link>
             </div>
           </div>
         </div>

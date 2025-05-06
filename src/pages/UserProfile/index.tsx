@@ -11,7 +11,7 @@ import { useUserProfileData } from './hooks/useUserProfileData';
 
 const UserProfilePage = () => {
   const { id } = useParams<{ id: string }>();
-  const { userData, ratings, eventCount, averageRating, loading } = useUserProfileData(id);
+  const { userData, ratings, eventCount, averageRating, loading, totalRatings } = useUserProfileData(id);
 
   if (loading) {
     return (
@@ -37,7 +37,7 @@ const UserProfilePage = () => {
       <UserProfileHeader 
         userData={userData}
         averageRating={averageRating}
-        ratingCount={ratings.length}
+        ratingCount={totalRatings}
         eventCount={eventCount}
       />
       
@@ -48,7 +48,7 @@ const UserProfilePage = () => {
               Sobre
             </TabsTrigger>
             <TabsTrigger value="avaliacoes" className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary">
-              Avaliações ({ratings.length})
+              Avaliações ({totalRatings})
             </TabsTrigger>
             <TabsTrigger value="eventos" className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary">
               {userData.role === 'contractor' ? 'Eventos' : 'Serviços'}
@@ -60,7 +60,7 @@ const UserProfilePage = () => {
           </TabsContent>
           
           <TabsContent value="avaliacoes" className="p-6">
-            <UserRatings ratings={ratings} />
+            {id && <UserRatings userId={id} />}
           </TabsContent>
           
           <TabsContent value="eventos" className="p-6">
