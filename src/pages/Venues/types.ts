@@ -14,4 +14,5 @@ export interface VenueAnnouncement {
     type: string;
     url: string;
   }[];
+  rating?: number | null; // Add rating property as optional and nullable
 }

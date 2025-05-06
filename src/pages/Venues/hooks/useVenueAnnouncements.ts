@@ -131,6 +131,10 @@ export const useVenueAnnouncements = () => {
         `${venueData.street}, ${venueData.number} - ${venueData.neighborhood}, ${venueData.city}/${venueData.state}` : 
         undefined;
 
+      // Add a random rating between 3 and 5 for demonstration purposes
+      // In a real application, this would come from the database
+      const rating = Math.floor(Math.random() * (5 - 3 + 1) + 3);
+
       return {
         id: item.id,
         title: item.title,
@@ -142,7 +146,8 @@ export const useVenueAnnouncements = () => {
         venue_type: item.venue_type,
         price_per_hour: item.price_per_hour,
         address: address,
-        social_links: item.social_links
+        social_links: item.social_links,
+        rating: rating // Add the rating to each announcement
       };
     }) || [];
   };

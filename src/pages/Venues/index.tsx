@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { PlusCircle, Search } from "lucide-react";
@@ -73,9 +72,11 @@ const VenuesPage = () => {
     const matchesPrice = announcement.price_per_hour >= priceRange[0] && 
       announcement.price_per_hour <= priceRange[1];
       
-    // Filtro de avaliação
+    // Filtro de avaliação - modificado para lidar com rating nulo ou indefinido
     const matchesRating = minRating === undefined || 
-      (announcement.rating !== null && announcement.rating >= parseFloat(minRating));
+      (announcement.rating !== undefined && 
+       announcement.rating !== null && 
+       announcement.rating >= parseFloat(minRating));
 
     // Retorna verdadeiro se todos os filtros corresponderem
     return matchesSearch && matchesType && matchesPrice && matchesRating;
