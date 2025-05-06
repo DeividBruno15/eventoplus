@@ -4,6 +4,8 @@ import { Input } from '@/components/ui/input';
 import { useEffect } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { RegisterFormData } from '../types';
+import { formatCPF, formatCep, validateCPF } from '@/utils/cep';
+import { supabase } from '@/integrations/supabase/client';
 
 interface DocumentFieldsProps {
   form: UseFormReturn<RegisterFormData>;
@@ -22,17 +24,9 @@ export const DocumentFields = ({ form }: DocumentFieldsProps) => {
     let formattedValue = value;
     
     // Apply formatting for display
-    if (personType === 'fisica' && value.length > 0) {
+    if (personType === 'fisica') {
       // CPF format: 000.000.000-00
-      if (value.length > 11) value = value.substring(0, 11);
-      
-      if (value.length > 9) {
-        formattedValue = `${value.substring(0, 3)}.${value.substring(3, 6)}.${value.substring(6, 9)}-${value.substring(9)}`;
-      } else if (value.length > 6) {
-        formattedValue = `${value.substring(0, 3)}.${value.substring(3, 6)}.${value.substring(6)}`;
-      } else if (value.length > 3) {
-        formattedValue = `${value.substring(0, 3)}.${value.substring(3)}`;
-      }
+      formattedValue = formatCPF(value);
     } else if (personType === 'juridica' && value.length > 0) {
       // CNPJ format: 00.000.000/0000-00
       if (value.length > 14) value = value.substring(0, 14);
@@ -48,21 +42,44 @@ export const DocumentFields = ({ form }: DocumentFieldsProps) => {
       }
     }
     
-    // Atualiza o valor formatado no campo
+    // Update the field value
     e.target.value = formattedValue;
     
-    // Armazena o valor bruto no form
-    form.setValue('document_number', value);
+    // Store the raw value in the form
+    form.setValue('document_number', value, { shouldValidate: true });
   };
 
-  // Validação de CPF e CNPJ
-  const validateDocument = (value: string) => {
+  // Validate CPF or CNPJ
+  const validateDocument = async (value: string) => {
     if (!value) return false;
     
     if (personType === 'fisica') {
-      return value.length === 11;
+      const isValidCpf = validateCPF(value);
+      if (!isValidCpf) {
+        return "CPF inválido";
+      }
+      
+      // Check if CPF already exists
+      try {
+        const { data, error } = await supabase
+          .from('user_profiles')
+          .select('document_number')
+          .eq('document_number', value)
+          .limit(1);
+          
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+          return "Este CPF já está cadastrado";
+        }
+      } catch (error) {
+        console.error("Erro ao verificar CPF:", error);
+      }
+      
+      return true;
     } else {
-      return value.length === 14;
+      // CNPJ validation
+      return value.length === 14 || "CNPJ inválido";
     }
   };
 
@@ -78,12 +95,16 @@ export const DocumentFields = ({ form }: DocumentFieldsProps) => {
               {...field} 
               onChange={handleDocumentChange}
               placeholder={personType === 'fisica' ? '000.000.000-00' : '00.000.000/0000-00'} 
-              onBlur={() => {
-                if (!validateDocument(field.value)) {
-                  form.setError('document_number', { 
-                    type: 'manual', 
-                    message: personType === 'fisica' ? 'CPF inválido' : 'CNPJ inválido' 
-                  });
+              onBlur={async () => {
+                const value = field.value;
+                if (value) {
+                  const validationResult = await validateDocument(value);
+                  if (validationResult !== true) {
+                    form.setError('document_number', { 
+                      type: 'manual', 
+                      message: validationResult as string
+                    });
+                  }
                 }
               }}
             />

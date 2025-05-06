@@ -67,8 +67,6 @@ export const BasicInfoFields = ({ form }: BasicInfoFieldsProps) => {
           </FormItem>
         )}
       />
-      
-      {/* Phone field removed - now only in PhoneField.tsx */}
     </>
   );
 };

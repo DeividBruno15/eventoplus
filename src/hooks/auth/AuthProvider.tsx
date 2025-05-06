@@ -40,8 +40,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        console.error('Login error:', error);
+        throw { error }; // Forward the error for custom handling
+      }
+      return data;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const logout = async () => {
@@ -106,6 +115,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       if (error) {
         console.error('Erro durante o registro:', error);
+        // Check if error is due to email or document duplication
+        if (error.message.includes('email') && error.message.includes('already')) {
+          throw new Error('Este e-mail já está cadastrado');
+        }
+        if (error.message.includes('document') || error.message.includes('CPF')) {
+          throw new Error('Este CPF já está cadastrado');
+        }
         throw error;
       }
 
