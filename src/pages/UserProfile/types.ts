@@ -32,3 +32,4 @@ export interface Event {
   image_url?: string;
   status: 'open' | 'closed' | 'published' | 'draft';
 }
+

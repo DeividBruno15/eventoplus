@@ -10,6 +10,7 @@ import { Loader2 } from "lucide-react";
 import { PageTransition } from "@/components/ui/page-transition";
 import { AnimatePresence } from "framer-motion";
 import { SidebarProvider } from "@/components/ui/sidebar/context";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 const DashboardLayout = () => {
   // Inicialmente, defina como null para não redirecionar imediatamente durante a verificação
@@ -56,7 +57,7 @@ const DashboardLayout = () => {
   }
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={!window.matchMedia("(max-width: 768px)").matches}>
       <div className="flex flex-col md:flex-row min-h-screen w-full">
         <SidebarNavigation 
           activePath={location.pathname} 
@@ -67,6 +68,7 @@ const DashboardLayout = () => {
           <header className="sticky top-0 z-10 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="flex h-14 items-center justify-end px-4">
               <div className="flex items-center gap-4">
+                <ThemeToggle />
                 <NotificationsMenu />
                 <UserMenu />
               </div>
@@ -85,6 +87,6 @@ const DashboardLayout = () => {
       </div>
     </SidebarProvider>
   );
-};
+}
 
 export default DashboardLayout;

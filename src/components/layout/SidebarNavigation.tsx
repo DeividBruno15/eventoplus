@@ -1,19 +1,16 @@
 
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/auth';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { UserProfile } from './sidebar/UserProfile';
 import { MenuGroup } from './sidebar/MenuGroup';
 import { LogoutButton } from './sidebar/LogoutButton';
-import { menuItems } from './sidebar/menu-data';
 import { useUnreadMessages } from './sidebar/useUnreadMessages';
 import { useUserRoles } from './sidebar/useUserRoles';
 import { SidebarNavigationProps } from './sidebar/types';
 import { useNavigationState } from './sidebar/useNavigationState';
 import { Sidebar, SidebarContent } from '@/components/ui/sidebar';
-
-// Import missing getMainMenuItems and supportMenuItems helpers
 import { getSidebarMenuItems } from './sidebar/sidebar-helpers';
 
 export const SidebarNavigation = ({ activePath: propActivePath, onNavigate }: SidebarNavigationProps) => {
@@ -100,6 +97,6 @@ export const SidebarNavigation = ({ activePath: propActivePath, onNavigate }: Si
 
 const SidebarSeparator = () => (
   <div className="px-3 py-2">
-    <Separator className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+    <Separator className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-700 to-transparent" />
   </div>
 );
