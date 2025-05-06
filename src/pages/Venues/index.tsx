@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PlusCircle } from "lucide-react";
@@ -166,10 +167,10 @@ const VenuesPage = () => {
                   </span>
                 </div>
                 
-                {/* Social Media Links - Only Instagram and external links */}
-                {announcement.social_links && announcement.social_links.length > 0 && (
-                  <div className="flex gap-2 mt-3">
-                    {announcement.social_links
+                {/* Social Media Links Section - Always present with fixed height */}
+                <div className="flex gap-2 mt-3 h-6 items-center">
+                  {announcement.social_links && announcement.social_links.length > 0 ? (
+                    announcement.social_links
                       .filter(link => link.type === 'instagram' || link.type === 'external')
                       .map((link, index) => (
                         <a 
@@ -197,9 +198,12 @@ const VenuesPage = () => {
                             </span>
                           )}
                         </a>
-                      ))}
-                  </div>
-                )}
+                      ))
+                  ) : (
+                    // Placeholder div to maintain height when no social links
+                    <div className="h-6"></div>
+                  )}
+                </div>
               </CardContent>
               <CardFooter className="border-t p-4 bg-gray-50">
                 <div className="w-full flex gap-3 justify-end">
