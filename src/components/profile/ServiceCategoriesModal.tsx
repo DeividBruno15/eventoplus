@@ -36,13 +36,18 @@ export const ServiceCategoriesModal = ({ isOpen, onClose, onSuccess }: ServiceCa
   
   const fetchUserServices = async () => {
     try {
+      console.log('Fetching user services for user ID:', user?.id);
       const { data, error } = await supabase
         .from('provider_services')
         .select('category')
         .eq('provider_id', user?.id);
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching user services:', error);
+        throw error;
+      }
       
+      console.log('Current user services:', data);
       const userCategories = data.map(item => item.category);
       setSelectedCategories(userCategories);
     } catch (error) {
@@ -70,31 +75,51 @@ export const ServiceCategoriesModal = ({ isOpen, onClose, onSuccess }: ServiceCa
     }
     
     try {
+      console.log('Current user:', user);
+      console.log('Selected categories:', selectedCategories);
+      
       // Delete existing services
-      await supabase
+      const { error: deleteError } = await supabase
         .from('provider_services')
         .delete()
         .eq('provider_id', user?.id);
+        
+      if (deleteError) {
+        console.error('Error deleting existing services:', deleteError);
+        throw deleteError;
+      }
+      
+      console.log('Successfully deleted existing services');
       
       // Insert new services
       if (selectedCategories.length > 0) {
+        // Include description field with empty string value
         const servicesToInsert = selectedCategories.map(category => ({
           provider_id: user?.id,
           category,
-          description: ''
+          description: '' // Add empty description field
         }));
         
-        const { error } = await supabase
-          .from('provider_services')
-          .insert(servicesToInsert);
+        console.log('Services to insert:', servicesToInsert);
         
-        if (error) throw error;
+        const { data, error } = await supabase
+          .from('provider_services')
+          .insert(servicesToInsert)
+          .select();
+        
+        if (error) {
+          console.error('Error inserting services:', error);
+          throw error;
+        }
+        
+        console.log('Successfully inserted services:', data);
       }
       
       toast.success('Categorias de serviço atualizadas');
       onSuccess();
     } catch (error: any) {
-      toast.error('Erro ao atualizar categorias: ' + error.message);
+      console.error('Full error object:', error);
+      toast.error(`Erro ao atualizar categorias: ${error.message}`);
     } finally {
       setLoading(false);
     }

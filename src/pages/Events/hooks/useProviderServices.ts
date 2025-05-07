@@ -16,12 +16,16 @@ export const useProviderServices = () => {
     const fetchUserServices = async () => {
       setLoading(true);
       try {
+        console.log('Fetching provider services for user:', user.id);
         const { data, error } = await supabase
           .from('provider_services')
           .select('category')
           .eq('provider_id', user.id);
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error fetching provider services:', error);
+          throw error;
+        }
 
         console.log("Provider services fetched:", data);
         setUserServices(data.map(service => service.category));
