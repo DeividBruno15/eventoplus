@@ -1,4 +1,4 @@
-
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Check, Zap } from 'lucide-react';
@@ -7,6 +7,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useSubscription } from '@/hooks/useSubscription';
 import { providerPlans, contractorPlans, advertiserPlans } from "@/pages/Plans/data/plans";
 import { Plan } from "@/pages/Plans/types";
+import { DowngradeConfirmationDialog } from './DowngradeConfirmationDialog';
+import { supabase } from '@/integrations/supabase/client';
 
 interface PaymentPlansProps {
   onSelectPlan?: (plan: {id: string, name: string, price: number}) => void;
@@ -24,8 +26,12 @@ interface PaymentPlansProps {
 export const PaymentPlans = ({ onSuccess }: PaymentPlansProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const { subscription, subscribeToPlan, isSubscribing } = useSubscription();
+  const { subscription, subscribeToPlan, isSubscribing, refetch } = useSubscription();
   const userRole = user?.user_metadata?.role || 'contractor';
+  
+  // Estados para controlar o diálogo de downgrade
+  const [showDowngradeDialog, setShowDowngradeDialog] = useState(false);
+  const [selectedFreePlan, setSelectedFreePlan] = useState<{id: string, name: string, benefits: string[]} | null>(null);
 
   // Get plans based on user role
   const getPlansForRole = (): Plan[] => {
@@ -41,6 +47,12 @@ export const PaymentPlans = ({ onSuccess }: PaymentPlansProps) => {
   
   const plans = getPlansForRole();
   
+  // Encontra o plano gratuito para o papel do usuário
+  const getFreePlan = (): Plan | undefined => {
+    return plans.find(p => p.price === 0);
+  };
+  
+  // Função para lidar com a seleção do plano
   const handlePlanSelection = async (planId: string) => {
     try {
       const plan = plans.find(p => p.id === planId);
@@ -53,6 +65,28 @@ export const PaymentPlans = ({ onSuccess }: PaymentPlansProps) => {
         return;
       }
       
+      // Verifica se é um plano gratuito e se o usuário já tem uma assinatura ativa
+      if (plan.price === 0 && subscription && subscription.plan_id !== planId) {
+        // Obtém os benefícios que serão perdidos ao fazer downgrade
+        const currentPlan = plans.find(p => p.id === subscription.plan_id);
+        if (currentPlan && currentPlan.price > 0) {
+          // Filtra os benefícios que existem apenas no plano atual
+          const lostBenefits = currentPlan.benefits.filter(
+            benefit => !plan.benefits.includes(benefit)
+          );
+          
+          // Abre o diálogo de confirmação de downgrade
+          setSelectedFreePlan({
+            id: plan.id,
+            name: plan.name,
+            benefits: lostBenefits
+          });
+          setShowDowngradeDialog(true);
+          return;
+        }
+      }
+      
+      // Se não for plano gratuito ou o usuário não tem assinatura, procede normalmente
       await subscribeToPlan(planId, plan.name, userRole);
       
       if (onSuccess) {
@@ -67,7 +101,51 @@ export const PaymentPlans = ({ onSuccess }: PaymentPlansProps) => {
       });
     }
   };
+  
+  // Função para confirmar o downgrade para o plano gratuito
+  const handleConfirmDowngrade = async () => {
+    if (!selectedFreePlan) return;
+    
+    try {
+      // Invoca a edge function create-subscription diretamente via Supabase
+      const { data, error } = await supabase.functions.invoke('create-subscription', {
+        body: {
+          planId: selectedFreePlan.id,
+          planName: selectedFreePlan.name,
+          role: userRole
+        }
+      });
+      
+      if (error) throw new Error(error.message);
+      
+      // Atualiza a assinatura no estado local
+      await refetch();
+      
+      if (onSuccess) {
+        onSuccess();
+      }
+      
+      return Promise.resolve();
+    } catch (error) {
+      console.error("Erro ao fazer downgrade para plano gratuito:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível completar a alteração para o plano gratuito. Tente novamente mais tarde.",
+        variant: "destructive"
+      });
+      return Promise.reject(error);
+    }
+  };
+  
+  // Fecha o diálogo de downgrade
+  const handleCloseDowngradeDialog = () => {
+    setShowDowngradeDialog(false);
+    setSelectedFreePlan(null);
+  };
 
+  // Encontra o plano gratuito
+  const freePlan = getFreePlan();
+  
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">Escolha seu plano</h2>
@@ -143,6 +221,20 @@ export const PaymentPlans = ({ onSuccess }: PaymentPlansProps) => {
           );
         })}
       </div>
+      
+      {/* Diálogo de confirmação para downgrade */}
+      {selectedFreePlan && subscription && (
+        <DowngradeConfirmationDialog 
+          isOpen={showDowngradeDialog}
+          onClose={handleCloseDowngradeDialog}
+          onConfirm={handleConfirmDowngrade}
+          currentPlanName={subscription.plan_name}
+          freePlanName={selectedFreePlan.name}
+          freePlanId={selectedFreePlan.id}
+          currentPlanEndDate={subscription.expires_at}
+          lostBenefits={selectedFreePlan.benefits}
+        />
+      )}
       
       <div className="mt-8 p-4 bg-muted rounded-lg">
         <h3 className="text-lg font-medium mb-2">Perguntas frequentes</h3>
