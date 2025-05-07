@@ -9,7 +9,7 @@ import { LogoutButton } from './sidebar/LogoutButton';
 import { useUnreadMessages } from './sidebar/useUnreadMessages';
 import { useUserRoles } from './sidebar/useUserRoles';
 import { SidebarNavigationProps } from './sidebar/types';
-import { Sidebar, SidebarContent } from '@/components/ui/sidebar';
+import { SidebarContent } from '@/components/ui/sidebar';
 import { getMainMenuItems, getSupportMenuItems } from './sidebar/menu-data';
 
 export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
@@ -68,41 +68,39 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
   };
 
   return (
-    <Sidebar>
-      <SidebarContent>
-        <div className="flex flex-col gap-8 animate-fade-in">
-          <UserProfile 
-            user={user}
-            firstName={firstName}
-            lastName={lastName}
-            avatarUrl={avatarUrl}
-            userRole={userRole}
-            hasProviderRole={hasProviderRole}
-            hasContractorRole={hasContractorRole}
-          />
+    <SidebarContent>
+      <div className="flex flex-col gap-8 animate-fade-in">
+        <UserProfile 
+          user={user}
+          firstName={firstName}
+          lastName={lastName}
+          avatarUrl={avatarUrl}
+          userRole={userRole}
+          hasProviderRole={hasProviderRole}
+          hasContractorRole={hasContractorRole}
+        />
 
-          <SidebarSeparator />
-          
-          <MenuGroup 
-            items={updatedMainMenuItems} 
-            activePath={currentPath} 
-            onItemClick={handleItemClick} 
-          />
-          
-          <SidebarSeparator />
-          
-          <MenuGroup 
-            items={supportMenuItems} 
-            activePath={currentPath} 
-            onItemClick={handleItemClick} 
-          />
+        <SidebarSeparator />
+        
+        <MenuGroup 
+          items={updatedMainMenuItems} 
+          activePath={currentPath} 
+          onItemClick={handleItemClick} 
+        />
+        
+        <SidebarSeparator />
+        
+        <MenuGroup 
+          items={supportMenuItems} 
+          activePath={currentPath} 
+          onItemClick={handleItemClick} 
+        />
 
-          <SidebarSeparator />
+        <SidebarSeparator />
 
-          <LogoutButton onLogout={handleLogout} />
-        </div>
-      </SidebarContent>
-    </Sidebar>
+        <LogoutButton onLogout={handleLogout} />
+      </div>
+    </SidebarContent>
   );
 };
 
