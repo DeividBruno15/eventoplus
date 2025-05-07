@@ -3,7 +3,7 @@ import { Outlet } from "react-router-dom";
 import { Sidebar } from "@/components/ui/sidebar";
 import { SidebarNavigation } from "@/components/layout/SidebarNavigation";
 import { UserMenu } from "@/components/layout/UserMenu";
-import { NotificationTrigger } from "@/components/layout/notifications/NotificationTrigger";
+import { NotificationsMenu } from "@/components/layout/notifications/NotificationsMenu";
 import { SkipToContent } from "@/components/SkipToContent";
 import { SEO } from "@/components/SEO";
 import { ReactNode } from "react";
@@ -29,7 +29,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   EventConnect
                 </div>
                 <div className="flex items-center gap-2">
-                  <NotificationTrigger unreadCount={0} />
+                  <NotificationsMenu unreadCount={0} />
                   <UserMenu />
                 </div>
               </div>
