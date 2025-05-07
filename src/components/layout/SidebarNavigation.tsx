@@ -71,6 +71,11 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
     <Sidebar>
       <SidebarContent>
         <div className="flex flex-col gap-8 animate-fade-in">
+          {/* Logo */}
+          <div className="flex justify-center items-center pt-6 pb-2">
+            <h1 className="text-2xl font-bold text-primary">Evento+</h1>
+          </div>
+          
           <UserProfile 
             user={user}
             firstName={firstName}
