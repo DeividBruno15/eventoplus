@@ -7,6 +7,7 @@ import { NotificationTrigger } from "@/components/layout/notifications/Notificat
 import { SkipToContent } from "@/components/SkipToContent";
 import { SEO } from "@/components/SEO";
 import { ReactNode } from "react";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 interface DashboardLayoutProps {
   children?: ReactNode;
@@ -19,29 +20,31 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     <>
       <SEO title="Dashboard" />
       <SkipToContent />
-      <Sidebar>
-        <div className="pb-12">
-          <div className="flex flex-col">
-            <div className="h-14 flex items-center justify-between px-4 pt-1">
-              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent text-xl font-bold">
-                EventConnect
+      <SidebarProvider>
+        <Sidebar>
+          <div className="pb-12">
+            <div className="flex flex-col">
+              <div className="h-14 flex items-center justify-between px-4 pt-1">
+                <div className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent text-xl font-bold">
+                  EventConnect
+                </div>
+                <div className="flex items-center gap-2">
+                  <NotificationTrigger unreadCount={0} />
+                  <UserMenu />
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <NotificationTrigger unreadCount={0} />
-                <UserMenu />
-              </div>
-            </div>
 
-            <SidebarNavigation onNavigate={() => {}} />
-            
-            <div className="flex-1 p-6 lg:px-8">
-              <main id="main-content" className="outline-none">
-                {content}
-              </main>
+              <SidebarNavigation onNavigate={() => {}} />
+              
+              <div className="flex-1 p-6 lg:px-8">
+                <main id="main-content" className="outline-none">
+                  {content}
+                </main>
+              </div>
             </div>
           </div>
-        </div>
-      </Sidebar>
+        </Sidebar>
+      </SidebarProvider>
     </>
   );
 };
