@@ -55,7 +55,7 @@ export const menuItems: MenuItem[] = [
     roles: ["provider", "contractor", "advertiser"],
   },
   {
-    name: "Espaços",
+    name: "Meus anúncios",
     icon: Building2,
     path: "/venues",
     roles: ["advertiser"],

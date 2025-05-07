@@ -8,9 +8,17 @@ import { Plan } from "@/pages/Plans/types";
 
 interface PaymentPlansProps {
   onSelectPlan: (plan: {id: string, name: string, price: number}) => void;
+  currentSubscription?: {
+    id: string;
+    plan_id: string;
+    plan_name: string;
+    status: string;
+    expires_at: string;
+    role: string;
+  } | null;
 }
 
-export const PaymentPlans = ({ onSelectPlan }: PaymentPlansProps) => {
+export const PaymentPlans = ({ onSelectPlan, currentSubscription }: PaymentPlansProps) => {
   const { user } = useAuth();
   const userRole = user?.user_metadata?.role || 'contractor';
 
@@ -33,59 +41,77 @@ export const PaymentPlans = ({ onSelectPlan }: PaymentPlansProps) => {
       <h2 className="text-2xl font-bold">Escolha seu plano</h2>
       
       <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {plans.map((plan) => (
-          <Card 
-            key={plan.id} 
-            className={`${
-              plan.featured 
-                ? 'border-primary shadow-md relative overflow-hidden' 
-                : ''
-            }`}
-          >
-            {plan.featured && (
-              <div className="absolute top-0 right-0 bg-primary text-white py-1 px-3 text-xs">
-                <Zap className="h-4 w-4 inline mr-1" />
-                RECOMENDADO
-              </div>
-            )}
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                {plan.name}
-                {plan.featured && <Zap className="h-5 w-5 text-primary" />}
-              </CardTitle>
-              <CardDescription>{plan.description}</CardDescription>
-              <div className="mt-2">
-                <span className="text-3xl font-bold">
-                  {plan.price === 0 ? 'Grátis' : `R$ ${plan.price.toFixed(2)}`}
-                </span>
-                {plan.price > 0 && <span className="text-sm text-muted-foreground">/mês</span>}
-              </div>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                {plan.benefits.map((feature, index) => (
-                  <li key={index} className="flex items-start">
-                    <Check className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-            <CardFooter>
-              <Button
-                className="w-full"
-                variant={plan.featured ? 'default' : 'outline'}
-                onClick={() => onSelectPlan({
-                  id: plan.id,
-                  name: plan.name,
-                  price: plan.price * 100 // Convert to cents for payment processing
-                })}
-              >
-                {plan.price === 0 ? 'Selecionar plano gratuito' : 'Assinar plano'}
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
+        {plans.map((plan) => {
+          // Verifica se este é o plano atual do usuário
+          const isCurrentPlan = currentSubscription?.plan_id === plan.id;
+          
+          return (
+            <Card 
+              key={plan.id} 
+              className={`${
+                plan.featured 
+                  ? 'border-primary shadow-md relative overflow-hidden' 
+                  : ''
+              } ${
+                isCurrentPlan ? 'bg-muted' : ''
+              }`}
+            >
+              {plan.featured && (
+                <div className="absolute top-0 right-0 bg-primary text-white py-1 px-3 text-xs">
+                  <Zap className="h-4 w-4 inline mr-1" />
+                  RECOMENDADO
+                </div>
+              )}
+              {isCurrentPlan && (
+                <div className="absolute top-0 left-0 bg-secondary text-secondary-foreground py-1 px-3 text-xs">
+                  PLANO ATUAL
+                </div>
+              )}
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  {plan.name}
+                  {plan.featured && <Zap className="h-5 w-5 text-primary" />}
+                </CardTitle>
+                <CardDescription>{plan.description}</CardDescription>
+                <div className="mt-2">
+                  <span className="text-3xl font-bold">
+                    {plan.price === 0 ? 'Grátis' : `R$ ${plan.price.toFixed(2)}`}
+                  </span>
+                  {plan.price > 0 && <span className="text-sm text-muted-foreground">/mês</span>}
+                </div>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  {plan.benefits.map((feature, index) => (
+                    <li key={index} className="flex items-start">
+                      <Check className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+              <CardFooter>
+                <Button
+                  className="w-full"
+                  variant={plan.featured ? 'default' : 'outline'}
+                  onClick={() => onSelectPlan({
+                    id: plan.id,
+                    name: plan.name,
+                    price: plan.price * 100 // Convert to cents for payment processing
+                  })}
+                  disabled={isCurrentPlan}
+                >
+                  {isCurrentPlan 
+                    ? 'Plano atual' 
+                    : plan.price === 0 
+                      ? 'Selecionar plano gratuito' 
+                      : 'Assinar plano'
+                  }
+                </Button>
+              </CardFooter>
+            </Card>
+          );
+        })}
       </div>
       
       <div className="mt-8 p-4 bg-muted rounded-lg">
