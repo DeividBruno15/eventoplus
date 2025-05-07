@@ -91,28 +91,24 @@ export const ServiceCategoriesModal = ({ isOpen, onClose, onSuccess }: ServiceCa
       
       console.log('Successfully deleted existing services');
       
-      // Insert new services
+      // Insert new services one by one to avoid batch insert issues
       if (selectedCategories.length > 0) {
-        // Include description field with empty string value
-        const servicesToInsert = selectedCategories.map(category => ({
-          provider_id: user?.id,
-          category,
-          description: '' // Add empty description field
-        }));
-        
-        console.log('Services to insert:', servicesToInsert);
-        
-        const { data, error } = await supabase
-          .from('provider_services')
-          .insert(servicesToInsert)
-          .select();
-        
-        if (error) {
-          console.error('Error inserting services:', error);
-          throw error;
+        for (const category of selectedCategories) {
+          const { data, error } = await supabase
+            .from('provider_services')
+            .insert({
+              provider_id: user?.id,
+              category: category,
+              description: '' // Add empty description field
+            });
+          
+          if (error) {
+            console.error(`Error inserting service ${category}:`, error);
+            throw error;
+          }
+          
+          console.log(`Successfully inserted service ${category}`);
         }
-        
-        console.log('Successfully inserted services:', data);
       }
       
       toast.success('Categorias de serviço atualizadas');
