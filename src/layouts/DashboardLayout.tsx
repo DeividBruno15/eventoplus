@@ -13,7 +13,7 @@ const DashboardLayout = () => {
       <SEO title="Dashboard" />
       <SkipToContent />
       <Sidebar>
-        <Sidebar.Content className="pb-12">
+        <div className="pb-12">
           <div className="flex flex-col">
             <div className="h-14 flex items-center justify-between px-4 pt-1">
               <div className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent text-xl font-bold">
@@ -25,7 +25,7 @@ const DashboardLayout = () => {
               </div>
             </div>
 
-            <SidebarNavigation />
+            <SidebarNavigation onNavigate={() => {}} />
             
             <div className="flex-1 p-6 lg:px-8">
               <main id="main-content" className="outline-none">
@@ -33,7 +33,7 @@ const DashboardLayout = () => {
               </main>
             </div>
           </div>
-        </Sidebar.Content>
+        </div>
       </Sidebar>
     </>
   );
