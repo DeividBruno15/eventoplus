@@ -1,7 +1,7 @@
 
 import { Outlet } from "react-router-dom";
 import { Sidebar } from "@/components/ui/sidebar";
-import SidebarNavigation from "@/components/layout/SidebarNavigation";
+import { SidebarNavigation } from "@/components/layout/SidebarNavigation";
 import { UserMenu } from "@/components/layout/UserMenu";
 import { NotificationTrigger } from "@/components/layout/notifications/NotificationTrigger";
 import { SkipToContent } from "@/components/SkipToContent";
@@ -20,7 +20,7 @@ const DashboardLayout = () => {
                 EventConnect
               </div>
               <div className="flex items-center gap-2">
-                <NotificationTrigger />
+                <NotificationTrigger unreadCount={0} />
                 <UserMenu />
               </div>
             </div>
