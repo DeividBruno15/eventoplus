@@ -8,6 +8,7 @@ import { Plan } from "@/pages/Plans/types";
 
 interface PaymentPlansProps {
   onSelectPlan: (plan: {id: string, name: string, price: number}) => void;
+  onSuccess?: () => void; // Adicionada esta prop para compatibilidade
   currentSubscription?: {
     id: string;
     plan_id: string;
@@ -18,7 +19,7 @@ interface PaymentPlansProps {
   } | null;
 }
 
-export const PaymentPlans = ({ onSelectPlan, currentSubscription }: PaymentPlansProps) => {
+export const PaymentPlans = ({ onSelectPlan, currentSubscription, onSuccess }: PaymentPlansProps) => {
   const { user } = useAuth();
   const userRole = user?.user_metadata?.role || 'contractor';
 
