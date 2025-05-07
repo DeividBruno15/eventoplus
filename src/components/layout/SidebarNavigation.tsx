@@ -1,14 +1,15 @@
+
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/auth';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { UserProfile } from './sidebar/UserProfile';
 import { MenuGroup } from './sidebar/MenuGroup';
-import { LogoutButton } from './sidebar/LogoutButton';
+import { LogOut } from 'lucide-react';
 import { useUnreadMessages } from './sidebar/useUnreadMessages';
 import { useUserRoles } from './sidebar/useUserRoles';
 import { SidebarNavigationProps } from './sidebar/types';
-import { Sidebar, SidebarContent } from '@/components/ui/sidebar';
+import { Sidebar, SidebarContent, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { getMainMenuItems, getSupportMenuItems } from './sidebar/menu-data';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -87,42 +88,50 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
             hasContractorRole={hasContractorRole}
           />
           
-          <SidebarSeparator />
+          <SidebarSeparator className="mt-2" />
         </div>
 
-        {/* Scrollable menu items with proper spacing */}
+        {/* Scrollable menu items */}
         <ScrollArea className="flex-grow overflow-hidden">
-          <div className="py-2">
+          <div className="py-4">
             <MenuGroup 
               items={updatedMainMenuItems} 
               activePath={currentPath} 
               onItemClick={handleItemClick} 
             />
             
-            <SidebarSeparator />
+            <SidebarSeparator className="my-4" />
             
-            <MenuGroup 
-              items={supportMenuItems} 
-              activePath={currentPath} 
-              onItemClick={handleItemClick} 
-            />
+            <div className="space-y-8">
+              <MenuGroup 
+                items={supportMenuItems} 
+                activePath={currentPath} 
+                onItemClick={handleItemClick} 
+              />
+              
+              {/* Adicionar botão de logout aqui, após os itens de suporte */}
+              <div className="px-3">
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 text-red-500 hover:text-red-600 hover:translate-x-1 transition-all duration-300"
+                  >
+                    <LogOut className="h-5 w-5" />
+                    <span>Sair</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </div>
+            </div>
           </div>
         </ScrollArea>
-
-        {/* Fixed logout button at bottom */}
-        <div className="flex-shrink-0 mt-auto">
-          <SidebarSeparator />
-          <div className="py-2">
-            <LogoutButton onLogout={handleLogout} />
-          </div>
-        </div>
       </SidebarContent>
     </Sidebar>
   );
 };
 
-const SidebarSeparator = () => (
-  <div className="px-3 py-1">
+const SidebarSeparator = ({ className = "" }) => (
+  <div className={`px-3 ${className}`}>
     <Separator className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-700 to-transparent" />
   </div>
 );
+

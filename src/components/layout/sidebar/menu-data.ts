@@ -23,6 +23,12 @@ export const menuItems: MenuItem[] = [
     path: "/dashboard",
   },
   {
+    name: "Perfil",
+    icon: User,
+    path: "/profile",
+    roles: ["provider", "contractor", "advertiser"],
+  },
+  {
     name: "Meus Eventos",
     icon: Calendar,
     path: "/events",
@@ -77,12 +83,6 @@ export const menuItems: MenuItem[] = [
 // Menu de suporte
 export const supportMenuItems: MenuItem[] = [
   {
-    name: "Perfil",
-    icon: User,
-    path: "/profile",
-    roles: ["provider", "contractor", "advertiser"],
-  },
-  {
     name: "Configurações",
     icon: Settings,
     path: "/settings",
@@ -113,3 +113,4 @@ export const getSupportMenuItems = (userRole: string): MenuItem[] => {
     !item.roles || item.roles.includes(userRole)
   );
 };
+
