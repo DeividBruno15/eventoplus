@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Wifi, Car, Home, Music, Kitchen, Snowflake, Lightbulb } from "lucide-react";
+import { Wifi, Car, Home, Music, Utensils, Snowflake, Lightbulb } from "lucide-react";
 import { amenityLabels } from '../constants/venueDetailsConstants';
 
 interface VenueAmenitiesProps {
@@ -14,7 +14,7 @@ export const VenueAmenities = ({ amenities }: VenueAmenitiesProps) => {
     parking: <Car className="h-4 w-4" />,
     restrooms: <Home className="h-4 w-4" />,
     stage: <Music className="h-4 w-4" />,
-    kitchen: <Kitchen className="h-4 w-4" />,
+    kitchen: <Utensils className="h-4 w-4" />,
     aircon: <Snowflake className="h-4 w-4" />,
     sound: <Music className="h-4 w-4" />,
     lighting: <Lightbulb className="h-4 w-4" />,

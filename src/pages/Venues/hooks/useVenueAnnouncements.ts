@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/auth";
 import { toast } from "sonner";
@@ -10,109 +9,109 @@ export const useVenueAnnouncements = () => {
   const [announcements, setAnnouncements] = useState<VenueAnnouncement[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchAnnouncements = async () => {
-      if (!user) return;
+  const fetchAnnouncements = useCallback(async () => {
+    if (!user) return;
 
-      try {
-        setLoading(true);
-        const userRole = user?.user_metadata?.role;
+    try {
+      setLoading(true);
+      const userRole = user?.user_metadata?.role;
+      
+      // Different queries based on user role
+      if (userRole === 'advertiser') {
+        // For advertisers, only show their own announcements
+        const { data, error } = await supabase
+          .from('venue_announcements')
+          .select(`
+            id, 
+            title, 
+            description,
+            image_url,
+            venue_type,
+            price_per_hour,
+            created_at,
+            views,
+            venue_id,
+            social_links,
+            user_venues(name, street, number, neighborhood, city, state)
+          `)
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
         
-        // Different queries based on user role
-        if (userRole === 'advertiser') {
-          // For advertisers, only show their own announcements
-          const { data, error } = await supabase
-            .from('venue_announcements')
-            .select(`
-              id, 
-              title, 
-              description,
-              image_url,
-              venue_type,
-              price_per_hour,
-              created_at,
-              views,
-              venue_id,
-              social_links,
-              user_venues(name, street, number, neighborhood, city, state)
-            `)
-            .eq('user_id', user.id)
-            .order('created_at', { ascending: false });
+        // Format data for display
+        const formattedData = formatAnnouncementData(data);
+        setAnnouncements(formattedData);
+      } else {
+        // For contractors, show all venues
+        const { data, error } = await supabase
+          .from('venue_announcements')
+          .select(`
+            id, 
+            title, 
+            description,
+            image_url,
+            venue_type,
+            price_per_hour,
+            created_at,
+            views,
+            venue_id,
+            social_links,
+            user_venues(name, street, number, neighborhood, city, state)
+          `)
+          .order('created_at', { ascending: false });
 
-          if (error) throw error;
+        if (error) throw error;
+        
+        // Format data for display
+        const formattedData = formatAnnouncementData(data);
+        
+        // Fetch user profile to get location for potential filtering
+        const { data: profileData } = await supabase
+          .from('user_profiles')
+          .select('city, state')
+          .eq('id', user.id)
+          .single();
           
-          // Format data for display
-          const formattedData = formatAnnouncementData(data);
-          setAnnouncements(formattedData);
+        // If we have location info, prioritize venues in the same location
+        // but still show all venues
+        if (profileData?.city) {
+          // Sort: prioritize venues in same city, then same state
+          const sortedData = formattedData.sort((a, b) => {
+            const aVenue = a.address || '';
+            const bVenue = b.address || '';
+            
+            const aInSameCity = aVenue.includes(profileData.city);
+            const bInSameCity = bVenue.includes(profileData.city);
+            
+            if (aInSameCity && !bInSameCity) return -1;
+            if (!aInSameCity && bInSameCity) return 1;
+            
+            const aInSameState = aVenue.includes(profileData.state);
+            const bInSameState = bVenue.includes(profileData.state);
+            
+            if (aInSameState && !bInSameState) return -1;
+            if (!aInSameState && bInSameState) return 1;
+            
+            return 0;
+          });
+          
+          setAnnouncements(sortedData);
         } else {
-          // For contractors, show all venues
-          const { data, error } = await supabase
-            .from('venue_announcements')
-            .select(`
-              id, 
-              title, 
-              description,
-              image_url,
-              venue_type,
-              price_per_hour,
-              created_at,
-              views,
-              venue_id,
-              social_links,
-              user_venues(name, street, number, neighborhood, city, state)
-            `)
-            .order('created_at', { ascending: false });
-
-          if (error) throw error;
-          
-          // Format data for display
-          const formattedData = formatAnnouncementData(data);
-          
-          // Fetch user profile to get location for potential filtering
-          const { data: profileData } = await supabase
-            .from('user_profiles')
-            .select('city, state')
-            .eq('id', user.id)
-            .single();
-            
-          // If we have location info, prioritize venues in the same location
-          // but still show all venues
-          if (profileData?.city) {
-            // Sort: prioritize venues in same city, then same state
-            const sortedData = formattedData.sort((a, b) => {
-              const aVenue = a.address || '';
-              const bVenue = b.address || '';
-              
-              const aInSameCity = aVenue.includes(profileData.city);
-              const bInSameCity = bVenue.includes(profileData.city);
-              
-              if (aInSameCity && !bInSameCity) return -1;
-              if (!aInSameCity && bInSameCity) return 1;
-              
-              const aInSameState = aVenue.includes(profileData.state);
-              const bInSameState = bVenue.includes(profileData.state);
-              
-              if (aInSameState && !bInSameState) return -1;
-              if (!aInSameState && bInSameState) return 1;
-              
-              return 0;
-            });
-            
-            setAnnouncements(sortedData);
-          } else {
-            setAnnouncements(formattedData);
-          }
+          setAnnouncements(formattedData);
         }
-      } catch (error) {
-        console.error('Error fetching venue announcements:', error);
-        toast.error('Falha ao carregar anúncios');
-      } finally {
-        setLoading(false);
       }
-    };
-
-    fetchAnnouncements();
+    } catch (error) {
+      console.error('Error fetching venue announcements:', error);
+      toast.error('Falha ao carregar anúncios');
+    } finally {
+      setLoading(false);
+    }
   }, [user]);
+
+  useEffect(() => {
+    fetchAnnouncements();
+  }, [fetchAnnouncements]);
 
   // Helper function to format announcement data
   const formatAnnouncementData = (data: any[] | null): VenueAnnouncement[] => {
@@ -152,5 +151,10 @@ export const useVenueAnnouncements = () => {
     }) || [];
   };
 
-  return { announcements, loading };
+  // Add refetchAnnouncements function to return value
+  const refetchAnnouncements = async () => {
+    await fetchAnnouncements();
+  };
+
+  return { announcements, loading, refetchAnnouncements };
 };

@@ -31,7 +31,7 @@ const VenueDetailsPage = () => {
   
   const isOwner = user?.id === venue.user_id;
   
-  // Extrair URLs das imagens quando houver suporte para múltiplas imagens
+  // Handle image_urls properly, falling back to image_url if needed
   const imageUrls = venue.image_urls && venue.image_urls.length > 0 
     ? venue.image_urls 
     : venue.image_url 

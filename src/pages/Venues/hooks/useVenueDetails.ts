@@ -32,6 +32,8 @@ export const useVenueDetails = (id: string | undefined) => {
         
         // Processando dados para garantir que image_urls seja um array
         let processedData = { ...data };
+        
+        // Handle image_urls properly
         if (data.image_urls && typeof data.image_urls === 'string') {
           try {
             processedData.image_urls = JSON.parse(data.image_urls);
