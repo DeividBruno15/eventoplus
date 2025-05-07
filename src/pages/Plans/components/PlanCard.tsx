@@ -9,15 +9,17 @@ interface PlanCardProps {
   plan: Plan;
   onSubscribe: (planId: string) => Promise<void>;
   isSubscribing: boolean;
+  isCurrentPlan?: boolean;
 }
 
-export const PlanCard = ({ plan, onSubscribe, isSubscribing }: PlanCardProps) => {
+export const PlanCard = ({ plan, onSubscribe, isSubscribing, isCurrentPlan = false }: PlanCardProps) => {
   return (
-    <Card key={plan.id} className={`${plan.featured ? 'border-primary shadow-lg' : ''} flex flex-col`}>
+    <Card key={plan.id} className={`${plan.featured ? 'border-primary shadow-lg' : ''} flex flex-col ${isCurrentPlan ? 'bg-gray-50 border-green-200' : ''}`}>
       <CardHeader>
-        <CardTitle>
-          {plan.name}
+        <CardTitle className="flex items-center justify-between">
+          <span>{plan.name}</span>
           {plan.featured && <span className="ml-2 text-xs bg-primary text-white px-2 py-1 rounded">RECOMENDADO</span>}
+          {isCurrentPlan && <span className="ml-2 text-xs bg-green-500 text-white px-2 py-1 rounded">ATUAL</span>}
         </CardTitle>
         <div className="mt-2">
           <span className="text-3xl font-bold">R$ {plan.price.toFixed(2).replace('.', ',')}</span>
@@ -37,11 +39,11 @@ export const PlanCard = ({ plan, onSubscribe, isSubscribing }: PlanCardProps) =>
       <CardFooter>
         <Button 
           className="w-full" 
-          variant={plan.featured ? "default" : "outline"}
+          variant={isCurrentPlan ? "outline" : plan.featured ? "default" : "outline"}
           onClick={() => onSubscribe(plan.id)}
-          disabled={isSubscribing}
+          disabled={isSubscribing || isCurrentPlan}
         >
-          {isSubscribing ? "Processando..." : "Assinar Plano"}
+          {isSubscribing ? "Processando..." : isCurrentPlan ? "Plano Atual" : "Assinar Plano"}
         </Button>
       </CardFooter>
     </Card>

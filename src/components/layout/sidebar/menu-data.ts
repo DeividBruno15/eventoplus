@@ -11,6 +11,7 @@ import {
   MapPin,
   Phone,
   Building,
+  HelpCircle
 } from "lucide-react";
 import { MenuItem } from "./types";
 
@@ -42,7 +43,7 @@ export const menuItems: MenuItem[] = [
     roles: ["contractor"],
   },
   {
-    name: "Mensagens",
+    name: "Chat",
     icon: MessageSquare,
     path: "/chat",
     roles: ["provider", "contractor", "advertiser"],
@@ -65,6 +66,7 @@ export const menuItems: MenuItem[] = [
     icon: Bell,
     path: "/notifications",
     roles: ["provider", "contractor", "advertiser"],
+    notificationKey: "unread_notifications",
   },
   {
     name: "WhatsApp",
@@ -73,6 +75,10 @@ export const menuItems: MenuItem[] = [
     roles: ["provider", "contractor", "advertiser"],
     badge: 0,
   },
+];
+
+// Menu de suporte
+export const supportMenuItems: MenuItem[] = [
   {
     name: "Perfil",
     icon: User,
@@ -85,15 +91,12 @@ export const menuItems: MenuItem[] = [
     path: "/settings",
     roles: ["provider", "contractor", "advertiser"],
   },
-];
-
-// Menu de suporte
-export const supportMenuItems: MenuItem[] = [
   {
     name: "Suporte",
-    icon: MapPin,
+    icon: HelpCircle,
     path: "/support",
-  }
+    roles: ["provider", "contractor", "advertiser"],
+  },
 ];
 
 // Função para obter os itens do menu com base no papel do usuário
@@ -101,6 +104,15 @@ export const getMainMenuItems = (userRole: string): MenuItem[] => {
   if (!userRole) return menuItems;
   
   return menuItems.filter(item => 
+    !item.roles || item.roles.includes(userRole)
+  );
+};
+
+// Função para obter os itens do menu de suporte
+export const getSupportMenuItems = (userRole: string): MenuItem[] => {
+  if (!userRole) return supportMenuItems;
+  
+  return supportMenuItems.filter(item => 
     !item.roles || item.roles.includes(userRole)
   );
 };

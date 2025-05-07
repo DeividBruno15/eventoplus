@@ -1,3 +1,4 @@
+
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/auth';
 import { useToast } from '@/hooks/use-toast';
@@ -10,7 +11,7 @@ import { useUserRoles } from './sidebar/useUserRoles';
 import { SidebarNavigationProps } from './sidebar/types';
 import { useNavigationState } from './sidebar/useNavigationState';
 import { Sidebar, SidebarContent } from '@/components/ui/sidebar';
-import { getSidebarMenuItems } from './sidebar/sidebar-helpers';
+import { getMainMenuItems, getSupportMenuItems } from './sidebar/menu-data';
 
 export const SidebarNavigation = ({ activePath: propActivePath, onNavigate }: SidebarNavigationProps) => {
   const navigate = useNavigate();
@@ -28,11 +29,12 @@ export const SidebarNavigation = ({ activePath: propActivePath, onNavigate }: Si
   const userRole = user?.user_metadata?.role || 'contractor';
 
   // Get menu items based on user role
-  const { mainMenuItems, supportMenuItems } = getSidebarMenuItems(userRole);
+  const mainMenuItems = getMainMenuItems(userRole);
+  const supportMenuItems = getSupportMenuItems(userRole);
 
   // Update menu items with unread message count
   const updatedMainMenuItems = mainMenuItems.map(item => {
-    if (item.path === '/chat' && unreadMessages > 0) {
+    if (item.notificationKey === 'messages' && unreadMessages > 0) {
       return { ...item, badge: unreadMessages };
     }
     return item;

@@ -65,6 +65,8 @@ const Plans = () => {
     return plan ? plan.name : "Plano";
   };
 
+  const currentPlanId = subscription?.plan_id;
+
   return (
     <div className="min-h-screen bg-page">
       <main className="container py-12">
@@ -75,19 +77,22 @@ const Plans = () => {
             <ProviderPlans 
               plans={providerPlans} 
               onSubscribe={handleSubscribe} 
-              isSubscribing={isSubscribing} 
+              isSubscribing={isSubscribing}
+              currentPlanId={currentPlanId}
             />
           ) : userRole === 'contractor' ? (
             <ContractorPlans 
               plans={contractorPlans} 
               onSubscribe={handleSubscribe} 
-              isSubscribing={isSubscribing} 
+              isSubscribing={isSubscribing}
+              currentPlanId={currentPlanId}
             />
           ) : userRole === 'advertiser' ? (
             <AdvertiserPlans 
               plans={advertiserPlans} 
               onSubscribe={handleSubscribe} 
-              isSubscribing={isSubscribing} 
+              isSubscribing={isSubscribing}
+              currentPlanId={currentPlanId}
             />
           ) : (
             <NotLoggedInPlans />

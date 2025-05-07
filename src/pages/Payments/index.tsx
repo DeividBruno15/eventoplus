@@ -38,11 +38,6 @@ const PaymentsPage = () => {
     setRefreshHistory(prev => !prev);
   };
 
-  const handleSelectPlan = (plan: {id: string, name: string, price: number}) => {
-    // Iniciar processo de assinatura diretamente sem ir para outra aba
-    // A lógica de assinatura será gerenciada pelo componente PaymentPlans
-  };
-
   return (
     <div className="container mx-auto py-6">
       <h1 className="text-3xl font-bold mb-6">Minha Assinatura</h1>
@@ -73,7 +68,7 @@ const PaymentsPage = () => {
         
         <TabsContent value="plans" className="space-y-4">
           <PaymentPlans 
-            onSelectPlan={handleSelectPlan} 
+            onSuccess={handlePaymentSuccess} 
             currentSubscription={subscription}
           />
         </TabsContent>

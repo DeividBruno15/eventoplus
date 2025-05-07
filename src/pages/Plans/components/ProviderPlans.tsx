@@ -6,9 +6,10 @@ interface ProviderPlansProps {
   plans: Plan[];
   onSubscribe: (planId: string) => Promise<void>;
   isSubscribing: boolean;
+  currentPlanId?: string;
 }
 
-export const ProviderPlans = ({ plans, onSubscribe, isSubscribing }: ProviderPlansProps) => {
+export const ProviderPlans = ({ plans, onSubscribe, isSubscribing, currentPlanId }: ProviderPlansProps) => {
   return (
     <div>
       <div className="mb-8 max-w-3xl mx-auto">
@@ -26,6 +27,7 @@ export const ProviderPlans = ({ plans, onSubscribe, isSubscribing }: ProviderPla
             plan={plan} 
             onSubscribe={onSubscribe} 
             isSubscribing={isSubscribing} 
+            isCurrentPlan={plan.id === currentPlanId}
           />
         ))}
       </div>

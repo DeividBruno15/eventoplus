@@ -6,9 +6,10 @@ interface ContractorPlansProps {
   plans: Plan[];
   onSubscribe: (planId: string) => Promise<void>;
   isSubscribing: boolean;
+  currentPlanId?: string;
 }
 
-export const ContractorPlans = ({ plans, onSubscribe, isSubscribing }: ContractorPlansProps) => {
+export const ContractorPlans = ({ plans, onSubscribe, isSubscribing, currentPlanId }: ContractorPlansProps) => {
   return (
     <div>
       <div className="mb-8 max-w-3xl mx-auto">
@@ -25,7 +26,8 @@ export const ContractorPlans = ({ plans, onSubscribe, isSubscribing }: Contracto
             key={plan.id} 
             plan={plan} 
             onSubscribe={onSubscribe} 
-            isSubscribing={isSubscribing} 
+            isSubscribing={isSubscribing}
+            isCurrentPlan={plan.id === currentPlanId}
           />
         ))}
       </div>
