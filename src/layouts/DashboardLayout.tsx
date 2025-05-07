@@ -59,10 +59,7 @@ const DashboardLayout = () => {
   return (
     <SidebarProvider defaultOpen={!window.matchMedia("(max-width: 768px)").matches}>
       <div className="flex flex-col md:flex-row min-h-screen w-full">
-        <SidebarNavigation 
-          activePath={location.pathname} 
-          onNavigate={handleNavigate}
-        />
+        <SidebarNavigation onNavigate={handleNavigate} />
         <div className="flex-grow">
           {/* Header com menu do usuário */}
           <header className="sticky top-0 z-10 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

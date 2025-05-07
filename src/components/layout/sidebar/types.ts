@@ -1,16 +1,16 @@
 
-import { ElementType } from "react";
+import React from 'react';
+import { LucideIcon } from 'lucide-react';
 
 export type MenuItem = {
   name: string;
+  icon: LucideIcon;
   path: string;
-  icon: ElementType;
   roles?: string[];
   badge?: number;
   notificationKey?: string;
-}
+};
 
 export type SidebarNavigationProps = {
-  activePath: string;
   onNavigate: (path: string) => void;
-}
+};
