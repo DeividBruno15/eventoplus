@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -55,44 +56,43 @@ const DatabaseTools = () => {
     setQueryResult(null);
   };
 
+  // Fixed implementation - DashboardLayout now uses children pattern
   return (
     <DashboardLayout>
-      <ErrorBoundary>
-        <div className="container mx-auto p-4">
-          <h1 className="text-2xl font-semibold mb-4">Database Tools</h1>
-          <Card className="mb-4">
+      <div className="container mx-auto p-4">
+        <h1 className="text-2xl font-semibold mb-4">Database Tools</h1>
+        <Card className="mb-4">
+          <div className="p-4">
+            <Label htmlFor="sql-query">SQL Query:</Label>
+            <Textarea
+              id="sql-query"
+              value={sqlQuery}
+              onChange={(e) => setSqlQuery(e.target.value)}
+              className="mt-2"
+              placeholder="Enter SQL query here..."
+            />
+            <div className="flex justify-end mt-4 gap-2">
+              <Button type="button" variant="secondary" onClick={handleClearResults}>
+                Clear Results
+              </Button>
+              <Button onClick={executeQuery} disabled={loading}>
+                {loading ? "Executing..." : "Execute Query"}
+              </Button>
+            </div>
+          </div>
+        </Card>
+
+        {queryResult !== null && (
+          <Card>
             <div className="p-4">
-              <Label htmlFor="sql-query">SQL Query:</Label>
-              <Textarea
-                id="sql-query"
-                value={sqlQuery}
-                onChange={(e) => setSqlQuery(e.target.value)}
-                className="mt-2"
-                placeholder="Enter SQL query here..."
-              />
-              <div className="flex justify-end mt-4 gap-2">
-                <Button type="button" variant="secondary" onClick={handleClearResults}>
-                  Clear Results
-                </Button>
-                <Button onClick={executeQuery} disabled={loading}>
-                  {loading ? "Executing..." : "Execute Query"}
-                </Button>
-              </div>
+              <h2 className="text-lg font-semibold mb-2">Query Result:</h2>
+              <pre className="bg-gray-100 rounded-md p-2 overflow-auto">
+                {JSON.stringify(queryResult, null, 2)}
+              </pre>
             </div>
           </Card>
-
-          {queryResult !== null && (
-            <Card>
-              <div className="p-4">
-                <h2 className="text-lg font-semibold mb-2">Query Result:</h2>
-                <pre className="bg-gray-100 rounded-md p-2 overflow-auto">
-                  {JSON.stringify(queryResult, null, 2)}
-                </pre>
-              </div>
-            </Card>
-          )}
-        </div>
-      </ErrorBoundary>
+        )}
+      </div>
     </DashboardLayout>
   );
 };

@@ -1,5 +1,5 @@
 
-import { Session, User } from '@supabase/supabase-js';
+import { User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { RegisterFormData } from '@/pages/Register/types';
 
