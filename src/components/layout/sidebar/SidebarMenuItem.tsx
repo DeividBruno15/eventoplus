@@ -17,7 +17,7 @@ export const SidebarMenuItemComponent: React.FC<SidebarMenuItemProps> = ({
 }) => {
   const Icon = item.icon;
 
-  // Só mostrar o badge se tiver um badge maior que 0
+  // Only show badge if it exists and is greater than 0
   const showBadge = item.badge && item.badge > 0;
 
   return (
@@ -28,13 +28,13 @@ export const SidebarMenuItemComponent: React.FC<SidebarMenuItemProps> = ({
         className={`w-full flex items-center gap-3 px-6 py-4 rounded-xl transition-all duration-300 ${
           isActive
             ? 'bg-primary/10 text-primary font-medium scale-105'
-            : 'hover:bg-gray-50 text-gray-600 hover:text-primary hover:translate-x-1'
+            : 'hover:bg-gray-50 text-gray-600 hover:text-primary hover:translate-x-1 dark:hover:bg-gray-800 dark:text-gray-300'
         }`}
       >
         <div className="flex items-center gap-3 w-full">
           <div className="relative">
             <Icon className={`h-5 w-5 transition-transform duration-300 ${
-              isActive ? 'scale-110 text-primary' : 'text-gray-500'
+              isActive ? 'scale-110 text-primary' : 'text-gray-500 dark:text-gray-400'
             }`} />
             {showBadge && (
               <span className="absolute -top-1 -right-1">

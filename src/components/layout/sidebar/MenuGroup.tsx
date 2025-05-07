@@ -14,6 +14,7 @@ export const MenuGroup: React.FC<MenuGroupProps> = ({ items, activePath, onItemC
   return (
     <SidebarMenu>
       {items.map((item) => {
+        // Consider exact path match or if it's a subpath
         const isActive = 
           activePath === item.path || 
           (item.path !== '/dashboard' && activePath.startsWith(item.path));

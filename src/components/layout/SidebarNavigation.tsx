@@ -9,7 +9,6 @@ import { LogoutButton } from './sidebar/LogoutButton';
 import { useUnreadMessages } from './sidebar/useUnreadMessages';
 import { useUserRoles } from './sidebar/useUserRoles';
 import { SidebarNavigationProps } from './sidebar/types';
-import { useNavigationState } from './sidebar/useNavigationState';
 import { Sidebar, SidebarContent } from '@/components/ui/sidebar';
 import { getMainMenuItems, getSupportMenuItems } from './sidebar/menu-data';
 
@@ -19,8 +18,6 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
   const { session, user, logout } = useAuth();
   const { toast } = useToast();
   
-  // Use our custom hooks
-  const { activePath, handleLinkClick } = useNavigationState(onNavigate);
   const unreadMessages = useUnreadMessages(user?.id);
   const { hasProviderRole, hasContractorRole } = useUserRoles(user);
   
@@ -29,7 +26,7 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
   const avatarUrl = user?.user_metadata?.avatar_url;
   const userRole = user?.user_metadata?.role || 'contractor';
 
-  // Use o caminho atual diretamente do useLocation para melhorar a navegação
+  // Get the current path directly from location
   const currentPath = location.pathname;
 
   // Get menu items based on user role
@@ -41,8 +38,8 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
     if (item.notificationKey === 'messages' && unreadMessages > 0) {
       return { ...item, badge: unreadMessages };
     }
-    // Remover qualquer badge que possa ter sido definido anteriormente
-    if (item.badge) {
+    // Remove any badge that might have been set previously if the count is 0
+    if (item.badge !== undefined && item.badge <= 0) {
       const { badge, ...rest } = item;
       return rest;
     }
@@ -66,6 +63,10 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
     }
   };
 
+  const handleItemClick = (path: string) => {
+    onNavigate(path);
+  };
+
   return (
     <Sidebar>
       <SidebarContent>
@@ -85,7 +86,7 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
           <MenuGroup 
             items={updatedMainMenuItems} 
             activePath={currentPath} 
-            onItemClick={handleLinkClick} 
+            onItemClick={handleItemClick} 
           />
           
           <SidebarSeparator />
@@ -93,7 +94,7 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
           <MenuGroup 
             items={supportMenuItems} 
             activePath={currentPath} 
-            onItemClick={handleLinkClick} 
+            onItemClick={handleItemClick} 
           />
 
           <SidebarSeparator />

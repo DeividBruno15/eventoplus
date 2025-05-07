@@ -56,7 +56,6 @@ function App() {
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/plans" element={<Plans />} />
                 <Route path="/help-center" element={<HelpCenter />} />
-                <Route path="/support" element={<Support />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -85,6 +84,7 @@ function App() {
                   <Route path="whatsapp" element={<WhatsAppAssistant />} />
                   <Route path="profile" element={<Profile />} />
                   <Route path="settings" element={<Settings />} />
+                  <Route path="support" element={<Support />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />
