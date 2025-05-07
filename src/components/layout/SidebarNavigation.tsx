@@ -1,4 +1,3 @@
-
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/auth';
 import { useToast } from '@/hooks/use-toast';
@@ -74,7 +73,7 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
         {/* Fixed content - Logo and User Profile */}
         <div className="flex-shrink-0">
           {/* Logo */}
-          <div className="flex justify-center items-center pt-5 pb-2">
+          <div className="flex justify-center items-center pt-4 pb-2">
             <h1 className="text-2xl font-bold text-primary">Evento+</h1>
           </div>
           
@@ -91,9 +90,9 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
           <SidebarSeparator />
         </div>
 
-        {/* Scrollable menu items */}
+        {/* Scrollable menu items with proper spacing */}
         <ScrollArea className="flex-grow overflow-hidden">
-          <div className="pb-4">
+          <div className="py-2">
             <MenuGroup 
               items={updatedMainMenuItems} 
               activePath={currentPath} 
@@ -113,7 +112,7 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
         {/* Fixed logout button at bottom */}
         <div className="flex-shrink-0 mt-auto">
           <SidebarSeparator />
-          <div className="py-4">
+          <div className="py-2">
             <LogoutButton onLogout={handleLogout} />
           </div>
         </div>

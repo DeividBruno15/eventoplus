@@ -25,7 +25,7 @@ export const SidebarMenuItemComponent: React.FC<SidebarMenuItemProps> = ({
       <SidebarMenuButton
         aria-current={isActive ? 'page' : undefined}
         onClick={() => onClick(item.path)}
-        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
+        className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-300 ${
           isActive
             ? 'bg-primary/10 text-primary font-medium scale-105'
             : 'hover:bg-gray-50 text-gray-600 hover:text-primary hover:translate-x-1 dark:hover:bg-gray-800 dark:text-gray-300'
