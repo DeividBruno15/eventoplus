@@ -11,6 +11,7 @@ import { useUserRoles } from './sidebar/useUserRoles';
 import { SidebarNavigationProps } from './sidebar/types';
 import { Sidebar, SidebarContent } from '@/components/ui/sidebar';
 import { getMainMenuItems, getSupportMenuItems } from './sidebar/menu-data';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
   const navigate = useNavigate();
@@ -69,10 +70,11 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
 
   return (
     <Sidebar>
-      <SidebarContent>
-        <div className="flex flex-col gap-8 animate-fade-in">
+      <SidebarContent className="flex flex-col px-0 py-0 overflow-hidden">
+        {/* Fixed content - Logo and User Profile */}
+        <div className="flex-shrink-0">
           {/* Logo */}
-          <div className="flex justify-center items-center pt-6 pb-2">
+          <div className="flex justify-center items-center pt-5 pb-2">
             <h1 className="text-2xl font-bold text-primary">Evento+</h1>
           </div>
           
@@ -85,26 +87,35 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
             hasProviderRole={hasProviderRole}
             hasContractorRole={hasContractorRole}
           />
-
-          <SidebarSeparator />
-          
-          <MenuGroup 
-            items={updatedMainMenuItems} 
-            activePath={currentPath} 
-            onItemClick={handleItemClick} 
-          />
           
           <SidebarSeparator />
-          
-          <MenuGroup 
-            items={supportMenuItems} 
-            activePath={currentPath} 
-            onItemClick={handleItemClick} 
-          />
+        </div>
 
+        {/* Scrollable menu items */}
+        <ScrollArea className="flex-grow overflow-hidden">
+          <div className="pb-4">
+            <MenuGroup 
+              items={updatedMainMenuItems} 
+              activePath={currentPath} 
+              onItemClick={handleItemClick} 
+            />
+            
+            <SidebarSeparator />
+            
+            <MenuGroup 
+              items={supportMenuItems} 
+              activePath={currentPath} 
+              onItemClick={handleItemClick} 
+            />
+          </div>
+        </ScrollArea>
+
+        {/* Fixed logout button at bottom */}
+        <div className="flex-shrink-0 mt-auto">
           <SidebarSeparator />
-
-          <LogoutButton onLogout={handleLogout} />
+          <div className="py-4">
+            <LogoutButton onLogout={handleLogout} />
+          </div>
         </div>
       </SidebarContent>
     </Sidebar>
@@ -112,7 +123,7 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
 };
 
 const SidebarSeparator = () => (
-  <div className="px-3 py-2">
+  <div className="px-3 py-1">
     <Separator className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-700 to-transparent" />
   </div>
 );

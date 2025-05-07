@@ -12,7 +12,7 @@ type MenuGroupProps = {
 
 export const MenuGroup: React.FC<MenuGroupProps> = ({ items, activePath, onItemClick }) => {
   return (
-    <SidebarMenu>
+    <SidebarMenu className="px-2">
       {items.map((item) => {
         // Consider exact path match or if it's a subpath
         const isActive = 

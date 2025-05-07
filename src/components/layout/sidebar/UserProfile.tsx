@@ -101,9 +101,9 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   };
 
   return (
-    <div className="px-6 py-4">
+    <div className="px-4 py-3">
       <div className="flex flex-col items-center text-center">
-        <Avatar className="h-20 w-20 mb-3">
+        <Avatar className="h-16 w-16 mb-2">
           {avatarUrl ? (
             <AvatarImage 
               src={avatarUrl} 
@@ -114,9 +114,9 @@ export const UserProfile: React.FC<UserProfileProps> = ({
             <AvatarFallback className="bg-primary text-primary-foreground">{initials}</AvatarFallback>
           )}
         </Avatar>
-        <h3 className="font-medium text-gray-900">{firstName} {lastName}</h3>
+        <h3 className="font-medium text-gray-900 dark:text-gray-100 text-sm truncate max-w-full">{firstName} {lastName}</h3>
         <div className="flex items-center gap-2 mt-1">
-          <span className="inline-flex items-center px-2 py-0.5 bg-primary/10 text-primary text-xs font-medium rounded">
+          <span className="inline-flex items-center px-2 py-0.5 bg-primary/10 text-primary text-xs font-medium rounded truncate max-w-[80%]">
             {getRoleLabel(userRole)}
           </span>
           
