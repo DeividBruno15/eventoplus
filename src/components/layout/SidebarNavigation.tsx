@@ -64,7 +64,10 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
   };
 
   const handleItemClick = (path: string) => {
-    onNavigate(path);
+    navigate(path);
+    if (onNavigate) {
+      onNavigate(path);
+    }
   };
 
   return (
