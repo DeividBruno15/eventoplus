@@ -63,10 +63,10 @@ export const getSidebarMenuItems = (userRole: string) => {
     icon: CreditCard,
   });
   
-  // Adiciona "Espaços" para anunciantes
+  // Adiciona "Meus anúncios" para anunciantes - Changed from "Espaços" to "Meus anúncios"
   if (userRole === 'advertiser') {
     mainMenuItems.push({
-      name: "Espaços",
+      name: "Meus anúncios",
       path: "/venues",
       icon: Building,
     });
