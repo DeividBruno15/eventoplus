@@ -2,14 +2,52 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Building, MapPin, Trash2 } from "lucide-react";
 import { VenueAnnouncement } from "../types";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface VenueCardProps {
   announcement: VenueAnnouncement;
+  onDelete?: () => void;
 }
 
-const VenueCard = ({ announcement }: VenueCardProps) => {
+const VenueCard = ({ announcement, onDelete }: VenueCardProps) => {
   const navigate = useNavigate();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  
+  const handleDelete = async () => {
+    if (!showConfirm) {
+      setShowConfirm(true);
+      return;
+    }
+    
+    try {
+      setIsDeleting(true);
+      
+      const { error } = await supabase
+        .from('venue_announcements')
+        .delete()
+        .eq('id', announcement.id);
+      
+      if (error) throw error;
+      
+      toast.success("Anúncio excluído com sucesso");
+      if (onDelete) onDelete();
+    } catch (err) {
+      console.error("Erro ao excluir anúncio:", err);
+      toast.error("Erro ao excluir anúncio");
+    } finally {
+      setIsDeleting(false);
+      setShowConfirm(false);
+    }
+  };
+  
+  const cancelDelete = () => {
+    setShowConfirm(false);
+  };
   
   return (
     <Card key={announcement.id} className="overflow-hidden hover:shadow-md transition-shadow">
@@ -27,14 +65,21 @@ const VenueCard = ({ announcement }: VenueCardProps) => {
           {announcement.description}
         </p>
         <div className="flex flex-col gap-1 mt-2">
-          <p className="text-xs text-gray-600">Local: {announcement.venue_name}</p>
+          <div className="flex items-center text-xs text-gray-600">
+            <Building className="h-3.5 w-3.5 mr-1" />
+            <p>Local: {announcement.venue_name}</p>
+          </div>
           {announcement.address && (
-            <p className="text-xs text-gray-600 line-clamp-1">
-              Endereço: {announcement.address}
-            </p>
+            <div className="flex items-center text-xs text-gray-600">
+              <MapPin className="h-3.5 w-3.5 mr-1" />
+              <p className="line-clamp-1">Endereço: {announcement.address}</p>
+            </div>
           )}
-          <p className="text-xs text-gray-600">Tipo: {announcement.venue_type}</p>
-          <p className="text-sm font-semibold text-primary">
+          <div className="flex items-center text-xs text-gray-600">
+            <Building className="h-3.5 w-3.5 mr-1" />
+            <p>Tipo: {announcement.venue_type}</p>
+          </div>
+          <p className="text-sm font-semibold text-primary mt-1">
             R$ {announcement.price_per_hour.toFixed(2)}/dia
           </p>
         </div>
@@ -84,20 +129,51 @@ const VenueCard = ({ announcement }: VenueCardProps) => {
       </CardContent>
       <CardFooter className="border-t p-4 bg-gray-50">
         <div className="w-full flex gap-3 justify-end">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate(`/venues/details/${announcement.id}`)}
-          >
-            Detalhes
-          </Button>
-          <Button
-            variant="default"
-            size="sm"
-            onClick={() => navigate(`/venues/edit/${announcement.id}`)}
-          >
-            Editar
-          </Button>
+          {showConfirm ? (
+            <>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting ? "Excluindo..." : "Confirmar"}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={cancelDelete}
+                disabled={isDeleting}
+              >
+                Cancelar
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate(`/venues/details/${announcement.id}`)}
+              >
+                Detalhes
+              </Button>
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => navigate(`/venues/edit/${announcement.id}`)}
+              >
+                Editar
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleDelete}
+              >
+                <Trash2 className="h-4 w-4 mr-1" />
+                Excluir
+              </Button>
+            </>
+          )}
         </div>
       </CardFooter>
     </Card>

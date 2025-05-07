@@ -1,153 +1,113 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { ptBR } from "date-fns/locale";
-import { format, differenceInDays, isAfter, isBefore, parseISO } from "date-fns";
-import { useAuth } from "@/hooks/auth";
-import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
-import { Calendar as CalendarIcon, CheckCircle } from "lucide-react";
-import { usePayment } from '@/hooks/usePayment';
+import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { useAuth } from '@/hooks/auth';
+import { Calendar, Clock } from "lucide-react";
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import VenueAvailabilityCalendar from './VenueAvailabilityCalendar';
+import { useState } from 'react';
 
 interface VenueSidebarProps {
   pricePerHour: number;
   selectedDates: Date[];
   createdAt: string;
-  venueId?: string;
+  venueUserId: string;
 }
 
 export const VenueSidebar = ({ 
   pricePerHour, 
-  selectedDates, 
+  selectedDates,
   createdAt,
-  venueId
+  venueUserId
 }: VenueSidebarProps) => {
   const { user } = useAuth();
-  const navigate = useNavigate();
-  const [date, setDate] = useState<Date | undefined>(undefined);
-  const [isBooking, setIsBooking] = useState(false);
-  const { createPayment, isLoading } = usePayment();
+  const userRole = user?.user_metadata?.role;
+  const isAdvertiser = userRole === 'advertiser';
+  const isOwner = user?.id === venueUserId;
   
-  // Converter o preço por hora para preço por dia para exibição
-  const pricePerDay = pricePerHour * 8;
+  const [localSelectedDates, setLocalSelectedDates] = useState<Date[]>(selectedDates);
   
-  // Converter as datas selecionadas para objetos Date
-  const availableDates = selectedDates || [];
-  
-  // Verificar se uma data está disponível
-  const isDateUnavailable = (date: Date) => {
-    return !availableDates.some(availableDate => 
-      format(availableDate, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
-    );
-  };
-  
-  const handleBooking = async () => {
-    if (!user) {
-      toast.error("Faça login para reservar este espaço");
-      navigate("/login", { state: { from: `/venues/${venueId}` } });
-      return;
-    }
+  const formattedCreationDate = createdAt ? 
+    format(new Date(createdAt), "d 'de' MMMM 'de' yyyy", { locale: ptBR }) : '';
     
-    if (!date) {
-      toast.error("Por favor, selecione uma data para reserva");
-      return;
-    }
-    
-    setIsBooking(true);
-    
-    try {
-      // Converter o preço para centavos para o Stripe
-      const amountInCents = Math.round(pricePerDay * 100);
-      
-      const paymentResult = await createPayment({
-        amount: amountInCents,
-        eventId: venueId,
-        description: `Reserva de espaço para ${format(date, 'dd/MM/yyyy')}`
-      });
-      
-      if (paymentResult.success && paymentResult.clientSecret) {
-        // Redirecionar para a página de confirmação de pagamento
-        navigate(`/payment-confirmation?session_id=${paymentResult.paymentId}`);
-        toast.success("Redirecionando para o pagamento...");
-      } else {
-        throw new Error(paymentResult.error || "Erro ao processar pagamento");
-      }
-    } catch (error: any) {
-      console.error("Erro ao reservar:", error);
-      toast.error(error.message || "Não foi possível processar sua reserva");
-    } finally {
-      setIsBooking(false);
-    }
-  };
+  const totalCost = pricePerHour * (localSelectedDates.length || 1);
   
   return (
-    <div className="space-y-4 sticky top-4">
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex justify-between items-baseline">
-            <div>
-              <span className="text-2xl font-bold">R$ {pricePerDay.toFixed(2)}</span>
-              <span className="text-sm text-muted-foreground"> /dia</span>
+    <div className="space-y-6">
+      <Card className="p-6">
+        <div className="space-y-4">
+          <div>
+            <div className="flex items-baseline justify-between">
+              <span className="text-2xl font-bold">
+                R$ {pricePerHour.toFixed(2)}
+              </span>
+              <span className="text-sm text-muted-foreground">/dia</span>
             </div>
             
-            {createdAt && (
-              <div className="text-xs text-muted-foreground">
-                Anunciado em {format(parseISO(createdAt), 'dd/MM/yyyy')}
-              </div>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="border rounded-md p-3">
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={setDate}
-              locale={ptBR}
-              disabled={isDateUnavailable}
-              className="mx-auto"
-            />
-            {selectedDates.length > 0 && (
-              <p className="text-xs text-center mt-2 text-muted-foreground">
-                <CalendarIcon className="h-3 w-3 inline mr-1" />
-                {selectedDates.length} dias disponíveis
-              </p>
-            )}
-          </div>
-          
-          {date && (
-            <div className="space-y-2">
-              <div className="flex justify-between items-center text-sm">
-                <span>Data selecionada:</span>
-                <span className="font-medium">{format(date, 'dd/MM/yyyy')}</span>
-              </div>
-              <div className="flex justify-between items-center text-sm">
-                <span>Valor da diária:</span>
-                <span>R$ {pricePerDay.toFixed(2)}</span>
+            <div className="mt-2">
+              <div className="text-sm text-muted-foreground flex items-center gap-1">
+                <Clock className="h-4 w-4" />
+                <span>Anunciado em {formattedCreationDate}</span>
               </div>
             </div>
-          )}
-        </CardContent>
-        <CardFooter>
-          <Button 
-            className="w-full"
-            onClick={handleBooking}
-            disabled={!date || isBooking || isLoading}
-          >
-            {isBooking ? "Processando..." : "Reservar"}
-          </Button>
-        </CardFooter>
-      </Card>
-      
-      <Card>
-        <CardContent className="pt-4 pb-3">
-          <div className="flex gap-2 items-center text-sm">
-            <CheckCircle className="h-4 w-4 text-green-600" />
-            <span>Cancelamento gratuito até 7 dias antes</span>
           </div>
-        </CardContent>
+          
+          <Separator />
+          
+          {isOwner ? (
+            // Opções para o proprietário do anúncio
+            <div className="space-y-4">
+              <h3 className="font-medium">Gerenciar disponibilidade</h3>
+              <p className="text-sm text-muted-foreground">
+                Este é o seu anúncio. Você pode gerenciar as datas disponíveis.
+              </p>
+              <Button
+                variant="outline"
+                className="w-full mt-2"
+                onClick={() => window.location.href = `/venues/edit/${window.location.pathname.split('/').pop()}`}
+              >
+                Editar anúncio
+              </Button>
+            </div>
+          ) : (
+            // Opções para usuários interessados em alugar
+            <div className="space-y-4">
+              <div>
+                <p className="font-medium">Custo total</p>
+                <div className="flex items-baseline justify-between mt-1">
+                  <span className="text-xl font-semibold">
+                    R$ {totalCost.toFixed(2)}
+                  </span>
+                  <span className="text-sm text-muted-foreground">
+                    {localSelectedDates.length > 0 ? `${localSelectedDates.length} dias` : '1 dia'}
+                  </span>
+                </div>
+              </div>
+              
+              <Button className="w-full">
+                Reservar
+              </Button>
+              
+              <p className="text-xs text-center text-muted-foreground">
+                Você não será cobrado ainda
+              </p>
+            </div>
+          )}
+          
+          <Separator />
+          
+          {isOwner && (
+            <div className="pt-2">
+              <VenueAvailabilityCalendar 
+                selectedDates={localSelectedDates}
+                setSelectedDates={setLocalSelectedDates}
+              />
+            </div>
+          )}
+        </div>
       </Card>
     </div>
   );

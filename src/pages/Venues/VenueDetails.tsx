@@ -32,7 +32,11 @@ const VenueDetailsPage = () => {
   const isOwner = user?.id === venue.user_id;
   
   // Extrair URLs das imagens quando houver suporte para múltiplas imagens
-  const imageUrls = venue.image_url ? [venue.image_url] : [];
+  const imageUrls = venue.image_urls && venue.image_urls.length > 0 
+    ? venue.image_urls 
+    : venue.image_url 
+      ? [venue.image_url] 
+      : [];
   
   return (
     <div className="space-y-6">
@@ -89,6 +93,7 @@ const VenueDetailsPage = () => {
           pricePerHour={venue.price_per_hour}
           selectedDates={selectedDates}
           createdAt={venue.created_at}
+          venueUserId={venue.user_id}
         />
       </div>
     </div>

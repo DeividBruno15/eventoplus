@@ -30,7 +30,21 @@ export const useVenueDetails = (id: string | undefined) => {
           throw error;
         }
         
-        setVenue(data as unknown as VenueDetails);
+        // Processando dados para garantir que image_urls seja um array
+        let processedData = { ...data };
+        if (data.image_urls && typeof data.image_urls === 'string') {
+          try {
+            processedData.image_urls = JSON.parse(data.image_urls);
+          } catch {
+            processedData.image_urls = data.image_url ? [data.image_url] : [];
+          }
+        } else if (!data.image_urls && data.image_url) {
+          processedData.image_urls = [data.image_url];
+        } else if (!data.image_urls) {
+          processedData.image_urls = [];
+        }
+        
+        setVenue(processedData as unknown as VenueDetails);
         
         if (data.available_dates && Array.isArray(data.available_dates)) {
           const dates = data.available_dates.map(dateStr => parseISO(dateStr));
