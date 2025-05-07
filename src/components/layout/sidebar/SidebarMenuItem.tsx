@@ -17,6 +17,9 @@ export const SidebarMenuItemComponent: React.FC<SidebarMenuItemProps> = ({
 }) => {
   const Icon = item.icon;
 
+  // Só mostrar o badge se tiver um badge maior que 0
+  const showBadge = item.badge && item.badge > 0;
+
   return (
     <UISidebarMenuItem className="transition-all duration-200 ease-in-out">
       <SidebarMenuButton
@@ -33,7 +36,7 @@ export const SidebarMenuItemComponent: React.FC<SidebarMenuItemProps> = ({
             <Icon className={`h-5 w-5 transition-transform duration-300 ${
               isActive ? 'scale-110 text-primary' : 'text-gray-500'
             }`} />
-            {item.badge && item.badge > 0 && (
+            {showBadge && (
               <span className="absolute -top-1 -right-1">
                 <Badge className="h-4 w-4 p-0 flex items-center justify-center bg-red-500 text-white text-[10px]">
                   {item.badge > 99 ? '99+' : item.badge}

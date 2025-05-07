@@ -27,14 +27,12 @@ export const menuItems: MenuItem[] = [
     icon: Calendar,
     path: "/events",
     roles: ["contractor"],
-    badge: 0,
   },
   {
     name: "Eventos",
     icon: Calendar,
     path: "/events",
     roles: ["provider"],
-    badge: 0,
   },
   {
     name: "Locais de eventos",
@@ -73,7 +71,6 @@ export const menuItems: MenuItem[] = [
     icon: Phone,
     path: "/whatsapp",
     roles: ["provider", "contractor", "advertiser"],
-    badge: 0,
   },
 ];
 

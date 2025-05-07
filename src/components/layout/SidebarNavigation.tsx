@@ -1,5 +1,5 @@
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/auth';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
@@ -13,8 +13,9 @@ import { useNavigationState } from './sidebar/useNavigationState';
 import { Sidebar, SidebarContent } from '@/components/ui/sidebar';
 import { getMainMenuItems, getSupportMenuItems } from './sidebar/menu-data';
 
-export const SidebarNavigation = ({ activePath: propActivePath, onNavigate }: SidebarNavigationProps) => {
+export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { session, user, logout } = useAuth();
   const { toast } = useToast();
   
@@ -28,14 +29,22 @@ export const SidebarNavigation = ({ activePath: propActivePath, onNavigate }: Si
   const avatarUrl = user?.user_metadata?.avatar_url;
   const userRole = user?.user_metadata?.role || 'contractor';
 
+  // Use o caminho atual diretamente do useLocation para melhorar a navegação
+  const currentPath = location.pathname;
+
   // Get menu items based on user role
   const mainMenuItems = getMainMenuItems(userRole);
   const supportMenuItems = getSupportMenuItems(userRole);
 
-  // Update menu items with unread message count
+  // Update menu items with unread message count only if there are unread messages
   const updatedMainMenuItems = mainMenuItems.map(item => {
     if (item.notificationKey === 'messages' && unreadMessages > 0) {
       return { ...item, badge: unreadMessages };
+    }
+    // Remover qualquer badge que possa ter sido definido anteriormente
+    if (item.badge) {
+      const { badge, ...rest } = item;
+      return rest;
     }
     return item;
   });
@@ -75,7 +84,7 @@ export const SidebarNavigation = ({ activePath: propActivePath, onNavigate }: Si
           
           <MenuGroup 
             items={updatedMainMenuItems} 
-            activePath={propActivePath || activePath} 
+            activePath={currentPath} 
             onItemClick={handleLinkClick} 
           />
           
@@ -83,7 +92,7 @@ export const SidebarNavigation = ({ activePath: propActivePath, onNavigate }: Si
           
           <MenuGroup 
             items={supportMenuItems} 
-            activePath={propActivePath || activePath} 
+            activePath={currentPath} 
             onItemClick={handleLinkClick} 
           />
 
