@@ -38,13 +38,6 @@ const PaymentsPage = () => {
     setRefreshHistory(prev => !prev);
   };
 
-  const handleSelectPlan = (plan: {id: string, name: string, price: number}) => {
-    // Implementar a lógica de seleção de plano
-    console.log('Plano selecionado:', plan);
-    // Aqui você pode integrar com o hook usePayment ou useSubscription
-    // para processar o pagamento/assinatura
-  };
-
   return (
     <div className="container mx-auto py-6">
       <h1 className="text-3xl font-bold mb-6">Minha Assinatura</h1>
@@ -74,11 +67,7 @@ const PaymentsPage = () => {
         </TabsList>
         
         <TabsContent value="plans" className="space-y-4">
-          <PaymentPlans 
-            onSelectPlan={handleSelectPlan}
-            onSuccess={handlePaymentSuccess} 
-            currentSubscription={subscription}
-          />
+          <PaymentPlans onSuccess={handlePaymentSuccess} />
         </TabsContent>
         
         <TabsContent value="history" className="space-y-4">

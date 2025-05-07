@@ -339,6 +339,53 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_refunds: {
+        Row: {
+          amount: number
+          created_at: string | null
+          id: string
+          is_partial: boolean | null
+          notification_sent: boolean | null
+          payment_id: string
+          reason: string | null
+          status: string
+          stripe_refund_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          id?: string
+          is_partial?: boolean | null
+          notification_sent?: boolean | null
+          payment_id: string
+          reason?: string | null
+          status?: string
+          stripe_refund_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          id?: string
+          is_partial?: boolean | null
+          notification_sent?: boolean | null
+          payment_id?: string
+          reason?: string | null
+          status?: string
+          stripe_refund_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_refunds_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payments: {
         Row: {
           amount: number
@@ -876,6 +923,10 @@ export type Database = {
     Functions: {
       can_edit_provider_services: {
         Args: { provider_id_param: string }
+        Returns: boolean
+      }
+      can_refund_payment: {
+        Args: { payment_id_param: string }
         Returns: boolean
       }
       create_or_get_conversation: {

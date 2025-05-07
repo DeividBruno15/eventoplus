@@ -3,12 +3,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Check, Zap } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
+import { useSubscription } from '@/hooks/useSubscription';
 import { providerPlans, contractorPlans, advertiserPlans } from "@/pages/Plans/data/plans";
 import { Plan } from "@/pages/Plans/types";
 
 interface PaymentPlansProps {
-  onSelectPlan: (plan: {id: string, name: string, price: number}) => void;
-  onSuccess?: () => void; // Adicionada esta prop para compatibilidade
+  onSelectPlan?: (plan: {id: string, name: string, price: number}) => void;
+  onSuccess?: () => void;
   currentSubscription?: {
     id: string;
     plan_id: string;
@@ -19,8 +21,10 @@ interface PaymentPlansProps {
   } | null;
 }
 
-export const PaymentPlans = ({ onSelectPlan, currentSubscription, onSuccess }: PaymentPlansProps) => {
+export const PaymentPlans = ({ onSuccess }: PaymentPlansProps) => {
   const { user } = useAuth();
+  const { toast } = useToast();
+  const { subscription, subscribeToPlan, isSubscribing } = useSubscription();
   const userRole = user?.user_metadata?.role || 'contractor';
 
   // Get plans based on user role
@@ -36,6 +40,33 @@ export const PaymentPlans = ({ onSelectPlan, currentSubscription, onSuccess }: P
   };
   
   const plans = getPlansForRole();
+  
+  const handlePlanSelection = async (planId: string) => {
+    try {
+      const plan = plans.find(p => p.id === planId);
+      if (!plan) {
+        toast({
+          title: "Erro",
+          description: "Plano não encontrado",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      await subscribeToPlan(planId, plan.name, userRole);
+      
+      if (onSuccess) {
+        onSuccess();
+      }
+    } catch (error) {
+      console.error("Erro ao selecionar plano:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível processar sua assinatura. Tente novamente mais tarde.",
+        variant: "destructive"
+      });
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -44,7 +75,7 @@ export const PaymentPlans = ({ onSelectPlan, currentSubscription, onSuccess }: P
       <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
         {plans.map((plan) => {
           // Verifica se este é o plano atual do usuário
-          const isCurrentPlan = currentSubscription?.plan_id === plan.id;
+          const isCurrentPlan = subscription?.plan_id === plan.id;
           
           return (
             <Card 
@@ -95,18 +126,16 @@ export const PaymentPlans = ({ onSelectPlan, currentSubscription, onSuccess }: P
                 <Button
                   className="w-full"
                   variant={plan.featured ? 'default' : 'outline'}
-                  onClick={() => onSelectPlan({
-                    id: plan.id,
-                    name: plan.name,
-                    price: plan.price * 100 // Convert to cents for payment processing
-                  })}
-                  disabled={isCurrentPlan}
+                  onClick={() => handlePlanSelection(plan.id)}
+                  disabled={isCurrentPlan || isSubscribing}
                 >
-                  {isCurrentPlan 
-                    ? 'Plano atual' 
-                    : plan.price === 0 
-                      ? 'Selecionar plano gratuito' 
-                      : 'Assinar plano'
+                  {isSubscribing 
+                    ? 'Processando...'
+                    : isCurrentPlan 
+                      ? 'Plano atual' 
+                      : plan.price === 0 
+                        ? 'Selecionar plano gratuito' 
+                        : 'Assinar plano'
                   }
                 </Button>
               </CardFooter>
