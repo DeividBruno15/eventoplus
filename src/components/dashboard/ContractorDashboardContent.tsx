@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowRight, Calendar, Users, MessageSquare, BarChart4, CheckCircle, Clock, X, ExternalLink, Briefcase } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { OnboardingCard } from "@/components/dashboard/OnboardingCard";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { UpcomingEvents } from "./dashboard-sections/UpcomingEvents";
@@ -19,6 +20,8 @@ const ContractorDashboardContent = ({ userName }: ContractorDashboardContentProp
   
   return (
     <div className="space-y-6 animate-fade-in">
+      <OnboardingCard />
+      
       <div>
         <h2 className="text-3xl font-bold tracking-tight">Olá, {userName}!</h2>
         <p className="text-muted-foreground mt-2">
