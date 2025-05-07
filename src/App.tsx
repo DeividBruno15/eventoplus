@@ -29,9 +29,6 @@ import ResetPassword from "./pages/ResetPassword";
 import Payments from './pages/Payments';
 import Notifications from './pages/Notifications';
 import WhatsAppAssistant from './pages/WhatsAppAssistant';
-import Terms from './pages/Terms';
-import Privacy from './pages/Privacy';
-import DatabaseTools from './pages/Admin/DatabaseTools';
 import { AuthProvider } from "./hooks/auth";
 import { Toaster } from "sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -41,28 +38,16 @@ import VenuesPage from "./pages/Venues";
 import CreateVenuePage from "./pages/Venues/CreateVenue";
 import VenueDetailsPage from "./pages/Venues/VenueDetails";
 import EditVenuePage from "./pages/Venues/EditVenue";
-import { ErrorBoundary } from "./components/ErrorBoundary";
-import { AccessibilityHelper } from "./components/AccessibilityHelper";
-import { Analytics } from "./components/analytics/Analytics";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      staleTime: 30000,
-    },
-  },
-});
+const queryClient = new QueryClient();
 
 function App() {
   return (
-    <ErrorBoundary>
+    <>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider defaultTheme="light" attribute="class">
           <AuthProvider>
             <Router>
-              <AccessibilityHelper />
-              <Analytics />
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/about" element={<About />} />
@@ -78,8 +63,6 @@ function App() {
                 <Route path="/users/:id" element={<UserProfile />} />
                 <Route path="/providers/:id" element={<ProviderProfile />} />
                 <Route path="/onboarding" element={<Onboarding />} />
-                <Route path="/terms" element={<Terms />} />
-                <Route path="/privacy" element={<Privacy />} />
 
                 <Route path="/" element={<DashboardLayout />}>
                   <Route path="dashboard" element={<Dashboard />} />
@@ -102,17 +85,16 @@ function App() {
                   <Route path="profile" element={<Profile />} />
                   <Route path="settings" element={<Settings />} />
                   <Route path="support" element={<Support />} />
-                  <Route path="admin/database" element={<DatabaseTools />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />
               </Routes>
-              <Toaster position="top-right" richColors closeButton />
             </Router>
+            <Toaster position="top-right" richColors closeButton />
           </AuthProvider>
         </ThemeProvider>
       </QueryClientProvider>
-    </ErrorBoundary>
+    </>
   );
 }
 

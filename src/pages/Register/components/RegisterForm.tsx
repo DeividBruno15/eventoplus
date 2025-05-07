@@ -3,7 +3,6 @@ import { Form } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { BasicInfoFields } from './BasicInfoFields';
 import { AddressFields } from '@/components/address/AddressFields';
 import { DocumentFields } from './DocumentFields';
@@ -22,7 +21,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 
 export const RegisterForm = () => {
-  const navigate = useNavigate(); // This is safe because RegisterForm is inside Router
   const { register: signUp, signInWithGoogle, loading } = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
@@ -116,10 +114,6 @@ export const RegisterForm = () => {
   const closeConfirmationDialog = () => {
     setShowEmailConfirmation(false);
   };
-  
-  const handleNavigateToLogin = () => {
-    navigate('/login');
-  };
 
   return (
     <>
@@ -160,7 +154,6 @@ export const RegisterForm = () => {
         open={showEmailConfirmation}
         onClose={closeConfirmationDialog}
         email={confirmationEmail}
-        onNavigateToLogin={handleNavigateToLogin}
       />
     </>
   );
