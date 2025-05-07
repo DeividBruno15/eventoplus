@@ -434,6 +434,44 @@ export type Database = {
         }
         Relationships: []
       }
+      ratings: {
+        Row: {
+          comment: string
+          created_at: string | null
+          event_id: string | null
+          id: string
+          rating: number
+          reviewer_id: string
+          user_id: string
+        }
+        Insert: {
+          comment: string
+          created_at?: string | null
+          event_id?: string | null
+          id?: string
+          rating: number
+          reviewer_id: string
+          user_id: string
+        }
+        Update: {
+          comment?: string
+          created_at?: string | null
+          event_id?: string | null
+          id?: string
+          rating?: number
+          reviewer_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ratings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_categories: {
         Row: {
           created_at: string
@@ -872,6 +910,10 @@ export type Database = {
           is_read: boolean
           is_sender: string
         }[]
+      }
+      get_user_average_rating: {
+        Args: { user_id_param: string }
+        Returns: number
       }
       get_user_conversations: {
         Args: { p_user_id: string }
