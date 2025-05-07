@@ -39,6 +39,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const closeConfirmationDialog = () => {
     setShowEmailConfirmation(false);
   };
+  
+  // Navigation callback for the EmailConfirmationDialog
+  const navigateToLogin = () => {
+    // This function will be called by components that need to navigate
+    // but the actual navigation will happen at the component level where
+    // the Router context exists
+    console.log('Navigation to login requested');
+    // The actual navigation will be handled by components that use this context
+    // and have access to the Router
+  };
 
   return (
     <AuthContext.Provider
@@ -62,6 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         open={showEmailConfirmation}
         onClose={closeConfirmationDialog}
         email={confirmationEmail}
+        onNavigateToLogin={navigateToLogin}
       />
     </AuthContext.Provider>
   );

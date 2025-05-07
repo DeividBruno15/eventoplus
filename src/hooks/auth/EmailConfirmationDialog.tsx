@@ -1,20 +1,26 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
 
 interface EmailConfirmationDialogProps {
   open: boolean;
   onClose: () => void;
   email: string;
+  onNavigateToLogin?: () => void;
 }
 
-export const EmailConfirmationDialog = ({ open, onClose, email }: EmailConfirmationDialogProps) => {
-  const navigate = useNavigate();
+export const EmailConfirmationDialog = ({ 
+  open, 
+  onClose, 
+  email, 
+  onNavigateToLogin 
+}: EmailConfirmationDialogProps) => {
   
   const handleGoToLogin = () => {
     onClose();
-    navigate("/login");
+    if (onNavigateToLogin) {
+      onNavigateToLogin();
+    }
   };
   
   return (
