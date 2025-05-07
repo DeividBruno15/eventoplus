@@ -56,7 +56,6 @@ const DatabaseTools = () => {
     setQueryResult(null);
   };
 
-  // Fixed implementation - DashboardLayout now uses children pattern
   return (
     <DashboardLayout>
       <div className="container mx-auto p-4">

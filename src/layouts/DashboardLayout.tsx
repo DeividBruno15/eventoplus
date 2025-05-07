@@ -6,8 +6,15 @@ import { UserMenu } from "@/components/layout/UserMenu";
 import { NotificationTrigger } from "@/components/layout/notifications/NotificationTrigger";
 import { SkipToContent } from "@/components/SkipToContent";
 import { SEO } from "@/components/SEO";
+import { ReactNode } from "react";
 
-const DashboardLayout = () => {
+interface DashboardLayoutProps {
+  children?: ReactNode;
+}
+
+const DashboardLayout = ({ children }: DashboardLayoutProps) => {
+  const content = children || <Outlet />;
+
   return (
     <>
       <SEO title="Dashboard" />
@@ -29,7 +36,7 @@ const DashboardLayout = () => {
             
             <div className="flex-1 p-6 lg:px-8">
               <main id="main-content" className="outline-none">
-                <Outlet />
+                {content}
               </main>
             </div>
           </div>
