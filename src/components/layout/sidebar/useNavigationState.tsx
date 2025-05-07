@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -8,6 +9,7 @@ export function useNavigationState(onNavigate: (path: string) => void) {
 
   // Keep activePath in sync with the current location
   useEffect(() => {
+    console.log("Navigation: Current location path:", location.pathname);
     setActivePath(location.pathname);
   }, [location.pathname]);
 

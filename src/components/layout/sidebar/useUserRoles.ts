@@ -13,11 +13,14 @@ export const useUserRoles = (user: any) => {
       
       try {
         // First check current user metadata
-        if (user.user_metadata?.role === 'provider') {
+        const currentRole = user.user_metadata?.role;
+        console.log("Current user role from metadata:", currentRole);
+        
+        if (currentRole === 'provider') {
           setHasProviderRole(true);
-        } else if (user.user_metadata?.role === 'contractor') {
+        } else if (currentRole === 'contractor') {
           setHasContractorRole(true);
-        } else if (user.user_metadata?.role === 'advertiser') {
+        } else if (currentRole === 'advertiser') {
           setHasAdvertiserRole(true);
         }
         
@@ -30,6 +33,7 @@ export const useUserRoles = (user: any) => {
           
         if (!providerError && providerData && providerData.length > 0) {
           setHasProviderRole(true);
+          console.log("User has provider services:", providerData);
         }
         
         // Check if user has created any events as a contractor
@@ -41,6 +45,7 @@ export const useUserRoles = (user: any) => {
           
         if (!contractorError && contractorData && contractorData.length > 0) {
           setHasContractorRole(true);
+          console.log("User has contractor events:", contractorData);
         }
         
         // Check if user has created any venues as an advertiser
@@ -58,6 +63,7 @@ export const useUserRoles = (user: any) => {
               
             if (venuesData && venuesData.length > 0) {
               setHasAdvertiserRole(true);
+              console.log("User has advertiser venues:", venuesData);
             }
           }
         } catch (error) {

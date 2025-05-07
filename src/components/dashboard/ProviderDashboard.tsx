@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
+import { useAuth } from "@/hooks/auth";
+import ProviderDashboardContent from "./ProviderDashboardContent";
 
 // Define an interface for our service request data
 interface DashboardServiceRequest {
@@ -17,6 +19,9 @@ interface DashboardServiceRequest {
 }
 
 const ProviderDashboard = () => {
+  const { user } = useAuth();
+  const userName = user?.user_metadata?.first_name || 'Usuário';
+  
   const { data: requests, isLoading } = useQuery({
     queryKey: ['provider-requests'],
     queryFn: async () => {
@@ -48,44 +53,13 @@ const ProviderDashboard = () => {
           : null
       })) as DashboardServiceRequest[];
       
-      return formattedData;
+      return formattedData || [];
     }
   });
 
-  if (isLoading) {
-    return <Loader2 className="w-6 h-6 animate-spin" />;
-  }
+  console.log("Provider Dashboard - Rendering with user:", userName);
 
-  return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Solicitações Pendentes</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {requests?.length === 0 ? (
-            <p className="text-gray-600">Nenhuma solicitação pendente</p>
-          ) : (
-            <ul className="space-y-4">
-              {requests?.map((request) => (
-                <li key={request.id} className="border-b pb-4 last:border-0">
-                  <p className="font-medium text-gray-900">
-                    {request.event_type}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    Solicitado por: {request.contractor?.first_name} {request.contractor?.last_name}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    Cidade: {request.city}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
+  return <ProviderDashboardContent userName={userName} />;
 };
 
 export default ProviderDashboard;
