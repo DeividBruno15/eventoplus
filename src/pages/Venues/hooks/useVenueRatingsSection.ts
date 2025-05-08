@@ -16,8 +16,9 @@ export const useVenueRatingsSection = (venueId: string, ownerId: string) => {
   const isAuthenticated = user ? true : false;
   const isOwner = user?.id === ownerId;
 
-  const handleAddRating = (newRating: VenueRating) => {
-    addRating(newRating);
+  const handleAddRating = () => {
+    // This function now just handles UI updates after a rating is added
+    // The actual rating data is handled in the CreateVenueRating component
     setIsAddingRating(false);
   };
 

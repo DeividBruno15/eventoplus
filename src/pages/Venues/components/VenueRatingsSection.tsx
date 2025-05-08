@@ -86,7 +86,7 @@ const VenueRatingsSection: React.FC<VenueRatingsSectionProps> = ({
           <h3 className="text-lg font-medium mb-4">Sua avaliação</h3>
           <CreateVenueRating 
             venueId={venueId}
-            onSuccess={handleAddRating}
+            onSuccess={() => handleAddRating()}
             onCancel={() => setIsAddingRating(false)}
           />
         </div>

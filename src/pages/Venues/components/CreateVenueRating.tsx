@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import StarRating from './StarRating';
+import { StarRating } from './StarRating';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -140,8 +140,8 @@ const CreateVenueRating: React.FC<CreateVenueRatingProps> = ({
       <div className="space-y-1.5">
         <label className="text-sm font-medium">Avaliação Geral*</label>
         <StarRating 
-          rating={overallRating} 
-          onRatingChange={setOverallRating} 
+          value={overallRating} 
+          onChange={setOverallRating} 
           size="lg"
         />
       </div>
@@ -150,40 +150,40 @@ const CreateVenueRating: React.FC<CreateVenueRatingProps> = ({
         <div className="space-y-1.5">
           <label className="text-sm font-medium">Localização</label>
           <StarRating 
-            rating={locationRating} 
-            onRatingChange={setLocationRating}
+            value={locationRating} 
+            onChange={setLocationRating}
           />
         </div>
         
         <div className="space-y-1.5">
           <label className="text-sm font-medium">Custo-benefício</label>
           <StarRating 
-            rating={valueRating} 
-            onRatingChange={setValueRating}
+            value={valueRating} 
+            onChange={setValueRating}
           />
         </div>
         
         <div className="space-y-1.5">
           <label className="text-sm font-medium">Limpeza</label>
           <StarRating 
-            rating={cleanlinessRating} 
-            onRatingChange={setCleanlinessRating}
+            value={cleanlinessRating} 
+            onChange={setCleanlinessRating}
           />
         </div>
         
         <div className="space-y-1.5">
           <label className="text-sm font-medium">Atendimento</label>
           <StarRating 
-            rating={serviceRating} 
-            onRatingChange={setServiceRating}
+            value={serviceRating} 
+            onChange={setServiceRating}
           />
         </div>
         
         <div className="space-y-1.5">
           <label className="text-sm font-medium">Comodidades</label>
           <StarRating 
-            rating={amenitiesRating} 
-            onRatingChange={setAmenitiesRating}
+            value={amenitiesRating} 
+            onChange={setAmenitiesRating}
           />
         </div>
       </div>

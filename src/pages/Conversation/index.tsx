@@ -1,137 +1,93 @@
 
-import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
-import { useConversation } from "@/hooks/useConversation";
-import { Card } from "@/components/ui/card";
-import MessageInput from "@/components/chat/MessageInput";
-import Messages from "@/components/chat/Messages";
-import ConversationHeader from "@/components/chat/ConversationHeader";
-import { ChatEmptyState } from "../Chat/components/ChatEmptyState";
-import { useChatNotifications } from "../Chat/hooks/useChatNotifications";
+import { useEffect, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useConversation } from '@/hooks/useConversation';
+import { useAuth } from '@/hooks/useAuth';
+import ConversationHeader from '@/components/chat/ConversationHeader';
+import Messages from '@/components/chat/Messages';
+import MessageInput from '@/components/chat/MessageInput';
+import { Loader2 } from 'lucide-react';
+import { useChatNotifications } from '@/pages/Chat/hooks/useChatNotifications';
 
-const Conversation = () => {
-  const { id } = useParams<{ id: string }>();
+export default function Conversation() {
+  const { conversationId } = useParams<{ conversationId: string }>();
+  const navigate = useNavigate();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const { sendMessageNotification } = useChatNotifications();
   
-  const {
-    messages,
-    otherUser,
-    loading,
-    sendMessage,
-  } = useConversation(id || "");
+  // Se não houver ID da conversa, redireciona para a página de chat
+  if (!conversationId) {
+    navigate('/chat');
+    return null;
+  }
 
+  const { 
+    messages, 
+    loading, 
+    otherUser, 
+    sendMessage: sendMessageToBackend 
+  } = useConversation(conversationId);
+  
+  // Rolar para o final da conversa ao carregar novas mensagens
   useEffect(() => {
-    console.log("Conversation component mounted with ID:", id);
-    console.log("Loading state:", loading);
-    console.log("Other user:", otherUser);
-    console.log("Messages count:", messages.length);
-    
-    // Reset error state when conversation ID changes
-    setError(null);
-  }, [id, loading, otherUser, messages.length]);
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
 
-  const handleSendMessage = async (text: string) => {
-    if (!text.trim() || !user) return;
-    
+  // Função para enviar mensagens
+  const handleSendMessage = async (content: string) => {
     try {
-      await sendMessage(text);
+      await sendMessageToBackend(content);
       
-      // Se o outro usuário existir, enviar notificação
-      if (otherUser && otherUser.id) {
-        const senderName = user.user_metadata?.first_name 
-          ? `${user.user_metadata.first_name} ${user.user_metadata.last_name || ''}`
-          : 'Alguém';
-          
-        // Enviar notificação ao destinatário
-        sendMessageNotification(
-          otherUser.id,
-          senderName,
-          text,
-          id || ""
-        );
+      // Enviar notificação ao destinatário se ele existir e tiver um ID
+      if (otherUser && user) {
+        // Precisamos do otherUser com a propriedade id
+        const otherUserId = otherUser.id;
+        
+        if (otherUserId) {
+          await sendMessageNotification(
+            otherUserId,
+            `${user.first_name} ${user.last_name}`,
+            content,
+            conversationId
+          );
+        }
       }
-      
-      setMessage("");
     } catch (error) {
-      console.error("Error sending message:", error);
-      setError("Erro ao enviar mensagem. Tente novamente.");
+      console.error('Erro ao enviar mensagem:', error);
     }
   };
 
-  const otherUserName = otherUser
-    ? `${otherUser.first_name} ${otherUser.last_name}`
-    : "Usuário";
-    
-  const otherUserInitials = otherUser
-    ? `${otherUser.first_name.charAt(0)}${otherUser.last_name.charAt(0)}`
-    : "UN";
-
-  if (!id || !user) {
-    return <ChatEmptyState />;
-  }
-
-  if (error) {
-    return (
-      <div className="flex justify-center items-center h-96">
-        <div className="text-center">
-          <div className="text-red-500 text-5xl mb-4">⚠️</div>
-          <p className="text-xl font-medium mb-2">Oops! Ocorreu um erro.</p>
-          <p className="text-muted-foreground mb-4">{error}</p>
-          <button 
-            onClick={() => window.location.reload()}
-            className="bg-primary text-white px-4 py-2 rounded-md hover:bg-primary/90"
-          >
-            Tentar novamente
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-96">
-        <div className="text-center">
-          <div className="animate-spin h-10 w-10 border-t-2 border-primary rounded-full mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Carregando conversa...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">Chat</h2>
-        <p className="text-muted-foreground mt-2">
-          Conversa com {otherUserName}
-        </p>
+    <div className="flex flex-col h-[calc(100vh-4rem)]">
+      {/* Cabeçalho da conversa */}
+      {otherUser && (
+        <ConversationHeader
+          name={`${otherUser.first_name} ${otherUser.last_name || ''}`}
+        />
+      )}
+      
+      {/* Área de mensagens */}
+      <div className="flex-1 overflow-y-auto p-4">
+        {loading ? (
+          <div className="flex justify-center items-center h-full">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          </div>
+        ) : (
+          <Messages messages={messages} currentUserId={user?.id} />
+        )}
+        <div ref={messagesEndRef} />
       </div>
       
-      <Card className="flex flex-col h-[calc(100vh-15rem)]">
-        <ConversationHeader
-          otherUserName={otherUserName}
-          otherUserInitials={otherUserInitials}
+      {/* Input de mensagem */}
+      <div className="p-4 border-t">
+        <MessageInput 
+          onSendMessage={handleSendMessage} 
+          disabled={loading || !otherUser}
         />
-        
-        <Messages
-          messages={messages}
-          currentUserId={user.id}
-        />
-        
-        <div className="p-4 border-t">
-          <MessageInput
-            onSendMessage={handleSendMessage}
-            placeholder="Digite sua mensagem..."
-          />
-        </div>
-      </Card>
+      </div>
     </div>
   );
-};
-
-export default Conversation;
+}
