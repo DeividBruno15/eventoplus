@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface AddRatingButtonProps {
   isAuthenticated: boolean;
@@ -8,6 +9,9 @@ interface AddRatingButtonProps {
   hasUserRated: boolean;
   isAddingRating: boolean;
   onClick: () => void;
+  label?: string;
+  variant?: "default" | "outline" | "secondary";
+  className?: string;
 }
 
 const AddRatingButton: React.FC<AddRatingButtonProps> = ({
@@ -15,7 +19,10 @@ const AddRatingButton: React.FC<AddRatingButtonProps> = ({
   isOwner,
   hasUserRated,
   isAddingRating,
-  onClick
+  onClick,
+  label = "Escrever avaliação",
+  variant = "default",
+  className
 }) => {
   if (!isAuthenticated || isOwner || hasUserRated || isAddingRating) return null;
   
@@ -23,8 +30,10 @@ const AddRatingButton: React.FC<AddRatingButtonProps> = ({
     <Button 
       onClick={onClick}
       size="sm"
+      variant={variant}
+      className={cn(className)}
     >
-      Escrever avaliação
+      {label}
     </Button>
   );
 };
