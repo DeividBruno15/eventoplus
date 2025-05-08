@@ -16,6 +16,7 @@ import { VenueSidebar } from "./components/VenueSidebar";
 import { VenueDetailsLoading } from "./components/VenueDetailsLoading";
 import { VenueNotFound } from "./components/VenueNotFound";
 import VenueRatingsSection from "./components/VenueRatingsSection";
+import VenueEvents from "./components/VenueEvents";
 import { toast } from "sonner";
 
 const VenueDetailsPage = () => {
@@ -108,7 +109,16 @@ const VenueDetailsPage = () => {
             externalLink={venue.external_link}
           />
           
+          {/* Seção de eventos do local */}
+          <Separator />
+          
+          {id && venue.venue_id && (
+            <VenueEvents venueId={venue.venue_id} />
+          )}
+          
           {/* Seção de avaliações */}
+          <Separator />
+          
           {id && (
             <VenueRatingsSection 
               venueId={id}

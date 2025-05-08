@@ -1,7 +1,7 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -16,10 +16,14 @@ import { ImageUploadField } from './ImageUploadField';
 import { UserCompanySelector } from './UserCompanySelector';
 import { useEventFormSubmit } from '../hooks/useEventFormSubmit';
 import { VenueSelectionField } from './VenueSelectionField';
+import { useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 export function CreateEventForm() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { handleSubmit, loading } = useEventFormSubmit();
+  const preSelectedVenueId = location.state?.preSelectedVenue;
   
   const form = useForm<CreateEventFormData>({
     resolver: zodResolver(createEventSchema),
@@ -35,11 +39,49 @@ export function CreateEventForm() {
       neighborhood: '',
       city: '',
       state: '',
-      venue_id: '',
+      venue_id: preSelectedVenueId || '',
       service_requests: [{ category: '', count: 1, price: 0 }],
       image: null
     }
   });
+
+  // Se houver um venue_id pré-selecionado, carregue os detalhes do local
+  useEffect(() => {
+    const fetchVenueDetails = async () => {
+      if (!preSelectedVenueId) return;
+
+      try {
+        const { data, error } = await supabase
+          .from('user_venues')
+          .select('street, number, neighborhood, city, state, zipcode')
+          .eq('id', preSelectedVenueId)
+          .single();
+
+        if (error) throw error;
+
+        if (data) {
+          // Update form fields with venue address
+          form.setValue('street', data.street);
+          form.setValue('number', data.number);
+          form.setValue('neighborhood', data.neighborhood);
+          form.setValue('city', data.city);
+          form.setValue('state', data.state);
+          form.setValue('zipcode', data.zipcode);
+          
+          // Set venue_id
+          form.setValue('venue_id', preSelectedVenueId);
+
+          // Create a location string
+          const locationStr = `${data.street}, ${data.number} - ${data.neighborhood}, ${data.city}/${data.state}`;
+          form.setValue('location', locationStr);
+        }
+      } catch (error) {
+        console.error('Error fetching venue details:', error);
+      }
+    };
+
+    fetchVenueDetails();
+  }, [preSelectedVenueId, form]);
 
   return (
     <Form {...form}>
