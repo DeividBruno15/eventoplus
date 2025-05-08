@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/select";
 import { Star, Filter } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
+import { useBreakpoint } from '@/hooks/useBreakpoint';
 
 interface RatingsFilterProps {
   filter: string;
@@ -25,6 +26,7 @@ const RatingsFilter: React.FC<RatingsFilterProps> = ({
 }) => {
   // Calcular a distribuição se fornecida
   const hasDistribution = Object.keys(ratingsDistribution).length > 0;
+  const { isMobile } = useBreakpoint('sm');
   
   // Renderiza as estrelas para cada opção
   const renderStars = (count: number) => {
@@ -59,7 +61,7 @@ const RatingsFilter: React.FC<RatingsFilterProps> = ({
           value={filter}
           onValueChange={onFilterChange}
         >
-          <SelectTrigger className="w-[180px] h-9" aria-label="Filtrar avaliações">
+          <SelectTrigger className="w-full sm:w-[180px] h-9" aria-label="Filtrar avaliações">
             <SelectValue placeholder="Filtrar avaliações" />
           </SelectTrigger>
           <SelectContent>
@@ -83,7 +85,7 @@ const RatingsFilter: React.FC<RatingsFilterProps> = ({
         <div className="space-y-2 pt-1">
           {[5, 4, 3, 2, 1].map((rating) => (
             <div key={rating} className="flex items-center gap-2">
-              <div className="flex items-center gap-1 w-20">
+              <div className="flex items-center gap-1 w-16 sm:w-20">
                 <span className="text-sm">{rating}</span>
                 <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
               </div>
@@ -95,7 +97,7 @@ const RatingsFilter: React.FC<RatingsFilterProps> = ({
                 />
               </div>
               
-              <span className="text-sm text-muted-foreground w-10 text-right">
+              <span className="text-xs sm:text-sm text-muted-foreground w-8 sm:w-10 text-right">
                 {ratingsDistribution[rating] || 0}
               </span>
             </div>
@@ -110,6 +112,7 @@ const RatingsFilter: React.FC<RatingsFilterProps> = ({
           <button 
             className="ml-1 hover:text-destructive"
             onClick={() => onFilterChange('all')}
+            aria-label="Remover filtro"
           >
             ✕
           </button>

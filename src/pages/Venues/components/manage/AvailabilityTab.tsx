@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import VenueReservationCalendar from '../VenueReservationCalendar';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface AvailabilityTabProps {
   venueId: string;
@@ -12,6 +13,7 @@ interface AvailabilityTabProps {
 
 const AvailabilityTab: React.FC<AvailabilityTabProps> = ({ venueId }) => {
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
+  const isMobile = useIsMobile();
   
   const handleDateSelection = (dates: Date[]) => {
     setSelectedDates(dates);
@@ -27,20 +29,20 @@ const AvailabilityTab: React.FC<AvailabilityTabProps> = ({ venueId }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Gerenciar Disponibilidade</CardTitle>
+        <CardTitle className="text-xl">Gerenciar Disponibilidade</CardTitle>
         <CardDescription>
           Visualize e gerencie as datas disponíveis para reserva
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-col md:flex-row gap-6">
-        <div className="w-full md:w-1/2">
+      <CardContent className="flex flex-col lg:flex-row gap-6">
+        <div className="w-full lg:w-1/2">
           <VenueReservationCalendar 
             venueId={venueId}
             onSelectionChange={handleDateSelection}
             isOwner={true}
           />
         </div>
-        <div className="w-full md:w-1/2 space-y-4">
+        <div className="w-full lg:w-1/2 space-y-4">
           <div className="bg-muted/30 p-4 rounded-lg">
             <h3 className="font-medium mb-2">Legenda</h3>
             <div className="space-y-2">
@@ -74,7 +76,7 @@ const AvailabilityTab: React.FC<AvailabilityTabProps> = ({ venueId }) => {
               <div className="mt-4 flex justify-end">
                 <Button 
                   variant="outline" 
-                  size="sm" 
+                  size={isMobile ? "sm" : "default"} 
                   onClick={handleMarkAsUnavailable}
                 >
                   Marcar como indisponível

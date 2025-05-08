@@ -6,18 +6,22 @@ import { NotificationsMenu } from "@/components/layout/notifications/Notificatio
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/auth";
 import { Navigate, useNavigate } from "react-router-dom";
-import { Loader2 } from "lucide-react";
+import { Loader2, Menu } from "lucide-react";
 import { PageTransition } from "@/components/ui/page-transition";
 import { AnimatePresence } from "framer-motion";
 import { SidebarProvider } from "@/components/ui/sidebar/context";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { Button } from "@/components/ui/button";
+import { useBreakpoint } from "@/hooks/useBreakpoint";
 
 const DashboardLayout = () => {
   // Inicialmente, defina como null para não redirecionar imediatamente durante a verificação
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const { isMobile } = useBreakpoint('md');
 
   // Verificar status de autenticação
   useEffect(() => {
@@ -37,6 +41,9 @@ const DashboardLayout = () => {
   // Função para navegação
   const handleNavigate = (path: string) => {
     navigate(path);
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
   };
 
   // Estado de carregamento
@@ -57,14 +64,40 @@ const DashboardLayout = () => {
   }
 
   return (
-    <SidebarProvider defaultOpen={!window.matchMedia("(max-width: 768px)").matches}>
+    <SidebarProvider defaultOpen={!isMobile}>
       <div className="flex flex-col md:flex-row min-h-screen w-full">
-        <SidebarNavigation onNavigate={handleNavigate} />
-        <div className="flex-grow">
+        <div 
+          className={`fixed inset-0 bg-black/50 z-30 transition-opacity md:hidden ${
+            sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}
+          onClick={() => setSidebarOpen(false)}
+        />
+        
+        <div 
+          className={`fixed top-0 left-0 h-full w-[240px] bg-background z-40 transform transition-transform md:relative md:translate-x-0 ${
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
+        >
+          <SidebarNavigation onNavigate={handleNavigate} />
+        </div>
+        
+        <div className="flex-grow flex flex-col min-h-screen">
           {/* Header com menu do usuário */}
           <header className="sticky top-0 z-10 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="flex h-14 items-center justify-end px-4">
-              <div className="flex items-center gap-4">
+            <div className="flex h-14 items-center px-4">
+              {isMobile && (
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => setSidebarOpen(!sidebarOpen)}
+                  className="mr-2"
+                >
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Toggle Menu</span>
+                </Button>
+              )}
+              
+              <div className="ml-auto flex items-center gap-4">
                 <ThemeToggle />
                 <NotificationsMenu />
                 <UserMenu />
@@ -73,7 +106,7 @@ const DashboardLayout = () => {
           </header>
 
           {/* Conteúdo principal com transição de página animada */}
-          <main className="flex-1 p-4 pb-20">
+          <main className="flex-1 p-2 sm:p-4 pb-20">
             <AnimatePresence mode="wait">
               <PageTransition>
                 <Outlet />
