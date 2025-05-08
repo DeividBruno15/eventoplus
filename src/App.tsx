@@ -39,6 +39,7 @@ import VenuesPage from "./pages/Venues";
 import CreateVenuePage from "./pages/Venues/CreateVenue";
 import VenueDetailsPage from "./pages/Venues/VenueDetails";
 import EditVenuePage from "./pages/Venues/EditVenue";
+import ManageVenueDetails from "./pages/Venues/ManageVenueDetails";
 
 const queryClient = new QueryClient();
 
@@ -77,6 +78,8 @@ function App() {
                   <Route path="venues/create" element={<CreateVenuePage />} />
                   <Route path="venues/details/:id" element={<VenueDetailsPage />} />
                   <Route path="venues/edit/:id" element={<EditVenuePage />} />
+                  <Route path="venues/manage/:id" element={<ManageVenueDetails />} />
+                  <Route path="venues/manage" element={<VenuesPage />} />
 
                   <Route path="chat" element={<Chat />} />
                   <Route path="conversation/:conversationId" element={<Conversation />} />
