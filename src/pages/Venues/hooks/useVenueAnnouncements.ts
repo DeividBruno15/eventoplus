@@ -17,7 +17,15 @@ export const useVenueAnnouncements = () => {
         .from('venue_announcements')
         .select(`
           *,
-          user_venues (*)
+          user_venues (
+            name,
+            city,
+            state,
+            zipcode,
+            street,
+            number,
+            neighborhood
+          )
         `)
         .order('created_at', { ascending: false });
       
@@ -39,8 +47,26 @@ export const useVenueAnnouncements = () => {
           undefined,
         user_id: item.user_id,
         social_links: item.social_links,
+        user_venues: item.user_venues ? {
+          zipcode: item.user_venues.zipcode,
+          city: item.user_venues.city,
+          state: item.user_venues.state
+        } : undefined,
         rating: undefined // We'll add rating data separately
       }));
+      
+      // Fetch ratings for each venue
+      for (const announcement of formattedAnnouncements) {
+        const { data: ratingsData, error: ratingsError } = await supabase
+          .from('venue_ratings')
+          .select('overall_rating')
+          .eq('venue_id', announcement.id);
+          
+        if (!ratingsError && ratingsData && ratingsData.length > 0) {
+          const ratings = ratingsData.map(r => r.overall_rating);
+          announcement.rating = ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length;
+        }
+      }
       
       setAnnouncements(formattedAnnouncements);
     } catch (err) {

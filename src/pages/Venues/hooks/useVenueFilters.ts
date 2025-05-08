@@ -9,7 +9,9 @@ export const useVenueFilters = (announcements: VenueAnnouncement[]) => {
     venueType: undefined,
     minRating: undefined,
     priceRange: [0, 10000],
-    sortBy: "newest"
+    sortBy: "newest",
+    location: undefined,
+    maxDistance: 50
   });
 
   // Filtered announcements based on current filters
@@ -23,7 +25,8 @@ export const useVenueFilters = (announcements: VenueAnnouncement[]) => {
         announcement.venue_name.toLowerCase().includes(filters.searchQuery.toLowerCase());
       
       // Filtro de tipo
-      const matchesType = filters.venueType === undefined || 
+      const matchesType = !filters.venueType || 
+        filters.venueType === "all" ||
         announcement.venue_type === filters.venueType;
       
       // Filtro de preço
@@ -31,13 +34,33 @@ export const useVenueFilters = (announcements: VenueAnnouncement[]) => {
         announcement.price_per_hour <= filters.priceRange[1];
         
       // Filtro de avaliação - lidando com rating nulo ou indefinido
-      const matchesRating = filters.minRating === undefined || 
+      const matchesRating = !filters.minRating || 
+        filters.minRating === "any" ||
         (announcement.rating !== undefined && 
          announcement.rating !== null && 
          announcement.rating >= parseFloat(filters.minRating));
+      
+      // Filtro de localização
+      let matchesLocation = true;
+      if (filters.location) {
+        if (filters.location.state && filters.location.state !== "all") {
+          matchesLocation = matchesLocation && 
+            announcement.address?.includes(filters.location.state);
+        }
+        
+        if (filters.location.city && filters.location.city.trim() !== "") {
+          matchesLocation = matchesLocation && 
+            announcement.address?.toLowerCase().includes(filters.location.city.toLowerCase());
+        }
+        
+        if (filters.location.zipcode && filters.location.zipcode.trim() !== "") {
+          matchesLocation = matchesLocation && 
+            (announcement.user_venues?.zipcode === filters.location.zipcode);
+        }
+      }
 
       // Retorna verdadeiro se todos os filtros corresponderem
-      return matchesSearch && matchesType && matchesPrice && matchesRating;
+      return matchesSearch && matchesType && matchesPrice && matchesRating && matchesLocation;
     });
 
     // Then apply sorting

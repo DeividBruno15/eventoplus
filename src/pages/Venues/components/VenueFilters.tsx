@@ -24,6 +24,7 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
+import VenueLocationFilter from "./VenueLocationFilter";
 
 // Venue types options
 const VENUE_TYPES = [
@@ -62,6 +63,12 @@ export interface FiltersState {
   minRating: string | undefined;
   priceRange: [number, number];
   sortBy: string;
+  location?: {
+    city?: string;
+    state?: string;
+    zipcode?: string;
+  };
+  maxDistance: number;
 }
 
 interface VenueFiltersProps {
@@ -97,6 +104,14 @@ const VenueFilters: React.FC<VenueFiltersProps> = ({
   const handleFilterChange = (field: keyof FiltersState, value: any) => {
     setLocalFilters(prev => ({ ...prev, [field]: value }));
   };
+
+  const handleLocationChange = (location: FiltersState['location']) => {
+    setLocalFilters(prev => ({ ...prev, location }));
+  };
+  
+  const handleMaxDistanceChange = (distance: number) => {
+    setLocalFilters(prev => ({ ...prev, maxDistance: distance }));
+  };
   
   const applyFilters = () => {
     onFilterChange(localFilters);
@@ -110,6 +125,8 @@ const VenueFilters: React.FC<VenueFiltersProps> = ({
       minRating: undefined,
       priceRange: [0, 10000],
       sortBy: "newest",
+      location: undefined,
+      maxDistance: 50
     };
     
     setLocalFilters(resetFiltersState);
@@ -129,6 +146,7 @@ const VenueFilters: React.FC<VenueFiltersProps> = ({
   const filtersCount = (
     (filters.venueType ? 1 : 0) + 
     (filters.minRating ? 1 : 0) + 
+    (filters.location?.city || filters.location?.state || filters.location?.zipcode ? 1 : 0) +
     (filters.priceRange[0] > 0 || filters.priceRange[1] < 10000 ? 1 : 0)
   );
   
@@ -173,6 +191,16 @@ const VenueFilters: React.FC<VenueFiltersProps> = ({
               ))}
             </SelectContent>
           </Select>
+        </div>
+
+        <div>
+          <h4 className="font-medium mb-2">Localização</h4>
+          <VenueLocationFilter 
+            location={localFilters.location}
+            maxDistance={localFilters.maxDistance}
+            onLocationChange={handleLocationChange}
+            onMaxDistanceChange={handleMaxDistanceChange}
+          />
         </div>
         
         <div>

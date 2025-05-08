@@ -1,5 +1,30 @@
 
-// Tipos para avaliações de venues
+export interface VenueAnnouncement {
+  id: string;
+  title: string;
+  description: string;
+  image_url: string;
+  venue_name: string;
+  venue_type: string;
+  price_per_hour: number;
+  created_at: string;
+  views: number;
+  address?: string;
+  user_id: string;
+  social_links?: SocialLink[];
+  rating?: number;
+  user_venues?: {
+    zipcode: string;
+    city: string;
+    state: string;
+  };
+}
+
+export interface SocialLink {
+  type: string;
+  url: string;
+}
+
 export interface VenueRating {
   id: string;
   venue_id: string;
@@ -12,30 +37,10 @@ export interface VenueRating {
   amenities_rating?: number;
   comment: string;
   created_at: string;
-  user_name?: string;
+  user_name: string;
   user_avatar?: string;
   owner_response?: {
     response: string;
     created_at: string;
   };
-}
-
-// Interface para anúncios de venues
-export interface VenueAnnouncement {
-  id: string;
-  title: string;
-  description: string;
-  image_url: string | null;
-  venue_name: string;
-  venue_type: string;
-  price_per_hour: number;
-  created_at: string;
-  views: number;
-  address?: string;
-  user_id: string; // Added the user_id property
-  social_links?: Array<{
-    type: string;
-    url: string;
-  }> | null;
-  rating?: number;
 }

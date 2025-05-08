@@ -7,6 +7,8 @@ import VenuePageHeader from "./components/VenuePageHeader";
 import VenueFilters from "./components/VenueFilters";
 import VenuesGrid from "./components/VenuesGrid";
 import { useState } from "react";
+import VenueLocationFilter from "./components/VenueLocationFilter";
+import { toast } from "sonner";
 
 const VenuesPage = () => {
   const { announcements, loading, refetchAnnouncements } = useVenueAnnouncements();
@@ -17,8 +19,25 @@ const VenuesPage = () => {
   const { filters, setFilters, filteredAnnouncements } = useVenueFilters(announcements);
   
   const handleDeleteAnnouncement = async (id: string) => {
-    // Apenas refetch após exclusão bem-sucedida para atualizar a lista
-    await refetchAnnouncements();
+    try {
+      const response = await fetch(`/api/venues/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error('Falha ao excluir anúncio');
+      }
+      
+      toast.success('Anúncio excluído com sucesso!');
+      // Refetch após exclusão bem-sucedida para atualizar a lista
+      await refetchAnnouncements();
+    } catch (error) {
+      console.error('Erro ao excluir anúncio:', error);
+      toast.error('Erro ao excluir anúncio. Tente novamente.');
+    }
   };
 
   return (
