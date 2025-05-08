@@ -77,10 +77,12 @@ const VenueFilters: React.FC<VenueFiltersProps> = ({
 
   return (
     <div className="bg-white border rounded-lg shadow-sm p-3">
-      <div className="flex flex-col md:flex-row gap-3">
-        <SearchInput value={filters.searchQuery} onChange={handleSearchChange} />
+      <div className="flex flex-col md:flex-row gap-2 items-center">
+        <div className="w-full md:w-auto flex-1">
+          <SearchInput value={filters.searchQuery} onChange={handleSearchChange} />
+        </div>
 
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-2 items-center">
           {isDesktop && (
             <SortingSelect value={filters.sortBy} onChange={handleSortChange} />
           )}

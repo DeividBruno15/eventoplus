@@ -32,6 +32,7 @@ const PriceRangeFilter: React.FC<PriceRangeFilterProps> = ({ value, onChange }) 
         step={100}
         value={value}
         onValueChange={(value) => onChange(value as [number, number])}
+        className="mt-2"
       />
     </div>
   );

@@ -1,13 +1,17 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from "@/components/ui/button";
 import { FiltersState } from '../../hooks/useVenueFilters';
 import VenueTypeFilter from './VenueTypeFilter';
 import RatingFilter from './RatingFilter';
 import PriceRangeFilter from './PriceRangeFilter';
 import VenueLocationFilter from '../VenueLocationFilter';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Filter } from 'lucide-react';
+import { 
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from "@/components/ui/popover";
 
 interface DesktopFiltersPanelProps {
   localFilters: FiltersState;
@@ -26,8 +30,6 @@ const DesktopFiltersPanel: React.FC<DesktopFiltersPanelProps> = ({
   applyFilters,
   resetFilters
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
   // Determine active filters count for the indicator badge
   const filtersCount = 
     (localFilters.venueType ? 1 : 0) +
@@ -36,23 +38,21 @@ const DesktopFiltersPanel: React.FC<DesktopFiltersPanelProps> = ({
     (localFilters.priceRange[0] > 0 || localFilters.priceRange[1] < 10000 ? 1 : 0);
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-[260px]">
-      <div className="flex items-center">
-        <CollapsibleTrigger asChild>
-          <Button variant="outline" size="sm" className="flex items-center gap-2 relative">
-            <Filter className="h-4 w-4" />
-            Mais filtros
-            {filtersCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full w-5 h-5 text-xs flex items-center justify-center">
-                {filtersCount}
-              </span>
-            )}
-          </Button>
-        </CollapsibleTrigger>
-      </div>
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="outline" size="sm" className="flex items-center gap-2 relative h-9">
+          <Filter className="h-4 w-4" />
+          Mais filtros
+          {filtersCount > 0 && (
+            <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full w-5 h-5 text-xs flex items-center justify-center">
+              {filtersCount}
+            </span>
+          )}
+        </Button>
+      </PopoverTrigger>
 
-      <CollapsibleContent className="mt-2">
-        <div className="border p-3 rounded-md space-y-3">
+      <PopoverContent className="w-80 p-0" align="end">
+        <div className="p-3 space-y-3">
           <VenueTypeFilter 
             value={localFilters.venueType} 
             onChange={(value) => onFilterChange('venueType', value)} 
@@ -88,14 +88,16 @@ const DesktopFiltersPanel: React.FC<DesktopFiltersPanelProps> = ({
             </Button>
             <Button 
               size="sm"
-              onClick={applyFilters}
+              onClick={() => {
+                applyFilters();
+              }}
             >
               Aplicar
             </Button>
           </div>
         </div>
-      </CollapsibleContent>
-    </Collapsible>
+      </PopoverContent>
+    </Popover>
   );
 };
 

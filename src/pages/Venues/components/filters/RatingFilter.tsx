@@ -22,7 +22,7 @@ const RatingFilter: React.FC<RatingFilterProps> = ({ value, onChange }) => {
         value={value}
         onValueChange={onChange}
       >
-        <SelectTrigger className="h-9">
+        <SelectTrigger className="h-8 text-sm">
           <SelectValue placeholder="Qualquer avaliação" />
         </SelectTrigger>
         <SelectContent>

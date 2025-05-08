@@ -22,7 +22,7 @@ const VenueTypeFilter: React.FC<VenueTypeFilterProps> = ({ value, onChange }) =>
         value={value}
         onValueChange={onChange}
       >
-        <SelectTrigger className="h-9">
+        <SelectTrigger className="h-8 text-sm">
           <SelectValue placeholder="Todos os tipos" />
         </SelectTrigger>
         <SelectContent>

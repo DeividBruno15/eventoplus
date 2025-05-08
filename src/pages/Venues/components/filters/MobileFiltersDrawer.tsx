@@ -13,7 +13,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { SlidersHorizontal } from 'lucide-react';
 import { Separator } from "@/components/ui/separator";
-import { Badge } from '@/components/ui/badge';
 import { FiltersState } from '../../hooks/useVenueFilters';
 import VenueTypeFilter from './VenueTypeFilter';
 import RatingFilter from './RatingFilter';
