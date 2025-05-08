@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
 import Index from "./pages/Index";
@@ -29,6 +28,7 @@ import ResetPassword from "./pages/ResetPassword";
 import Payments from './pages/Payments';
 import Notifications from './pages/Notifications';
 import WhatsAppAssistant from './pages/WhatsAppAssistant';
+import PaymentSuccess from './pages/Venues/PaymentSuccess';
 import { AuthProvider } from "./hooks/auth";
 import { Toaster } from "sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -85,6 +85,7 @@ function App() {
                   <Route path="profile" element={<Profile />} />
                   <Route path="settings" element={<Settings />} />
                   <Route path="support" element={<Support />} />
+                  <Route path="/payment-success" element={<PaymentSuccess />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />

@@ -5,18 +5,22 @@ import { ptBR } from "date-fns/locale";
 interface VenueAvailabilityCalendarProps {
   selectedDates: Date[];
   setSelectedDates: React.Dispatch<React.SetStateAction<Date[]>>;
+  readOnly?: boolean;
 }
 
 const VenueAvailabilityCalendar: React.FC<VenueAvailabilityCalendarProps> = ({ 
   selectedDates, 
-  setSelectedDates 
+  setSelectedDates,
+  readOnly = false
 }) => {
   return (
     <div className="space-y-2">
       <div>
-        <h3 className="text-base font-medium">Disponibilidade</h3>
+        <h3 className="text-base font-medium">{readOnly ? 'Disponibilidade' : 'Selecione as datas'}</h3>
         <p className="text-sm text-muted-foreground">
-          Selecione os dias em que seu espaço está disponível para locação
+          {readOnly 
+            ? 'Estas são as datas disponíveis para seu espaço' 
+            : 'Selecione os dias que deseja reservar'}
         </p>
       </div>
       
@@ -24,8 +28,8 @@ const VenueAvailabilityCalendar: React.FC<VenueAvailabilityCalendarProps> = ({
         <Calendar
           mode="multiple"
           selected={selectedDates}
-          onSelect={(dates) => setSelectedDates(dates || [])}
-          className="pointer-events-auto mx-auto"
+          onSelect={!readOnly ? ((dates) => setSelectedDates(dates || [])) : undefined}
+          className={`pointer-events-auto mx-auto ${readOnly ? 'pointer-events-none' : ''}`}
           locale={ptBR}
           disabled={(date) => date < new Date()}
           classNames={{
@@ -48,7 +52,7 @@ const VenueAvailabilityCalendar: React.FC<VenueAvailabilityCalendarProps> = ({
         <div className="flex items-center justify-between mt-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <span className="h-3 w-3 rounded-full bg-primary"></span>
-            <span>Dias disponíveis</span>
+            <span>{readOnly ? 'Dias disponíveis' : 'Dias selecionados'}</span>
           </div>
           <p>
             {selectedDates.length} {selectedDates.length === 1 ? 'dia selecionado' : 'dias selecionados'}

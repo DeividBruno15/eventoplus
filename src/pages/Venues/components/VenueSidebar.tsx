@@ -8,6 +8,7 @@ import { Calendar, Clock } from "lucide-react";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import VenueAvailabilityCalendar from './VenueAvailabilityCalendar';
+import { useVenueBooking } from '../hooks/useVenueBooking';
 
 interface VenueSidebarProps {
   pricePerHour: number;
@@ -40,6 +41,14 @@ export const VenueSidebar = ({
     format(new Date(createdAt), "d 'de' MMMM 'de' yyyy", { locale: ptBR }) : '';
     
   const totalCost = pricePerHour * (localSelectedDates.length || 1);
+  
+  // Use the booking hook for payment functionality
+  const { handleBooking, isBooking } = useVenueBooking(
+    venueId || '',
+    venueName || '',
+    pricePerHour,
+    localSelectedDates
+  );
   
   return (
     <div className="space-y-6">
@@ -95,16 +104,12 @@ export const VenueSidebar = ({
               
               <Button 
                 className="w-full"
-                disabled={!isAuthenticated}
-                onClick={() => {
-                  if (!isAuthenticated) {
-                    window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
-                    return;
-                  }
-                  window.location.href = `/venues/book/${venueId || window.location.pathname.split('/').pop()}`;
+                disabled={!isAuthenticated || isBooking}
+                onClick={isAuthenticated ? handleBooking : () => {
+                  window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
                 }}
               >
-                Reservar
+                {isBooking ? 'Processando...' : 'Reservar'}
               </Button>
               
               {!isAuthenticated ? (
@@ -113,7 +118,7 @@ export const VenueSidebar = ({
                 </p>
               ) : (
                 <p className="text-xs text-center text-muted-foreground">
-                  Você não será cobrado ainda
+                  Você será redirecionado para o pagamento
                 </p>
               )}
             </div>
@@ -121,14 +126,14 @@ export const VenueSidebar = ({
           
           <Separator />
           
-          {isOwner && (
-            <div className="pt-2">
-              <VenueAvailabilityCalendar 
-                selectedDates={localSelectedDates}
-                setSelectedDates={setLocalSelectedDates}
-              />
-            </div>
-          )}
+          {/* Calendar for date selection */}
+          <div className="pt-2">
+            <VenueAvailabilityCalendar 
+              selectedDates={localSelectedDates}
+              setSelectedDates={setLocalSelectedDates}
+              readOnly={isOwner}
+            />
+          </div>
         </div>
       </Card>
     </div>
