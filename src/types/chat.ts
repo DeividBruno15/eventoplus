@@ -17,6 +17,22 @@ export interface Message {
   sender_id: string;
 }
 
+export interface ChatMessage {
+  id: string;
+  conversation_id: string;
+  sender_id: string;
+  message: string;
+  created_at: string;
+  read: boolean;
+}
+
+export interface UserProfile {
+  id: string;
+  first_name?: string;
+  last_name?: string | null;
+  avatar_url?: string;
+}
+
 export interface ConversationDetails {
   updated_at: string;
   other_user_id: string;

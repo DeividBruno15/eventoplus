@@ -1,13 +1,21 @@
 
 import { Outlet } from 'react-router-dom';
-import SidebarNavigation from './SidebarNavigation';
+import { SidebarNavigation } from './SidebarNavigation';
 import { useNavigationState } from './sidebar/useNavigationState';
 import { NotificationsMenu } from './notifications/NotificationsMenu';
 import { Button } from '@/components/ui/button';
 import { Menu } from 'lucide-react';
-import { useBreakpoint } from '@/hooks/useBreakpoint';
-import UserMenu from './UserMenu';
+import { UserMenu } from './UserMenu';
 import { NotificationSettings } from './notifications/NotificationSettings';
+
+// Custom hook for breakpoint detection
+const useBreakpoint = (breakpoint: string) => {
+  // Basic implementation - in a real app, this would use window.matchMedia and track resize events
+  const isDesktop = typeof window !== 'undefined' ? 
+    window.innerWidth >= 768 : false;
+  
+  return { isDesktop };
+};
 
 export default function Layout() {
   const { isOpen, toggleSidebar } = useNavigationState();

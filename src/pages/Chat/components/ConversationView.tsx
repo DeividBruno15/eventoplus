@@ -56,8 +56,6 @@ const ConversationView = () => {
         conversationId
       );
     }
-    
-    return success;
   };
 
   if (!conversationId) return null;
@@ -80,9 +78,8 @@ const ConversationView = () => {
       
       <div className="flex-1 overflow-hidden">
         <Messages 
-          messages={messages} 
-          isLoading={isLoading} 
-          error={error} 
+          messages={messages}
+          currentUserId={user?.id}
         />
       </div>
       
