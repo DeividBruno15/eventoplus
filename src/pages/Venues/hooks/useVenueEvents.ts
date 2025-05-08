@@ -64,11 +64,12 @@ export const useVenueEvents = (venueId?: string) => {
           max_attendees: item.max_attendees,
           contractor_id: item.contractor_id,
           user_id: item.user_id,
+          // Use type assertion to handle the contractor object correctly
           contractor: item.contractor ? {
-            id: item.contractor.id,
-            first_name: item.contractor.first_name,
-            last_name: item.contractor.last_name,
-            avatar_url: item.contractor.avatar_url
+            id: (item.contractor as any).id,
+            first_name: (item.contractor as any).first_name,
+            last_name: (item.contractor as any).last_name,
+            avatar_url: (item.contractor as any).avatar_url
           } : {
             id: item.contractor_id,
             first_name: '',
