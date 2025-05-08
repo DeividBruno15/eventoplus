@@ -42,7 +42,7 @@ const DesktopFiltersPanel: React.FC<DesktopFiltersPanelProps> = ({
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm" className="flex items-center gap-2 relative h-9">
           <Filter className="h-4 w-4" />
-          Mais filtros
+          Filtros
           {filtersCount > 0 && (
             <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full w-5 h-5 text-xs flex items-center justify-center">
               {filtersCount}
@@ -51,32 +51,42 @@ const DesktopFiltersPanel: React.FC<DesktopFiltersPanelProps> = ({
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent className="w-80 p-0" align="end">
-        <div className="p-3 space-y-3">
-          <VenueTypeFilter 
-            value={localFilters.venueType} 
-            onChange={(value) => onFilterChange('venueType', value)} 
-          />
-          
-          <RatingFilter 
-            value={localFilters.minRating} 
-            onChange={(value) => onFilterChange('minRating', value)} 
-          />
+      <PopoverContent className="w-72 p-4" align="end">
+        <div className="space-y-4">
+          <div>
+            <h4 className="text-sm font-medium mb-2">Tipo de Espaço</h4>
+            <VenueTypeFilter 
+              value={localFilters.venueType} 
+              onChange={(value) => onFilterChange('venueType', value)} 
+            />
+          </div>
           
           <div>
-            <h4 className="font-medium mb-1 text-sm">Localização</h4>
+            <h4 className="text-sm font-medium mb-2">Avaliação mínima</h4>
+            <RatingFilter 
+              value={localFilters.minRating} 
+              onChange={(value) => onFilterChange('minRating', value)} 
+            />
+          </div>
+          
+          <div>
+            <h4 className="text-sm font-medium mb-2">Faixa de preço</h4>
+            <PriceRangeFilter 
+              value={localFilters.priceRange} 
+              onChange={(value) => onFilterChange('priceRange', value)} 
+            />
+          </div>
+          
+          <div>
+            <h4 className="text-sm font-medium mb-2">Localização</h4>
             <VenueLocationFilter 
               location={localFilters.location}
               maxDistance={localFilters.maxDistance}
               onLocationChange={onLocationChange}
               onMaxDistanceChange={onMaxDistanceChange}
+              isCompact={true}
             />
           </div>
-          
-          <PriceRangeFilter 
-            value={localFilters.priceRange} 
-            onChange={(value) => onFilterChange('priceRange', value)} 
-          />
           
           <div className="flex justify-between pt-2">
             <Button 

@@ -18,13 +18,16 @@ const PriceRangeFilter: React.FC<PriceRangeFilterProps> = ({ value, onChange }) 
   };
   
   return (
-    <div>
-      <div className="flex justify-between mb-1">
-        <h4 className="font-medium text-sm">Faixa de preço</h4>
-        <div className="text-xs text-muted-foreground">
-          {formatPrice(value[0])} - {formatPrice(value[1])}
-        </div>
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <span className="text-sm text-muted-foreground">
+          {formatPrice(value[0])}
+        </span>
+        <span className="text-sm text-muted-foreground">
+          {formatPrice(value[1])}
+        </span>
       </div>
+      
       <Slider
         defaultValue={value}
         min={0}
@@ -32,7 +35,6 @@ const PriceRangeFilter: React.FC<PriceRangeFilterProps> = ({ value, onChange }) 
         step={100}
         value={value}
         onValueChange={(value) => onChange(value as [number, number])}
-        className="mt-2"
       />
     </div>
   );

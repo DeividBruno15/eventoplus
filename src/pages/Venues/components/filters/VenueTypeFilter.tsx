@@ -15,26 +15,25 @@ interface VenueTypeFilterProps {
 }
 
 const VenueTypeFilter: React.FC<VenueTypeFilterProps> = ({ value, onChange }) => {
+  const currentType = VENUE_TYPES.find(type => type.id === value)?.label || 'Todos os tipos';
+  
   return (
-    <div>
-      <h4 className="font-medium mb-1 text-sm">Tipo de Espaço</h4>
-      <Select 
-        value={value}
-        onValueChange={onChange}
-      >
-        <SelectTrigger className="h-8 text-sm">
-          <SelectValue placeholder="Todos os tipos" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Todos os tipos</SelectItem>
-          {VENUE_TYPES.map(type => (
-            <SelectItem key={type.id} value={type.id}>
-              {type.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
+    <Select 
+      value={value || 'all'}
+      onValueChange={onChange}
+    >
+      <SelectTrigger className="h-8 text-sm w-full">
+        <SelectValue placeholder="Tipo de Espaço" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="all" className="text-sm">Todos os tipos</SelectItem>
+        {VENUE_TYPES.map(type => (
+          <SelectItem key={type.id} value={type.id} className="text-sm">
+            {type.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 };
 

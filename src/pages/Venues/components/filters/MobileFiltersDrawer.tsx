@@ -68,39 +68,51 @@ const MobileFiltersDrawer: React.FC<MobileFiltersDrawerProps> = ({
               Encontre o espaço perfeito para seu evento
             </DrawerDescription>
           </DrawerHeader>
-          <div className="p-4 pt-0 space-y-3">
-            <VenueTypeFilter 
-              value={localFilters.venueType} 
-              onChange={(value) => onFilterChange('venueType', value)} 
-            />
-            
-            <RatingFilter 
-              value={localFilters.minRating} 
-              onChange={(value) => onFilterChange('minRating', value)} 
-            />
+          <div className="p-4 pt-0 space-y-4">
+            <div>
+              <h4 className="text-sm font-medium mb-2">Tipo de Espaço</h4>
+              <VenueTypeFilter 
+                value={localFilters.venueType} 
+                onChange={(value) => onFilterChange('venueType', value)} 
+              />
+            </div>
             
             <div>
-              <h4 className="font-medium mb-1 text-sm">Localização</h4>
+              <h4 className="text-sm font-medium mb-2">Avaliação mínima</h4>
+              <RatingFilter 
+                value={localFilters.minRating} 
+                onChange={(value) => onFilterChange('minRating', value)} 
+              />
+            </div>
+            
+            <div>
+              <h4 className="text-sm font-medium mb-2">Faixa de preço</h4>
+              <PriceRangeFilter 
+                value={localFilters.priceRange} 
+                onChange={(value) => onFilterChange('priceRange', value)} 
+              />
+            </div>
+            
+            <div>
+              <h4 className="text-sm font-medium mb-2">Localização</h4>
               <VenueLocationFilter 
                 location={localFilters.location}
                 maxDistance={localFilters.maxDistance}
                 onLocationChange={onLocationChange}
                 onMaxDistanceChange={onMaxDistanceChange}
+                isCompact={true}
               />
             </div>
             
-            <PriceRangeFilter 
-              value={localFilters.priceRange} 
-              onChange={(value) => onFilterChange('priceRange', value)} 
-            />
-            
             <Separator className="my-2" />
             
-            <h4 className="font-medium mb-1 text-sm">Ordenar por</h4>
-            <SortingSelect 
-              value={sortByValue} 
-              onChange={onSortChange}
-            />
+            <div>
+              <h4 className="text-sm font-medium mb-2">Ordenar por</h4>
+              <SortingSelect 
+                value={sortByValue} 
+                onChange={onSortChange}
+              />
+            </div>
           </div>
           <DrawerFooter className="p-4 pt-0">
             <Button onClick={() => { applyFilters(); setIsOpen(false); }}>
