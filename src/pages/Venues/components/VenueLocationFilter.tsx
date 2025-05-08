@@ -31,13 +31,15 @@ interface VenueLocationFilterProps {
   maxDistance?: number;
   onLocationChange: (location: Location) => void;
   onMaxDistanceChange: (distance: number) => void;
+  isCompact?: boolean; // Added the isCompact prop
 }
 
 const VenueLocationFilter: React.FC<VenueLocationFilterProps> = ({
   location = {},
   maxDistance = 50,
   onLocationChange,
-  onMaxDistanceChange
+  onMaxDistanceChange,
+  isCompact = false // Default value is false
 }) => {
   const [open, setOpen] = useState(false);
   const [tempLocation, setTempLocation] = useState<Location>(location);
