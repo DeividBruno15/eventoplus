@@ -52,34 +52,17 @@ const VenueReservationCalendar: React.FC<VenueReservationCalendarProps> = ({
   };
   
   // Lidar com seleção de data
-  const handleSelect = (date: Date | undefined) => {
-    if (!date) return;
-    
-    // Verificar se a data já está selecionada
-    const dateIndex = selectedDates.findIndex(selectedDate => 
-      selectedDate.getFullYear() === date.getFullYear() &&
-      selectedDate.getMonth() === date.getMonth() &&
-      selectedDate.getDate() === date.getDate()
-    );
-    
-    let newSelectedDates;
-    if (dateIndex >= 0) {
-      // Remover da seleção
-      newSelectedDates = [
-        ...selectedDates.slice(0, dateIndex),
-        ...selectedDates.slice(dateIndex + 1)
-      ];
-    } else {
-      // Adicionar à seleção apenas se estiver disponível
-      if (isDaySelectable(date)) {
-        newSelectedDates = [...selectedDates, date];
-      } else {
-        return; // Data não disponível, não fazer nada
-      }
+  const handleSelect = (dates: Date[] | undefined) => {
+    if (!dates) {
+      setSelectedDates([]);
+      onSelectionChange([]);
+      return;
     }
     
-    setSelectedDates(newSelectedDates);
-    onSelectionChange(newSelectedDates);
+    // Filtrar apenas as datas que são selecionáveis
+    const validDates = dates.filter(date => isDaySelectable(date));
+    setSelectedDates(validDates);
+    onSelectionChange(validDates);
   };
   
   // Limpar seleção

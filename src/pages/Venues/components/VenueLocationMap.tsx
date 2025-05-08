@@ -56,7 +56,7 @@ const VenueLocationMap: React.FC<VenueLocationMapProps> = ({
       const fullAddress = `${address}, ${city}, ${state}`;
       const geocoder = new window.google.maps.Geocoder();
       
-      geocoder.geocode({ address: fullAddress }, (results, status) => {
+      geocoder.geocode({ address: fullAddress }, (results: any, status: string) => {
         if (status === 'OK' && results && results[0]) {
           const location = results[0].geometry.location;
           

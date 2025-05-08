@@ -74,7 +74,7 @@ const MapView: React.FC<MapViewProps> = ({ venues, onSelectVenue, className }) =
           const fullAddress = `${venue.address || ''}, ${venue.user_venues.city}, ${venue.user_venues.state}`;
           
           const geocoder = new window.google.maps.Geocoder();
-          geocoder.geocode({ address: fullAddress }, (results, status) => {
+          geocoder.geocode({ address: fullAddress }, (results: any, status: string) => {
             if (status === 'OK' && results && results[0]) {
               const location = results[0].geometry.location;
               bounds.extend(location);

@@ -1,9 +1,11 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Edit, Trash, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import FavoriteButton from "./FavoriteButton";
 
 interface VenueActionsProps {
   isOwner: boolean;
