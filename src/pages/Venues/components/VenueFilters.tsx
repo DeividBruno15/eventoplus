@@ -145,7 +145,7 @@ const VenueFilters: React.FC<VenueFiltersProps> = ({
               <SelectValue placeholder="Todos os tipos" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todos os tipos</SelectItem>
+              <SelectItem value="all">Todos os tipos</SelectItem>
               {VENUE_TYPES.map(type => (
                 <SelectItem key={type.id} value={type.id}>
                   {type.label}
@@ -165,7 +165,7 @@ const VenueFilters: React.FC<VenueFiltersProps> = ({
               <SelectValue placeholder="Qualquer avaliação" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Qualquer avaliação</SelectItem>
+              <SelectItem value="any">Qualquer avaliação</SelectItem>
               {RATING_OPTIONS.map(option => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}

@@ -116,7 +116,7 @@ const VenueLocationFilter: React.FC<VenueLocationFilterProps> = ({
                   <SelectValue placeholder="Selecione o estado" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos os estados</SelectItem>
+                  <SelectItem value="all">Todos os estados</SelectItem>
                   {brazilianStates.map((state) => (
                     <SelectItem key={state.value} value={state.value}>
                       {state.label}

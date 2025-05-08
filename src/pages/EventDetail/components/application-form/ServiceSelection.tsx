@@ -24,11 +24,15 @@ export const ServiceSelection = ({ selectedService, setSelectedService, userServ
           <SelectValue placeholder="Selecione um serviço" />
         </SelectTrigger>
         <SelectContent>
-          {userServices.map((service) => (
-            <SelectItem key={service.id} value={service.category}>
-              {service.category}
-            </SelectItem>
-          ))}
+          {userServices.length > 0 ? (
+            userServices.map((service) => (
+              <SelectItem key={service.id} value={service.category}>
+                {service.category}
+              </SelectItem>
+            ))
+          ) : (
+            <SelectItem value="no-services">Nenhum serviço disponível</SelectItem>
+          )}
         </SelectContent>
       </Select>
     </div>
