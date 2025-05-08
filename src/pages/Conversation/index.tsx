@@ -43,13 +43,11 @@ export default function Conversation() {
       
       // Enviar notificação ao destinatário se ele existir e tiver um ID
       if (otherUser && user) {
-        // Precisamos do otherUser com a propriedade id
-        const otherUserId = otherUser.id;
-        
-        if (otherUserId) {
+        // Usando otherUser com segurança
+        if (otherUser.id) {
           await sendMessageNotification(
-            otherUserId,
-            `${user.first_name} ${user.last_name}`,
+            otherUser.id,
+            user.first_name + ' ' + (user.last_name || ''),
             content,
             conversationId
           );
@@ -60,12 +58,23 @@ export default function Conversation() {
     }
   };
 
+  // Calcular as iniciais do outro usuário para o avatar
+  const getOtherUserInitials = () => {
+    if (!otherUser) return '';
+    
+    const firstName = otherUser.first_name || '';
+    const lastName = otherUser.last_name || '';
+    
+    return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
+  };
+
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)]">
       {/* Cabeçalho da conversa */}
       {otherUser && (
         <ConversationHeader
-          name={`${otherUser.first_name} ${otherUser.last_name || ''}`}
+          otherUserName={`${otherUser.first_name} ${otherUser.last_name || ''}`}
+          otherUserInitials={getOtherUserInitials()}
         />
       )}
       
