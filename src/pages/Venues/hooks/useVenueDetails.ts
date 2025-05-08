@@ -1,60 +1,54 @@
 
-import { useState, useEffect } from 'react';
-import { parseISO } from 'date-fns';
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { VenueDetails } from '../types/venueDetailsTypes';
+import { VenueDetails } from "../types/venueDetailsTypes";
 
-export const useVenueDetails = (id: string | undefined) => {
+export const useVenueDetails = (id?: string) => {
   const [venue, setVenue] = useState<VenueDetails | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
-
+  
   useEffect(() => {
+    if (!id) {
+      setLoading(false);
+      return;
+    }
+    
     const fetchVenueDetails = async () => {
-      if (!id) return;
-      
       try {
         setLoading(true);
+        setError(null);
         
         const { data, error } = await supabase
           .from('venue_announcements')
           .select(`
             *,
-            venue:venue_id(name, street, number, neighborhood, city, state, zipcode)
+            user_venues (*)
           `)
           .eq('id', id)
           .single();
         
-        if (error) {
-          throw error;
-        }
+        if (error) throw error;
         
-        // Processando dados para garantir que image_urls seja um array
-        let processedData = { ...data };
+        // Converter available_dates de string[] para Date[]
+        const availableDates = data.available_dates 
+          ? data.available_dates.map((date: string) => new Date(date))
+          : [];
         
-        // Handle image_urls properly
-        if (data.image_urls && typeof data.image_urls === 'string') {
-          try {
-            processedData.image_urls = JSON.parse(data.image_urls);
-          } catch {
-            processedData.image_urls = data.image_url ? [data.image_url] : [];
-          }
-        } else if (!data.image_urls && data.image_url) {
-          processedData.image_urls = [data.image_url];
-        } else if (!data.image_urls) {
-          processedData.image_urls = [];
-        }
+        setSelectedDates(availableDates);
         
-        setVenue(processedData as unknown as VenueDetails);
+        // Formatar os dados para o formato esperado
+        const venueDetails: VenueDetails = {
+          ...data,
+          venue: data.user_venues,
+          image_urls: data.image_urls || (data.image_url ? [data.image_url] : []),
+        };
         
-        if (data.available_dates && Array.isArray(data.available_dates)) {
-          const dates = data.available_dates.map(dateStr => parseISO(dateStr));
-          setSelectedDates(dates);
-        }
-      } catch (error) {
-        console.error('Error fetching venue details:', error);
-        toast.error('Falha ao carregar os detalhes do local');
+        setVenue(venueDetails);
+      } catch (err: any) {
+        console.error('Erro ao buscar detalhes do local:', err);
+        setError(err);
       } finally {
         setLoading(false);
       }
@@ -62,6 +56,37 @@ export const useVenueDetails = (id: string | undefined) => {
     
     fetchVenueDetails();
   }, [id]);
-
-  return { venue, loading, selectedDates };
+  
+  // Função para incrementar a contagem de visualizações
+  const incrementViewCount = async (venueId: string) => {
+    try {
+      // Primeiro, obter a contagem atual
+      const { data: currentData, error: fetchError } = await supabase
+        .from('venue_announcements')
+        .select('views')
+        .eq('id', venueId)
+        .single();
+        
+      if (fetchError) throw fetchError;
+      
+      // Incrementar a contagem em 1
+      const newViewCount = (currentData?.views || 0) + 1;
+      
+      // Atualizar no banco de dados
+      const { error: updateError } = await supabase
+        .from('venue_announcements')
+        .update({ views: newViewCount })
+        .eq('id', venueId);
+        
+      if (updateError) throw updateError;
+      
+      // Atualizar o estado local
+      setVenue(prev => prev ? {...prev, views: newViewCount} : null);
+    } catch (error) {
+      console.error('Erro ao incrementar visualizações:', error);
+      // Não lançar erro para não interromper a experiência do usuário
+    }
+  };
+  
+  return { venue, loading, error, selectedDates, incrementViewCount };
 };

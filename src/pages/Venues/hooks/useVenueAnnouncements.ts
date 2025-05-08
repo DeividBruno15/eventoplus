@@ -148,9 +148,9 @@ export const useVenueAnnouncements = () => {
         venue_type: item.venue_type,
         price_per_hour: item.price_per_hour,
         address: address,
-        user_id: item.user_id, // Add the user_id property here
+        user_id: item.user_id, // Garantindo que user_id está sendo incluído
         social_links: item.social_links,
-        rating: rating // Add the rating to each announcement
+        rating: rating // Adicionando avaliação a cada anúncio
       };
     }) || [];
   };

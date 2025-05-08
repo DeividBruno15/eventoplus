@@ -1,5 +1,6 @@
 
-import { useParams } from "react-router-dom";
+import { useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/auth";
 import { Separator } from "@/components/ui/separator";
 import { useVenueDetails } from "./hooks/useVenueDetails";
@@ -15,14 +16,38 @@ import { VenueSidebar } from "./components/VenueSidebar";
 import { VenueDetailsLoading } from "./components/VenueDetailsLoading";
 import { VenueNotFound } from "./components/VenueNotFound";
 import VenueRatingsSection from "./components/VenueRatingsSection";
+import { toast } from "sonner";
 
 const VenueDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { user } = useAuth();
-  const { venue, loading, selectedDates } = useVenueDetails(id);
+  const { venue, loading, error, selectedDates, incrementViewCount } = useVenueDetails(id);
+  
+  // Incrementar a contagem de visualizações quando a página é carregada
+  useEffect(() => {
+    if (id && !loading && venue) {
+      incrementViewCount(id);
+    }
+  }, [id, loading, venue, incrementViewCount]);
+  
+  // Exibir erro se houver problemas ao carregar
+  useEffect(() => {
+    if (error) {
+      toast.error("Erro ao carregar dados do local", {
+        description: "Tente novamente mais tarde"
+      });
+    }
+  }, [error]);
   
   if (loading) {
     return <VenueDetailsLoading />;
+  }
+  
+  // Redirecionar para página 404 se não houver ID
+  if (!id) {
+    navigate('/not-found');
+    return null;
   }
   
   if (!venue) {
@@ -33,7 +58,7 @@ const VenueDetailsPage = () => {
   const userRole = user?.user_metadata?.role;
   const isAdvertiser = userRole === 'advertiser';
   
-  // Handle image_urls properly, falling back to image_url if needed
+  // Tratar propriedades image_urls corretamente
   const imageUrls = venue.image_urls && venue.image_urls.length > 0 
     ? venue.image_urls 
     : venue.image_url 
@@ -41,7 +66,7 @@ const VenueDetailsPage = () => {
       : [];
   
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-12">
       <VenueActions 
         isOwner={isOwner} 
         venueId={venue.id}
@@ -56,6 +81,7 @@ const VenueDetailsPage = () => {
             venueType={venue.venue_type}
             maxCapacity={venue.max_capacity}
             isRentable={venue.is_rentable} 
+            views={venue.views}
           />
           
           <VenueImage 
@@ -87,27 +113,33 @@ const VenueDetailsPage = () => {
             <VenueRatingsSection 
               venueId={id}
               ownerId={venue.user_id}
+              userIsAuthenticated={!!user}
             />
           )}
         </div>
         
-        {/* Only show sidebar with reservation actions if user is not the owner or user is not an advertiser */}
-        {(!isOwner || !isAdvertiser) ? (
-          <VenueSidebar 
-            pricePerHour={venue.price_per_hour}
-            selectedDates={selectedDates}
-            createdAt={venue.created_at}
-            venueUserId={venue.user_id}
-          />
-        ) : (
-          <div className="bg-muted/30 p-4 rounded-lg">
-            <h3 className="font-medium text-lg">Gerenciar Anúncio</h3>
-            <p className="text-sm text-muted-foreground mt-2">
-              Este é seu próprio anúncio. Você pode editar seus detalhes ou 
-              gerenciar disponibilidade através do painel de controle.
-            </p>
-          </div>
-        )}
+        {/* Sidebar com ações de reserva */}
+        <div className="md:sticky md:top-6 self-start">
+          {(!isOwner || !isAdvertiser) ? (
+            <VenueSidebar 
+              pricePerHour={venue.price_per_hour}
+              selectedDates={selectedDates}
+              createdAt={venue.created_at}
+              venueUserId={venue.user_id}
+              venueName={venue.title}
+              venueId={venue.id}
+              userIsAuthenticated={!!user}
+            />
+          ) : (
+            <div className="bg-muted/30 p-4 rounded-lg border">
+              <h3 className="font-medium text-lg">Gerenciar Anúncio</h3>
+              <p className="text-sm text-muted-foreground mt-2">
+                Este é seu próprio anúncio. Você pode editar seus detalhes ou 
+                gerenciar disponibilidade através do painel de controle.
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
