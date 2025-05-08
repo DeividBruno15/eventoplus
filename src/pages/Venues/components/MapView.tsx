@@ -22,7 +22,7 @@ const MapView: React.FC<MapViewProps> = ({ venues, onSelectVenue, className }) =
     if (typeof window.google === 'undefined' || typeof window.google.maps === 'undefined') {
       // Se não estiver disponível, carregar o script
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY || ''}&libraries=places`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''}&libraries=places`;
       script.async = true;
       script.defer = true;
       
