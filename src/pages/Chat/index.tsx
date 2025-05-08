@@ -1,94 +1,61 @@
 
-import { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
-import { PlusCircle, Search } from "lucide-react";
-import ConversationList from "@/components/chat/ConversationList";
-import { useAuth } from "@/hooks/useAuth";
-import { useChatState } from "./hooks/useChatState";
-import ChatEmptyState from "./components/ChatEmptyState";
-import { CreateConversationDialog } from "./components/CreateConversationDialog";
-import { Input } from "@/components/ui/input";
-import { Conversation } from "@/types/chat";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Plus } from 'lucide-react';
+import ConversationList from '@/components/chat/ConversationList';
+import { useAuth } from '@/hooks/useAuth';
+import { useChatState } from './hooks/useChatState';
+import { ChatEmptyState } from './components/ChatEmptyState';
+import { CreateConversationDialog } from './components/CreateConversationDialog';
 
-export default function Chat() {
+const ChatPage = () => {
   const { user } = useAuth();
-  const [searchQuery, setSearchQuery] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const { conversations, loading, refreshConversations } = useChatState();
+  const { 
+    conversations, 
+    isLoading, 
+    searchQuery, 
+    filteredConversations,
+    handleSearchChange
+  } = useChatState();
 
-  // Filtrar conversas com base na pesquisa
-  const filteredConversations = conversations.filter((conv: Conversation) => {
-    const otherUser = conv.otherUser;
-    const fullName = `${otherUser.first_name} ${otherUser.last_name}`.toLowerCase();
-    return fullName.includes(searchQuery.toLowerCase());
-  });
-
-  // Atualizar as conversas quando a página for carregada
-  useEffect(() => {
-    if (user) {
-      refreshConversations();
-    }
-  }, [user]);
-
-  // Atualizar conversas periodicamente
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (user) {
-        refreshConversations();
-      }
-    }, 30000); // A cada 30 segundos
-
-    return () => clearInterval(interval);
-  }, [user]);
-
-  const handleOpenCreateDialog = () => {
-    setIsCreateDialogOpen(true);
-  };
-
-  const handleCloseCreateDialog = () => {
+  const handleCreateConversation = (userId: string, userName: string) => {
+    // Logic is now handled in the CreateConversationDialog component
     setIsCreateDialogOpen(false);
-    // Atualizar a lista de conversas após criar uma nova
-    refreshConversations();
   };
 
   return (
-    <div className="container mx-auto py-6 max-w-4xl">
+    <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Conversas</h1>
-        <Button onClick={handleOpenCreateDialog}>
-          <PlusCircle className="h-4 w-4 mr-2" />
-          Nova Conversa
+        <h1 className="text-3xl font-bold">Chat</h1>
+        <Button onClick={() => setIsCreateDialogOpen(true)}>
+          <Plus className="w-5 h-5 mr-2" /> Nova conversa
         </Button>
       </div>
 
-      <div className="mb-6">
-        <div className="relative">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-          <Input
-            placeholder="Procurar conversa..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-      </div>
-
-      {conversations.length === 0 && !loading ? (
-        <ChatEmptyState onNewChat={handleOpenCreateDialog} />
+      {filteredConversations.length === 0 && !isLoading && !searchQuery ? (
+        <ChatEmptyState 
+          openCreateDialog={() => setIsCreateDialogOpen(true)} 
+          hasConversations={conversations.length > 0} 
+        />
       ) : (
         <ConversationList
-          loading={loading}
+          loading={isLoading}
           conversations={conversations}
           filteredConversations={filteredConversations}
           searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
+          onSearchChange={handleSearchChange}
         />
       )}
 
       <CreateConversationDialog
-        isOpen={isCreateDialogOpen}
-        onClose={handleCloseCreateDialog}
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+        onCreateConversation={handleCreateConversation}
       />
     </div>
   );
-}
+};
+
+export default ChatPage;

@@ -1,148 +1,194 @@
 
-import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Search, Loader2 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
 
 interface CreateConversationDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onCreateConversation: (userId: string, userName: string) => void;
 }
 
-export function CreateConversationDialog({ isOpen, onClose }: CreateConversationDialogProps) {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
-  const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [isCreating, setIsCreating] = useState(false);
+export function CreateConversationDialog({
+  open,
+  onOpenChange,
+  onCreateConversation
+}: CreateConversationDialogProps) {
+  const [users, setUsers] = useState<any[]>([]);
+  const [selectedUserId, setSelectedUserId] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const { user } = useAuth();
+  const { toast } = useToast();
   const navigate = useNavigate();
 
-  const handleSearch = async () => {
-    if (!searchQuery.trim()) return;
-    
-    setIsSearching(true);
-    
-    try {
-      // Buscar usuários pelo nome ou sobrenome
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('id, first_name, last_name')
-        .or(`first_name.ilike.%${searchQuery}%,last_name.ilike.%${searchQuery}%`)
-        .neq('id', user?.id)
-        .limit(10);
+  useEffect(() => {
+    const fetchUsers = async () => {
+      if (!open) return;
 
-      if (error) throw error;
-      
-      setSearchResults(data || []);
-    } catch (error) {
-      console.error('Erro ao buscar usuários:', error);
-      toast.error('Erro ao buscar usuários');
-    } finally {
-      setIsSearching(false);
+      setIsLoading(true);
+      try {
+        // Buscar usuários que não são o usuário atual
+        const { data, error } = await supabase
+          .from('user_profiles')
+          .select('id, first_name, last_name')
+          .neq('id', user?.id || '')
+          .order('first_name', { ascending: true });
+
+        if (error) throw error;
+        setUsers(data || []);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível carregar a lista de usuários",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, [open, user, toast]);
+
+  const handleCreateConversation = async () => {
+    if (!selectedUserId || !user) {
+      toast({
+        title: "Erro",
+        description: "Selecione um usuário para iniciar uma conversa",
+        variant: "destructive",
+      });
+      return;
     }
-  };
 
-  const handleCreateConversation = async (userId: string) => {
-    if (!user) return;
-    
-    setIsCreating(true);
-    
+    setIsLoading(true);
     try {
-      // Chamar a função RPC do Supabase para criar ou obter uma conversa
+      // Usar a função create_or_get_conversation para criar/obter uma conversa
       const { data, error } = await supabase
         .rpc('create_or_get_conversation', {
           user_id_one: user.id,
-          user_id_two: userId
+          user_id_two: selectedUserId,
         });
-        
+
       if (error) throw error;
-      
-      const conversationId = data;
-      
-      toast.success('Conversa iniciada com sucesso!');
-      onClose();
-      
-      // Navegar para a conversa criada
-      navigate(`/conversation/${conversationId}`);
+
+      // Navegue para a conversa recém-criada
+      if (data) {
+        const selectedUser = users.find(u => u.id === selectedUserId);
+        const userName = selectedUser ? `${selectedUser.first_name} ${selectedUser.last_name}` : '';
+        
+        onCreateConversation(selectedUserId, userName);
+        onOpenChange(false);
+        navigate(`/conversation/${data}`);
+        
+        toast({
+          title: "Conversa criada",
+          description: `Conversa iniciada com ${userName}`,
+        });
+      }
     } catch (error) {
-      console.error('Erro ao criar conversa:', error);
-      toast.error('Não foi possível iniciar a conversa');
+      console.error('Error creating conversation:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível criar a conversa",
+        variant: "destructive",
+      });
     } finally {
-      setIsCreating(false);
+      setIsLoading(false);
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
-  };
-
-  const getUserInitials = (firstName: string, lastName: string) => {
-    return (firstName.charAt(0) + (lastName?.charAt(0) || '')).toUpperCase();
-  };
+  const filteredUsers = searchTerm
+    ? users.filter(user => 
+        `${user.first_name} ${user.last_name}`
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
+      )
+    : users;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Nova Conversa</DialogTitle>
+          <DialogTitle>Nova conversa</DialogTitle>
+          <DialogDescription>
+            Selecione um usuário para iniciar uma conversa
+          </DialogDescription>
         </DialogHeader>
-        
-        <div className="flex items-center space-x-2 my-4">
-          <Input 
-            placeholder="Procurar por nome..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={handleKeyDown}
-          />
-          <Button 
-            onClick={handleSearch}
-            disabled={isSearching || !searchQuery.trim()}
-            size="icon"
+
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Input
+              placeholder="Buscar usuários..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="mb-4"
+            />
+
+            <Select
+              value={selectedUserId}
+              onValueChange={setSelectedUserId}
+              disabled={isLoading}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione um usuário" />
+              </SelectTrigger>
+              <SelectContent>
+                {isLoading ? (
+                  <SelectItem value="loading" disabled>
+                    Carregando usuários...
+                  </SelectItem>
+                ) : filteredUsers.length === 0 ? (
+                  <SelectItem value="none" disabled>
+                    Nenhum usuário encontrado
+                  </SelectItem>
+                ) : (
+                  filteredUsers.map(user => (
+                    <SelectItem key={user.id} value={user.id}>
+                      {`${user.first_name} ${user.last_name}`}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isLoading}
           >
-            {isSearching ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+            Cancelar
           </Button>
-        </div>
-        
-        <div className="space-y-2 max-h-[60vh] overflow-y-auto">
-          {isSearching ? (
-            <div className="flex justify-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : searchResults.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              {searchQuery.trim() 
-                ? "Nenhum usuário encontrado" 
-                : "Digite um nome para pesquisar"}
-            </div>
-          ) : (
-            searchResults.map(user => (
-              <Button
-                key={user.id}
-                variant="ghost"
-                className="w-full justify-start p-3"
-                onClick={() => handleCreateConversation(user.id)}
-                disabled={isCreating}
-              >
-                <Avatar className="h-9 w-9 mr-3">
-                  <AvatarFallback>
-                    {getUserInitials(user.first_name, user.last_name)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="text-left">
-                  <p className="font-medium">{user.first_name} {user.last_name}</p>
-                </div>
-              </Button>
-            ))
-          )}
-        </div>
+          <Button
+            onClick={handleCreateConversation}
+            disabled={!selectedUserId || isLoading}
+          >
+            {isLoading ? "Criando..." : "Criar conversa"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

@@ -1,55 +1,54 @@
 
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { AlertCircle } from 'lucide-react';
 
 interface SettingsCardProps {
   whatsappEnabled: boolean;
   phoneNumber: string | null;
-  handleToggleWhatsApp: () => Promise<void>;
+  handleToggleWhatsApp: () => void;
 }
 
-export const SettingsCard = ({
-  whatsappEnabled,
+export function SettingsCard({ 
+  whatsappEnabled, 
   phoneNumber,
-  handleToggleWhatsApp
-}: SettingsCardProps) => {
+  handleToggleWhatsApp 
+}: SettingsCardProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Configurações</CardTitle>
+        <CardTitle>Configurações do WhatsApp</CardTitle>
+        <CardDescription>
+          Gerencie suas preferências de notificações via WhatsApp
+        </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="flex items-center space-x-2">
+      <CardContent className="space-y-4">
+        <div className="flex flex-col space-y-1.5">
+          <Label>Número de WhatsApp</Label>
+          <p className="text-sm">
+            {phoneNumber ? (
+              phoneNumber
+            ) : (
+              <span className="text-muted-foreground italic">Nenhum número cadastrado</span>
+            )}
+          </p>
+        </div>
+        
+        <div className="flex items-center justify-between">
+          <div className="space-y-0.5">
+            <Label htmlFor="whatsapp-notifications">Notificações</Label>
+            <p className="text-sm text-muted-foreground">
+              Receba notificações importantes pelo WhatsApp
+            </p>
+          </div>
           <Switch
             id="whatsapp-notifications"
             checked={whatsappEnabled}
             onCheckedChange={handleToggleWhatsApp}
+            disabled={!phoneNumber}
           />
-          <Label htmlFor="whatsapp-notifications">Receber notificações por WhatsApp</Label>
-        </div>
-        
-        {!phoneNumber && (
-          <div className="bg-yellow-50 dark:bg-yellow-900/30 border-l-4 border-yellow-400 p-4">
-            <div className="flex">
-              <AlertCircle className="h-5 w-5 text-yellow-400" />
-              <div className="ml-3">
-                <p className="text-sm text-yellow-700 dark:text-yellow-300">
-                  Você precisa adicionar um número de telefone ao seu perfil para usar o WhatsApp.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-        
-        <div>
-          <h3 className="font-medium text-sm mb-1">Seu número</h3>
-          <p className="text-muted-foreground">
-            {phoneNumber || 'Nenhum número cadastrado'}
-          </p>
         </div>
       </CardContent>
     </Card>
   );
-};
+}
