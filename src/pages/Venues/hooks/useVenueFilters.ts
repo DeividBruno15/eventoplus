@@ -1,7 +1,20 @@
 
 import { useState, useMemo } from "react";
 import { VenueAnnouncement } from "../types";
-import { FiltersState } from "../components/VenueFilters";
+
+export interface FiltersState {
+  searchQuery: string;
+  venueType: string | undefined;
+  minRating: string | undefined;
+  priceRange: [number, number];
+  sortBy: string;
+  location?: {
+    city?: string;
+    state?: string;
+    zipcode?: string;
+  };
+  maxDistance: number;
+}
 
 export const useVenueFilters = (announcements: VenueAnnouncement[]) => {
   const [filters, setFilters] = useState<FiltersState>({
