@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/auth";
@@ -32,6 +33,7 @@ export const useVenueAnnouncements = () => {
             views,
             venue_id,
             social_links,
+            user_id,
             user_venues(name, street, number, neighborhood, city, state)
           `)
           .eq('user_id', user.id)
@@ -57,6 +59,7 @@ export const useVenueAnnouncements = () => {
             views,
             venue_id,
             social_links,
+            user_id,
             user_venues(name, street, number, neighborhood, city, state)
           `)
           .order('created_at', { ascending: false });
@@ -145,6 +148,7 @@ export const useVenueAnnouncements = () => {
         venue_type: item.venue_type,
         price_per_hour: item.price_per_hour,
         address: address,
+        user_id: item.user_id, // Add the user_id property here
         social_links: item.social_links,
         rating: rating // Add the rating to each announcement
       };
