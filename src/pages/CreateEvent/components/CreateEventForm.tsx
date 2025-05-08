@@ -15,6 +15,7 @@ import { ServiceSelectionField } from './ServiceSelectionField';
 import { ImageUploadField } from './ImageUploadField';
 import { UserCompanySelector } from './UserCompanySelector';
 import { useEventFormSubmit } from '../hooks/useEventFormSubmit';
+import { VenueSelectionField } from './VenueSelectionField';
 
 export function CreateEventForm() {
   const navigate = useNavigate();
@@ -34,6 +35,7 @@ export function CreateEventForm() {
       neighborhood: '',
       city: '',
       state: '',
+      venue_id: '',
       service_requests: [{ category: '', count: 1, price: 0 }],
       image: null
     }
@@ -45,6 +47,13 @@ export function CreateEventForm() {
         <UserCompanySelector form={form} />
         
         <BasicEventFields form={form} />
+        <Separator />
+        
+        {/* Add the venue selection field */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium">Local do Evento</h3>
+          <VenueSelectionField form={form} />
+        </div>
         <Separator />
         
         <LocationServiceFields form={form} />

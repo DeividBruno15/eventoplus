@@ -1,11 +1,12 @@
-
 import { useNavigate } from 'react-router-dom';
-import { Calendar, MapPin, Users } from 'lucide-react';
+import { Calendar, MapPin, Users, Building } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Event } from '@/types/events';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface EventCardProps {
   event: Event;
@@ -13,6 +14,31 @@ interface EventCardProps {
 
 export const EventCard = ({ event }: EventCardProps) => {
   const navigate = useNavigate();
+  const [venueName, setVenueName] = useState<string | null>(null);
+  
+  useEffect(() => {
+    const fetchVenueName = async () => {
+      if (!event.venue_id) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('venue_announcements')
+          .select('title')
+          .eq('venue_id', event.venue_id)
+          .single();
+          
+        if (error) throw error;
+        
+        if (data) {
+          setVenueName(data.title);
+        }
+      } catch (err) {
+        console.error('Error fetching venue name:', err);
+      }
+    };
+    
+    fetchVenueName();
+  }, [event.venue_id]);
   
   // Format event date for display - safely handle date formatting
   const formattedDate = event.event_date
@@ -75,6 +101,13 @@ export const EventCard = ({ event }: EventCardProps) => {
               <MapPin className="flex-shrink-0 h-4 w-4" />
               <span className="truncate">{event.location}</span>
             </div>
+            
+            {venueName && (
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Building className="flex-shrink-0 h-4 w-4" />
+                <span className="truncate">{venueName}</span>
+              </div>
+            )}
             
             {event.max_attendees && (
               <div className="flex items-center gap-2 text-sm text-gray-600">

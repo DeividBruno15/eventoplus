@@ -1,111 +1,84 @@
 
 import { Event } from '@/types/events';
-import { Card, CardContent } from '@/components/ui/card';
-import { Calendar, Clock, MapPin, Users, DollarSign } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { MapPin, Calendar, Clock, Users, Info } from 'lucide-react';
+import { VenueDetails } from './VenueDetails';
+import { VenueRules } from '@/pages/Venues/components/VenueRules';
 
 interface EventInfoProps {
   event: Event;
-  expanded?: boolean;
 }
 
-export const EventInfo = ({ event, expanded = false }: EventInfoProps) => {
-  // Format event date for display
-  const formattedDate = event.event_date
-    ? format(new Date(event.event_date), "dd 'de' MMMM, yyyy", { locale: ptBR })
-    : 'Data não definida';
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', { 
-      style: 'currency', 
-      currency: 'BRL' 
-    }).format(value);
-  };
+export const EventInfo = ({ event }: EventInfoProps) => {
+  // Format date
+  const formattedDate = (() => {
+    try {
+      return format(new Date(event.event_date), "dd 'de' MMMM, yyyy", { locale: ptBR });
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "Data não disponível";
+    }
+  })();
 
   return (
-    <Card>
-      <CardContent className="p-6">
-        <h3 className="text-xl font-semibold mb-5">{event.name}</h3>
-        
-        <div className="grid gap-4 mb-6">
-          <div className="flex items-start gap-3">
-            <Calendar className="h-5 w-5 text-gray-500 mt-0.5" />
-            <div>
-              <p className="font-medium">Data</p>
-              <p className="text-gray-600">{formattedDate}</p>
-            </div>
+    <div className="p-6">
+      <h2 className="text-2xl font-bold mb-4">{event.name}</h2>
+      
+      <div className="grid md:grid-cols-2 gap-6">
+        <div className="space-y-4">
+          <div className="flex items-center space-x-2 text-gray-600">
+            <Calendar className="h-5 w-5" />
+            <span>{formattedDate}</span>
           </div>
           
           {event.event_time && (
-            <div className="flex items-start gap-3">
-              <Clock className="h-5 w-5 text-gray-500 mt-0.5" />
-              <div>
-                <p className="font-medium">Horário</p>
-                <p className="text-gray-600">{event.event_time}</p>
-              </div>
+            <div className="flex items-center space-x-2 text-gray-600">
+              <Clock className="h-5 w-5" />
+              <span>{event.event_time}</span>
             </div>
           )}
           
-          <div className="flex items-start gap-3">
-            <MapPin className="h-5 w-5 text-gray-500 mt-0.5" />
-            <div>
-              <p className="font-medium">Local</p>
-              <p className="text-gray-600">{event.location}</p>
-              
-              {expanded && (
-                <div className="mt-2 text-sm text-gray-500">
-                  {event.zipcode && <p>CEP: {event.zipcode}</p>}
-                  {event.street && <p>Rua: {event.street || 'N/A'}</p>}
-                  {event.number && <p>Número: {event.number || 'N/A'}</p>}
-                  {event.neighborhood && <p>Bairro: {event.neighborhood || 'N/A'}</p>}
-                  {event.city && <p>Cidade: {event.city || 'N/A'}</p>}
-                  {event.state && <p>Estado: {event.state || 'N/A'}</p>}
-                  {event.zipcode && <p>CEP: {event.zipcode}</p>}
-                </div>
-              )}
-            </div>
+          <div className="flex items-start space-x-2 text-gray-600">
+            <MapPin className="h-5 w-5 mt-0.5" />
+            <span>{event.location}</span>
           </div>
           
           {event.max_attendees && (
-            <div className="flex items-start gap-3">
-              <Users className="h-5 w-5 text-gray-500 mt-0.5" />
-              <div>
-                <p className="font-medium">Convidados</p>
-                <p className="text-gray-600">{event.max_attendees}</p>
-              </div>
+            <div className="flex items-center space-x-2 text-gray-600">
+              <Users className="h-5 w-5" />
+              <span>{event.max_attendees} convidados esperados</span>
+            </div>
+          )}
+          
+          {event.service_requests && event.service_requests.length > 0 && (
+            <div className="pt-2">
+              <h3 className="font-medium mb-2 flex items-center">
+                <Info className="h-4 w-4 mr-1" />
+                Serviços Solicitados
+              </h3>
+              <ul className="space-y-1 text-gray-600 text-sm">
+                {event.service_requests.map((service, idx) => (
+                  <li key={idx} className="ml-4 list-disc">
+                    {service.service_type || service.category}{' '}
+                    {service.count && service.count > 1 ? `(${service.count})` : ''}
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
         </div>
         
-        {expanded && (
-          <>
-            <h4 className="text-lg font-semibold mb-3">Descrição</h4>
-            <p className="text-gray-600 whitespace-pre-wrap mb-6">{event.description}</p>
-          </>
-        )}
-
-        <h4 className="text-lg font-semibold mb-3">Serviços Necessários</h4>
-        <div className="space-y-3">
-          {event.service_requests && event.service_requests.length > 0 ? (
-            event.service_requests.map((service, index) => (
-              <div key={index} className="border rounded-lg p-3">
-                <h5 className="font-medium">{service.category || service.service_type}</h5>
-                <div className="text-sm text-gray-600 mt-1">
-                  {service.count !== undefined && (
-                    <p>Quantidade: {service.filled || 0}/{service.count}</p>
-                  )}
-                  {service.price !== undefined && (
-                    <p>Preço estimado: {formatCurrency(service.price || 0)}</p>
-                  )}
-                </div>
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-500">Nenhum serviço específico solicitado.</p>
-          )}
+        <div>
+          <p className="text-gray-700 whitespace-pre-wrap">{event.description}</p>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+      
+      {event.venue_id && (
+        <div className="mt-8">
+          <VenueDetails event={event} />
+        </div>
+      )}
+    </div>
   );
 };

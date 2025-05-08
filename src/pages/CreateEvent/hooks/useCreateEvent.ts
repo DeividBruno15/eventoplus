@@ -60,8 +60,15 @@ export const useCreateEvent = () => {
         event_date: eventData.event_date,
         event_time: eventData.event_time,
         location: formattedAddress,
-        // Only include zipcode for now as that's the only address field in the DB
+        // Address fields
         zipcode: eventData.zipcode,
+        street: eventData.street,
+        number: eventData.number,
+        neighborhood: eventData.neighborhood,
+        city: eventData.city,
+        state: eventData.state,
+        // Venue selection
+        venue_id: eventData.venue_id || null,
         service_requests: prepareServiceRequestsForStorage(eventData.service_requests),
         image_url: imageUrl,
         contractor_id: user.id,

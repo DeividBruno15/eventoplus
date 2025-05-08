@@ -83,6 +83,7 @@ export interface CreateEventFormData {
   state: string;
   location?: string;
   company_id?: string;
+  venue_id?: string;
   service_requests?: ExtendedServiceRequest[];
   image?: File | null;
 }
