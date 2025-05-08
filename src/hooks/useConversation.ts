@@ -1,16 +1,13 @@
 
 import { useEffect, useState } from 'react';
-import { Message } from '@/types/chat';
+import { Message, User } from '@/types/chat';
 import { useAuth } from '@/hooks/useAuth';
 import { useMessages } from './chat/useMessages';
 import { useConversationValidation } from './chat/useConversationValidation';
 import { useMessageSubscription } from './chat/useMessageSubscription';
 
 interface ConversationDetails {
-  otherUser: {
-    first_name: string;
-    last_name: string;
-  } | null;
+  otherUser: User | null;
   messages: Message[];
   loading: boolean;
 }

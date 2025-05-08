@@ -42,16 +42,13 @@ export default function Conversation() {
       await sendMessageToBackend(content);
       
       // Enviar notificação ao destinatário se ele existir e tiver um ID
-      if (otherUser && user) {
-        // Usando otherUser com segurança
-        if (otherUser.id) {
-          await sendMessageNotification(
-            otherUser.id,
-            user.first_name + ' ' + (user.last_name || ''),
-            content,
-            conversationId
-          );
-        }
+      if (otherUser && user && otherUser.id) {
+        await sendMessageNotification(
+          otherUser.id,
+          user.first_name + ' ' + (user.last_name || ''),
+          content,
+          conversationId
+        );
       }
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);

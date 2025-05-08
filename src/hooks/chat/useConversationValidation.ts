@@ -1,15 +1,10 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-
-interface OtherUserType {
-  id: string;
-  first_name: string;
-  last_name: string | null;
-}
+import { User } from '@/types/chat';
 
 export const useConversationValidation = (conversationId: string, userId?: string) => {
-  const [otherUser, setOtherUser] = useState<OtherUserType | null>(null);
+  const [otherUser, setOtherUser] = useState<User | null>(null);
   const [isValid, setIsValid] = useState<boolean>(false);
   
   // Função para verificar se a conversa existe e se o usuário tem permissão para acessá-la
@@ -54,7 +49,7 @@ export const useConversationValidation = (conversationId: string, userId?: strin
         if (userError) {
           console.error('Erro ao buscar detalhes do outro usuário:', userError);
         } else {
-          setOtherUser(userData as OtherUserType);
+          setOtherUser(userData as User);
         }
       }
       
