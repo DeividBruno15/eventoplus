@@ -1,33 +1,36 @@
 
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface VenuePageHeaderProps {
   isAdvertiser: boolean;
 }
 
-const VenuePageHeader = ({ isAdvertiser }: VenuePageHeaderProps) => {
+const VenuePageHeader: React.FC<VenuePageHeaderProps> = ({ isAdvertiser }) => {
+  const navigate = useNavigate();
+
+  const handleCreateVenue = () => {
+    navigate("/venues/create");
+  };
+
   return (
-    <div className="flex justify-between items-center mb-6">
+    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">
-          {isAdvertiser ? "Meus anúncios" : "Locais para eventos"}
+        <h1 className="text-2xl font-bold">
+          {isAdvertiser ? "Meus Anúncios" : "Encontre Espaços"}
         </h1>
-        <p className="text-muted-foreground mt-1">
+        <p className="text-muted-foreground">
           {isAdvertiser
-            ? "Gerencie seus anúncios de espaços para eventos"
-            : "Encontre o local perfeito para o seu próximo evento"}
+            ? "Gerencie seus espaços para eventos"
+            : "Procure e reserve espaços para seus eventos"}
         </p>
       </div>
-      {isAdvertiser && (
-        <Link to="/venues/create">
-          <Button className="gap-2">
-            <Plus className="h-4 w-4" />
-            Criar anúncio
-          </Button>
-        </Link>
-      )}
+
+      <Button onClick={handleCreateVenue}>
+        <Plus className="h-4 w-4 mr-2" />
+        {isAdvertiser ? "Criar Anúncio" : "Anunciar meu espaço"}
+      </Button>
     </div>
   );
 };

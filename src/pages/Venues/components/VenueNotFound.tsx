@@ -1,30 +1,29 @@
 
-import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export const VenueNotFound = () => {
   const navigate = useNavigate();
   
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" size="sm" onClick={() => navigate('/venues')}>
-          <ArrowLeft className="h-4 w-4 mr-1" /> Voltar
-        </Button>
+    <div className="flex flex-col items-center justify-center py-20">
+      <div className="bg-muted rounded-full h-20 w-20 flex items-center justify-center mb-6">
+        <span className="text-3xl">🔍</span>
       </div>
       
-      <Card className="p-10 text-center">
-        <h2 className="text-xl font-medium mb-2">Anúncio não encontrado</h2>
-        <p className="text-muted-foreground mb-6">
-          O anúncio que você está procurando não existe ou foi removido.
-        </p>
-        <Button onClick={() => navigate('/venues')}>
-          Ver meus anúncios
+      <h2 className="text-2xl font-bold mb-2">Espaço não encontrado</h2>
+      <p className="text-muted-foreground text-center max-w-md mb-8">
+        O espaço que você está procurando não existe ou foi removido.
+      </p>
+      
+      <div className="flex gap-4">
+        <Button variant="outline" onClick={() => navigate(-1)}>
+          Voltar
         </Button>
-      </Card>
+        <Button onClick={() => navigate("/venues")}>
+          Ver todos os espaços
+        </Button>
+      </div>
     </div>
   );
 };

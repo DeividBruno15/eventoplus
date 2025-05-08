@@ -1,37 +1,85 @@
 
-import React from 'react';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 export const VenueDetailsLoading = () => {
-  const navigate = useNavigate();
-  
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" size="sm" onClick={() => navigate('/venues')}>
-          <ArrowLeft className="h-4 w-4 mr-1" /> Voltar
-        </Button>
+      <div className="flex items-center justify-between">
+        <Skeleton className="h-10 w-28" />
+        <div className="flex gap-2">
+          <Skeleton className="h-10 w-20" />
+          <Skeleton className="h-10 w-20" />
+        </div>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-6">
-          <div className="h-8 bg-gray-200 animate-pulse rounded w-1/2"></div>
-          <div className="h-48 bg-gray-200 animate-pulse rounded"></div>
-          <div className="space-y-4">
-            <div className="h-4 bg-gray-100 animate-pulse rounded w-full"></div>
-            <div className="h-4 bg-gray-100 animate-pulse rounded w-5/6"></div>
-            <div className="h-4 bg-gray-100 animate-pulse rounded w-4/6"></div>
+          {/* Header */}
+          <div className="space-y-2">
+            <Skeleton className="h-10 w-3/4" />
+            <div className="flex gap-2">
+              <Skeleton className="h-6 w-24" />
+              <Skeleton className="h-6 w-40" />
+            </div>
+          </div>
+          
+          {/* Main image */}
+          <Skeleton className="h-96 w-full" />
+          
+          {/* Thumbnails */}
+          <div className="flex gap-2">
+            <Skeleton className="h-16 w-24" />
+            <Skeleton className="h-16 w-24" />
+            <Skeleton className="h-16 w-24" />
+          </div>
+          
+          {/* Description */}
+          <div className="space-y-3">
+            <Skeleton className="h-8 w-32" />
+            <Card className="p-6">
+              <Skeleton className="h-4 w-full mb-2" />
+              <Skeleton className="h-4 w-full mb-2" />
+              <Skeleton className="h-4 w-3/4" />
+            </Card>
+          </div>
+          
+          <Separator />
+          
+          {/* Location */}
+          <div className="space-y-3">
+            <Skeleton className="h-8 w-32" />
+            <Card className="p-6">
+              <div className="flex gap-3">
+                <Skeleton className="h-6 w-6" />
+                <div className="space-y-2 flex-1">
+                  <Skeleton className="h-6 w-48" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-3/4" />
+                </div>
+              </div>
+            </Card>
           </div>
         </div>
         
-        <Card className="h-80">
-          <CardContent className="p-6">
-            <div className="h-4 bg-gray-200 animate-pulse rounded w-1/3"></div>
-          </CardContent>
-        </Card>
+        {/* Sidebar */}
+        <div>
+          <Card className="p-6">
+            <div className="space-y-4">
+              <div className="flex items-baseline justify-between">
+                <Skeleton className="h-8 w-24" />
+                <Skeleton className="h-4 w-16" />
+              </div>
+              
+              <Separator />
+              
+              <Skeleton className="h-10 w-full" />
+              
+              <Skeleton className="h-64 w-full" />
+            </div>
+          </Card>
+        </div>
       </div>
     </div>
   );

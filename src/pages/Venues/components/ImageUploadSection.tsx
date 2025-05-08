@@ -1,153 +1,231 @@
 
-import { useState, useEffect } from "react";
-import { Camera, X } from "lucide-react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { UploadCloud, X, Image as ImageIcon } from "lucide-react";
+import { useAuth } from "@/hooks/auth";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { v4 as uuidv4 } from "uuid";
-
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
-const MAX_IMAGES = 10;
-const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
 export interface ImageFile {
-  id: string;
   file: File;
   preview: string;
+  uploading?: boolean;
+  url?: string;
 }
 
 interface ImageUploadSectionProps {
   venueImages: ImageFile[];
   setVenueImages: React.Dispatch<React.SetStateAction<ImageFile[]>>;
+  maxImages?: number;
 }
 
 const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({ 
   venueImages, 
-  setVenueImages 
+  setVenueImages,
+  maxImages = 5 
 }) => {
-  const [uploadError, setUploadError] = useState<string | null>(null);
-  
-  // Create URL previews and cleanup on unmount
-  useEffect(() => {
-    // Cleanup function to revoke object URLs to avoid memory leaks
-    return () => {
-      venueImages.forEach(image => URL.revokeObjectURL(image.preview));
-    };
-  }, [venueImages]);
+  const { user } = useAuth();
+  const [isUploading, setIsUploading] = useState(false);
   
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) return;
-    
-    setUploadError(null);
-    
-    const selectedFiles = Array.from(e.target.files);
-    
-    if (venueImages.length + selectedFiles.length > MAX_IMAGES) {
-      setUploadError(`Você pode enviar no máximo ${MAX_IMAGES} imagens`);
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    // Check if max image limit is reached
+    if (venueImages.length + files.length > maxImages) {
+      toast.error(`Você pode adicionar no máximo ${maxImages} imagens`);
       return;
     }
     
     const newImages: ImageFile[] = [];
     
-    selectedFiles.forEach(file => {
-      // Validate file size
-      if (file.size > MAX_IMAGE_SIZE) {
-        setUploadError(`A imagem ${file.name} excede o tamanho máximo de 5MB`);
+    Array.from(files).forEach(file => {
+      // Check if file is an image
+      if (!file.type.startsWith('image/')) {
+        toast.error(`Arquivo ${file.name} não é uma imagem válida`);
         return;
       }
       
-      // Validate file type
-      if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-        setUploadError(`Tipo de arquivo não suportado: ${file.type}`);
+      // Check file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error(`Imagem ${file.name} excede o tamanho máximo de 5MB`);
         return;
       }
       
-      const imageId = uuidv4();
+      // Create preview URL
+      const preview = URL.createObjectURL(file);
+      
       newImages.push({
-        id: imageId,
         file,
-        preview: URL.createObjectURL(file)
+        preview
       });
     });
     
-    if (newImages.length > 0) {
-      setVenueImages(prev => [...prev, ...newImages]);
-    }
-    
-    // Reset the input
-    e.target.value = '';
+    setVenueImages(prev => [...prev, ...newImages]);
+    e.target.value = ''; // Reset input for future uploads
   };
   
-  const removeImage = (imageId: string) => {
-    setVenueImages(venueImages.filter(image => {
-      if (image.id === imageId) {
-        URL.revokeObjectURL(image.preview);
-        return false;
-      }
-      return true;
-    }));
+  const handleRemoveImage = (index: number) => {
+    setVenueImages(prev => {
+      const newImages = [...prev];
+      // Release object URL to avoid memory leaks
+      URL.revokeObjectURL(newImages[index].preview);
+      newImages.splice(index, 1);
+      return newImages;
+    });
   };
-
+  
+  const uploadImages = async (): Promise<string[]> => {
+    if (!user) {
+      toast.error('É necessário estar logado para fazer upload de imagens');
+      return [];
+    }
+    
+    const uploadedUrls: string[] = [];
+    setIsUploading(true);
+    
+    try {
+      // Upload each image to Supabase storage
+      for (let i = 0; i < venueImages.length; i++) {
+        const img = venueImages[i];
+        
+        // Skip already uploaded images
+        if (img.url) {
+          uploadedUrls.push(img.url);
+          continue;
+        }
+        
+        // Update image status
+        setVenueImages(prev => {
+          const newImages = [...prev];
+          newImages[i] = { ...newImages[i], uploading: true };
+          return newImages;
+        });
+        
+        // Upload to Supabase storage
+        const fileName = `${Date.now()}-${img.file.name.replace(/\s/g, '_')}`;
+        const filePath = `${user.id}/${fileName}`;
+        
+        const { data, error } = await supabase.storage
+          .from('venue_images')
+          .upload(filePath, img.file);
+        
+        if (error) throw error;
+        
+        // Get public URL
+        const { data: publicData } = supabase.storage
+          .from('venue_images')
+          .getPublicUrl(data.path);
+          
+        const url = publicData.publicUrl;
+        
+        // Update with URL
+        setVenueImages(prev => {
+          const newImages = [...prev];
+          newImages[i] = { 
+            ...newImages[i], 
+            uploading: false,
+            url 
+          };
+          return newImages;
+        });
+        
+        uploadedUrls.push(url);
+      }
+      
+      return uploadedUrls;
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      toast.error('Falha ao fazer upload das imagens');
+      return [];
+    } finally {
+      setIsUploading(false);
+    }
+  };
+  
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-base font-medium mb-2">Imagens do espaço</h3>
-        <p className="text-sm text-muted-foreground mb-3">
-          Adicione até 10 imagens do seu espaço (máximo 5MB por imagem)
+        <h3 className="text-base font-medium">Fotos do Local</h3>
+        <p className="text-sm text-muted-foreground">
+          Adicione fotos para destacar seu espaço (máximo {maxImages} fotos, 5MB cada)
         </p>
       </div>
       
-      <div className="flex items-center gap-4">
-        <label
-          htmlFor="image-upload"
-          className="flex items-center justify-center w-32 h-32 border-2 border-dashed rounded-md cursor-pointer hover:bg-gray-50 transition-colors"
-        >
-          <div className="flex flex-col items-center gap-1">
-            <Camera className="w-8 h-8 text-gray-400" />
-            <span className="text-sm text-gray-500">Adicionar</span>
-          </div>
-          <input
-            type="file"
-            id="image-upload"
-            accept="image/jpeg,image/png,image/webp"
-            className="hidden"
-            onChange={handleImageUpload}
-            multiple
-          />
-        </label>
-        
-        {venueImages.length > 0 && (
-          <div className="flex gap-3 overflow-x-auto pb-2">
-            {venueImages.map(image => (
-              <div key={image.id} className="relative flex-shrink-0">
-                <img
-                  src={image.preview}
-                  alt="Venue preview"
-                  className="w-32 h-32 object-cover rounded-md"
-                />
-                <button
+      <div className="border rounded-md p-4 bg-white">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-4">
+          {venueImages.map((image, i) => (
+            <div key={i} className="relative group aspect-square rounded-md overflow-hidden border">
+              <img 
+                src={image.preview} 
+                alt={`Preview ${i+1}`} 
+                className="object-cover w-full h-full"
+              />
+              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 flex items-center justify-center transition-all">
+                <Button
                   type="button"
-                  onClick={() => removeImage(image.id)}
-                  className="absolute top-1 right-1 bg-white rounded-full p-1 shadow-sm hover:bg-red-50 transition-colors"
+                  variant="destructive"
+                  size="icon"
+                  className="opacity-0 group-hover:opacity-100"
+                  onClick={() => handleRemoveImage(i)}
                 >
-                  <X className="w-4 h-4 text-red-500" />
-                </button>
-                {venueImages[0].id === image.id && (
-                  <div className="absolute bottom-1 left-1 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                    Principal
-                  </div>
-                )}
+                  <X className="h-4 w-4" />
+                </Button>
               </div>
-            ))}
+              {image.uploading && (
+                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-white"></div>
+                </div>
+              )}
+            </div>
+          ))}
+          
+          {venueImages.length < maxImages && (
+            <label className="border border-dashed rounded-md cursor-pointer h-full min-h-40 flex flex-col items-center justify-center p-4 hover:bg-gray-50 transition-colors">
+              <div className="flex flex-col items-center gap-2">
+                <UploadCloud className="h-8 w-8 text-gray-400" />
+                <span className="text-sm text-gray-500 text-center">
+                  Clique para adicionar fotos
+                </span>
+              </div>
+              <input 
+                type="file" 
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={handleImageUpload}
+                disabled={isUploading}
+              />
+            </label>
+          )}
+        </div>
+        
+        {venueImages.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-8">
+            <ImageIcon className="h-12 w-12 text-gray-300 mb-2" />
+            <p className="text-sm text-gray-500 mb-4 text-center">
+              Adicione fotos do seu espaço para atrair mais reservas
+            </p>
+            <label className="cursor-pointer">
+              <Button 
+                variant="outline" 
+                type="button" 
+                disabled={isUploading}
+              >
+                <UploadCloud className="h-4 w-4 mr-2" />
+                Selecionar imagens
+              </Button>
+              <input 
+                type="file" 
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={handleImageUpload}
+              />
+            </label>
           </div>
         )}
       </div>
-      
-      {uploadError && (
-        <p className="text-sm text-red-500">{uploadError}</p>
-      )}
-      
-      <p className="text-xs text-muted-foreground">
-        {venueImages.length} de {MAX_IMAGES} imagens
-      </p>
     </div>
   );
 };

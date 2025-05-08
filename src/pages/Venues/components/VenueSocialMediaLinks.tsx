@@ -1,32 +1,79 @@
 
-import { FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Instagram } from "lucide-react";
 import { useFormContext } from "react-hook-form";
+import { VenueFormValues } from "./VenueFormSchema";
+import { FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 
 const VenueSocialMediaLinks = () => {
-  const form = useFormContext();
+  const { control } = useFormContext<VenueFormValues>();
   
   return (
-    <div className="space-y-4">
-      <h3 className="text-base font-medium">Redes Sociais</h3>
+    <div className="space-y-2">
+      <div>
+        <h3 className="text-base font-medium">Links e Redes Sociais</h3>
+        <p className="text-sm text-muted-foreground">
+          Adicione links para suas redes sociais (opcional)
+        </p>
+      </div>
       
-      <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField
-          control={form.control}
+          control={control}
+          name="external_link"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input
+                  placeholder="Site (https://seusite.com.br)"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={control}
           name="social_instagram"
           render={({ field }) => (
             <FormItem>
-              <div className="flex items-center gap-2">
-                <span className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center">
-                  <Instagram className="h-4 w-4" />
-                </span>
-                <FormLabel>Instagram</FormLabel>
-              </div>
               <FormControl>
-                <Input 
-                  placeholder="https://instagram.com/seu_perfil" 
-                  {...field} 
+                <Input
+                  placeholder="Instagram (@seu_perfil)"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={control}
+          name="social_facebook"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input
+                  placeholder="Facebook"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={control}
+          name="social_twitter"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input
+                  placeholder="Twitter/X"
+                  {...field}
                 />
               </FormControl>
               <FormMessage />
@@ -34,26 +81,6 @@ const VenueSocialMediaLinks = () => {
           )}
         />
       </div>
-
-      <FormField
-        control={form.control}
-        name="external_link"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Link externo</FormLabel>
-            <FormControl>
-              <Input 
-                placeholder="https://..." 
-                {...field} 
-              />
-            </FormControl>
-            <FormDescription>
-              Link para um site ou página com mais informações
-            </FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
     </div>
   );
 };

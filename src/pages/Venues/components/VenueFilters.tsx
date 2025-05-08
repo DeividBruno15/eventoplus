@@ -1,159 +1,311 @@
 
 import { useState, useEffect } from "react";
-import { Search } from "lucide-react";
+import { Search, SlidersHorizontal, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Slider } from "@/components/ui/slider";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+import { Slider } from "@/components/ui/slider";
+import { 
+  Select, 
+  SelectContent, 
+  SelectGroup, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
 } from "@/components/ui/select";
-import { venueTypes, ratingOptions, sortingOptions } from "../constants/venueFiltersConstants";
+import { Separator } from "@/components/ui/separator";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import { useBreakpoint } from "@/hooks/useBreakpoint";
+
+// Venue types options
+const VENUE_TYPES = [
+  { id: "party_hall", label: "Salão de Festas" },
+  { id: "wedding_venue", label: "Espaço para Casamentos" },
+  { id: "corporate_space", label: "Espaço Corporativo" },
+  { id: "studio", label: "Estúdio" },
+  { id: "restaurant", label: "Restaurante" },
+  { id: "beach_club", label: "Beach Club" },
+  { id: "farm", label: "Fazenda/Sítio" },
+  { id: "mansion", label: "Casa/Mansão" },
+  { id: "sports_venue", label: "Espaço Esportivo" },
+  { id: "garden", label: "Jardim/Área Externa" },
+  { id: "other", label: "Outro" },
+];
+
+// Rating options
+const RATING_OPTIONS = [
+  { value: "4.5", label: "4,5+" },
+  { value: "4", label: "4,0+" },
+  { value: "3.5", label: "3,5+" },
+  { value: "3", label: "3,0+" },
+];
+
+// Sort options
+const SORT_OPTIONS = [
+  { value: "newest", label: "Mais recentes" },
+  { value: "priceAsc", label: "Menor preço" },
+  { value: "priceDesc", label: "Maior preço" },
+  { value: "ratingDesc", label: "Melhor avaliação" },
+];
 
 export interface FiltersState {
   searchQuery: string;
   venueType: string | undefined;
-  minRating: string | undefined; 
+  minRating: string | undefined;
   priceRange: [number, number];
   sortBy: string;
 }
 
 interface VenueFiltersProps {
   filters: FiltersState;
-  onFilterChange: (filters: FiltersState) => void;
+  onFilterChange: (newFilters: FiltersState) => void;
   resultsCount: number;
 }
 
-const VenueFilters = ({ filters, onFilterChange, resultsCount }: VenueFiltersProps) => {
-  const [activeFilters, setActiveFilters] = useState(0);
+const VenueFilters: React.FC<VenueFiltersProps> = ({ 
+  filters, 
+  onFilterChange,
+  resultsCount
+}) => {
+  const { isDesktop } = useBreakpoint('md');
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [localFilters, setLocalFilters] = useState<FiltersState>(filters);
   
-  // Update a single filter and propagate changes
-  const updateFilter = <K extends keyof FiltersState>(key: K, value: FiltersState[K]) => {
-    onFilterChange({
-      ...filters,
-      [key]: value
-    });
+  // Reset local filters when main filters change
+  useEffect(() => {
+    setLocalFilters(filters);
+  }, [filters]);
+  
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newFilters = { ...filters, searchQuery: e.target.value };
+    onFilterChange(newFilters);
   };
-
-  // Reset all filters
+  
+  const handleSortChange = (value: string) => {
+    const newFilters = { ...filters, sortBy: value };
+    onFilterChange(newFilters);
+  };
+  
+  const handleFilterChange = (field: keyof FiltersState, value: any) => {
+    setLocalFilters(prev => ({ ...prev, [field]: value }));
+  };
+  
+  const applyFilters = () => {
+    onFilterChange(localFilters);
+    setIsDrawerOpen(false);
+  };
+  
   const resetFilters = () => {
-    onFilterChange({
-      searchQuery: "",
+    const resetFiltersState: FiltersState = {
+      searchQuery: filters.searchQuery, // Keep search query
       venueType: undefined,
       minRating: undefined,
       priceRange: [0, 10000],
-      sortBy: "newest"
-    });
+      sortBy: "newest",
+    };
+    
+    setLocalFilters(resetFiltersState);
+    onFilterChange(resetFiltersState);
+    setIsDrawerOpen(false);
   };
   
-  // Count active filters
-  useEffect(() => {
-    let count = 0;
-    if (filters.venueType !== undefined) count++;
-    if (filters.minRating !== undefined) count++;
-    if (filters.priceRange[0] > 0 || filters.priceRange[1] < 10000) count++;
-    if (filters.searchQuery) count++;
-    setActiveFilters(count);
-  }, [filters]);
-
+  // Format price display
+  const formatPrice = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      minimumFractionDigits: 0,
+    }).format(value);
+  };
+  
+  const filtersCount = (
+    (filters.venueType ? 1 : 0) + 
+    (filters.minRating ? 1 : 0) + 
+    (filters.priceRange[0] > 0 || filters.priceRange[1] < 10000 ? 1 : 0)
+  );
+  
+  const FiltersContent = () => (
+    <>
+      <div className="space-y-4">
+        <div>
+          <h4 className="font-medium mb-2">Tipo de Espaço</h4>
+          <Select 
+            value={localFilters.venueType}
+            onValueChange={(value) => handleFilterChange('venueType', value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Todos os tipos" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">Todos os tipos</SelectItem>
+              {VENUE_TYPES.map(type => (
+                <SelectItem key={type.id} value={type.id}>
+                  {type.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div>
+          <h4 className="font-medium mb-2">Avaliação mínima</h4>
+          <Select 
+            value={localFilters.minRating}
+            onValueChange={(value) => handleFilterChange('minRating', value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Qualquer avaliação" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">Qualquer avaliação</SelectItem>
+              {RATING_OPTIONS.map(option => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div>
+          <div className="flex justify-between mb-2">
+            <h4 className="font-medium">Faixa de preço</h4>
+            <div className="text-sm">
+              {formatPrice(localFilters.priceRange[0])} - {formatPrice(localFilters.priceRange[1])}
+            </div>
+          </div>
+          <Slider
+            defaultValue={localFilters.priceRange}
+            min={0}
+            max={10000}
+            step={100}
+            value={localFilters.priceRange}
+            onValueChange={(value) => handleFilterChange('priceRange', value as [number, number])}
+          />
+        </div>
+      </div>
+    </>
+  );
+  
   return (
-    <div className="space-y-4">
-      {/* Barra de busca e filtros em linha */}
-      <div className="flex flex-wrap gap-3 items-center">
-        {/* Barra de busca */}
-        <div className="relative w-64 flex-shrink">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+    <div className="bg-white border rounded-lg shadow-sm p-4">
+      <div className="flex flex-col md:flex-row gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
-            placeholder="Buscar locais..."
+            placeholder="Buscar espaços..."
+            className="pl-9 pr-4"
             value={filters.searchQuery}
-            onChange={(e) => updateFilter("searchQuery", e.target.value)}
-            className="pl-8 h-9"
+            onChange={handleSearchChange}
           />
         </div>
         
-        {/* Filtro de tipo de local */}
-        <Select 
-          value={filters.venueType} 
-          onValueChange={(value) => updateFilter("venueType", value)}
-        >
-          <SelectTrigger className="w-[160px] h-9 text-start">
-            <SelectValue placeholder="Tipo de local" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={undefined}>Todos os tipos</SelectItem>
-            {venueTypes.map((type) => (
-              <SelectItem key={type} value={type}>{type}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        
-        {/* Filtro de avaliação como dropdown */}
-        <Select 
-          value={filters.minRating} 
-          onValueChange={(value) => updateFilter("minRating", value)}
-        >
-          <SelectTrigger className="w-[160px] h-9">
-            <SelectValue placeholder="Avaliação" />
-          </SelectTrigger>
-          <SelectContent>
-            {/* Removed the "Qualquer nota" item */}
-            {ratingOptions.map((option) => (
-              <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        
-        {/* Filtros de preço - versão compacta */}
-        <div className="flex items-center gap-2 p-2 border rounded-md bg-background">
-          <span className="text-sm font-medium whitespace-nowrap">Preço: R${filters.priceRange[0]}-R${filters.priceRange[1]}</span>
-          <div className="w-32">
-            <Slider
-              value={filters.priceRange}
-              min={0}
-              max={10000}
-              step={100}
-              onValueChange={(value) => updateFilter("priceRange", value as [number, number])}
-            />
-          </div>
+        <div className="flex gap-2 flex-wrap">
+          {isDesktop ? (
+            <Select value={filters.sortBy} onValueChange={handleSortChange}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Ordenar por" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {SORT_OPTIONS.map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          ) : null}
+          
+          {isDesktop ? (
+            <div className="border p-4 rounded-md flex-1 hidden md:block">
+              <h3 className="font-medium mb-4">Filtros</h3>
+              <FiltersContent />
+              
+              <div className="mt-4 flex justify-between">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={resetFilters}
+                >
+                  Limpar filtros
+                </Button>
+                <Button 
+                  size="sm"
+                  onClick={applyFilters}
+                >
+                  Aplicar
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+              <DrawerTrigger asChild>
+                <Button variant="outline" className="relative">
+                  <SlidersHorizontal className="h-4 w-4 mr-2" />
+                  Filtros
+                  {filtersCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full w-5 h-5 text-xs flex items-center justify-center">
+                      {filtersCount}
+                    </span>
+                  )}
+                </Button>
+              </DrawerTrigger>
+              <DrawerContent>
+                <div className="mx-auto w-full max-w-sm">
+                  <DrawerHeader>
+                    <DrawerTitle>Filtros</DrawerTitle>
+                    <DrawerDescription>
+                      Encontre o espaço perfeito para seu evento
+                    </DrawerDescription>
+                  </DrawerHeader>
+                  <div className="p-4">
+                    <FiltersContent />
+                    
+                    <Separator className="my-4" />
+                    
+                    <h4 className="font-medium mb-2">Ordenar por</h4>
+                    <Select value={filters.sortBy} onValueChange={handleSortChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Ordenar por" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {SORT_OPTIONS.map(option => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <DrawerFooter>
+                    <Button onClick={applyFilters}>Aplicar filtros</Button>
+                    <DrawerClose asChild>
+                      <Button variant="outline" onClick={resetFilters}>
+                        Limpar filtros
+                      </Button>
+                    </DrawerClose>
+                  </DrawerFooter>
+                </div>
+              </DrawerContent>
+            </Drawer>
+          )}
         </div>
-        
-        {/* Ordenação */}
-        <Select 
-          value={filters.sortBy}
-          onValueChange={(value) => updateFilter("sortBy", value)}
-        >
-          <SelectTrigger className="w-[160px] h-9">
-            <SelectValue placeholder="Ordenar por" />
-          </SelectTrigger>
-          <SelectContent>
-            {sortingOptions.map((option) => (
-              <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        
-        {/* Botão de limpar filtros */}
-        {activeFilters > 0 && (
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={resetFilters}
-            className="whitespace-nowrap"
-          >
-            Limpar filtros
-            <Badge variant="secondary" className="ml-2">
-              {activeFilters}
-            </Badge>
-          </Button>
-        )}
       </div>
       
-      {/* Estatísticas de resultados */}
-      <div className="text-sm text-muted-foreground">
+      {/* Results count */}
+      <div className="mt-4 text-sm text-muted-foreground">
         {resultsCount} {resultsCount === 1 ? 'resultado encontrado' : 'resultados encontrados'}
       </div>
     </div>
