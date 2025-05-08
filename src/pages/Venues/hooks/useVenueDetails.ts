@@ -46,6 +46,7 @@ export const useVenueDetails = (id?: string) => {
         const venueDetails: VenueDetails = {
           ...data,
           venue: data.user_venues,
+          venue_id: data.venue_id,
           image_urls: data.image_urls || (data.image_url ? [data.image_url] : []),
           views: typeof data.views === 'number' ? data.views : 0
         };

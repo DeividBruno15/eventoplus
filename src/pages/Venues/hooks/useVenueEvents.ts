@@ -54,7 +54,37 @@ export const useVenueEvents = (venueId?: string) => {
 
         if (error) throw error;
         
-        setEvents(data || []);
+        // Transform the data to match the Event type
+        const formattedEvents: Event[] = (data || []).map(item => ({
+          id: item.id,
+          name: item.name,
+          description: item.description,
+          event_date: item.event_date,
+          location: item.location,
+          max_attendees: item.max_attendees,
+          contractor_id: item.contractor_id,
+          user_id: item.user_id,
+          contractor: item.contractor ? {
+            id: item.contractor.id,
+            first_name: item.contractor.first_name,
+            last_name: item.contractor.last_name,
+            avatar_url: item.contractor.avatar_url
+          } : {
+            id: item.contractor_id,
+            first_name: '',
+            last_name: ''
+          },
+          created_at: item.created_at,
+          updated_at: item.updated_at,
+          service_type: item.service_type,
+          status: item.status,
+          event_time: item.event_time,
+          image_url: item.image_url,
+          zipcode: item.zipcode,
+          venue_id: item.venue_id
+        }));
+        
+        setEvents(formattedEvents);
       } catch (err: any) {
         console.error('Error fetching venue events:', err);
         setError(err instanceof Error ? err : new Error(String(err)));

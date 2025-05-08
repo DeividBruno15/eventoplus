@@ -16,7 +16,8 @@ export interface VenueDetails {
   updated_at: string;
   available_dates: string[];
   user_id: string;
-  views: number;  // Added the views property
+  views: number;
+  venue_id: string; // Added venue_id property
   social_links: Array<{
     type: string;
     url: string;

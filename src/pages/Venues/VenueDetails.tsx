@@ -112,8 +112,8 @@ const VenueDetailsPage = () => {
           {/* Seção de eventos do local */}
           <Separator />
           
-          {id && venue.venue_id && (
-            <VenueEvents venueId={venue.venue_id} />
+          {id && venue.id && (
+            <VenueEvents venueId={venue.id} />
           )}
           
           {/* Seção de avaliações */}
