@@ -1,11 +1,10 @@
 
+/// <reference types="google.maps" />
+
 import React, { useEffect, useRef, useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { VenueAnnouncement } from '../types';
-
-// Import the GoogleMapWindow type from the global types
-type Window = GoogleMapWindow;
 
 interface MapViewProps {
   venues: VenueAnnouncement[];
@@ -20,7 +19,7 @@ const MapView: React.FC<MapViewProps> = ({ venues, onSelectVenue, className }) =
   
   useEffect(() => {
     // Verificar se a API do Google Maps está disponível
-    if (!window.google || !window.google.maps) {
+    if (typeof window.google === 'undefined' || typeof window.google.maps === 'undefined') {
       // Se não estiver disponível, carregar o script
       const script = document.createElement('script');
       script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY || ''}&libraries=places`;
@@ -42,7 +41,7 @@ const MapView: React.FC<MapViewProps> = ({ venues, onSelectVenue, className }) =
   }, [venues]);
   
   const initializeMap = async () => {
-    if (!mapRef.current || !window.google || !window.google.maps) {
+    if (!mapRef.current || typeof window.google === 'undefined' || typeof window.google.maps === 'undefined') {
       setMapError('Mapa indisponível');
       setLoading(false);
       return;
@@ -50,7 +49,7 @@ const MapView: React.FC<MapViewProps> = ({ venues, onSelectVenue, className }) =
     
     try {
       // Criar o mapa centrado no Brasil
-      const mapOptions = {
+      const mapOptions: google.maps.MapOptions = {
         center: { lat: -15.77972, lng: -47.92972 }, // Brasília - centro do Brasil
         zoom: 5,
         mapTypeControl: false,
@@ -77,8 +76,8 @@ const MapView: React.FC<MapViewProps> = ({ venues, onSelectVenue, className }) =
           const fullAddress = `${venue.address || ''}, ${venue.user_venues.city}, ${venue.user_venues.state}`;
           
           const geocoder = new window.google.maps.Geocoder();
-          geocoder.geocode({ address: fullAddress }, (results: any, status: string) => {
-            if (status === 'OK' && results && results[0]) {
+          geocoder.geocode({ address: fullAddress }, (results: google.maps.GeocoderResult[], status: google.maps.GeocoderStatus) => {
+            if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
               const location = results[0].geometry.location;
               bounds.extend(location);
               
@@ -87,7 +86,7 @@ const MapView: React.FC<MapViewProps> = ({ venues, onSelectVenue, className }) =
                 position: location,
                 map,
                 title: venue.title,
-                animation: window.google.maps.Animation.DROP,
+                animation: google.maps.Animation.DROP,
               });
               
               // Criar janela de info

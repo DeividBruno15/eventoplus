@@ -1,12 +1,11 @@
 
+/// <reference types="google.maps" />
+
 import React, { useEffect, useRef, useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-
-// Import the GoogleMapWindow type from the global types
-type Window = GoogleMapWindow;
 
 interface VenueLocationMapProps {
   address: string;
@@ -27,7 +26,7 @@ const VenueLocationMap: React.FC<VenueLocationMapProps> = ({
   
   useEffect(() => {
     // Verificar se a API do Google Maps está disponível
-    if (!window.google || !window.google.maps) {
+    if (typeof window.google === 'undefined' || typeof window.google.maps === 'undefined') {
       // Se não estiver disponível, carregar o script
       const script = document.createElement('script');
       script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY || ''}&libraries=places`;
@@ -49,7 +48,7 @@ const VenueLocationMap: React.FC<VenueLocationMapProps> = ({
   }, [address, city, state]);
   
   const initializeMap = async () => {
-    if (!mapRef.current || !window.google || !window.google.maps) {
+    if (!mapRef.current || typeof window.google === 'undefined' || typeof window.google.maps === 'undefined') {
       setMapError('Mapa indisponível');
       setLoading(false);
       return;
@@ -59,11 +58,11 @@ const VenueLocationMap: React.FC<VenueLocationMapProps> = ({
       const fullAddress = `${address}, ${city}, ${state}`;
       const geocoder = new window.google.maps.Geocoder();
       
-      geocoder.geocode({ address: fullAddress }, (results: any, status: string) => {
-        if (status === 'OK' && results && results[0]) {
+      geocoder.geocode({ address: fullAddress }, (results: google.maps.GeocoderResult[], status: google.maps.GeocoderStatus) => {
+        if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
           const location = results[0].geometry.location;
           
-          const mapOptions = {
+          const mapOptions: google.maps.MapOptions = {
             center: location,
             zoom: 15,
             mapTypeControl: false,
@@ -83,7 +82,7 @@ const VenueLocationMap: React.FC<VenueLocationMapProps> = ({
           new window.google.maps.Marker({
             position: location,
             map,
-            animation: window.google.maps.Animation.DROP,
+            animation: google.maps.Animation.DROP,
           });
           
           setLoading(false);
