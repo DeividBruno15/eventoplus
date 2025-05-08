@@ -1,5 +1,5 @@
 
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { SidebarNavigation } from './SidebarNavigation';
 import { useNavigationState } from './sidebar/useNavigationState';
 import { NotificationsMenu } from './notifications/NotificationsMenu';
@@ -7,23 +7,20 @@ import { Button } from '@/components/ui/button';
 import { Menu } from 'lucide-react';
 import { UserMenu } from './UserMenu';
 import { NotificationSettings } from './notifications/NotificationSettings';
-
-// Custom hook for breakpoint detection
-const useBreakpoint = (breakpoint: string) => {
-  // Basic implementation - in a real app, this would use window.matchMedia and track resize events
-  const isDesktop = typeof window !== 'undefined' ? 
-    window.innerWidth >= 768 : false;
-  
-  return { isDesktop };
-};
+import { useBreakpoint } from '@/hooks/useBreakpoint';
 
 export default function Layout() {
+  const navigate = useNavigate();
   const { isOpen, toggleSidebar } = useNavigationState();
   const { isDesktop } = useBreakpoint('md');
+  
+  const handleNavigate = (path: string) => {
+    navigate(path);
+  };
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <SidebarNavigation />
+      <SidebarNavigation onNavigate={handleNavigate} />
       
       <div className="flex-1 flex flex-col h-full overflow-hidden">
         <header className="h-16 border-b bg-white px-4 flex items-center justify-between">

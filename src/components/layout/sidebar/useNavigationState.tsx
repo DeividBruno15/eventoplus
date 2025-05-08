@@ -1,11 +1,11 @@
-
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-export function useNavigationState(onNavigate: (path: string) => void) {
+export function useNavigationState(onNavigate?: (path: string) => void) {
   const location = useLocation();
   const navigate = useNavigate();
   const [activePath, setActivePath] = useState(location.pathname);
+  const [isOpen, setIsOpen] = useState(true);
 
   // Keep activePath in sync with the current location
   useEffect(() => {
@@ -17,11 +17,17 @@ export function useNavigationState(onNavigate: (path: string) => void) {
     console.log('Sidebar item clicked:', path);
     navigate(path); // Navigate directly
     setActivePath(path);
-    onNavigate(path);
+    if (onNavigate) onNavigate(path);
+  };
+
+  const toggleSidebar = () => {
+    setIsOpen(prev => !prev);
   };
 
   return {
     activePath,
-    handleLinkClick
+    handleLinkClick,
+    isOpen,
+    toggleSidebar
   };
 }
