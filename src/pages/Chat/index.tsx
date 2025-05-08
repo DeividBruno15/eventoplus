@@ -1,101 +1,94 @@
 
-import { useState } from "react";
-import { useAuth } from "@/hooks/useAuth";
-import { useNavigate } from "react-router-dom";
-import { Input } from "@/components/ui/input";
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Search, MessageSquare, Plus } from "lucide-react";
+import { PlusCircle, Search } from "lucide-react";
 import ConversationList from "@/components/chat/ConversationList";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { useChatState } from "./hooks/useChatState";
-import { ChatEmptyState } from "./components/ChatEmptyState";
-import { NewConversationDialog } from "./components/NewConversationDialog";
+import ChatEmptyState from "./components/ChatEmptyState";
+import { CreateConversationDialog } from "./components/CreateConversationDialog";
+import { Input } from "@/components/ui/input";
+import { Conversation } from "@/types/chat";
 
-const Chat = () => {
-  const { session, user } = useAuth();
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [conversationName, setConversationName] = useState("");
-  const {
-    conversations,
-    filteredConversations,
-    searchQuery,
-    isLoading,
-    handleSearchChange,
-  } = useChatState();
+export default function Chat() {
+  const { user } = useAuth();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const { conversations, loading, refreshConversations } = useChatState();
 
-  if (!session) {
-    navigate('/login');
-    return null;
-  }
+  // Filtrar conversas com base na pesquisa
+  const filteredConversations = conversations.filter((conv: Conversation) => {
+    const otherUser = conv.otherUser;
+    const fullName = `${otherUser.first_name} ${otherUser.last_name}`.toLowerCase();
+    return fullName.includes(searchQuery.toLowerCase());
+  });
 
-  const handleCreateConversation = () => {
-    // Implement conversation creation logic
-    toast({
-      title: "Conversa criada",
-      description: `Nova conversa iniciada com ${conversationName}`,
-    });
-    setIsDialogOpen(false);
-    setConversationName("");
+  // Atualizar as conversas quando a página for carregada
+  useEffect(() => {
+    if (user) {
+      refreshConversations();
+    }
+  }, [user]);
+
+  // Atualizar conversas periodicamente
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (user) {
+        refreshConversations();
+      }
+    }, 30000); // A cada 30 segundos
+
+    return () => clearInterval(interval);
+  }, [user]);
+
+  const handleOpenCreateDialog = () => {
+    setIsCreateDialogOpen(true);
+  };
+
+  const handleCloseCreateDialog = () => {
+    setIsCreateDialogOpen(false);
+    // Atualizar a lista de conversas após criar uma nova
+    refreshConversations();
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">Chat</h2>
-        <p className="text-muted-foreground mt-2">
-          Comunique-se com outros usuários da plataforma.
-        </p>
-      </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-1 h-[calc(100vh-15rem)] flex flex-col">
-          <CardHeader className="pb-2">
-            <CardTitle>Conversas</CardTitle>
-            <div className="relative mt-2">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input 
-                placeholder="Buscar conversa..." 
-                className="pl-10" 
-                value={searchQuery}
-                onChange={(e) => handleSearchChange(e.target.value)}
-              />
-            </div>
-          </CardHeader>
-          
-          <CardContent className="flex-1 overflow-auto py-2">
-            <ConversationList
-              loading={isLoading}
-              conversations={conversations}
-              filteredConversations={filteredConversations}
-              searchQuery={searchQuery}
-              onSearchChange={handleSearchChange}
-            />
-          </CardContent>
-          
-          <div className="p-4 mt-auto">
-            <Button className="w-full" onClick={() => setIsDialogOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" /> Nova conversa
-            </Button>
-          </div>
-        </Card>
-        
-        <Card className="lg:col-span-2 h-[calc(100vh-15rem)] flex flex-col">
-          <ChatEmptyState onNewMessage={() => setIsDialogOpen(true)} />
-        </Card>
+    <div className="container mx-auto py-6 max-w-4xl">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Conversas</h1>
+        <Button onClick={handleOpenCreateDialog}>
+          <PlusCircle className="h-4 w-4 mr-2" />
+          Nova Conversa
+        </Button>
       </div>
 
-      <NewConversationDialog 
-        open={isDialogOpen} 
-        onOpenChange={setIsDialogOpen}
-        conversationName={conversationName}
-        onConversationNameChange={setConversationName}
-        onCreateConversation={handleCreateConversation}
+      <div className="mb-6">
+        <div className="relative">
+          <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+          <Input
+            placeholder="Procurar conversa..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+      </div>
+
+      {conversations.length === 0 && !loading ? (
+        <ChatEmptyState onNewChat={handleOpenCreateDialog} />
+      ) : (
+        <ConversationList
+          loading={loading}
+          conversations={conversations}
+          filteredConversations={filteredConversations}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+        />
+      )}
+
+      <CreateConversationDialog
+        isOpen={isCreateDialogOpen}
+        onClose={handleCloseCreateDialog}
       />
     </div>
   );
-};
-
-export default Chat;
+}

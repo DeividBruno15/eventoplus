@@ -8,6 +8,7 @@ import Messages from '@/components/chat/Messages';
 import MessageInput from '@/components/chat/MessageInput';
 import { Loader2 } from 'lucide-react';
 import { useChatNotifications } from '@/pages/Chat/hooks/useChatNotifications';
+import { useMarkMessagesAsRead } from '@/hooks/chat/useMarkMessagesAsRead';
 
 export default function Conversation() {
   const { conversationId } = useParams<{ conversationId: string }>();
@@ -28,6 +29,9 @@ export default function Conversation() {
     otherUser, 
     sendMessage: sendMessageToBackend 
   } = useConversation(conversationId);
+  
+  // Usar o novo hook para marcar mensagens como lidas
+  useMarkMessagesAsRead(conversationId);
   
   // Rolar para o final da conversa ao carregar novas mensagens
   useEffect(() => {
@@ -73,6 +77,7 @@ export default function Conversation() {
         <ConversationHeader
           otherUserName={`${otherUser.user_metadata?.first_name || otherUser.first_name || ''} ${otherUser.user_metadata?.last_name || otherUser.last_name || ''}`}
           otherUserInitials={getOtherUserInitials()}
+          otherUserId={otherUser.id}
         />
       )}
       

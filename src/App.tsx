@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
 import Index from "./pages/Index";
@@ -78,13 +79,12 @@ function App() {
                   <Route path="venues/edit/:id" element={<EditVenuePage />} />
 
                   <Route path="chat" element={<Chat />} />
-                  <Route path="chat/:conversationId" element={<Conversation />} />
+                  <Route path="conversation/:conversationId" element={<Conversation />} />
                   <Route path="payments" element={<Payments />} />
                   <Route path="notifications" element={<Notifications />} />
                   <Route path="whatsapp" element={<WhatsAppAssistant />} />
                   <Route path="profile" element={<Profile />} />
                   <Route path="settings" element={<Settings />} />
-                  <Route path="support" element={<Support />} />
                   <Route path="/payment-success" element={<PaymentSuccess />} />
                 </Route>
 

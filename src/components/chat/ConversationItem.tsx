@@ -15,8 +15,8 @@ export default function ConversationItem({ conversation: conv }: ConversationIte
 
   const handleConversationClick = (id: string) => {
     try {
-      // Ensure we're using the correct route path
-      navigate(`/chat/${id}`);
+      // Usar a rota correta conforme definido no App.tsx
+      navigate(`/conversation/${id}`);
       
       console.log(`Navigating to conversation: ${id}`);
     } catch (error) {
@@ -37,8 +37,8 @@ export default function ConversationItem({ conversation: conv }: ConversationIte
     >
       <div className="flex items-start w-full">
         <div className="bg-primary text-primary-foreground rounded-full w-10 h-10 flex items-center justify-center flex-shrink-0">
-          {conv.otherUser.first_name.charAt(0)}
-          {conv.otherUser.last_name.charAt(0)}
+          {conv.otherUser.first_name?.charAt(0) || ''}
+          {conv.otherUser.last_name?.charAt(0) || ''}
         </div>
         
         <div className="ml-4 flex-grow overflow-hidden">
