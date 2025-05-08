@@ -30,6 +30,8 @@ const VenueDetailsPage = () => {
   }
   
   const isOwner = user?.id === venue.user_id;
+  const userRole = user?.user_metadata?.role;
+  const isAdvertiser = userRole === 'advertiser';
   
   // Handle image_urls properly, falling back to image_url if needed
   const imageUrls = venue.image_urls && venue.image_urls.length > 0 
@@ -89,12 +91,23 @@ const VenueDetailsPage = () => {
           )}
         </div>
         
-        <VenueSidebar 
-          pricePerHour={venue.price_per_hour}
-          selectedDates={selectedDates}
-          createdAt={venue.created_at}
-          venueUserId={venue.user_id}
-        />
+        {/* Only show sidebar with reservation actions if user is not the owner or user is not an advertiser */}
+        {(!isOwner || !isAdvertiser) ? (
+          <VenueSidebar 
+            pricePerHour={venue.price_per_hour}
+            selectedDates={selectedDates}
+            createdAt={venue.created_at}
+            venueUserId={venue.user_id}
+          />
+        ) : (
+          <div className="bg-muted/30 p-4 rounded-lg">
+            <h3 className="font-medium text-lg">Gerenciar Anúncio</h3>
+            <p className="text-sm text-muted-foreground mt-2">
+              Este é seu próprio anúncio. Você pode editar seus detalhes ou 
+              gerenciar disponibilidade através do painel de controle.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

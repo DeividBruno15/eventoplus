@@ -7,6 +7,7 @@ import { VenueAnnouncement } from "../types";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/auth";
 
 interface VenueCardProps {
   announcement: VenueAnnouncement;
@@ -17,6 +18,12 @@ const VenueCard = ({ announcement, onDelete }: VenueCardProps) => {
   const navigate = useNavigate();
   const [isDeleting, setIsDeleting] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const { user } = useAuth();
+  
+  // Check if user is the owner of this announcement or an advertiser
+  const isAdvertiser = user?.user_metadata?.role === 'advertiser';
+  const isOwner = user?.id === announcement.user_id;
+  const canEditOrDelete = isOwner && isAdvertiser;
   
   const handleDelete = async () => {
     if (!showConfirm) {
@@ -157,21 +164,26 @@ const VenueCard = ({ announcement, onDelete }: VenueCardProps) => {
               >
                 Detalhes
               </Button>
-              <Button
-                variant="default"
-                size="sm"
-                onClick={() => navigate(`/venues/edit/${announcement.id}`)}
-              >
-                Editar
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={handleDelete}
-              >
-                <Trash2 className="h-4 w-4 mr-1" />
-                Excluir
-              </Button>
+              
+              {canEditOrDelete && (
+                <>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() => navigate(`/venues/edit/${announcement.id}`)}
+                  >
+                    Editar
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleDelete}
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Excluir
+                  </Button>
+                </>
+              )}
             </>
           )}
         </div>

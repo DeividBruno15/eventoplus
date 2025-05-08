@@ -11,7 +11,7 @@ export interface VenueDetails {
   rules: string | null;
   external_link: string | null;
   image_url: string | null;
-  image_urls?: string[]; // Added this property
+  image_urls: string[]; // Changed to non-optional
   created_at: string;
   updated_at: string;
   available_dates: string[];
