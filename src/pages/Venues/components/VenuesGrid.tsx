@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { Clock, MapPin, Users } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import FavoriteButton from "./FavoriteButton";
 
 interface VenuesGridProps {
   announcements: VenueAnnouncement[];
@@ -98,6 +99,13 @@ const VenuesGrid: React.FC<VenuesGridProps> = ({
                 <Badge variant="secondary" className="bg-white/90 text-gray-800 shadow-sm">
                   {getVenueTypeName(announcement.venue_type)}
                 </Badge>
+              </div>
+              <div className="absolute top-2 right-2">
+                <FavoriteButton 
+                  venueId={announcement.id} 
+                  venueName={announcement.title} 
+                  size="sm"
+                />
               </div>
               <div className="absolute bottom-2 right-2">
                 {announcement.rating !== undefined && (

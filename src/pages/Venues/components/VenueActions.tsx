@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -11,9 +10,16 @@ interface VenueActionsProps {
   venueId: string;
   userId: string | undefined;
   venueUserId: string;
+  venueName?: string;
 }
 
-export const VenueActions = ({ isOwner, venueId, userId, venueUserId }: VenueActionsProps) => {
+export const VenueActions = ({ 
+  isOwner, 
+  venueId,
+  userId,
+  venueUserId,
+  venueName = '' 
+}) => {
   const navigate = useNavigate();
   const [confirmDelete, setConfirmDelete] = useState(false);
   
@@ -44,48 +50,79 @@ export const VenueActions = ({ isOwner, venueId, userId, venueUserId }: VenueAct
 
   return (
     <div className="flex items-center justify-between">
-      <Button variant="ghost" size="sm" onClick={() => navigate('/venues')}>
-        <ArrowLeft className="h-4 w-4 mr-1" /> Voltar para anúncios
-      </Button>
-      
-      {isOwner && (
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
+      <div className="flex items-center space-x-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => navigate("/venues")}
+          className="flex items-center gap-1 text-sm"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Voltar
+        </Button>
+        
+        {/* Adicionar o botão de favoritos */}
+        {venueId && venueName && !isOwner && (
+          <FavoriteButton 
+            venueId={venueId} 
+            venueName={venueName}
             size="sm"
-            onClick={() => navigate(`/venues/edit/${venueId}`)}
-          >
-            <Edit className="h-4 w-4 mr-1" /> Editar
-          </Button>
-          
-          {confirmDelete ? (
-            <div className="flex items-center gap-2">
+          />
+        )}
+      </div>
+      
+      <div className="flex items-center space-x-2">
+        {/* Botões de ação para proprietários */}
+        {isOwner && (
+          <>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate(`/venues/edit/${venueId}`)}
+            >
+              <Edit className="h-4 w-4 mr-1" /> Editar
+            </Button>
+            
+            {confirmDelete ? (
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleDelete}
+                >
+                  Confirmar
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setConfirmDelete(false)}
+                >
+                  Cancelar
+                </Button>
+              </div>
+            ) : (
               <Button
                 variant="destructive"
                 size="sm"
-                onClick={handleDelete}
+                onClick={() => setConfirmDelete(true)}
               >
-                Confirmar
+                <Trash className="h-4 w-4 mr-1" /> Excluir
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setConfirmDelete(false)}
-              >
-                Cancelar
-              </Button>
-            </div>
-          ) : (
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => setConfirmDelete(true)}
-            >
-              <Trash className="h-4 w-4 mr-1" /> Excluir
-            </Button>
-          )}
-        </div>
-      )}
+            )}
+          </>
+        )}
+        
+        {/* Botões de ação para não proprietários */}
+        {!isOwner && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate(`/venues/share/${venueId}`)}
+          >
+            Compartilhar
+          </Button>
+        )}
+      </div>
     </div>
   );
 };

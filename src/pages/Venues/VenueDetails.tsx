@@ -23,7 +23,7 @@ const VenueDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { venue, loading, error, selectedDates, incrementViewCount } = useVenueDetails(id);
+  const { venue, loading, error, incrementViewCount } = useVenueDetails(id);
   
   // Incrementar a contagem de visualizações quando a página é carregada
   useEffect(() => {
@@ -73,6 +73,7 @@ const VenueDetailsPage = () => {
         venueId={venue.id}
         userId={user?.id}
         venueUserId={venue.user_id}
+        venueName={venue.title} // Passa o nome para o botão de favoritos
       />
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -133,7 +134,6 @@ const VenueDetailsPage = () => {
           {(!isOwner || !isAdvertiser) ? (
             <VenueSidebar 
               pricePerHour={venue.price_per_hour}
-              selectedDates={selectedDates}
               createdAt={venue.created_at}
               venueUserId={venue.user_id}
               venueName={venue.title}
