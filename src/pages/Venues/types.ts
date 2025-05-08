@@ -32,6 +32,7 @@ export interface VenueAnnouncement {
   created_at: string;
   views: number;
   address?: string;
+  user_id: string; // Added the user_id property
   social_links?: Array<{
     type: string;
     url: string;
