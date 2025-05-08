@@ -4,6 +4,9 @@ import { Card } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { VenueAnnouncement } from '../types';
 
+// Import the GoogleMapWindow type from the global types
+type Window = GoogleMapWindow;
+
 interface MapViewProps {
   venues: VenueAnnouncement[];
   onSelectVenue?: (venueId: string) => void;

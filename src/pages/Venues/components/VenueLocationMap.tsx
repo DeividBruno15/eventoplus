@@ -5,6 +5,9 @@ import { Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
+// Import the GoogleMapWindow type from the global types
+type Window = GoogleMapWindow;
+
 interface VenueLocationMapProps {
   address: string;
   city: string;

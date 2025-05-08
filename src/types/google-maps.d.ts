@@ -8,6 +8,9 @@ interface GoogleMapWindow extends Window {
       LatLngBounds: any;
       Geocoder: any;
       NavigationControl: any;
+      Animation: {
+        DROP: number;
+      };
     }
   }
 }
