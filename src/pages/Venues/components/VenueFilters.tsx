@@ -77,11 +77,11 @@ const VenueFilters: React.FC<VenueFiltersProps> = ({
   
   // Reset all filters to default values
   const resetFilters = () => {
-    const resetState = {
+    const resetState: FiltersState = {
       searchQuery: searchQuery, // Keep search query
       venueType: undefined,
       minRating: undefined,
-      priceRange: [0, 10000],
+      priceRange: [0, 10000] as [number, number], // Explicitly cast as tuple type
       sortBy: filters.sortBy, // Keep sort selection
       location: undefined,
       maxDistance: 50
@@ -93,7 +93,7 @@ const VenueFilters: React.FC<VenueFiltersProps> = ({
   
   // Handle sort selection changes
   const handleSortChange = (value: string) => {
-    const updatedFilters = {
+    const updatedFilters: FiltersState = {
       ...filters,
       sortBy: value
     };
