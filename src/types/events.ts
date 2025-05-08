@@ -28,6 +28,8 @@ export interface Event {
   neighborhood?: string;
   city?: string;
   state?: string;
+  // Added venue_id field to support venue selection
+  venue_id?: string;
 }
 
 export type EventStatus = 'open' | 'closed' | 'published' | 'draft' | 'cancelled';
