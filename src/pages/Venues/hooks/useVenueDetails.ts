@@ -3,6 +3,10 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { VenueDetails } from "../types/venueDetailsTypes";
 
+/**
+ * Hook para buscar os detalhes de um local
+ * @param id ID do anúncio do local
+ */
 export const useVenueDetails = (id?: string) => {
   const [venue, setVenue] = useState<VenueDetails | null>(null);
   const [loading, setLoading] = useState(true);
@@ -29,7 +33,7 @@ export const useVenueDetails = (id?: string) => {
           .eq('id', id)
           .single();
         
-        if (error) throw error;
+        if (error) throw new Error(error.message);
         
         // Converter available_dates de string[] para Date[]
         const availableDates = data.available_dates 
@@ -43,12 +47,13 @@ export const useVenueDetails = (id?: string) => {
           ...data,
           venue: data.user_venues,
           image_urls: data.image_urls || (data.image_url ? [data.image_url] : []),
+          views: typeof data.views === 'number' ? data.views : 0
         };
         
         setVenue(venueDetails);
       } catch (err: any) {
         console.error('Erro ao buscar detalhes do local:', err);
-        setError(err);
+        setError(err instanceof Error ? err : new Error(String(err)));
       } finally {
         setLoading(false);
       }

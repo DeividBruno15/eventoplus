@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { 
   Select,
@@ -12,7 +12,7 @@ import { VenueRating } from '../types';
 import { VenueRatingItem } from './VenueRatingItem';
 import CreateVenueRating from './CreateVenueRating';
 import VenueDetailedRatings from './VenueDetailedRatings';
-import { useAuth } from '@/hooks/auth';
+import { useAuth } from '@/hooks/useAuth';
 import { useVenueRatings } from '../hooks/useVenueRatings';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from "sonner";
@@ -20,11 +20,13 @@ import { toast } from "sonner";
 interface VenueRatingsSectionProps {
   venueId: string;
   ownerId: string;
+  userIsAuthenticated?: boolean;  // Adicionando como propriedade opcional
 }
 
 const VenueRatingsSection: React.FC<VenueRatingsSectionProps> = ({
   venueId,
   ownerId,
+  userIsAuthenticated = false,  // Valor padrão
 }) => {
   const { user } = useAuth();
   const [filter, setFilter] = useState<string>('all');
@@ -33,6 +35,8 @@ const VenueRatingsSection: React.FC<VenueRatingsSectionProps> = ({
   // Usar o hook para buscar avaliações
   const { ratings, loading, addRating, updateRating } = useVenueRatings(venueId);
   
+  // Usar userIsAuthenticated se fornecido, caso contrário usar o valor do hook
+  const isAuthenticated = user ? true : userIsAuthenticated;
   const isOwner = user?.id === ownerId;
 
   const handleAddRating = (newRating: VenueRating) => {
@@ -113,7 +117,7 @@ const VenueRatingsSection: React.FC<VenueRatingsSectionProps> = ({
               </Select>
             </div>
             
-            {user && !isOwner && !hasUserRated() && !isAddingRating && (
+            {isAuthenticated && !isOwner && !hasUserRated() && !isAddingRating && (
               <Button 
                 onClick={() => setIsAddingRating(true)}
                 size="sm"
@@ -160,13 +164,13 @@ const VenueRatingsSection: React.FC<VenueRatingsSectionProps> = ({
                     Este local ainda não possui avaliações.
                   </p>
                   
-                  {user && !isOwner && !isAddingRating && (
+                  {isAuthenticated && !isOwner && !isAddingRating && (
                     <Button onClick={() => setIsAddingRating(true)}>
                       Seja o primeiro a avaliar
                     </Button>
                   )}
                   
-                  {!user && (
+                  {!isAuthenticated && (
                     <p className="text-sm text-gray-400">
                       Faça login para avaliar este local
                     </p>

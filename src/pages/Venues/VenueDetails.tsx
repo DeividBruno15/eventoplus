@@ -1,7 +1,7 @@
 
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/auth";
+import { useAuth } from "@/hooks/useAuth";
 import { Separator } from "@/components/ui/separator";
 import { useVenueDetails } from "./hooks/useVenueDetails";
 import { VenueActions } from "./components/VenueActions";

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -8,24 +8,30 @@ import { Calendar, Clock } from "lucide-react";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import VenueAvailabilityCalendar from './VenueAvailabilityCalendar';
-import { useState } from 'react';
 
 interface VenueSidebarProps {
   pricePerHour: number;
   selectedDates: Date[];
   createdAt: string;
   venueUserId: string;
+  venueId?: string;
+  venueName?: string;
+  userIsAuthenticated?: boolean;
 }
 
 export const VenueSidebar = ({ 
   pricePerHour, 
   selectedDates,
   createdAt,
-  venueUserId
+  venueUserId,
+  venueId,
+  venueName,
+  userIsAuthenticated = false
 }: VenueSidebarProps) => {
   const { user } = useAuth();
   const userRole = user?.user_metadata?.role;
   const isAdvertiser = userRole === 'advertiser';
+  const isAuthenticated = user ? true : userIsAuthenticated;
   const isOwner = user?.id === venueUserId;
   
   const [localSelectedDates, setLocalSelectedDates] = useState<Date[]>(selectedDates);
@@ -67,7 +73,7 @@ export const VenueSidebar = ({
               <Button
                 variant="outline"
                 className="w-full mt-2"
-                onClick={() => window.location.href = `/venues/edit/${window.location.pathname.split('/').pop()}`}
+                onClick={() => window.location.href = `/venues/edit/${venueId || window.location.pathname.split('/').pop()}`}
               >
                 Editar anúncio
               </Button>
@@ -87,13 +93,29 @@ export const VenueSidebar = ({
                 </div>
               </div>
               
-              <Button className="w-full">
+              <Button 
+                className="w-full"
+                disabled={!isAuthenticated}
+                onClick={() => {
+                  if (!isAuthenticated) {
+                    window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
+                    return;
+                  }
+                  window.location.href = `/venues/book/${venueId || window.location.pathname.split('/').pop()}`;
+                }}
+              >
                 Reservar
               </Button>
               
-              <p className="text-xs text-center text-muted-foreground">
-                Você não será cobrado ainda
-              </p>
+              {!isAuthenticated ? (
+                <p className="text-xs text-center text-muted-foreground">
+                  Faça login para reservar este local
+                </p>
+              ) : (
+                <p className="text-xs text-center text-muted-foreground">
+                  Você não será cobrado ainda
+                </p>
+              )}
             </div>
           )}
           
