@@ -8,12 +8,14 @@ import MessageInput from "@/components/chat/MessageInput";
 import Messages from "@/components/chat/Messages";
 import ConversationHeader from "@/components/chat/ConversationHeader";
 import { ChatEmptyState } from "../Chat/components/ChatEmptyState";
+import { useChatNotifications } from "../Chat/hooks/useChatNotifications";
 
 const Conversation = () => {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const [message, setMessage] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const { sendMessageNotification } = useChatNotifications();
   
   const {
     messages,
@@ -37,6 +39,22 @@ const Conversation = () => {
     
     try {
       await sendMessage(text);
+      
+      // Se o outro usuário existir, enviar notificação
+      if (otherUser && otherUser.id) {
+        const senderName = user.user_metadata?.first_name 
+          ? `${user.user_metadata.first_name} ${user.user_metadata.last_name || ''}`
+          : 'Alguém';
+          
+        // Enviar notificação ao destinatário
+        sendMessageNotification(
+          otherUser.id,
+          senderName,
+          text,
+          id || ""
+        );
+      }
+      
       setMessage("");
     } catch (error) {
       console.error("Error sending message:", error);

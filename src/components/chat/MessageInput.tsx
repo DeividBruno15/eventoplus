@@ -1,55 +1,66 @@
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Loader2, Send } from 'lucide-react';
+// Assume que este componente existe, vamos apenas adicionar suporte para indicador de envio
 
-export interface MessageInputProps {
+import React, { useState } from 'react';
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Send, Loader2 } from "lucide-react";
+
+interface MessageInputProps {
   onSendMessage: (message: string) => Promise<void>;
-  disabled?: boolean;
   placeholder?: string;
+  disabled?: boolean;
 }
 
-export default function MessageInput({ onSendMessage, disabled, placeholder = "Digite sua mensagem..." }: MessageInputProps) {
-  const [newMessage, setNewMessage] = useState('');
-  const [sending, setSending] = useState(false);
+const MessageInput: React.FC<MessageInputProps> = ({
+  onSendMessage,
+  placeholder = "Digite sua mensagem...",
+  disabled = false
+}) => {
+  const [message, setMessage] = useState('');
+  const [isSending, setIsSending] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!newMessage.trim() || sending) return;
+    if (!message.trim() || disabled || isSending) return;
     
     try {
-      setSending(true);
-      await onSendMessage(newMessage.trim());
-      setNewMessage('');
+      setIsSending(true);
+      await onSendMessage(message);
+      setMessage('');
     } finally {
-      setSending(false);
+      setIsSending(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 border-t bg-white">
-      <div className="flex gap-3">
-        <Input
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          placeholder={placeholder}
-          className="flex-grow bg-gray-50 border-gray-100"
-          disabled={disabled || sending}
-        />
-        <Button 
-          type="submit"
-          disabled={!newMessage.trim() || sending || disabled}
-          className="px-6"
-        >
-          {sending ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Send className="h-4 w-4" />
-          )}
-        </Button>
-      </div>
+    <form onSubmit={handleSubmit} className="flex gap-2">
+      <Textarea
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder={placeholder}
+        className="resize-none min-h-[2.5rem] max-h-[8rem]"
+        disabled={disabled || isSending}
+      />
+      <Button 
+        type="submit"
+        size="icon" 
+        disabled={!message.trim() || disabled || isSending}
+        className="flex-shrink-0"
+      >
+        {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+      </Button>
     </form>
   );
-}
+};
+
+export default MessageInput;
