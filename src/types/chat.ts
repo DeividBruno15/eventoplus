@@ -1,8 +1,12 @@
 
 export interface User {
   id: string;
-  first_name: string;
-  last_name: string | null;
+  first_name?: string;
+  last_name?: string | null;
+  user_metadata?: {
+    first_name: string;
+    last_name?: string | null;
+  };
 }
 
 export interface Message {

@@ -45,7 +45,7 @@ export default function Conversation() {
       if (otherUser && user && otherUser.id) {
         await sendMessageNotification(
           otherUser.id,
-          user.user_metadata.first_name + ' ' + (user.user_metadata.last_name || ''),
+          user.user_metadata?.first_name + ' ' + (user.user_metadata?.last_name || ''),
           content,
           conversationId
         );
@@ -60,8 +60,8 @@ export default function Conversation() {
     if (!otherUser) return '';
     
     // Verifica se otherUser tem user_metadata (usuário do Supabase) ou acessa diretamente
-    const firstName = otherUser.user_metadata ? otherUser.user_metadata.first_name : otherUser.first_name || '';
-    const lastName = otherUser.user_metadata ? otherUser.user_metadata.last_name : otherUser.last_name || '';
+    const firstName = otherUser.user_metadata?.first_name || otherUser.first_name || '';
+    const lastName = otherUser.user_metadata?.last_name || otherUser.last_name || '';
     
     return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
   };
@@ -71,7 +71,7 @@ export default function Conversation() {
       {/* Cabeçalho da conversa */}
       {otherUser && (
         <ConversationHeader
-          otherUserName={`${otherUser.user_metadata ? otherUser.user_metadata.first_name : otherUser.first_name} ${otherUser.user_metadata ? (otherUser.user_metadata.last_name || '') : (otherUser.last_name || '')}`}
+          otherUserName={`${otherUser.user_metadata?.first_name || otherUser.first_name || ''} ${otherUser.user_metadata?.last_name || otherUser.last_name || ''}`}
           otherUserInitials={getOtherUserInitials()}
         />
       )}
