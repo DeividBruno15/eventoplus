@@ -1,92 +1,122 @@
 
-import React, { useState, useEffect } from "react";
-import { FiltersState } from "../hooks/useVenueFilters";
-import { useBreakpoint } from "@/hooks/useBreakpoint";
-import SearchInput from "./filters/SearchInput";
-import SortingSelect from "./filters/SortingSelect";
-import MobileFiltersDrawer from "./filters/MobileFiltersDrawer";
-import DesktopFiltersPanel from "./filters/DesktopFiltersPanel";
+import React, { useState } from 'react';
+import { Search, SlidersHorizontal } from 'lucide-react';
+import { Input } from "@/components/ui/input";
+import { FiltersState } from '../hooks/useVenueFilters';
+import { useBreakpoint } from '@/hooks/useBreakpoint';
+import DesktopFiltersPanel from './filters/DesktopFiltersPanel';
+import MobileFiltersDrawer from './filters/MobileFiltersDrawer';
+import SortingSelect from './filters/SortingSelect';
 
 interface VenueFiltersProps {
   filters: FiltersState;
-  onFilterChange: (newFilters: FiltersState) => void;
+  onFilterChange: (filters: FiltersState) => void;
   resultsCount: number;
 }
 
 const VenueFilters: React.FC<VenueFiltersProps> = ({
   filters,
   onFilterChange,
-  resultsCount,
+  resultsCount
 }) => {
-  const { isDesktop } = useBreakpoint("md");
+  const { isDesktop } = useBreakpoint('md');
   const [localFilters, setLocalFilters] = useState<FiltersState>(filters);
-
-  // Reset local filters when main filters change
-  useEffect(() => {
-    setLocalFilters(filters);
-  }, [filters]);
-
+  const [searchQuery, setSearchQuery] = useState<string>(filters.searchQuery || '');
+  
+  // Count active filters for badge indicator
+  const filtersCount = 
+    (filters.venueType ? 1 : 0) +
+    (filters.minRating ? 1 : 0) +
+    (filters.location?.city || filters.location?.state || filters.location?.zipcode ? 1 : 0) +
+    (filters.priceRange[0] > 0 || filters.priceRange[1] < 10000 ? 1 : 0);
+  
+  // Handle search input changes with debounce
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newFilters = { ...filters, searchQuery: e.target.value };
-    onFilterChange(newFilters);
+    const value = e.target.value;
+    setSearchQuery(value);
+    
+    // Update filters after a short delay
+    const timeoutId = setTimeout(() => {
+      onFilterChange({
+        ...filters,
+        searchQuery: value
+      });
+    }, 300);
+    
+    return () => clearTimeout(timeoutId);
   };
-
-  const handleSortChange = (value: string) => {
-    const newFilters = { ...filters, sortBy: value };
-    onFilterChange(newFilters);
-  };
-
+  
+  // Handle individual filter changes
   const handleFilterChange = (field: keyof FiltersState, value: any) => {
-    setLocalFilters((prev) => ({ ...prev, [field]: value }));
+    setLocalFilters(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
-
-  const handleLocationChange = (location: FiltersState["location"]) => {
-    setLocalFilters((prev) => ({ ...prev, location }));
+  
+  // Handle location filter changes specifically
+  const handleLocationChange = (location: FiltersState['location']) => {
+    setLocalFilters(prev => ({
+      ...prev,
+      location
+    }));
   };
-
+  
+  // Handle max distance filter changes
   const handleMaxDistanceChange = (distance: number) => {
-    setLocalFilters((prev) => ({ ...prev, maxDistance: distance }));
+    setLocalFilters(prev => ({
+      ...prev,
+      maxDistance: distance
+    }));
   };
-
+  
+  // Apply all filters from local state
   const applyFilters = () => {
     onFilterChange(localFilters);
   };
-
+  
+  // Reset all filters to default values
   const resetFilters = () => {
-    const resetFiltersState: FiltersState = {
-      searchQuery: filters.searchQuery, // Keep search query
+    const resetState = {
+      searchQuery: searchQuery, // Keep search query
       venueType: undefined,
       minRating: undefined,
       priceRange: [0, 10000],
-      sortBy: "newest",
+      sortBy: filters.sortBy, // Keep sort selection
       location: undefined,
-      maxDistance: 50,
+      maxDistance: 50
     };
-
-    setLocalFilters(resetFiltersState);
-    onFilterChange(resetFiltersState);
+    
+    setLocalFilters(resetState);
+    onFilterChange(resetState);
+  };
+  
+  // Handle sort selection changes
+  const handleSortChange = (value: string) => {
+    const updatedFilters = {
+      ...filters,
+      sortBy: value
+    };
+    setLocalFilters(updatedFilters);
+    onFilterChange(updatedFilters);
   };
 
-  const filtersCount =
-    (filters.venueType ? 1 : 0) +
-    (filters.minRating ? 1 : 0) +
-    (filters.location?.city || filters.location?.state || filters.location?.zipcode
-      ? 1
-      : 0) +
-    (filters.priceRange[0] > 0 || filters.priceRange[1] < 10000 ? 1 : 0);
-
   return (
-    <div className="bg-white border rounded-lg shadow-sm p-3">
-      <div className="flex items-center gap-2">
-        <div className="flex-1">
-          <SearchInput value={filters.searchQuery} onChange={handleSearchChange} />
+    <div className="mb-6 space-y-4">
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <div className="flex-1 min-w-[280px]">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Pesquisar por tipo, localização, etc..."
+              className="pl-9 h-9"
+              value={searchQuery}
+              onChange={handleSearchChange}
+            />
+          </div>
         </div>
-
-        <div className="flex items-center gap-2 flex-shrink-0">
-          {isDesktop && (
-            <SortingSelect value={filters.sortBy} onChange={handleSortChange} />
-          )}
-
+        
+        <div className="flex items-center gap-3">
           {isDesktop ? (
             <DesktopFiltersPanel
               localFilters={localFilters}
@@ -101,7 +131,7 @@ const VenueFilters: React.FC<VenueFiltersProps> = ({
               filters={filters}
               localFilters={localFilters}
               onFilterChange={handleFilterChange}
-              onLocationChange={handleLocationChange}
+              onLocationChange={handleLocationChange} 
               onMaxDistanceChange={handleMaxDistanceChange}
               applyFilters={applyFilters}
               resetFilters={resetFilters}
@@ -110,12 +140,18 @@ const VenueFilters: React.FC<VenueFiltersProps> = ({
               onSortChange={handleSortChange}
             />
           )}
+          
+          {isDesktop && (
+            <SortingSelect 
+              value={filters.sortBy} 
+              onChange={handleSortChange} 
+            />
+          )}
         </div>
       </div>
-
-      {/* Results count */}
-      <div className="text-sm text-muted-foreground mt-2">
-        {resultsCount} {resultsCount === 1 ? "resultado encontrado" : "resultados encontrados"}
+      
+      <div className="text-sm text-muted-foreground">
+        {resultsCount} {resultsCount === 1 ? 'espaço encontrado' : 'espaços encontrados'}
       </div>
     </div>
   );

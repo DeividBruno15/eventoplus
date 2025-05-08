@@ -24,7 +24,7 @@ const VenuesGrid: React.FC<VenuesGridProps> = ({
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
         {[...Array(8)].map((_, i) => (
           <Card key={i} className="overflow-hidden">
             <Skeleton className="h-48 w-full" />
@@ -45,7 +45,7 @@ const VenuesGrid: React.FC<VenuesGridProps> = ({
 
   if (announcements.length === 0) {
     return (
-      <div className="text-center py-12">
+      <div className="text-center py-12 bg-muted/20 rounded-lg">
         <h3 className="text-lg font-medium mb-2">Nenhum espaço encontrado</h3>
         <p className="text-muted-foreground mb-6">
           Não foram encontrados espaços com os filtros selecionados.
@@ -61,12 +61,29 @@ const VenuesGrid: React.FC<VenuesGridProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
       {announcements.map((announcement) => {
         const createdDate = new Date(announcement.created_at);
         
+        const getVenueTypeName = (type: string) => {
+          const venueTypeMap: Record<string, string> = {
+            'party_hall': 'Salão de Festas',
+            'wedding_venue': 'Espaço para Casamentos',
+            'corporate_space': 'Espaço Corporativo',
+            'studio': 'Estúdio',
+            'restaurant': 'Restaurante',
+            'beach_club': 'Beach Club',
+            'farm': 'Fazenda/Sítio',
+            'mansion': 'Casa/Mansão',
+            'sports_venue': 'Espaço Esportivo',
+            'garden': 'Jardim/Área Externa',
+            'other': 'Outro'
+          };
+          return venueTypeMap[type] || type;
+        };
+        
         return (
-          <Card key={announcement.id} className="overflow-hidden flex flex-col">
+          <Card key={announcement.id} className="overflow-hidden flex flex-col transition-all duration-200 hover:shadow-md">
             <div 
               className="relative h-48 bg-cover bg-center cursor-pointer"
               style={{ 
@@ -76,25 +93,15 @@ const VenuesGrid: React.FC<VenuesGridProps> = ({
               }}
               onClick={() => navigate(`/venues/details/${announcement.id}`)}
             >
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black opacity-60" />
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/70" />
               <div className="absolute top-2 left-2">
-                <Badge variant="secondary" className="bg-white text-gray-800">
-                  {announcement.venue_type === 'party_hall' ? 'Salão de Festas' :
-                   announcement.venue_type === 'wedding_venue' ? 'Espaço para Casamentos' :
-                   announcement.venue_type === 'corporate_space' ? 'Espaço Corporativo' :
-                   announcement.venue_type === 'studio' ? 'Estúdio' :
-                   announcement.venue_type === 'restaurant' ? 'Restaurante' :
-                   announcement.venue_type === 'beach_club' ? 'Beach Club' :
-                   announcement.venue_type === 'farm' ? 'Fazenda/Sítio' :
-                   announcement.venue_type === 'mansion' ? 'Casa/Mansão' :
-                   announcement.venue_type === 'sports_venue' ? 'Espaço Esportivo' :
-                   announcement.venue_type === 'garden' ? 'Jardim/Área Externa' :
-                   'Outro'}
+                <Badge variant="secondary" className="bg-white/90 text-gray-800 shadow-sm">
+                  {getVenueTypeName(announcement.venue_type)}
                 </Badge>
               </div>
               <div className="absolute bottom-2 right-2">
                 {announcement.rating !== undefined && (
-                  <Badge className="bg-yellow-500 hover:bg-yellow-600">
+                  <Badge className="bg-yellow-500 hover:bg-yellow-600 shadow-sm">
                     ★ {announcement.rating.toFixed(1)}
                   </Badge>
                 )}
@@ -103,17 +110,17 @@ const VenuesGrid: React.FC<VenuesGridProps> = ({
             
             <CardContent className="p-4 flex-1">
               <h3 
-                className="font-semibold text-lg mb-1 line-clamp-1 hover:text-primary cursor-pointer"
+                className="font-semibold text-lg mb-1 line-clamp-1 hover:text-primary cursor-pointer group"
                 onClick={() => navigate(`/venues/details/${announcement.id}`)}
               >
-                {announcement.title}
+                <span className="group-hover:underline">{announcement.title}</span>
               </h3>
               <p className="text-sm text-muted-foreground mb-2">
                 {announcement.venue_name}
               </p>
               
-              <div className="text-sm text-muted-foreground flex items-center gap-1 mb-1">
-                <MapPin className="h-3 w-3" />
+              <div className="text-sm text-muted-foreground flex items-center gap-1 mb-1 line-clamp-1">
+                <MapPin className="h-3 w-3 flex-shrink-0" />
                 <span>{announcement.address || "Localização não especificada"}</span>
               </div>
               
@@ -131,9 +138,10 @@ const VenuesGrid: React.FC<VenuesGridProps> = ({
                 </span>
               </div>
               <Button
-                variant="ghost" 
+                variant="outline" 
                 size="sm"
                 onClick={() => navigate(`/venues/details/${announcement.id}`)}
+                className="text-xs h-8"
               >
                 Ver detalhes
               </Button>

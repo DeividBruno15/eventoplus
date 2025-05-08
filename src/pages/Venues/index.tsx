@@ -6,8 +6,6 @@ import { useVenueFilters } from "./hooks/useVenueFilters";
 import VenuePageHeader from "./components/VenuePageHeader";
 import VenueFilters from "./components/VenueFilters";
 import VenuesGrid from "./components/VenuesGrid";
-import { useState } from "react";
-import VenueLocationFilter from "./components/VenueLocationFilter";
 import { toast } from "sonner";
 
 const VenuesPage = () => {
@@ -41,7 +39,7 @@ const VenuesPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 py-6">
       <VenuePageHeader isAdvertiser={isAdvertiser} />
 
       {!isAdvertiser && (

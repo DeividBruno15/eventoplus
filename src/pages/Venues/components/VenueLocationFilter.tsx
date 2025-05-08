@@ -75,7 +75,7 @@ const VenueLocationFilter: React.FC<VenueLocationFilterProps> = ({
       <PopoverTrigger asChild>
         <Button
           variant={hasActiveFilter ? "default" : "outline"}
-          className="h-9 justify-between"
+          className={`${isCompact ? 'h-8 text-sm w-full' : 'h-9'} justify-between`}
         >
           <span className="flex items-center">
             <MapPinIcon className="w-4 h-4 mr-1" />
