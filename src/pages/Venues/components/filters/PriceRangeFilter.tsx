@@ -19,9 +19,9 @@ const PriceRangeFilter: React.FC<PriceRangeFilterProps> = ({ value, onChange }) 
   
   return (
     <div>
-      <div className="flex justify-between mb-2">
-        <h4 className="font-medium">Faixa de preço</h4>
-        <div className="text-sm">
+      <div className="flex justify-between mb-1">
+        <h4 className="font-medium text-sm">Faixa de preço</h4>
+        <div className="text-xs text-muted-foreground">
           {formatPrice(value[0])} - {formatPrice(value[1])}
         </div>
       </div>

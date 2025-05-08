@@ -17,12 +17,12 @@ interface VenueTypeFilterProps {
 const VenueTypeFilter: React.FC<VenueTypeFilterProps> = ({ value, onChange }) => {
   return (
     <div>
-      <h4 className="font-medium mb-2">Tipo de Espaço</h4>
+      <h4 className="font-medium mb-1 text-sm">Tipo de Espaço</h4>
       <Select 
         value={value}
         onValueChange={onChange}
       >
-        <SelectTrigger>
+        <SelectTrigger className="h-9">
           <SelectValue placeholder="Todos os tipos" />
         </SelectTrigger>
         <SelectContent>

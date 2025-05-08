@@ -51,7 +51,7 @@ const MobileFiltersDrawer: React.FC<MobileFiltersDrawerProps> = ({
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
       <DrawerTrigger asChild>
-        <Button variant="outline" className="relative">
+        <Button variant="outline" className="relative h-9">
           <SlidersHorizontal className="h-4 w-4 mr-2" />
           Filtros
           {filtersCount > 0 && (
@@ -63,13 +63,13 @@ const MobileFiltersDrawer: React.FC<MobileFiltersDrawerProps> = ({
       </DrawerTrigger>
       <DrawerContent>
         <div className="mx-auto w-full max-w-sm">
-          <DrawerHeader>
+          <DrawerHeader className="p-4 pb-2">
             <DrawerTitle>Filtros</DrawerTitle>
             <DrawerDescription>
               Encontre o espaço perfeito para seu evento
             </DrawerDescription>
           </DrawerHeader>
-          <div className="p-4 space-y-4">
+          <div className="p-4 pt-0 space-y-3">
             <VenueTypeFilter 
               value={localFilters.venueType} 
               onChange={(value) => onFilterChange('venueType', value)} 
@@ -81,7 +81,7 @@ const MobileFiltersDrawer: React.FC<MobileFiltersDrawerProps> = ({
             />
             
             <div>
-              <h4 className="font-medium mb-2">Localização</h4>
+              <h4 className="font-medium mb-1 text-sm">Localização</h4>
               <VenueLocationFilter 
                 location={localFilters.location}
                 maxDistance={localFilters.maxDistance}
@@ -95,15 +95,15 @@ const MobileFiltersDrawer: React.FC<MobileFiltersDrawerProps> = ({
               onChange={(value) => onFilterChange('priceRange', value)} 
             />
             
-            <Separator className="my-4" />
+            <Separator className="my-2" />
             
-            <h4 className="font-medium mb-2">Ordenar por</h4>
+            <h4 className="font-medium mb-1 text-sm">Ordenar por</h4>
             <SortingSelect 
               value={sortByValue} 
               onChange={onSortChange}
             />
           </div>
-          <DrawerFooter>
+          <DrawerFooter className="p-4 pt-0">
             <Button onClick={() => { applyFilters(); setIsOpen(false); }}>
               Aplicar filtros
             </Button>

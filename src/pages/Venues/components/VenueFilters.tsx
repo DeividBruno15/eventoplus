@@ -76,14 +76,14 @@ const VenueFilters: React.FC<VenueFiltersProps> = ({
     (filters.priceRange[0] > 0 || filters.priceRange[1] < 10000 ? 1 : 0);
 
   return (
-    <div className="bg-white border rounded-lg shadow-sm p-4">
-      <div className="flex flex-col md:flex-row gap-4">
+    <div className="bg-white border rounded-lg shadow-sm p-3">
+      <div className="flex flex-col md:flex-row gap-3">
         <SearchInput value={filters.searchQuery} onChange={handleSearchChange} />
 
         <div className="flex gap-2 flex-wrap">
-          {isDesktop ? (
+          {isDesktop && (
             <SortingSelect value={filters.sortBy} onChange={handleSortChange} />
-          ) : null}
+          )}
 
           {isDesktop ? (
             <DesktopFiltersPanel
@@ -112,7 +112,7 @@ const VenueFilters: React.FC<VenueFiltersProps> = ({
       </div>
 
       {/* Results count */}
-      <div className="mt-4 text-sm text-muted-foreground">
+      <div className="text-sm text-muted-foreground mt-2">
         {resultsCount} {resultsCount === 1 ? "resultado encontrado" : "resultados encontrados"}
       </div>
     </div>

@@ -44,7 +44,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ value, onChange }) => {
       <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
       <Input
         placeholder="Buscar espaços..."
-        className="pl-9 pr-10"
+        className="pl-9 pr-10 h-9"
         value={inputValue}
         onChange={handleInputChange}
       />
@@ -52,10 +52,10 @@ const SearchInput: React.FC<SearchInputProps> = ({ value, onChange }) => {
         <Button 
           variant="ghost" 
           size="sm" 
-          className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 p-0" 
+          className="absolute right-1 top-1/2 -translate-y-1/2 h-5 w-5 p-0" 
           onClick={handleClear}
         >
-          <X className="h-4 w-4" />
+          <X className="h-3 w-3" />
           <span className="sr-only">Limpar busca</span>
         </Button>
       )}

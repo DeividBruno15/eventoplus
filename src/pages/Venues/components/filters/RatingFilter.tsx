@@ -17,12 +17,12 @@ interface RatingFilterProps {
 const RatingFilter: React.FC<RatingFilterProps> = ({ value, onChange }) => {
   return (
     <div>
-      <h4 className="font-medium mb-2">Avaliação mínima</h4>
+      <h4 className="font-medium mb-1 text-sm">Avaliação mínima</h4>
       <Select 
         value={value}
         onValueChange={onChange}
       >
-        <SelectTrigger>
+        <SelectTrigger className="h-9">
           <SelectValue placeholder="Qualquer avaliação" />
         </SelectTrigger>
         <SelectContent>
