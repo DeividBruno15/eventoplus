@@ -20,17 +20,18 @@ export const transformEventData = (eventData: any): Event => {
       last_name: '',
     },
     created_at: eventData.created_at,
-    updated_at: null,
-    service_type: eventData.service_type,
+    updated_at: eventData.updated_at || null,
+    service_type: eventData.service_type || '',
     status: eventData.status as EventStatus,
     event_time: eventData.event_time || undefined,
     image_url: eventData.image_url || undefined,
-    service_requests: eventData.service_requests as any || undefined,
+    service_requests: eventData.service_requests || undefined,
     zipcode: eventData.zipcode || undefined,
     street: '',
     number: '',
     neighborhood: '',
     city: '',
     state: '',
+    // Não incluímos mais o venue_id pois ele não existe na tabela events
   };
 };

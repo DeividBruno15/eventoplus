@@ -28,14 +28,15 @@ export const useFetchContractorEvents = (userId: string | undefined) => {
       
       // Get events data from Supabase with pagination for better performance
       // Only fetch the necessary fields to reduce data transfer
+      // FIXED: Using correct column names (name, event_date) instead of (title, date)
       const { data, error } = await supabase
         .from('events')
         .select(`
           id, 
-          title, 
+          name, 
           description, 
           location, 
-          date, 
+          event_date, 
           image_url, 
           created_at, 
           contractor_id, 
