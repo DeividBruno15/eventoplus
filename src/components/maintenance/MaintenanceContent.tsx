@@ -12,7 +12,7 @@ const MaintenanceContent = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
-      className="w-full md:w-1/2 space-y-8 text-center md:text-left"
+      className="w-full max-w-2xl space-y-8 text-center"
     >
       <div className="space-y-4">
         <motion.div
@@ -28,7 +28,7 @@ const MaintenanceContent = () => {
           Estamos em manutenção
         </h1>
         
-        <p className="text-xl text-muted-foreground max-w-lg">
+        <p className="text-xl text-muted-foreground max-w-lg mx-auto">
           Nossa equipe está trabalhando para aprimorar sua experiência. 
           O sistema estará de volta em breve com novidades.
         </p>
@@ -38,14 +38,14 @@ const MaintenanceContent = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
-        className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-6 max-w-md mx-auto md:mx-0"
+        className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-6 max-w-md mx-auto"
       >
         <div className="flex items-start gap-2 mb-3">
           <Info className="h-5 w-5 mt-0.5 flex-shrink-0 text-primary" />
           <p className="text-muted-foreground">
             Estamos atualizando nossos sistemas para oferecer 
             uma experiência mais rápida, segura e eficiente para todos os usuários 
-            da plataforma EventoPlusConnect.
+            da plataforma Evento+.
           </p>
         </div>
         
@@ -74,7 +74,7 @@ const MaintenanceContent = () => {
         >
           <Button 
             variant="outline" 
-            onClick={() => window.location.href = 'mailto:suporte@eventoplusconect.com'} 
+            onClick={() => window.location.href = 'mailto:suporte@eventomais.com'} 
             className="gap-2 group"
           >
             <AlertTriangle className={`h-4 w-4 transition-transform duration-300 ${isHovered ? 'rotate-12' : ''}`} />

@@ -1,6 +1,5 @@
 
 import { motion } from 'framer-motion';
-import MaintenanceIllustration from '@/components/maintenance/MaintenanceIllustration';
 import MaintenanceContent from '@/components/maintenance/MaintenanceContent';
 import MaintenanceFooter from '@/components/maintenance/MaintenanceFooter';
 import BackgroundEffects from '@/components/maintenance/BackgroundEffects';
@@ -11,10 +10,7 @@ const Maintenance = () => {
       {/* Efeitos decorativos de background */}
       <BackgroundEffects />
       
-      <div className="container mx-auto px-4 py-12 flex-1 flex flex-col md:flex-row items-center justify-center gap-8 relative z-10">
-        {/* Ilustração */}
-        <MaintenanceIllustration />
-        
+      <div className="container mx-auto px-4 py-12 flex-1 flex items-center justify-center relative z-10">
         {/* Conteúdo de texto */}
         <MaintenanceContent />
       </div>
