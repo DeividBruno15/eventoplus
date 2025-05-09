@@ -55,6 +55,11 @@ const EventDetail = () => {
   // Determine if the user is the owner of the event
   const isOwner = user && event && (event.user_id === user.id || event.contractor_id === user.id);
 
+  // Wrap refetchEvent in a function that returns a Promise
+  const refetchEventPromise = async () => {
+    return Promise.resolve(refetchEvent());
+  };
+
   return (
     <div className="space-y-6">
       <EventDetailHeader loading={loading} event={event} />
@@ -67,7 +72,7 @@ const EventDetail = () => {
             <EventManagementControls 
               event={event}
               userId={user?.id}
-              onSuccess={refetchEvent}
+              onSuccess={refetchEventPromise}
               isOwner={!!isOwner}
             />
           </div>

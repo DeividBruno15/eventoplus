@@ -22,13 +22,25 @@ export const useEventState = () => {
     updateApplicationStatus
   } = useEventDetails({ id, user });
   
+  // Adapt handleApproveApplication to return void instead of boolean
+  const adaptedApplicationManagement = useCallback((handler: (applicationId: string, providerId: string) => Promise<boolean>) => {
+    return async (applicationId: string, providerId: string): Promise<void> => {
+      await handler(applicationId, providerId);
+      // Return void explicitly
+      return;
+    };
+  }, []);
+  
   const { 
     submitting, 
     handleApply, 
-    handleApproveApplication,
+    handleApproveApplication: originalHandleApproveApplication,
     handleCancelApplication,
     handleRejectApplication
   } = useEventApplications(event, updateApplicationStatus);
+  
+  // Adapt the original function to return void
+  const handleApproveApplication = adaptedApplicationManagement(originalHandleApproveApplication);
   
   console.log("Applications in useEventState:", applications);
   
@@ -94,7 +106,7 @@ export const useEventState = () => {
     submitting,
     handleApply,
     handleApproveApplication,
-    handleCancelApplication,
-    handleRejectApplication
+    handleRejectApplication,
+    handleCancelApplication
   };
 };
