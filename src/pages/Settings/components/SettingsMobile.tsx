@@ -1,90 +1,260 @@
 
-import React from 'react';
-import { ChevronRight, CreditCard, HelpCircle, Bell, LogOut, Settings as SettingsIcon } from 'lucide-react';
-import { useAuth } from '@/hooks/auth';
-import { useToast } from '@/hooks/use-toast';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ChevronRight, User, Bell, Shield, ArrowLeft } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { toast } from 'sonner';
+import { useAuth } from '@/hooks/auth';
 
 const SettingsMobile = () => {
-  const { logout, user } = useAuth();
-  const { toast } = useToast();
   const navigate = useNavigate();
-
-  const settingsItems = [
-    {
-      icon: CreditCard,
-      title: 'Minha assinatura',
-      path: '/payments',
-      description: 'Gerencie sua assinatura e pagamentos'
-    },
-    {
-      icon: Bell,
-      title: 'Notificações',
-      path: '/notifications',
-      description: 'Preferências de notificações'
-    },
-    {
-      icon: HelpCircle,
-      title: 'Suporte',
-      path: '/support',
-      description: 'Obtenha ajuda e suporte'
-    }
-  ];
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      toast({
-        title: "Logout realizado",
-        description: "Você foi desconectado com sucesso."
-      });
-      navigate('/');
-    } catch (error: any) {
-      toast({
-        title: "Erro ao fazer logout",
-        description: error.message,
-        variant: "destructive"
-      });
+  const { user } = useAuth();
+  const [activeSection, setActiveSection] = useState<'menu' | 'account' | 'notifications' | 'security'>('menu');
+  const [loading, setLoading] = useState(false);
+  
+  // Estado para configurações
+  const [username, setUsername] = useState(user?.user_metadata?.username || '');
+  const [language, setLanguage] = useState('pt-BR');
+  const [darkMode, setDarkMode] = useState(false);
+  
+  // Estado para notificações
+  const [emailNotifications, setEmailNotifications] = useState(true);
+  const [pushNotifications, setPushNotifications] = useState(true);
+  const [smsNotifications, setSmsNotifications] = useState(false);
+  
+  const handleSaveSettings = () => {
+    setLoading(true);
+    
+    // Simular atualização de configurações
+    setTimeout(() => {
+      toast.success('Configurações atualizadas com sucesso');
+      setLoading(false);
+    }, 800);
+  };
+  
+  const handleDeleteAccount = async () => {
+    if (window.confirm('Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita.')) {
+      toast.error('Funcionalidade em implementação');
     }
   };
 
-  return (
-    <div className="md:hidden space-y-6 pb-8">
-      <div>
-        <h1 className="text-2xl font-bold mb-6">Configurações</h1>
-        
-        <div className="space-y-4">
-          {settingsItems.map((item) => (
-            <Button
-              key={item.path}
-              variant="ghost"
-              className="w-full justify-between h-auto py-4 px-4 bg-card hover:bg-card/80"
-              onClick={() => navigate(item.path)}
-            >
-              <div className="flex items-center">
-                <item.icon className="h-5 w-5 mr-3 text-muted-foreground" />
-                <div className="text-left">
-                  <p className="font-medium">{item.title}</p>
-                  <p className="text-xs text-muted-foreground">{item.description}</p>
-                </div>
-              </div>
-              <ChevronRight className="h-5 w-5 text-muted-foreground" />
-            </Button>
-          ))}
-        </div>
-      </div>
-
-      <div className="pt-4 border-t">
-        <Button
-          variant="destructive"
-          className="w-full"
-          onClick={handleLogout}
+  const renderHeader = () => {
+    if (activeSection === 'menu') {
+      return <h1 className="text-xl font-bold">Configurações</h1>;
+    }
+    
+    return (
+      <div className="flex items-center">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={() => setActiveSection('menu')}
+          className="mr-2"
         >
-          <LogOut className="h-4 w-4 mr-2" />
-          Sair
+          <ArrowLeft className="h-5 w-5" />
         </Button>
+        
+        <h1 className="text-lg font-bold">
+          {activeSection === 'account' && 'Conta'}
+          {activeSection === 'notifications' && 'Notificações'}
+          {activeSection === 'security' && 'Segurança'}
+        </h1>
       </div>
+    );
+  };
+
+  const renderMainMenu = () => (
+    <Card className="mb-4">
+      <CardContent className="p-0">
+        <button 
+          onClick={() => setActiveSection('account')}
+          className="flex items-center justify-between w-full p-4 border-b hover:bg-muted/50 transition-colors text-left"
+        >
+          <div className="flex items-center">
+            <User className="h-5 w-5 mr-3 text-muted-foreground" />
+            <span>Conta</span>
+          </div>
+          <ChevronRight className="h-5 w-5 text-muted-foreground" />
+        </button>
+        
+        <button 
+          onClick={() => setActiveSection('notifications')}
+          className="flex items-center justify-between w-full p-4 border-b hover:bg-muted/50 transition-colors text-left"
+        >
+          <div className="flex items-center">
+            <Bell className="h-5 w-5 mr-3 text-muted-foreground" />
+            <span>Notificações</span>
+          </div>
+          <ChevronRight className="h-5 w-5 text-muted-foreground" />
+        </button>
+        
+        <button 
+          onClick={() => setActiveSection('security')}
+          className="flex items-center justify-between w-full p-4 hover:bg-muted/50 transition-colors text-left"
+        >
+          <div className="flex items-center">
+            <Shield className="h-5 w-5 mr-3 text-muted-foreground" />
+            <span>Segurança</span>
+          </div>
+          <ChevronRight className="h-5 w-5 text-muted-foreground" />
+        </button>
+      </CardContent>
+    </Card>
+  );
+
+  const renderAccountSettings = () => (
+    <Card>
+      <CardHeader>
+        <CardTitle>Configurações da Conta</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="username">Nome de usuário</Label>
+          <input
+            id="username"
+            type="text" 
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="w-full rounded-md border p-2"
+            placeholder="Seu nome de usuário"
+          />
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor="language">Idioma</Label>
+          <Select value={language} onValueChange={setLanguage}>
+            <SelectTrigger id="language">
+              <SelectValue placeholder="Selecione um idioma" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="pt-BR">Português (Brasil)</SelectItem>
+              <SelectItem value="en-US">English (United States)</SelectItem>
+              <SelectItem value="es">Español</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div className="flex items-center justify-between">
+          <Label htmlFor="theme">Tema escuro</Label>
+          <Switch 
+            id="theme" 
+            checked={darkMode}
+            onCheckedChange={setDarkMode}
+          />
+        </div>
+        
+        <Button 
+          className="w-full mt-6" 
+          onClick={handleSaveSettings}
+          disabled={loading}
+        >
+          {loading ? 'Salvando...' : 'Salvar alterações'}
+        </Button>
+      </CardContent>
+    </Card>
+  );
+
+  const renderNotificationSettings = () => (
+    <Card>
+      <CardHeader>
+        <CardTitle>Notificações</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex items-center justify-between">
+          <Label htmlFor="email-notifications">Notificações por e-mail</Label>
+          <Switch 
+            id="email-notifications" 
+            checked={emailNotifications}
+            onCheckedChange={setEmailNotifications}
+          />
+        </div>
+        
+        <div className="flex items-center justify-between">
+          <Label htmlFor="push-notifications">Notificações push</Label>
+          <Switch 
+            id="push-notifications" 
+            checked={pushNotifications}
+            onCheckedChange={setPushNotifications}
+          />
+        </div>
+        
+        <div className="flex items-center justify-between">
+          <Label htmlFor="sms-notifications">Notificações por SMS</Label>
+          <Switch 
+            id="sms-notifications" 
+            checked={smsNotifications}
+            onCheckedChange={setSmsNotifications}
+          />
+        </div>
+        
+        <Button 
+          className="w-full mt-6" 
+          onClick={handleSaveSettings}
+          disabled={loading}
+        >
+          {loading ? 'Salvando...' : 'Salvar preferências'}
+        </Button>
+      </CardContent>
+    </Card>
+  );
+
+  const renderSecuritySettings = () => (
+    <Card>
+      <CardHeader>
+        <CardTitle>Segurança</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <Button 
+          variant="outline" 
+          className="w-full"
+          onClick={() => toast.info('Um email foi enviado com instruções para alterar sua senha.')}
+        >
+          Alterar senha
+        </Button>
+        
+        <Button 
+          variant="outline" 
+          className="w-full"
+          onClick={() => toast.info('Autenticação em dois fatores será implementada em breve.')}
+        >
+          Ativar autenticação em dois fatores
+        </Button>
+        
+        <Button 
+          variant="outline" 
+          className="w-full"
+          onClick={() => toast.info('Gerenciamento de dispositivos será implementado em breve.')}
+        >
+          Gerenciar dispositivos conectados
+        </Button>
+        
+        <hr className="my-4" />
+        
+        <Button 
+          variant="destructive" 
+          className="w-full"
+          onClick={handleDeleteAccount}
+        >
+          Excluir minha conta
+        </Button>
+      </CardContent>
+    </Card>
+  );
+
+  return (
+    <div className="container py-4">
+      <div className="mb-4">
+        {renderHeader()}
+      </div>
+      
+      {activeSection === 'menu' && renderMainMenu()}
+      {activeSection === 'account' && renderAccountSettings()}
+      {activeSection === 'notifications' && renderNotificationSettings()}
+      {activeSection === 'security' && renderSecuritySettings()}
     </div>
   );
 };
