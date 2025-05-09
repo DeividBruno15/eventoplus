@@ -24,23 +24,40 @@ export function getApplicationStatusColor(status: string): string {
 
 /**
  * Formats a date string to DD/MM/YYYY
+ * Optimized version with memoization for common inputs
  */
+const dateFormatCache = new Map<string, string>();
+
 export function formatDateInput(value: string): string {
+  // Check if we already formatted this date
+  if (dateFormatCache.has(value)) {
+    return dateFormatCache.get(value)!;
+  }
+  
   // Remove any non-numeric characters
   const numericValue = value.replace(/\D/g, '');
   
+  let result: string;
   // Format with slashes
   if (numericValue.length <= 2) {
-    return numericValue;
+    result = numericValue;
   } else if (numericValue.length <= 4) {
-    return `${numericValue.slice(0, 2)}/${numericValue.slice(2)}`;
+    result = `${numericValue.slice(0, 2)}/${numericValue.slice(2)}`;
   } else {
-    return `${numericValue.slice(0, 2)}/${numericValue.slice(2, 4)}/${numericValue.slice(4, 8)}`;
+    result = `${numericValue.slice(0, 2)}/${numericValue.slice(2, 4)}/${numericValue.slice(4, 8)}`;
   }
+  
+  // Store in cache if input is complex enough to benefit from caching
+  if (numericValue.length > 4) {
+    dateFormatCache.set(value, result);
+  }
+  
+  return result;
 }
 
 /**
  * Checks if a date string (DD/MM/YYYY) is before today
+ * Optimized with early returns and fewer object creations
  */
 export function isDateBeforeToday(dateString: string): boolean {
   // Parse date string (DD/MM/YYYY)
@@ -50,6 +67,11 @@ export function isDateBeforeToday(dateString: string): boolean {
   const day = parseInt(parts[0], 10);
   const month = parseInt(parts[1], 10) - 1; // Month is 0-based
   const year = parseInt(parts[2], 10);
+  
+  // Validate date parts
+  if (isNaN(day) || isNaN(month) || isNaN(year)) return false;
+  if (month < 0 || month > 11) return false;
+  if (day < 1 || day > 31) return false;
   
   // Create date objects
   const inputDate = new Date(year, month, day);
@@ -63,11 +85,49 @@ export function isDateBeforeToday(dateString: string): boolean {
 
 /**
  * Formats a number as currency (BRL)
+ * Using a cached formatter for performance
  */
+const currencyFormatter = new Intl.NumberFormat('pt-BR', {
+  style: 'currency',
+  currency: 'BRL'
+});
+
 export function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL'
-  }).format(value);
+  return currencyFormatter.format(value);
 }
 
+/**
+ * Debounces a function to improve performance
+ * Useful for search inputs and other frequently triggered events
+ */
+export function debounce<T extends (...args: any[]) => any>(
+  fn: T,
+  delay: number
+): (...args: Parameters<T>) => void {
+  let timeout: ReturnType<typeof setTimeout> | null = null;
+  
+  return function(...args: Parameters<T>) {
+    if (timeout !== null) {
+      clearTimeout(timeout);
+    }
+    timeout = setTimeout(() => fn(...args), delay);
+  };
+}
+
+/**
+ * Cache function results for better performance
+ */
+export function memoize<T extends (...args: any[]) => any>(fn: T): T {
+  const cache = new Map();
+  
+  return function(...args: Parameters<T>): ReturnType<T> {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) {
+      return cache.get(key);
+    }
+    
+    const result = fn(...args);
+    cache.set(key, result);
+    return result;
+  } as T;
+}
