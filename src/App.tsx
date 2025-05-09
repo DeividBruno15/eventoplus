@@ -30,6 +30,7 @@ import Payments from './pages/Payments';
 import Notifications from './pages/Notifications';
 import WhatsAppAssistant from './pages/WhatsAppAssistant';
 import PaymentSuccess from './pages/Venues/PaymentSuccess';
+import Maintenance from './pages/Maintenance';
 import { AuthProvider } from "./hooks/auth";
 import { Toaster } from "sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -64,6 +65,7 @@ function App() {
                 <Route path="/users/:id" element={<UserProfile />} />
                 <Route path="/providers/:id" element={<ProviderProfile />} />
                 <Route path="/onboarding" element={<Onboarding />} />
+                <Route path="/maintenance" element={<Maintenance />} />
 
                 <Route path="/" element={<DashboardLayout />}>
                   <Route path="dashboard" element={<Dashboard />} />
