@@ -1,9 +1,7 @@
 
 import { useNavigate } from "react-router-dom";
-import { Calendar, MessageSquare, Settings, Briefcase } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { OnboardingCard } from "@/components/dashboard/OnboardingCard";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ProviderStats } from "./dashboard-sections/ProviderStats";
@@ -20,8 +18,6 @@ const ProviderDashboardContent = ({ userName }: ProviderDashboardContentProps) =
   
   return (
     <div className="space-y-4 md:space-y-6 animate-fade-in">
-      <OnboardingCard />
-      
       <div>
         <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Olá, {userName}!</h2>
         <p className="text-sm md:text-base text-muted-foreground mt-1 md:mt-2">
