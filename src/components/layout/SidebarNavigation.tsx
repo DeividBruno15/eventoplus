@@ -1,3 +1,4 @@
+
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/auth';
 import { useToast } from '@/hooks/use-toast';

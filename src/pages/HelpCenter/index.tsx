@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SearchIcon, ArrowLeft } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -12,20 +12,6 @@ import { useBreakpoint } from "@/hooks/useBreakpoint";
 const HelpCenter = () => {
   const navigate = useNavigate();
   const { isMobile } = useBreakpoint("md");
-  
-  // Effect to ensure navigation elements remain visible
-  useEffect(() => {
-    // This ensures sidebar and topbar remain visible when accessing this page
-    // by making sure no overflow or hidden properties are applied
-    const sidebar = document.querySelector('[data-sidebar="sidebar"]');
-    if (sidebar) {
-      sidebar.removeAttribute('style');
-    }
-    
-    return () => {
-      // Cleanup function to restore normal behavior when leaving the page
-    };
-  }, []);
 
   return (
     <div className="space-y-6 animate-fade-in pt-1">
@@ -43,6 +29,7 @@ const HelpCenter = () => {
             size="icon" 
             onClick={() => navigate(-1)}
             className="h-9 w-9"
+            aria-label="Voltar"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
