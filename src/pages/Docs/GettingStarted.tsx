@@ -1,156 +1,155 @@
 
-import { DocsLayout } from "@/components/docs/DocsLayout";
-import { Card } from "@/components/ui/card";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Info, AlertTriangle, CheckCircle } from "lucide-react";
+import React from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Link } from 'react-router-dom';
+import { AlertCircle, ArrowRight, CheckCircle2 } from 'lucide-react';
+import DocsLayout from '@/components/docs/DocsLayout';
 
-export const GettingStarted = () => {
+const GettingStarted = () => {
   return (
     <DocsLayout title="Guia de Início">
-      <div className="max-w-3xl mx-auto space-y-8">
+      <div className="space-y-8">
         <div>
-          <h1 className="text-3xl font-bold mb-4">Primeiros Passos no Evento+</h1>
-          <p className="text-muted-foreground mb-6">
-            Este guia irá ajudá-lo a começar a usar o Evento+ rapidamente e aproveitar todos os recursos da plataforma.
+          <h1 className="text-3xl font-bold mb-4">Guia de Início Rápido</h1>
+          <p className="text-muted-foreground">
+            Este guia irá ajudá-lo a começar a usar nossa plataforma rapidamente e com eficiência.
+            Siga as etapas abaixo para configurar sua conta e começar a criar eventos.
           </p>
         </div>
 
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">1. Crie sua conta</h2>
-          <div className="space-y-4 mb-6">
+        {/* Step 1 */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">1</div>
+              Criando sua conta
+            </CardTitle>
+            <CardDescription>
+              O primeiro passo é criar sua conta na plataforma
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <p>
-              Para começar a usar o Evento+, você precisa criar uma conta. O processo é simples:
+              Para começar, você precisa criar uma conta usando seu e-mail ou conta do Google.
+              Durante o registro, você escolherá seu tipo de perfil:
             </p>
-            <ul className="list-disc pl-6 space-y-2">
-              <li>Acesse a página de cadastro</li>
-              <li>Preencha seus dados pessoais</li>
-              <li>Escolha o tipo de conta que você deseja criar:
-                <ul className="list-circle pl-6 mt-2 space-y-1">
-                  <li><strong>Contratante:</strong> Para quem deseja organizar eventos</li>
-                  <li><strong>Prestador:</strong> Para quem oferece serviços para eventos</li>
-                  <li><strong>Anunciante:</strong> Para quem possui espaços para locação</li>
-                </ul>
-              </li>
-              <li>Confirme seu e-mail clicando no link enviado</li>
+            
+            <ul className="list-disc pl-5 space-y-2">
+              <li><strong>Contratante:</strong> Se você deseja organizar eventos e contratar serviços</li>
+              <li><strong>Prestador de Serviços:</strong> Se você oferece serviços para eventos</li>
+              <li><strong>Anunciante de Locais:</strong> Se você possui locais para aluguel de eventos</li>
             </ul>
-          </div>
 
-          <div className="rounded-md border p-4 mb-6">
-            <h3 className="font-medium mb-2">Dica: Complete seu perfil</h3>
+            <Button asChild>
+              <Link to="/login">
+                Criar minha conta
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Step 2 */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">2</div>
+              Completando seu perfil
+            </CardTitle>
+            <CardDescription>
+              Preencha as informações do seu perfil para melhorar suas chances de sucesso
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <p>
-              Um perfil completo aumenta suas chances de encontrar parceiros ou clientes. Certifique-se de adicionar:
+              Depois de criar sua conta, é importante completar seu perfil com todas as informações relevantes:
             </p>
-            <ul className="list-disc pl-6 mt-2">
-              <li>Uma foto de perfil profissional</li>
-              <li>Descrição detalhada de seus serviços ou necessidades</li>
-              <li>Dados de contato atualizados</li>
+            
+            <ul className="list-disc pl-5 space-y-2">
+              <li>Adicione uma foto de perfil profissional</li>
+              <li>Preencha seus dados de contato completos</li>
+              <li>Descreva sua experiência e especialidades</li>
+              <li>Adicione suas redes sociais e website (se tiver)</li>
             </ul>
-          </div>
-          
-          <Alert className="mb-6">
-            <Info className="h-4 w-4" />
-            <AlertTitle>Importante</AlertTitle>
-            <AlertDescription>
-              Sua conta pode receber verificação após a análise de nossos administradores, aumentando sua credibilidade na plataforma.
-            </AlertDescription>
-          </Alert>
+
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Perfis completos têm 3x mais chances de serem escolhidos por contratantes!
+              </AlertDescription>
+            </Alert>
+          </CardContent>
         </Card>
 
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">2. Explore o Painel</h2>
-          <p className="mb-4">
-            Após fazer login, você será direcionado ao seu painel personalizado, que varia de acordo com o tipo de conta:
-          </p>
-          
-          <div className="space-y-6 mb-6">
-            <div>
-              <h3 className="font-medium mb-2">Painel do Contratante</h3>
-              <p>Aqui você pode:</p>
-              <ul className="list-disc pl-6 mt-2">
-                <li>Criar novos eventos</li>
-                <li>Gerenciar eventos existentes</li>
-                <li>Buscar locais para seus eventos</li>
-                <li>Encontrar prestadores de serviço</li>
-                <li>Visualizar orçamentos e propostas</li>
-              </ul>
-            </div>
+        {/* Step 3 */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">3</div>
+              Escolhendo seu plano
+            </CardTitle>
+            <CardDescription>
+              Selecione o plano que melhor atende às suas necessidades
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p>
+              Oferecemos diferentes planos para atender às suas necessidades:
+            </p>
             
-            <div>
-              <h3 className="font-medium mb-2">Painel do Prestador</h3>
-              <p>Aqui você pode:</p>
-              <ul className="list-disc pl-6 mt-2">
-                <li>Visualizar oportunidades de eventos</li>
-                <li>Enviar propostas para contratantes</li>
-                <li>Gerenciar seus serviços</li>
-                <li>Acompanhar seu calendário de compromissos</li>
-              </ul>
-            </div>
-            
-            <div>
-              <h3 className="font-medium mb-2">Painel do Anunciante</h3>
-              <p>Aqui você pode:</p>
-              <ul className="list-disc pl-6 mt-2">
-                <li>Cadastrar seus espaços e locais</li>
-                <li>Gerenciar disponibilidade</li>
-                <li>Receber solicitações de reserva</li>
-                <li>Acompanhar avaliações dos clientes</li>
-              </ul>
-            </div>
-          </div>
-          
-          <Alert variant="warning" className="mb-6">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>Atenção</AlertTitle>
-            <AlertDescription>
-              Mantenha suas informações sempre atualizadas para garantir que potenciais parceiros ou clientes possam entrar em contato facilmente.
-            </AlertDescription>
-          </Alert>
+            <ul className="list-disc pl-5 space-y-2">
+              <li><strong>Plano Gratuito:</strong> Ideal para começar e conhecer a plataforma</li>
+              <li><strong>Plano Premium:</strong> Recursos avançados para usuários frequentes</li>
+              <li><strong>Plano Enterprise:</strong> Solução completa para empresas e profissionais de alto volume</li>
+            </ul>
+
+            <Alert variant="default" className="bg-blue-50 border-blue-200">
+              <AlertCircle className="h-4 w-4 text-blue-500" />
+              <AlertDescription className="text-blue-700">
+                Você pode começar com o plano gratuito e fazer upgrade quando precisar!
+              </AlertDescription>
+            </Alert>
+
+            <Button asChild variant="outline">
+              <Link to="/plans">
+                Ver planos disponíveis
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </CardContent>
         </Card>
 
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">3. Próximos Passos</h2>
-          <p className="mb-4">
-            Agora que você já conhece o básico, recomendamos:
-          </p>
-          
-          <ul className="space-y-4 mb-6">
-            <li className="flex items-start">
-              <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+        {/* Success message */}
+        <Card className="border-green-200 bg-green-50">
+          <CardContent className="pt-6">
+            <div className="flex items-start">
+              <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 mr-2" />
               <div>
-                <strong className="block">Explore a documentação específica para seu perfil</strong>
-                <p className="text-muted-foreground">
-                  Temos guias detalhados para contratantes, prestadores e anunciantes.
+                <h3 className="font-medium text-green-800">Pronto para começar!</h3>
+                <p className="text-green-700 mt-1">
+                  Agora você está pronto para começar a usar nossa plataforma. Se precisar de ajuda adicional, 
+                  consulte nossa documentação completa ou entre em contato com nosso suporte.
                 </p>
               </div>
-            </li>
-            <li className="flex items-start">
-              <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-              <div>
-                <strong className="block">Configure suas preferências de notificação</strong>
-                <p className="text-muted-foreground">
-                  Personalize como e quando deseja receber alertas sobre novas oportunidades.
-                </p>
-              </div>
-            </li>
-            <li className="flex items-start">
-              <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-              <div>
-                <strong className="block">Conecte suas redes sociais</strong>
-                <p className="text-muted-foreground">
-                  Aumente sua visibilidade integrando seus perfis profissionais à plataforma.
-                </p>
-              </div>
-            </li>
-          </ul>
-          
-          <Alert variant="default" className="bg-primary/10 border-primary/20">
-            <Info className="h-4 w-4" />
-            <AlertTitle>Suporte</AlertTitle>
-            <AlertDescription>
-              Caso tenha dúvidas, nossa equipe está disponível através do chat de suporte ou pelo e-mail suporte@eventoplus.com.br
-            </AlertDescription>
-          </Alert>
+            </div>
+          </CardContent>
         </Card>
+
+        <div className="flex justify-between">
+          <Button variant="outline" asChild>
+            <Link to="/docs">
+              Voltar para Documentação
+            </Link>
+          </Button>
+          <Button asChild>
+            <Link to="/docs/creating-events">
+              Próximo: Criando Eventos
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
       </div>
     </DocsLayout>
   );

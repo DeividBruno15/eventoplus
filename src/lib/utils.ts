@@ -131,3 +131,149 @@ export function memoize<T extends (...args: any[]) => any>(fn: T): T {
     return result;
   } as T;
 }
+
+/**
+ * Advanced performance optimization - LazyLoader for components
+ * This improves initial load time by deferring non-critical component loading
+ */
+export function lazyLoader<T>(loader: () => Promise<T>, fallback?: React.ReactNode): [React.ComponentType, boolean] {
+  const [loaded, setLoaded] = React.useState(false);
+  const [Component, setComponent] = React.useState<React.ComponentType>(() => 
+    (props: any) => fallback as React.ReactElement);
+  
+  React.useEffect(() => {
+    let mounted = true;
+    loader().then((module: any) => {
+      if (mounted) {
+        const Component = module.default || module;
+        setComponent(() => Component);
+        setLoaded(true);
+      }
+    });
+    return () => { mounted = false; };
+  }, [loader]);
+  
+  return [Component as React.ComponentType, loaded];
+}
+
+/**
+ * Device detection utility 
+ */
+export function getDeviceInfo() {
+  const userAgent = navigator.userAgent;
+  
+  // Determine device type
+  let deviceType = 'Desktop';
+  if (/Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent)) {
+    deviceType = 'Mobile';
+  } else if (/iPad/i.test(userAgent) || (/Macintosh/i.test(userAgent) && 'ontouchend' in document)) {
+    deviceType = 'Tablet';
+  }
+  
+  // Determine operating system
+  let os = 'Unknown';
+  if (/Windows/i.test(userAgent)) os = 'Windows';
+  else if (/Macintosh|Mac OS X/i.test(userAgent)) os = 'MacOS';
+  else if (/Linux/i.test(userAgent)) os = 'Linux';
+  else if (/Android/i.test(userAgent)) os = 'Android';
+  else if (/iOS|iPhone|iPad|iPod/i.test(userAgent)) os = 'iOS';
+  
+  // Determine browser
+  let browser = 'Unknown';
+  if (/Chrome/i.test(userAgent) && !/Chromium|Edge|Edg|OPR|Opera/i.test(userAgent)) browser = 'Chrome';
+  else if (/Firefox/i.test(userAgent)) browser = 'Firefox';
+  else if (/Safari/i.test(userAgent) && !/Chrome|Chromium|Edge|Edg|OPR|Opera/i.test(userAgent)) browser = 'Safari';
+  else if (/Edge|Edg/i.test(userAgent)) browser = 'Edge';
+  else if (/Opera|OPR/i.test(userAgent)) browser = 'Opera';
+  
+  return {
+    deviceType,
+    os,
+    browser,
+    userAgent,
+    isMobile: deviceType === 'Mobile',
+    isTablet: deviceType === 'Tablet',
+    isDesktop: deviceType === 'Desktop',
+  };
+}
+
+/**
+ * Image optimization - Lazy loading helper
+ */
+export function optimizeImageLoading(src: string, sizes?: string): {
+  src: string;
+  loading: 'lazy';
+  sizes?: string;
+  onLoad?: () => void;
+} {
+  return {
+    src,
+    loading: 'lazy',
+    sizes,
+    onLoad: () => {
+      // Image has been loaded, mark as visible for animation if needed
+      if (typeof document !== 'undefined') {
+        const img = document.querySelector(`img[src="${src}"]`) as HTMLImageElement;
+        if (img) {
+          img.classList.add('loaded');
+        }
+      }
+    },
+  };
+}
+
+/**
+ * Data fetching optimization - Staggered loading
+ * Helps with performance when loading multiple items in a list
+ */
+export function useStaggeredLoading<T>(items: T[], delay: number = 100): T[] {
+  const [visibleItems, setVisibleItems] = React.useState<T[]>([]);
+
+  React.useEffect(() => {
+    if (!items.length) return;
+    
+    setVisibleItems([]);
+    const timeouts: ReturnType<typeof setTimeout>[] = [];
+    
+    items.forEach((item, index) => {
+      const timeout = setTimeout(() => {
+        setVisibleItems(prev => [...prev, item]);
+      }, index * delay);
+      timeouts.push(timeout);
+    });
+    
+    return () => {
+      timeouts.forEach(timeout => clearTimeout(timeout));
+    };
+  }, [items, delay]);
+
+  return visibleItems;
+}
+
+/**
+ * String normalization and search optimization
+ * For improved, accent-insensitive searches
+ */
+export function normalizeString(str: string): string {
+  return str
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+}
+
+/**
+ * Optimized search function
+ */
+export const optimizedSearch = memoize((items: any[], searchTerm: string, fields: string[]): any[] => {
+  if (!searchTerm.trim()) return items;
+  
+  const normalizedTerm = normalizeString(searchTerm);
+  
+  return items.filter(item => {
+    return fields.some(field => {
+      const value = item[field];
+      if (typeof value !== 'string') return false;
+      return normalizeString(value).includes(normalizedTerm);
+    });
+  });
+});
