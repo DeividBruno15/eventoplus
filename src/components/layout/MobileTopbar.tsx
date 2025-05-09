@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Settings, Bell, Menu, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -45,26 +44,25 @@ export const MobileTopbar = () => {
           <ThemeToggle />
           
           <div className="relative">
-            <NotificationsMenu>
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label={`Notificações${unreadCount ? ` (${unreadCount} não lidas)` : ''}`}
-                className="relative"
-              >
-                <Bell className="h-5 w-5" />
-                {isLoading ? (
-                  <Skeleton className="absolute -top-1 -right-1 w-4 h-4 rounded-full" />
-                ) : unreadCount > 0 ? (
-                  <Badge 
-                    variant="destructive" 
-                    className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center p-0 text-[10px]"
-                  >
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </Badge>
-                ) : null}
-              </Button>
-            </NotificationsMenu>
+            <NotificationsMenu />
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={`Notificações${unreadCount ? ` (${unreadCount} não lidas)` : ''}`}
+              className="relative"
+            >
+              <Bell className="h-5 w-5" />
+              {isLoading ? (
+                <Skeleton className="absolute -top-1 -right-1 w-4 h-4 rounded-full" />
+              ) : unreadCount > 0 ? (
+                <Badge 
+                  variant="destructive" 
+                  className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center p-0 text-[10px]"
+                >
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </Badge>
+              ) : null}
+            </Button>
           </div>
           
           <Sheet open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
