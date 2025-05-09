@@ -53,27 +53,23 @@ export const useCreateEvent = () => {
         }
       }
       
-      // Prepare event object for saving
+      // Prepare event object for saving - Removendo colunas inexistentes
       const eventToSave = {
         name: eventData.name,
         description: eventData.description,
         event_date: eventData.event_date,
         event_time: eventData.event_time,
         location: formattedAddress,
-        // Address fields
+        // Apenas use o zipcode que existe na tabela
         zipcode: eventData.zipcode,
-        street: eventData.street,
-        number: eventData.number,
-        neighborhood: eventData.neighborhood,
-        city: eventData.city,
-        state: eventData.state,
-        // Venue selection
+        // Armazenamos os dados de endereço como parte do objeto location
+        // Removemos os campos que não existem na tabela
         venue_id: eventData.venue_id || null,
         service_requests: prepareServiceRequestsForStorage(eventData.service_requests),
         image_url: imageUrl,
         contractor_id: user.id,
-        user_id: user.id, // Add the user_id field with the current user's ID
-        status: 'published', // Make sure this is explicitly set to 'published'
+        user_id: user.id, 
+        status: 'published',
         service_type: eventData.service_requests?.[0]?.category || ''
       };
 
