@@ -61,6 +61,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   };
 
+  const signOut = logout;
+
   const signup = async (email: string, password: string, metadata?: any) => {
     const { error } = await supabase.auth.signUp({
       email,
@@ -85,6 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     
     if (error) throw error;
+    return true;
   };
 
   const register = async (formData: RegisterFormData) => {
@@ -192,6 +195,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         register,
         signInWithGoogle,
         updateOnboardingStatus,
+        signOut, // Add signOut as an alias
       }}
     >
       {children}

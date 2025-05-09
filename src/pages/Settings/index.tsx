@@ -1,13 +1,13 @@
 
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AccountSettings } from './components/AccountSettings';
-import { SecuritySettings } from './components/SecuritySettings';
-import { NotificationSettings } from './components/NotificationSettings';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/auth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { DeleteCompanyDialog } from '@/components/profile/DeleteCompanyDialog';
+import { AccountSettings } from './components/AccountSettings';
+import { SecuritySettings } from './components/SecuritySettings';
+import { NotificationSettings } from './components/NotificationSettings';
 
 const Settings = () => {
   const [activeTab, setActiveTab] = useState('account');
@@ -15,6 +15,23 @@ const Settings = () => {
   const [submitting, setSubmitting] = useState(false);
   const { user, signOut } = useAuth();
   const { toast } = useToast();
+  
+  // State for user settings
+  const [username, setUsername] = useState(user?.user_metadata?.username || '');
+  const [language, setLanguage] = useState(user?.user_metadata?.language || 'pt-BR');
+  const [darkMode, setDarkMode] = useState(user?.user_metadata?.theme_preference === 'dark');
+  const [loading, setLoading] = useState(false);
+  
+  // State for notification settings
+  const [emailNotifications, setEmailNotifications] = useState(
+    user?.user_metadata?.notification_preferences?.email !== false
+  );
+  const [pushNotifications, setPushNotifications] = useState(
+    user?.user_metadata?.notification_preferences?.push !== false
+  );
+  const [smsNotifications, setSmsNotifications] = useState(
+    user?.user_metadata?.notification_preferences?.sms === true
+  );
   
   const handleDeleteAccount = async () => {
     setShowDeleteDialog(true);
@@ -74,11 +91,27 @@ const Settings = () => {
         
         <div className="mt-6">
           <TabsContent value="account">
-            <AccountSettings />
+            <AccountSettings 
+              username={username}
+              setUsername={setUsername}
+              language={language}
+              setLanguage={setLanguage}
+              darkMode={darkMode}
+              setDarkMode={setDarkMode}
+              loading={loading}
+            />
           </TabsContent>
           
           <TabsContent value="notifications">
-            <NotificationSettings />
+            <NotificationSettings 
+              emailNotifications={emailNotifications}
+              setEmailNotifications={setEmailNotifications}
+              pushNotifications={pushNotifications}
+              setPushNotifications={setPushNotifications}
+              smsNotifications={smsNotifications}
+              setSmsNotifications={setSmsNotifications}
+              loading={loading}
+            />
           </TabsContent>
           
           <TabsContent value="security">

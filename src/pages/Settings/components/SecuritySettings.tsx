@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/auth';
 import { usePasswordValidation } from '@/hooks/usePasswordValidation';
 import { PasswordRequirements } from '@/pages/Register/components/PasswordRequirements';
 
@@ -23,21 +23,17 @@ export const SecuritySettings = ({ onDeleteAccount, loading }: SecuritySettingsP
   const [error, setError] = useState<string | null>(null);
   const { updatePassword } = useAuth();
   
-  // Use the password validation hook
-  const validation = usePasswordValidation();
-  
-  // This is needed to satisfy TypeScript - we know these properties exist on the validation object
+  // Use the password validation hook with the new password as parameter
   const { 
     passwordRequirements, 
     allRequirementsMet,
     passwordStrength, 
-    strengthLabel 
-  } = validation;
+    strengthLabel,
+    validatePassword
+  } = usePasswordValidation(newPassword);
   
   const validatePasswordInput = () => {
-    if (validation.validatePassword) {
-      validation.validatePassword(newPassword);
-    }
+    validatePassword(newPassword);
   };
   
   const handlePasswordChange = async (e: React.FormEvent) => {
@@ -58,16 +54,12 @@ export const SecuritySettings = ({ onDeleteAccount, loading }: SecuritySettingsP
     setChanging(true);
     
     try {
-      const result = await updatePassword(currentPassword, newPassword);
-      if (result) {
-        setChangeSuccess(true);
-        // Reset form
-        setCurrentPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
-      } else {
-        setError('Não foi possível alterar a senha. Verifique se a senha atual está correta.');
-      }
+      const result = await updatePassword(newPassword);
+      setChangeSuccess(true);
+      // Reset form
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
     } catch (err: any) {
       setError(err.message || 'Erro ao alterar senha');
     } finally {

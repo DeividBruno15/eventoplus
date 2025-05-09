@@ -1,46 +1,100 @@
 
-import { AlertCircle } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import React from 'react';
+import { CheckCircle2, XCircle } from 'lucide-react';
+import { PasswordRequirements as PasswordReqs } from '@/hooks/usePasswordValidation';
 
-interface PasswordRequirementsProps {
-  passwordRequirements: {
-    length: boolean;
-    uppercase: boolean;
-    lowercase: boolean;
-    number: boolean;
-    special: boolean;
-  };
+export interface PasswordRequirementsProps {
+  requirements: PasswordReqs;
+  passwordStrength: number;
+  strengthLabel: string;
 }
 
-export const PasswordRequirements = ({ passwordRequirements }: PasswordRequirementsProps) => {
+export const PasswordRequirements = ({ 
+  requirements, 
+  passwordStrength, 
+  strengthLabel 
+}: PasswordRequirementsProps) => {
+  const getStrengthColor = () => {
+    switch (passwordStrength) {
+      case 0: return "bg-gray-200";
+      case 1: return "bg-red-500";
+      case 2: return "bg-orange-500";
+      case 3: return "bg-yellow-500";
+      case 4: return "bg-lime-500";
+      case 5: return "bg-green-500";
+      default: return "bg-gray-200";
+    }
+  };
+
   return (
-    <Alert className="bg-blue-50 border-blue-200">
-      <AlertCircle className="h-4 w-4 text-blue-500" />
-      <AlertDescription className="text-sm text-blue-700 font-medium">
-        Requisitos de segurança
-      </AlertDescription>
-      <ul className="mt-2 text-sm space-y-1">
-        <li className={`flex items-center ${passwordRequirements.length ? 'text-green-600' : 'text-gray-600'}`}>
-          <span className={`mr-2 text-lg ${passwordRequirements.length ? '✓' : '•'}`}></span>
-          Pelo menos 8 caracteres
-        </li>
-        <li className={`flex items-center ${passwordRequirements.uppercase ? 'text-green-600' : 'text-gray-600'}`}>
-          <span className={`mr-2 text-lg ${passwordRequirements.uppercase ? '✓' : '•'}`}></span>
-          Uma letra maiúscula
-        </li>
-        <li className={`flex items-center ${passwordRequirements.lowercase ? 'text-green-600' : 'text-gray-600'}`}>
-          <span className={`mr-2 text-lg ${passwordRequirements.lowercase ? '✓' : '•'}`}></span>
-          Uma letra minúscula
-        </li>
-        <li className={`flex items-center ${passwordRequirements.number ? 'text-green-600' : 'text-gray-600'}`}>
-          <span className={`mr-2 text-lg ${passwordRequirements.number ? '✓' : '•'}`}></span>
-          Um número
-        </li>
-        <li className={`flex items-center ${passwordRequirements.special ? 'text-green-600' : 'text-gray-600'}`}>
-          <span className={`mr-2 text-lg ${passwordRequirements.special ? '✓' : '•'}`}></span>
-          Um caractere especial (!@#$%^&*()_+...)
-        </li>
-      </ul>
-    </Alert>
+    <div className="mt-2 space-y-3 text-sm">
+      {/* Password strength meter */}
+      <div>
+        <div className="flex justify-between mb-1">
+          <span>Força da senha:</span>
+          <span className="font-medium">{strengthLabel}</span>
+        </div>
+        <div className="w-full h-2 bg-gray-200 rounded-full">
+          <div 
+            className={`h-full rounded-full transition-all ${getStrengthColor()}`} 
+            style={{ width: `${(passwordStrength / 5) * 100}%` }}
+          ></div>
+        </div>
+      </div>
+      
+      {/* Requirements checklist */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div className="flex items-center gap-2">
+          {requirements.length ? (
+            <CheckCircle2 className="h-4 w-4 text-green-500" />
+          ) : (
+            <XCircle className="h-4 w-4 text-gray-300" />
+          )}
+          <span className={requirements.length ? "text-green-700" : "text-gray-500"}>
+            Mínimo 8 caracteres
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          {requirements.uppercase ? (
+            <CheckCircle2 className="h-4 w-4 text-green-500" />
+          ) : (
+            <XCircle className="h-4 w-4 text-gray-300" />
+          )}
+          <span className={requirements.uppercase ? "text-green-700" : "text-gray-500"}>
+            Uma letra maiúscula
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          {requirements.lowercase ? (
+            <CheckCircle2 className="h-4 w-4 text-green-500" />
+          ) : (
+            <XCircle className="h-4 w-4 text-gray-300" />
+          )}
+          <span className={requirements.lowercase ? "text-green-700" : "text-gray-500"}>
+            Uma letra minúscula
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          {requirements.number ? (
+            <CheckCircle2 className="h-4 w-4 text-green-500" />
+          ) : (
+            <XCircle className="h-4 w-4 text-gray-300" />
+          )}
+          <span className={requirements.number ? "text-green-700" : "text-gray-500"}>
+            Um número
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          {requirements.special ? (
+            <CheckCircle2 className="h-4 w-4 text-green-500" />
+          ) : (
+            <XCircle className="h-4 w-4 text-gray-300" />
+          )}
+          <span className={requirements.special ? "text-green-700" : "text-gray-500"}>
+            Um caractere especial
+          </span>
+        </div>
+      </div>
+    </div>
   );
 };
