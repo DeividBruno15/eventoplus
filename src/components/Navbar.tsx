@@ -1,6 +1,6 @@
 
-import { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, LogOut, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
@@ -19,13 +19,7 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { session, user, logout } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const { toast } = useToast();
-
-  // Fechar o menu móvel quando mudar de página
-  useEffect(() => {
-    setIsMenuOpen(false);
-  }, [location.pathname]);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -67,36 +61,30 @@ const Navbar = () => {
 
   return (
     <nav className="bg-white shadow-sm sticky top-0 z-50 w-full">
-      <div className="max-w-[1440px] mx-auto px-4 md:px-6 lg:px-8 py-2 md:py-4 flex items-center justify-between">
+      <div className="max-w-[1440px] mx-auto px-4 md:px-6 lg:px-8 py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center">
-          <span className="text-xl md:text-2xl font-bold text-primary">Evento<span className="text-secondary">+</span></span>
+          <span className="text-2xl font-bold text-primary">Evento<span className="text-secondary">+</span></span>
         </Link>
 
         {/* Centralized Desktop Navigation */}
         <div className="hidden md:flex items-center justify-center flex-1">
-          <div className="flex items-center space-x-4 lg:space-x-8">
-            <Link to="/" className="font-medium hover:text-primary transition-colors text-sm lg:text-base">Home</Link>
-            <Link to="/about" className="font-medium hover:text-primary transition-colors text-sm lg:text-base">Sobre</Link>
-            <Link to="/contact" className="font-medium hover:text-primary transition-colors text-sm lg:text-base">Contato</Link>
+          <div className="flex items-center space-x-8">
+            <Link to="/" className="font-medium hover:text-primary transition-colors">Home</Link>
+            <Link to="/about" className="font-medium hover:text-primary transition-colors">Sobre</Link>
+            <Link to="/contact" className="font-medium hover:text-primary transition-colors">Contato</Link>
           </div>
         </div>
 
         <div className="hidden md:flex items-center space-x-4">
           {session ? (
-            <div className="flex items-center gap-2 md:gap-4">
+            <div className="flex items-center gap-4">
               <Link to="/dashboard">
-                <Button 
-                  variant="outline" 
-                  className="border-primary text-primary hover:bg-primary/5"
-                  size="sm" 
-                >
-                  Dashboard
-                </Button>
+                <Button variant="outline" className="border-primary text-primary hover:bg-primary/5">Dashboard</Button>
               </Link>
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Avatar className="cursor-pointer h-8 w-8 md:h-10 md:w-10 border border-gray-200">
+                  <Avatar className="cursor-pointer h-10 w-10 border border-gray-200">
                     {avatarUrl ? (
                       <AvatarImage 
                         src={avatarUrl} 
@@ -127,18 +115,12 @@ const Navbar = () => {
               </DropdownMenu>
             </div>
           ) : (
-            <div className="flex items-center space-x-2 md:space-x-4">
+            <div className="flex items-center space-x-4">
               <Link to="/login">
-                <Button 
-                  variant="ghost" 
-                  className="text-primary hover:bg-primary/5"
-                  size="sm" 
-                >
-                  Entrar
-                </Button>
+                <Button variant="ghost" className="text-primary hover:bg-primary/5">Entrar</Button>
               </Link>
               <Link to="/register">
-                <Button variant="default" size="sm">Cadastrar</Button>
+                <Button variant="default">Cadastrar</Button>
               </Link>
             </div>
           )}
@@ -154,7 +136,7 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden bg-white shadow-md fixed inset-x-0 top-[52px] z-50 py-4 animate-fade-in min-h-[100vh]">
+        <div className="md:hidden bg-white shadow-md absolute w-full py-4 animate-fade-in">
           <div className="px-4 flex flex-col space-y-4">
             <Link to="/" className="font-medium hover:text-primary transition-colors py-2" onClick={toggleMenu}>Home</Link>
             <Link to="/about" className="font-medium hover:text-primary transition-colors py-2" onClick={toggleMenu}>Sobre</Link>

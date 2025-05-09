@@ -3,12 +3,6 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Star } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 interface AddRatingButtonProps {
   isAuthenticated: boolean;
@@ -46,29 +40,24 @@ const AddRatingButton: React.FC<AddRatingButtonProps> = ({
     else tooltipText = "";
     
     return (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="relative">
-              <Button 
-                size="sm"
-                variant="outline"
-                className={cn("opacity-50 cursor-not-allowed", className)}
-                disabled
-              >
-                {iconPosition === "left" && <Star className="h-4 w-4 mr-1.5" />}
-                {label}
-                {iconPosition === "right" && <Star className="h-4 w-4 ml-1.5" />}
-              </Button>
-            </div>
-          </TooltipTrigger>
-          {tooltipText && (
-            <TooltipContent>
-              <p>{tooltipText}</p>
-            </TooltipContent>
-          )}
-        </Tooltip>
-      </TooltipProvider>
+      <div className="relative group">
+        <Button 
+          size="sm"
+          variant="outline"
+          className={cn("opacity-50 cursor-not-allowed", className)}
+          disabled
+        >
+          {iconPosition === "left" && <Star className="h-4 w-4 mr-1.5" />}
+          {label}
+          {iconPosition === "right" && <Star className="h-4 w-4 ml-1.5" />}
+        </Button>
+        
+        {tooltipText && (
+          <span className="absolute bottom-full mb-2 hidden group-hover:block bg-black text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+            {tooltipText}
+          </span>
+        )}
+      </div>
     );
   }
   
