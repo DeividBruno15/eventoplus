@@ -65,7 +65,7 @@ export const VenueSelectionField = ({ form }: VenueSelectionFieldProps) => {
         form.setValue('state', data.state);
         form.setValue('zipcode', data.zipcode);
         
-        // Set venue_id
+        // Armazenamos o venue_id no form, mas não será enviado para o banco
         form.setValue('venue_id', venueId);
       }
     } catch (error) {

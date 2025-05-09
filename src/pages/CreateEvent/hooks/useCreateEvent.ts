@@ -62,9 +62,8 @@ export const useCreateEvent = () => {
         location: formattedAddress,
         // Apenas use o zipcode que existe na tabela
         zipcode: eventData.zipcode,
-        // Armazenamos os dados de endereço como parte do objeto location
-        // Removemos os campos que não existem na tabela
-        venue_id: eventData.venue_id || null,
+        // Armazenamos os dados de endereço como parte do objeto location e removemos os campos inexistentes
+        // Removemos a referência a venue_id que não existe na tabela
         service_requests: prepareServiceRequestsForStorage(eventData.service_requests),
         image_url: imageUrl,
         contractor_id: user.id,
