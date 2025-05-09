@@ -1,84 +1,106 @@
 
-import { Event } from '@/types/events';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import { MapPin, Calendar, Clock, Users, Info } from 'lucide-react';
-import { VenueDetails } from './VenueDetails';
-import { VenueRules } from '@/pages/Venues/components/VenueRules';
+import { Event } from "@/types/events";
+import { 
+  CalendarIcon, 
+  MapPinIcon, 
+  UsersIcon, 
+  ClockIcon,
+  BuildingIcon
+} from "lucide-react";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface EventInfoProps {
   event: Event;
 }
 
 export const EventInfo = ({ event }: EventInfoProps) => {
-  // Format date
-  const formattedDate = (() => {
-    try {
-      return format(new Date(event.event_date), "dd 'de' MMMM, yyyy", { locale: ptBR });
-    } catch (error) {
-      console.error("Error formatting date:", error);
-      return "Data não disponível";
-    }
-  })();
-
+  const [venueName, setVenueName] = useState<string | null>(null);
+  
+  // Fetch venue name if venue_id is available
+  useEffect(() => {
+    const fetchVenueName = async () => {
+      if (!event.venue_id) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('venue_announcements')
+          .select('title')
+          .eq('venue_id', event.venue_id)
+          .single();
+          
+        if (error) throw error;
+        
+        if (data) {
+          setVenueName(data.title);
+        }
+      } catch (err) {
+        console.error('Error fetching venue name:', err);
+      }
+    };
+    
+    fetchVenueName();
+  }, [event.venue_id]);
+  
+  // Format the date nicely
+  const formattedDate = event.event_date 
+    ? format(new Date(event.event_date), "dd 'de' MMMM, yyyy", { locale: ptBR })
+    : "Data não definida";
+    
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">{event.name}</h2>
-      
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="space-y-4">
-          <div className="flex items-center space-x-2 text-gray-600">
-            <Calendar className="h-5 w-5" />
-            <span>{formattedDate}</span>
-          </div>
-          
-          {event.event_time && (
-            <div className="flex items-center space-x-2 text-gray-600">
-              <Clock className="h-5 w-5" />
-              <span>{event.event_time}</span>
-            </div>
-          )}
-          
-          <div className="flex items-start space-x-2 text-gray-600">
-            <MapPin className="h-5 w-5 mt-0.5" />
-            <span>{event.location}</span>
-          </div>
-          
-          {event.max_attendees && (
-            <div className="flex items-center space-x-2 text-gray-600">
-              <Users className="h-5 w-5" />
-              <span>{event.max_attendees} convidados esperados</span>
-            </div>
-          )}
-          
-          {event.service_requests && event.service_requests.length > 0 && (
-            <div className="pt-2">
-              <h3 className="font-medium mb-2 flex items-center">
-                <Info className="h-4 w-4 mr-1" />
-                Serviços Solicitados
-              </h3>
-              <ul className="space-y-1 text-gray-600 text-sm">
-                {event.service_requests.map((service, idx) => (
-                  <li key={idx} className="ml-4 list-disc">
-                    {service.service_type || service.category}{' '}
-                    {service.count && service.count > 1 ? `(${service.count})` : ''}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-        
-        <div>
-          <p className="text-gray-700 whitespace-pre-wrap">{event.description}</p>
-        </div>
-      </div>
-      
-      {event.venue_id && (
-        <div className="mt-8">
-          <VenueDetails event={event} />
+      {/* Event image */}
+      {event.image_url && (
+        <div className="mb-6 rounded-lg overflow-hidden h-64">
+          <img 
+            src={event.image_url} 
+            alt={event.name} 
+            className="w-full h-full object-cover"
+          />
         </div>
       )}
+      
+      {/* Event details */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold mb-2">{event.name}</h1>
+        <p className="text-gray-700 mb-4 whitespace-pre-wrap">{event.description}</p>
+      </div>
+      
+      {/* Event metadata */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div className="flex items-center gap-2 text-gray-600">
+          <CalendarIcon className="h-5 w-5" />
+          <span>{formattedDate}</span>
+        </div>
+        
+        {event.event_time && (
+          <div className="flex items-center gap-2 text-gray-600">
+            <ClockIcon className="h-5 w-5" />
+            <span>{event.event_time}</span>
+          </div>
+        )}
+        
+        <div className="flex items-center gap-2 text-gray-600">
+          <MapPinIcon className="h-5 w-5" />
+          <span>{event.location}</span>
+        </div>
+        
+        {venueName && (
+          <div className="flex items-center gap-2 text-gray-600">
+            <BuildingIcon className="h-5 w-5" />
+            <span>{venueName}</span>
+          </div>
+        )}
+        
+        {event.max_attendees && (
+          <div className="flex items-center gap-2 text-gray-600">
+            <UsersIcon className="h-5 w-5" />
+            <span>{event.max_attendees} convidados</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

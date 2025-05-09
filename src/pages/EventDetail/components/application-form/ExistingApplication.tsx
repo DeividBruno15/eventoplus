@@ -15,19 +15,49 @@ interface ExistingApplicationProps {
 
 export const ExistingApplication = ({ userApplication, onCancelApplication }: ExistingApplicationProps) => {
   const [conversationId, setConversationId] = useState<string | undefined>(undefined);
+  const [currentStatus, setCurrentStatus] = useState<string>(userApplication.status);
   
   // Log status on render para debug
   useEffect(() => {
     console.log('ExistingApplication rendering with status:', userApplication.status);
+    setCurrentStatus(userApplication.status);
   }, [userApplication.status]);
+  
+  // Configure realtime subscription to application status changes
+  useEffect(() => {
+    if (!userApplication?.id) return;
+    
+    // Subscribe to changes to this specific application
+    const channel = supabase
+      .channel(`application_status_${userApplication.id}`)
+      .on('postgres_changes', 
+        { 
+          event: 'UPDATE',
+          schema: 'public', 
+          table: 'event_applications',
+          filter: `id=eq.${userApplication.id}`
+        }, 
+        (payload) => {
+          console.log('Realtime update for application:', payload);
+          if (payload.new && payload.new.status) {
+            setCurrentStatus(payload.new.status);
+          }
+        }
+      )
+      .subscribe();
+      
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userApplication?.id]);
   
   // Fetch conversation ID if application is accepted
   useEffect(() => {
     const fetchConversation = async () => {
-      if (userApplication.status === 'accepted' && userApplication.provider) {
+      if (currentStatus === 'accepted' && userApplication.provider_id) {
         try {
           const { data, error } = await supabase.rpc(
-            'create_or_get_conversation' as any,
+            'create_or_get_conversation',
             {
               user_id_one: userApplication.provider_id,
               user_id_two: userApplication.event_id.split('-')[0] // Temporary solution - should be contractor_id
@@ -46,10 +76,10 @@ export const ExistingApplication = ({ userApplication, onCancelApplication }: Ex
       }
     };
     
-    if (userApplication.status === 'accepted') {
+    if (currentStatus === 'accepted') {
       fetchConversation();
     }
-  }, [userApplication]);
+  }, [currentStatus, userApplication]);
   
   const getApplicationStatusColor = (status: string) => {
     switch (status) {
@@ -70,8 +100,8 @@ export const ExistingApplication = ({ userApplication, onCancelApplication }: Ex
   // Set container class based on status
   const containerClass = cn(
     'border p-4 rounded-lg',
-    userApplication.status === 'accepted' ? 'border-green-500 bg-green-50' : 
-    userApplication.status === 'rejected' ? 'border-red-500 bg-red-50' : 
+    currentStatus === 'accepted' ? 'border-green-500 bg-green-50' : 
+    currentStatus === 'rejected' ? 'border-red-500 bg-red-50' : 
     'border-gray-300'
   );
   
@@ -81,15 +111,15 @@ export const ExistingApplication = ({ userApplication, onCancelApplication }: Ex
         <h3 className="font-medium text-lg">Sua candidatura</h3>
         <Badge 
           variant="outline" 
-          className={cn("text-white", getApplicationStatusColor(userApplication.status))}
+          className={cn("text-white", getApplicationStatusColor(currentStatus))}
         >
-          {getApplicationStatusText(userApplication.status)}
+          {getApplicationStatusText(currentStatus)}
         </Badge>
       </div>
       
       <ApplicationMessage message={userApplication.message} className="mb-4" />
       
-      {userApplication.status === 'pending' && (
+      {currentStatus === 'pending' && (
         <Button 
           variant="destructive" 
           className="w-full"
@@ -99,11 +129,11 @@ export const ExistingApplication = ({ userApplication, onCancelApplication }: Ex
         </Button>
       )}
       
-      {userApplication.status === 'accepted' && (
+      {currentStatus === 'accepted' && (
         <ApprovedApplication conversationId={conversationId} />
       )}
       
-      {userApplication.status === 'rejected' && (
+      {currentStatus === 'rejected' && (
         <div className="text-center my-4 p-4 bg-red-50 rounded-lg">
           <p className="text-red-600 font-medium">Sua candidatura para este evento foi rejeitada.</p>
           <p className="text-gray-600 mt-2">Você pode procurar outros eventos disponíveis ou entrar em contato para mais informações.</p>

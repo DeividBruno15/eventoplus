@@ -72,7 +72,7 @@ export const useProviderApplications = (event: Event | null) => {
         `${providerData.first_name} ${providerData.last_name}` : 
         'Um prestador';
       
-      // Send notification to the event contractor
+      // Correção: Enviar notificação para o contractor_id do evento em vez de user_id
       try {
         await sendApplicationNotification(
           event,

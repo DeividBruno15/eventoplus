@@ -88,17 +88,7 @@ export const ApplicationForm = ({
           />
         )}
       </CardContent>
-      {!userApplication && !showSuccess && !hasBeenRejected && (
-        <CardFooter className="flex justify-end border-t p-4">
-          <Button 
-            disabled={submitting} 
-            type="submit" 
-            form="application-form"
-          >
-            {submitting ? 'Enviando...' : 'Enviar Candidatura'}
-          </Button>
-        </CardFooter>
-      )}
+      {/* Remova o CardFooter duplicado - o botão já está no ApplicationFormContent */}
     </Card>
   );
 };

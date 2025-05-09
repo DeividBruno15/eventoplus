@@ -4,6 +4,7 @@ import { EventDetailHeader } from './components/EventDetailHeader';
 import { EventManagementControls } from './components/EventManagementControls';
 import { EventActionPanel } from './components/EventActionPanel';
 import { useEventState } from './hooks/useEventState';
+import { useEffect } from 'react';
 
 const EventDetail = () => {
   const {
@@ -22,6 +23,25 @@ const EventDetail = () => {
   } = useEventState();
 
   console.log("Applications in EventDetail:", applications);
+  
+  // Debug logging to help troubleshoot issues
+  useEffect(() => {
+    if (event) {
+      console.log("Event details loaded:", {
+        id: event.id,
+        name: event.name,
+        hasImage: !!event.image_url,
+        imageUrl: event.image_url,
+        contractorId: event.contractor_id,
+        currentUserId: user?.id,
+        isOwner: user && (event.user_id === user.id || event.contractor_id === user.id)
+      });
+    }
+    
+    if (userApplication) {
+      console.log("User application status:", userApplication.status);
+    }
+  }, [event, user, userApplication]);
 
   // Determinar se o usuário é o proprietário do evento
   const isOwner = user && event && (event.user_id === user.id || event.contractor_id === user.id);
