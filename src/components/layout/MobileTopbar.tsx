@@ -1,23 +1,21 @@
 
 import React, { useState } from 'react';
-import { Settings, Bell, Menu, X } from 'lucide-react';
+import { Settings, Menu } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { NotificationsMenu } from './notifications/NotificationsMenu';
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useBreakpoint } from '@/hooks/useBreakpoint';
-import { Badge } from "@/components/ui/badge";
-import { useNotifications } from '@/hooks/useNotifications';
-import { Skeleton } from '@/components/ui/skeleton';
+import { useAuth } from "@/hooks/auth";
 
 export const MobileTopbar = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isMobile } = useBreakpoint('md');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const { unreadCount, markAllAsRead, isLoading } = useNotifications();
+  const { logout } = useAuth();
   
   if (!isMobile) return null;
   
@@ -37,14 +35,15 @@ export const MobileTopbar = () => {
   
   const handleLogout = async () => {
     try {
-      // Navegar para a página inicial
-      navigate('/');
+      await logout();
       setIsSettingsOpen(false);
       toast({
-        title: "Saindo...",
+        title: "Logout realizado",
         description: "Você foi desconectado com sucesso.",
         duration: 2000,
       });
+      // Explicitly redirect to login page after logout
+      navigate('/login');
     } catch (error) {
       console.error("Erro ao fazer logout:", error);
       toast({
@@ -64,6 +63,7 @@ export const MobileTopbar = () => {
         <div className="flex items-center gap-1">
           <ThemeToggle />
           
+          {/* Only one notification icon */}
           <NotificationsMenu />
           
           <Sheet open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>

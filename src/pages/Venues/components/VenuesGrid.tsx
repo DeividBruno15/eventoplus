@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNavigate } from "react-router-dom";
-import { Clock, MapPin, Users } from "lucide-react";
+import { Clock, MapPin } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import FavoriteButton from "./FavoriteButton";
@@ -22,6 +22,24 @@ const VenuesGrid: React.FC<VenuesGridProps> = ({
   onDeleteAnnouncement,
 }) => {
   const navigate = useNavigate();
+
+  // Helper function to translate venue types to Portuguese
+  const getVenueTypeName = (type: string) => {
+    const venueTypeMap: Record<string, string> = {
+      'party_hall': 'Salão de Festas',
+      'wedding_venue': 'Espaço para Casamentos',
+      'corporate_space': 'Espaço Corporativo',
+      'studio': 'Estúdio',
+      'restaurant': 'Restaurante',
+      'beach_club': 'Beach Club',
+      'farm': 'Fazenda/Sítio',
+      'mansion': 'Casa/Mansão',
+      'sports_venue': 'Espaço Esportivo',
+      'garden': 'Jardim/Área Externa',
+      'other': 'Outro'
+    };
+    return venueTypeMap[type] || type;
+  };
 
   if (loading) {
     return (
@@ -65,23 +83,7 @@ const VenuesGrid: React.FC<VenuesGridProps> = ({
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
       {announcements.map((announcement) => {
         const createdDate = new Date(announcement.created_at);
-        
-        const getVenueTypeName = (type: string) => {
-          const venueTypeMap: Record<string, string> = {
-            'party_hall': 'Salão de Festas',
-            'wedding_venue': 'Espaço para Casamentos',
-            'corporate_space': 'Espaço Corporativo',
-            'studio': 'Estúdio',
-            'restaurant': 'Restaurante',
-            'beach_club': 'Beach Club',
-            'farm': 'Fazenda/Sítio',
-            'mansion': 'Casa/Mansão',
-            'sports_venue': 'Espaço Esportivo',
-            'garden': 'Jardim/Área Externa',
-            'other': 'Outro'
-          };
-          return venueTypeMap[type] || type;
-        };
+        const venueTypeName = getVenueTypeName(announcement.venue_type);
         
         return (
           <Card key={announcement.id} className="overflow-hidden flex flex-col transition-all duration-200 hover:shadow-md">
@@ -95,11 +97,7 @@ const VenuesGrid: React.FC<VenuesGridProps> = ({
               onClick={() => navigate(`/venues/details/${announcement.id}`)}
             >
               <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/70" />
-              <div className="absolute top-2 left-2">
-                <Badge variant="secondary" className="bg-white/90 text-gray-800 shadow-sm">
-                  {getVenueTypeName(announcement.venue_type)}
-                </Badge>
-              </div>
+              
               <div className="absolute top-2 right-2">
                 <FavoriteButton 
                   venueId={announcement.id} 
@@ -123,9 +121,16 @@ const VenuesGrid: React.FC<VenuesGridProps> = ({
               >
                 <span className="group-hover:underline">{announcement.title}</span>
               </h3>
+              
               <p className="text-sm text-muted-foreground mb-2">
                 {announcement.venue_name}
               </p>
+              
+              <div className="text-sm text-muted-foreground mb-1">
+                <span className="text-sm text-muted-foreground">
+                  {venueTypeName}
+                </span>
+              </div>
               
               <div className="text-sm text-muted-foreground flex items-center gap-1 mb-1 line-clamp-1">
                 <MapPin className="h-3 w-3 flex-shrink-0" />
@@ -138,7 +143,7 @@ const VenuesGrid: React.FC<VenuesGridProps> = ({
               </div>
             </CardContent>
             
-            <CardFooter className="p-4 pt-0 flex justify-between border-t mt-auto">
+            <CardFooter className="p-4 pt-3 flex justify-between border-t mt-auto">
               <div className="text-xs text-muted-foreground flex items-center gap-1">
                 <Clock className="h-3 w-3" />
                 <span>
@@ -149,7 +154,7 @@ const VenuesGrid: React.FC<VenuesGridProps> = ({
                 variant="outline" 
                 size="sm"
                 onClick={() => navigate(`/venues/details/${announcement.id}`)}
-                className="text-xs h-8"
+                className="text-xs h-8 ml-2"
               >
                 Ver detalhes
               </Button>

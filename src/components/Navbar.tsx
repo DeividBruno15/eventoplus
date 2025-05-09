@@ -1,9 +1,8 @@
-
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, LogOut, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/auth';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -13,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -32,7 +31,8 @@ const Navbar = () => {
         title: "Logout realizado",
         description: "Você saiu da sua conta com sucesso."
       });
-      navigate('/');
+      // Redirect to login page after logout
+      navigate('/login');
     } catch (error) {
       console.error("Erro ao fazer logout:", error);
       toast({

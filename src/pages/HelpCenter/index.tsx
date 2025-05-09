@@ -1,19 +1,52 @@
 
 import React, { useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SearchIcon } from "lucide-react";
+import { SearchIcon, ArrowLeft } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { useBreakpoint } from "@/hooks/useBreakpoint";
 
 const HelpCenter = () => {
+  const navigate = useNavigate();
+  const { isMobile } = useBreakpoint("md");
+  
+  // Effect to ensure navigation elements remain visible
+  useEffect(() => {
+    // This ensures sidebar and topbar remain visible when accessing this page
+    // by making sure no overflow or hidden properties are applied
+    const sidebar = document.querySelector('[data-sidebar="sidebar"]');
+    if (sidebar) {
+      sidebar.removeAttribute('style');
+    }
+    
+    return () => {
+      // Cleanup function to restore normal behavior when leaving the page
+    };
+  }, []);
+
   return (
     <div className="space-y-6 animate-fade-in pt-1">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">Central de Ajuda</h2>
-        <p className="text-muted-foreground mt-2">
-          Encontre respostas para suas dúvidas mais frequentes
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Central de Ajuda</h2>
+          <p className="text-muted-foreground mt-2">
+            Encontre respostas para suas dúvidas mais frequentes
+          </p>
+        </div>
+        
+        {isMobile && (
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => navigate(-1)}
+            className="h-9 w-9"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+        )}
       </div>
 
       <div className="relative">

@@ -1,15 +1,9 @@
 
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Calendar, Users, MessageSquare, BarChart4, CheckCircle, Clock, X, ExternalLink, Briefcase } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { OnboardingCard } from "@/components/dashboard/OnboardingCard";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { UpcomingEvents } from "./dashboard-sections/UpcomingEvents";
-import { QuoteStatus } from "./dashboard-sections/QuoteStatus";
 import { RecentProviders } from "./dashboard-sections/RecentProviders";
 import { QuickActions } from "./dashboard-sections/QuickActions";
+import { OnboardingCard } from "@/components/dashboard/OnboardingCard";
 
 interface ContractorDashboardContentProps {
   userName: string;
@@ -31,7 +25,7 @@ const ContractorDashboardContent = ({ userName }: ContractorDashboardContentProp
       
       <div className="grid gap-3 md:gap-4 md:grid-cols-2 lg:grid-cols-3">
         <UpcomingEvents navigate={navigate} />
-        <QuoteStatus />
+        {/* QuoteStatus card removed as per client request */}
       </div>
 
       <div className="grid gap-3 md:gap-4 md:grid-cols-2 lg:grid-cols-3">

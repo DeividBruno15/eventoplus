@@ -1,4 +1,3 @@
-
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/auth';
 import { useToast } from '@/hooks/use-toast';
@@ -56,7 +55,8 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
         title: "Logout realizado",
         description: "Você foi desconectado com sucesso."
       });
-      navigate('/');
+      // Explicitly redirect to login page after logout
+      navigate('/login');
     } catch (error: any) {
       toast({
         title: "Erro ao fazer logout",
