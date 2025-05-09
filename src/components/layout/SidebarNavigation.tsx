@@ -12,12 +12,14 @@ import { SidebarNavigationProps } from './sidebar/types';
 import { Sidebar, SidebarContent, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { getMainMenuItems, getSupportMenuItems } from './sidebar/menu-data';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useBreakpoint } from '@/hooks/useBreakpoint';
 
 export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { session, user, logout } = useAuth();
   const { toast } = useToast();
+  const { isDesktop } = useBreakpoint('md');
   
   const unreadMessages = useUnreadMessages(user?.id);
   const { hasProviderRole, hasContractorRole } = useUserRoles(user);
@@ -67,6 +69,11 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
   const handleItemClick = (path: string) => {
     onNavigate(path);
   };
+
+  // Não renderizar o sidebar em dispositivos móveis
+  if (!isDesktop) {
+    return null;
+  }
 
   return (
     <Sidebar>
@@ -134,4 +141,3 @@ const SidebarSeparator = ({ className = "" }) => (
     <Separator className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-700 to-transparent" />
   </div>
 );
-

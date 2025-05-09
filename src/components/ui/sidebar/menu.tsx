@@ -99,7 +99,7 @@ export const SidebarMenuButton = React.forwardRef<
     }
 
     return (
-      <Tooltip>
+      <>
         <TooltipTrigger asChild>{button}</TooltipTrigger>
         <TooltipContent
           side="right"
@@ -107,7 +107,7 @@ export const SidebarMenuButton = React.forwardRef<
           hidden={state !== "collapsed" || isMobile}
           {...tooltip}
         />
-      </Tooltip>
+      </>
     )
   }
 )

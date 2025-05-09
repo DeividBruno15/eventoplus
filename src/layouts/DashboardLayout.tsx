@@ -11,6 +11,9 @@ import { PageTransition } from "@/components/ui/page-transition";
 import { AnimatePresence } from "framer-motion";
 import { SidebarProvider } from "@/components/ui/sidebar/context";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { useBreakpoint } from "@/hooks/useBreakpoint";
+import MobileNavigation from "@/components/layout/MobileNavigation";
+import MobileTopbar from "@/components/layout/MobileTopbar";
 
 const DashboardLayout = () => {
   // Inicialmente, defina como null para não redirecionar imediatamente durante a verificação
@@ -18,6 +21,7 @@ const DashboardLayout = () => {
   const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const { isMobile } = useBreakpoint('md');
 
   // Verificar status de autenticação
   useEffect(() => {
@@ -59,11 +63,16 @@ const DashboardLayout = () => {
   return (
     <SidebarProvider defaultOpen={!window.matchMedia("(max-width: 768px)").matches}>
       <div className="flex flex-col md:flex-row min-h-screen w-full">
+        {/* Sidebar para desktop */}
         <SidebarNavigation onNavigate={handleNavigate} />
-        <div className="flex-grow">
-          {/* Header com menu do usuário */}
-          <header className="sticky top-0 z-10 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="flex h-14 items-center justify-end px-4">
+        
+        <div className="flex-grow flex flex-col">
+          {/* Mobile Topbar */}
+          <MobileTopbar />
+          
+          {/* Header com menu do usuário para desktop */}
+          <header className="hidden md:flex sticky top-0 z-10 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="flex h-14 items-center justify-end px-4 w-full">
               <div className="flex items-center gap-4">
                 <ThemeToggle />
                 <NotificationsMenu />
@@ -73,13 +82,16 @@ const DashboardLayout = () => {
           </header>
 
           {/* Conteúdo principal com transição de página animada */}
-          <main className="flex-1 p-4 pb-20">
+          <main className="flex-1 p-4 pb-20 md:pb-4">
             <AnimatePresence mode="wait">
               <PageTransition>
                 <Outlet />
               </PageTransition>
             </AnimatePresence>
           </main>
+          
+          {/* Mobile Navigation */}
+          <MobileNavigation />
         </div>
       </div>
     </SidebarProvider>
