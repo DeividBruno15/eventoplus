@@ -1,41 +1,15 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { AlertTriangle, Wrench, Clock, Info } from 'lucide-react';
+import { Wrench, AlertTriangle, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const Maintenance = () => {
-  const [countdown, setCountdown] = useState<number>(0);
-
-  // Simulação de contagem regressiva - defina a data final de manutenção
-  useEffect(() => {
-    const endDate = new Date();
-    endDate.setHours(endDate.getHours() + 2); // Manutenção de 2 horas (exemplo)
-    
-    const interval = setInterval(() => {
-      const now = new Date();
-      const diff = Math.max(0, Math.floor((endDate.getTime() - now.getTime()) / 1000));
-      setCountdown(diff);
-      
-      if (diff <= 0) {
-        clearInterval(interval);
-      }
-    }, 1000);
-    
-    return () => clearInterval(interval);
-  }, []);
-
-  const formatTime = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-background to-primary/5 flex flex-col">
-      {/* Decorative elements */}
+      {/* Efeitos decorativos de background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 -left-24 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
         <div className="absolute top-1/3 right-0 w-72 h-72 bg-secondary/10 rounded-full blur-3xl"></div>
@@ -161,7 +135,7 @@ const Maintenance = () => {
                 />
               </motion.g>
 
-              {/* Laptop/tela stylized */}
+              {/* Laptop/tela estilizado */}
               <motion.path
                 d="M200 260H400V320C400 325.52 395.52 330 390 330H210C204.48 330 200 325.52 200 320V260Z"
                 fill="hsl(var(--secondary))"
@@ -179,7 +153,7 @@ const Maintenance = () => {
                 transition={{ delay: 0.6, duration: 0.6 }}
               />
               
-              {/* Binary code lines */}
+              {/* Código binário */}
               <motion.g
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 0.7 }}
@@ -226,21 +200,21 @@ const Maintenance = () => {
             transition={{ delay: 0.6 }}
             className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-6 max-w-md mx-auto md:mx-0"
           >
-            <div className="flex items-center gap-2 mb-3">
-              <Clock className="h-5 w-5 text-primary" />
-              <h3 className="font-medium">Tempo estimado para conclusão</h3>
+            <div className="flex items-start gap-2 mb-3">
+              <Info className="h-5 w-5 mt-0.5 flex-shrink-0 text-primary" />
+              <p className="text-muted-foreground">
+                Estamos atualizando nossos sistemas para oferecer 
+                uma experiência mais rápida, segura e eficiente para todos os usuários 
+                da plataforma EventoPlusConnect.
+              </p>
             </div>
             
-            <div className="text-4xl md:text-5xl font-mono font-semibold text-primary">
-              {formatTime(countdown)}
-            </div>
-            
-            <div className="mt-6 space-y-3">
+            <div className="mt-4 space-y-3">
               <div className="flex items-start gap-2">
-                <Info className="h-5 w-5 mt-0.5 flex-shrink-0 text-primary" />
-                <p className="text-sm text-muted-foreground">
-                  Estamos atualizando nossos sistemas para oferecer 
-                  uma experiência mais rápida, segura e eficiente.
+                <Info className="h-5 w-5 mt-0.5 flex-shrink-0 text-secondary" />
+                <p className="text-muted-foreground">
+                  Nossas equipes estão implementando novos recursos e melhorias 
+                  que solicitadas pelos usuários. Agradecemos sua compreensão.
                 </p>
               </div>
             </div>
@@ -252,10 +226,21 @@ const Maintenance = () => {
             transition={{ delay: 0.8 }}
             className="pt-4"
           >
-            <Button variant="outline" onClick={() => window.location.href = 'mailto:suporte@eventoplusconect.com'} className="gap-2">
-              <AlertTriangle className="h-4 w-4" />
-              Precisa de ajuda? Entre em contato
-            </Button>
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onHoverStart={() => setIsHovered(true)}
+              onHoverEnd={() => setIsHovered(false)}
+            >
+              <Button 
+                variant="outline" 
+                onClick={() => window.location.href = 'mailto:suporte@eventoplusconect.com'} 
+                className="gap-2 group"
+              >
+                <AlertTriangle className={`h-4 w-4 transition-transform duration-300 ${isHovered ? 'rotate-12' : ''}`} />
+                Precisa de ajuda? Entre em contato
+              </Button>
+            </motion.div>
           </motion.div>
         </motion.div>
       </div>
