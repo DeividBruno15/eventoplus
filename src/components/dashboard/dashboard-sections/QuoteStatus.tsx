@@ -10,7 +10,7 @@ export const QuoteStatus = () => {
   const navigate = useNavigate();
   
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader className="pb-3">
         <CardTitle className="text-lg md:text-2xl">Orçamentos</CardTitle>
         <CardDescription className="text-xs md:text-sm">

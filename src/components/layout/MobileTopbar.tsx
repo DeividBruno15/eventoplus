@@ -35,6 +35,26 @@ export const MobileTopbar = () => {
     });
   };
   
+  const handleLogout = async () => {
+    try {
+      // Navegar para a página inicial
+      navigate('/');
+      setIsSettingsOpen(false);
+      toast({
+        title: "Saindo...",
+        description: "Você foi desconectado com sucesso.",
+        duration: 2000,
+      });
+    } catch (error) {
+      console.error("Erro ao fazer logout:", error);
+      toast({
+        title: "Erro ao sair",
+        description: "Não foi possível completar o logout.",
+        variant: "destructive"
+      });
+    }
+  };
+  
   return (
     <div className="md:hidden sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-12 items-center justify-between px-3">
@@ -44,27 +64,7 @@ export const MobileTopbar = () => {
         <div className="flex items-center gap-1">
           <ThemeToggle />
           
-          <div className="relative">
-            <NotificationsMenu />
-            <Button
-              variant="ghost"
-              size="sm"
-              aria-label={`Notificações${unreadCount ? ` (${unreadCount} não lidas)` : ''}`}
-              className="relative h-8 w-8 p-0"
-            >
-              <Bell className="h-4 w-4" />
-              {isLoading ? (
-                <Skeleton className="absolute -top-1 -right-1 w-3 h-3 rounded-full" />
-              ) : unreadCount > 0 ? (
-                <Badge 
-                  variant="destructive" 
-                  className="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center p-0 text-[8px]"
-                >
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </Badge>
-              ) : null}
-            </Button>
-          </div>
+          <NotificationsMenu />
           
           <Sheet open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
             <SheetTrigger asChild>
@@ -116,7 +116,7 @@ export const MobileTopbar = () => {
                 <Button 
                   variant="outline" 
                   className="w-full justify-start text-sm h-9"
-                  onClick={() => handleGoToSection('/support', 'Suporte')}
+                  onClick={() => handleGoToSection('/help-center', 'Suporte')}
                 >
                   <svg 
                     xmlns="http://www.w3.org/2000/svg" 
@@ -159,15 +159,7 @@ export const MobileTopbar = () => {
                   <Button 
                     variant="outline"
                     className="w-full justify-start text-sm h-9 text-destructive hover:text-destructive"
-                    onClick={() => {
-                      // Lógica de logout aqui
-                      toast({
-                        title: "Saindo...",
-                        description: "Você será desconectado em breve.",
-                      });
-                      setIsSettingsOpen(false);
-                      // Em um cenário real, aqui seria a função de logout
-                    }}
+                    onClick={handleLogout}
                   >
                     <svg 
                       xmlns="http://www.w3.org/2000/svg" 

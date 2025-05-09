@@ -81,15 +81,15 @@ export const PaymentHistory = () => {
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <div className="mb-3 sm:mb-0">
             <CardTitle>Histórico de Pagamentos</CardTitle>
             <CardDescription>Visualize todos os seus pagamentos e reembolsos</CardDescription>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 self-start sm:self-auto">
             <Filter className="h-4 w-4 text-muted-foreground" />
             <Select defaultValue="all" onValueChange={setFilter}>
-              <SelectTrigger className="w-[150px]">
+              <SelectTrigger className="w-[120px] sm:w-[150px]">
                 <SelectValue placeholder="Filtrar" />
               </SelectTrigger>
               <SelectContent>

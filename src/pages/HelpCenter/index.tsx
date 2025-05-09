@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SearchIcon } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -8,7 +8,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 
 const HelpCenter = () => {
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in pt-1">
       <div>
         <h2 className="text-3xl font-bold tracking-tight">Central de Ajuda</h2>
         <p className="text-muted-foreground mt-2">
@@ -24,13 +24,15 @@ const HelpCenter = () => {
         />
       </div>
 
-      <Tabs defaultValue="general">
-        <TabsList className="mb-4">
-          <TabsTrigger value="general">Geral</TabsTrigger>
-          <TabsTrigger value="events">Eventos</TabsTrigger>
-          <TabsTrigger value="billing">Pagamentos</TabsTrigger>
-          <TabsTrigger value="account">Conta</TabsTrigger>
-        </TabsList>
+      <Tabs defaultValue="general" className="w-full">
+        <div className="overflow-x-auto pb-2">
+          <TabsList className="mb-4">
+            <TabsTrigger value="general">Geral</TabsTrigger>
+            <TabsTrigger value="events">Eventos</TabsTrigger>
+            <TabsTrigger value="billing">Pagamentos</TabsTrigger>
+            <TabsTrigger value="account">Conta</TabsTrigger>
+          </TabsList>
+        </div>
         
         <TabsContent value="general">
           <Card>
