@@ -16,6 +16,7 @@ interface EventCardProps {
 export const EventCard = ({ event }: EventCardProps) => {
   const navigate = useNavigate();
   const [venueName, setVenueName] = useState<string | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   
   useEffect(() => {
     const fetchVenueName = async () => {
@@ -40,6 +41,25 @@ export const EventCard = ({ event }: EventCardProps) => {
     
     fetchVenueName();
   }, [event.venue_id]);
+  
+  // Handle image loading and errors
+  useEffect(() => {
+    if (event.image_url) {
+      console.log(`EventCard: Loading image for event ${event.id}: ${event.image_url}`);
+      const img = new Image();
+      img.onload = () => {
+        console.log(`EventCard: Image loaded successfully for event ${event.id}`);
+        setImageUrl(event.image_url);
+      };
+      img.onerror = () => {
+        console.error(`EventCard: Failed to load image for event ${event.id}: ${event.image_url}`);
+        setImageUrl(null);
+      };
+      img.src = event.image_url;
+    } else {
+      setImageUrl(null);
+    }
+  }, [event.image_url, event.id]);
   
   // Format event date for display - safely handle date formatting
   const formattedDate = event.event_date
@@ -75,9 +95,9 @@ export const EventCard = ({ event }: EventCardProps) => {
       <div className="relative">
         {/* Image section */}
         <div className="h-40 bg-gray-100 relative overflow-hidden">
-          {event.image_url ? (
+          {imageUrl ? (
             <img 
-              src={event.image_url} 
+              src={imageUrl} 
               alt={event.name} 
               className="w-full h-full object-cover"
             />

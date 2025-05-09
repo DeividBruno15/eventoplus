@@ -5,6 +5,7 @@ import { EventManagementControls } from './components/EventManagementControls';
 import { EventActionPanel } from './components/EventActionPanel';
 import { useEventState } from './hooks/useEventState';
 import { useEffect } from 'react';
+import { toast } from 'sonner';
 
 const EventDetail = () => {
   const {
@@ -44,7 +45,14 @@ const EventDetail = () => {
     }
   }, [event, user, userApplication]);
 
-  // Determinar se o usuário é o proprietário do evento
+  // Handle any loading errors
+  useEffect(() => {
+    if (!loading && !event) {
+      toast.error('Não foi possível carregar os detalhes do evento');
+    }
+  }, [loading, event]);
+
+  // Determine if the user is the owner of the event
   const isOwner = user && event && (event.user_id === user.id || event.contractor_id === user.id);
 
   return (

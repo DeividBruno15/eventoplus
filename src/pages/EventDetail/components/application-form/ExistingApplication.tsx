@@ -127,7 +127,6 @@ export const ExistingApplication = ({ userApplication, onCancelApplication }: Ex
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-medium text-lg">Sua candidatura</h3>
         <Badge 
-          variant="outline" 
           className={cn("text-white", getApplicationStatusColor(currentStatus))}
         >
           {getApplicationStatusText(currentStatus)}

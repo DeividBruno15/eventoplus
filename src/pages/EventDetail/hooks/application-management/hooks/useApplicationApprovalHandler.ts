@@ -13,10 +13,9 @@ export const useApplicationApprovalHandler = (config: ApplicationApprovalConfig)
 
   const handleApproveApplication = useCallback(async (applicationId: string, providerId: string) => {
     setApproving(true);
+    console.log(`Starting approval process for application ${applicationId}, provider ${providerId}, event ${eventId}`);
 
     try {
-      console.log(`Approving application ${applicationId} for provider ${providerId}`);
-      
       // Get event details first to include in notification
       const { data: eventData, error: eventError } = await supabase
         .from('events')
@@ -30,6 +29,7 @@ export const useApplicationApprovalHandler = (config: ApplicationApprovalConfig)
       }
       
       const event = eventData as Event;
+      console.log(`Found event for notification: ${event.name}`);
       
       // Update application status to accepted
       const { error } = await supabase
@@ -42,17 +42,18 @@ export const useApplicationApprovalHandler = (config: ApplicationApprovalConfig)
         throw error;
       }
       
-      console.log('Application approved successfully');
+      console.log('Application approved successfully - database updated');
 
       // Send notification to the provider
-      await sendProviderNotification(
+      const notificationSent = await sendProviderNotification(
         event,
         providerId,
         'Candidatura aprovada',
         `Sua candidatura para o evento "${event.name}" foi aprovada!`,
         'application_approved'
       );
-      console.log(`Notification sent to provider ${providerId} about approval`);
+      
+      console.log(`Provider notification sent: ${notificationSent}`);
 
       toast({
         title: 'Candidatura aprovada!',
@@ -60,8 +61,11 @@ export const useApplicationApprovalHandler = (config: ApplicationApprovalConfig)
       });
 
       if (onSuccess) {
+        console.log('Calling onSuccess callback');
         await onSuccess(applicationId, providerId);
       }
+      
+      return true;
     } catch (error: any) {
       console.error('Error approving application:', error);
       toast({
@@ -69,6 +73,7 @@ export const useApplicationApprovalHandler = (config: ApplicationApprovalConfig)
         title: 'Erro ao aprovar candidatura',
         description: error.message || 'Houve um problema ao aprovar esta candidatura.'
       });
+      return false;
     } finally {
       setApproving(false);
     }

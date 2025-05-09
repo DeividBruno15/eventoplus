@@ -1,113 +1,102 @@
 
-import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { Event } from '@/types/events';
-import { toast } from 'sonner';
+import { useState, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { sendApplicationNotification } from './useEventNotifications';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/components/ui/use-toast';
+import { Event, EventApplication } from '@/types/events';
+import { sendNewApplicationNotification } from './useEventNotifications';
 
 export const useProviderApplications = (event: Event | null) => {
   const [submitting, setSubmitting] = useState(false);
   const { user } = useAuth();
+  const { toast } = useToast();
 
-  /**
-   * Apply to an event as a provider
-   */
-  const handleApply = async (message: string, serviceCategory?: string): Promise<void> => {
-    if (!event || !user) {
-      toast.error('Você precisa estar logado para se candidatar');
+  // Handle applying to an event
+  const handleApply = useCallback(async (message: string, serviceCategory?: string) => {
+    if (!user || !event) {
+      toast({
+        variant: 'destructive',
+        title: 'Erro ao candidatar-se',
+        description: 'Você precisa estar logado e ter um evento válido.'
+      });
       return;
     }
-
+    
+    console.log(`Provider ${user.id} applying to event ${event.id} with service ${serviceCategory}`);
+    setSubmitting(true);
+    
     try {
-      setSubmitting(true);
-      
-      // Check if user has already been rejected for this event
-      const { data: existingApplications, error: checkError } = await supabase
-        .from('event_applications')
-        .select('status')
-        .eq('event_id', event.id)
-        .eq('provider_id', user.id);
-      
-      if (checkError) {
-        console.error('Error checking existing applications:', checkError);
-        toast.error('Erro ao verificar candidaturas existentes');
-        return;
+      // Get provider's profile name for the notification
+      const { data: profileData, error: profileError } = await supabase
+        .from('user_profiles')
+        .select('first_name, last_name')
+        .eq('id', user.id)
+        .single();
+        
+      if (profileError) {
+        console.error('Error getting user profile:', profileError);
+        throw new Error('Erro ao obter informações do perfil');
       }
       
-      const rejectedApplication = existingApplications?.find(app => app.status === 'rejected');
-      if (rejectedApplication) {
-        toast.error('Sua candidatura para este evento já foi rejeitada anteriormente.');
-        return;
-      }
-      
-      // Insert new application
+      // Create the application
       const { data, error } = await supabase
         .from('event_applications')
         .insert({
           event_id: event.id,
           provider_id: user.id,
           message,
-          service_category: serviceCategory || 'General'
+          service_category: serviceCategory || event.service_type,
+          status: 'pending'
         })
-        .select('*')
-        .single();
+        .select();
         
       if (error) {
-        console.error('Error applying to event:', error);
-        toast.error('Ocorreu um erro ao enviar sua candidatura');
-        return;
+        console.error('Error creating application:', error);
+        throw new Error('Erro ao criar candidatura');
       }
       
-      console.log('New application created:', data);
+      console.log('Application created successfully:', data);
       
-      // Obter informações do prestador para incluir na notificação
-      const { data: providerData } = await supabase
-        .from('user_profiles')
-        .select('first_name, last_name')
-        .eq('id', user.id)
-        .single();
+      // Send notification to event contractor
+      const providerName = `${profileData.first_name} ${profileData.last_name || ''}`.trim();
+      const notificationSent = await sendNewApplicationNotification(event, providerName);
       
-      const providerName = providerData ? 
-        `${providerData.first_name} ${providerData.last_name}` : 
-        'Um prestador';
-      
-      // Garantir que estamos enviando a notificação para o contratante do evento
-      if (event.contractor_id) {
-        try {
-          await sendApplicationNotification(
-            event,
-            event.contractor_id,
-            "Nova candidatura recebida",
-            `${providerName} se candidatou ao seu evento "${event.name}".`,
-            "new_application"
-          );
-          console.log('Application notification sent to contractor:', event.contractor_id);
-        } catch (notificationError) {
-          console.error('Error sending application notification:', notificationError);
-        }
-      } else {
-        console.error('Contractor ID is missing, cannot send notification');
+      if (!notificationSent) {
+        console.warn('Application created but notification failed to send to contractor');
       }
       
-      toast.success('Candidatura enviada com sucesso!');
+      toast({
+        title: 'Candidatura enviada com sucesso!',
+        description: 'O contratante foi notificado da sua candidatura.'
+      });
+      
     } catch (error: any) {
       console.error('Error in handleApply:', error);
-      toast.error(error.message || 'Ocorreu um erro ao enviar sua candidatura');
+      toast({
+        variant: 'destructive',
+        title: 'Erro ao candidatar-se',
+        description: error.message || 'Ocorreu um erro ao enviar sua candidatura.'
+      });
     } finally {
       setSubmitting(false);
     }
-  };
-
-  /**
-   * Cancel an application
-   */
-  const handleCancelApplication = async (applicationId: string): Promise<void> => {
-    if (!user) return;
+  }, [user, event, toast]);
+  
+  // Handle canceling an application
+  const handleCancelApplication = useCallback(async (applicationId: string) => {
+    if (!user) {
+      toast({
+        variant: 'destructive',
+        title: 'Erro ao cancelar candidatura',
+        description: 'Você precisa estar logado.'
+      });
+      return;
+    }
+    
+    console.log(`Canceling application ${applicationId}`);
+    setSubmitting(true);
     
     try {
-      setSubmitting(true);
-      
       const { error } = await supabase
         .from('event_applications')
         .delete()
@@ -115,19 +104,27 @@ export const useProviderApplications = (event: Event | null) => {
         .eq('provider_id', user.id);
         
       if (error) {
-        console.error('Error cancelling application:', error);
-        toast.error('Erro ao cancelar candidatura');
-        return;
+        console.error('Error canceling application:', error);
+        throw new Error('Erro ao cancelar candidatura');
       }
       
-      toast.success('Candidatura cancelada com sucesso!');
+      console.log('Application canceled successfully');
+      toast({
+        title: 'Candidatura cancelada',
+        description: 'Sua candidatura foi cancelada com sucesso.'
+      });
+      
     } catch (error: any) {
       console.error('Error in handleCancelApplication:', error);
-      toast.error(error.message || 'Ocorreu um erro ao cancelar sua candidatura');
+      toast({
+        variant: 'destructive',
+        title: 'Erro ao cancelar candidatura',
+        description: error.message || 'Ocorreu um erro ao cancelar sua candidatura.'
+      });
     } finally {
       setSubmitting(false);
     }
-  };
+  }, [user, toast]);
   
   return {
     submitting,

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ApplicationFormContent } from './application-form/ApplicationFormContent';
@@ -26,19 +25,39 @@ export const ApplicationForm = ({
   const [showSuccess, setShowSuccess] = useState(false);
   const [applicationStatus, setApplicationStatus] = useState<string | null>(null);
   
+  // Track when a new application is created
+  const [justApplied, setJustApplied] = useState(false);
+  
   // Update local state when userApplication changes
   useEffect(() => {
     if (userApplication) {
       console.log('Application status updated in form:', userApplication.status);
       setApplicationStatus(userApplication.status);
+      
+      // Reset success state if we have an application record
+      if (showSuccess) {
+        setShowSuccess(false);
+      }
     } else {
       setApplicationStatus(null);
+      
+      // If we had an application but now it's null and we just applied,
+      // keep showing success message until the application is fetched
+      if (!justApplied) {
+        setShowSuccess(false);
+      }
     }
-  }, [userApplication]);
+  }, [userApplication, showSuccess, justApplied]);
   
   const handleSubmit = async (message: string, serviceCategory?: string) => {
+    setJustApplied(true);
     await onSubmit(message, serviceCategory);
     setShowSuccess(true);
+    
+    // Reset the "just applied" flag after a short time
+    setTimeout(() => {
+      setJustApplied(false);
+    }, 5000);
   };
   
   const handleCancel = () => {
@@ -57,7 +76,9 @@ export const ApplicationForm = ({
     explicitRejected: isRejected,
     localStatus: applicationStatus,
     userApplicationStatus: userApplication?.status,
-    combinedRejectedStatus: hasBeenRejected
+    combinedRejectedStatus: hasBeenRejected,
+    showSuccess,
+    justApplied
   });
   
   return (
@@ -71,13 +92,13 @@ export const ApplicationForm = ({
             <p className="text-red-600 font-medium">Sua candidatura para este evento foi rejeitada.</p>
             <p className="text-gray-600 mt-2">Infelizmente, você não pode se candidatar novamente para este evento.</p>
           </div>
-        ) : showSuccess ? (
-          <ApplicationSuccess />
         ) : userApplication ? (
           <ExistingApplication 
             userApplication={userApplication}
             onCancelApplication={handleCancel}
           />
+        ) : showSuccess ? (
+          <ApplicationSuccess />
         ) : (
           <ApplicationFormContent 
             event={event}
