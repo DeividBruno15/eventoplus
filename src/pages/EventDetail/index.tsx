@@ -22,7 +22,8 @@ const EventDetail = () => {
     handleCancelApplication
   } = useEventState();
 
-  console.log("Applications in EventDetail:", applications);
+  console.log("EventDetail - Applications:", applications);
+  console.log("EventDetail - User application:", userApplication);
   
   // Debug logging to help troubleshoot issues
   useEffect(() => {
@@ -39,7 +40,7 @@ const EventDetail = () => {
     }
     
     if (userApplication) {
-      console.log("User application status:", userApplication.status);
+      console.log("User application status in EventDetail:", userApplication.status);
     }
   }, [event, user, userApplication]);
 

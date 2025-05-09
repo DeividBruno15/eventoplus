@@ -72,18 +72,22 @@ export const useProviderApplications = (event: Event | null) => {
         `${providerData.first_name} ${providerData.last_name}` : 
         'Um prestador';
       
-      // Correção: Enviar notificação para o contractor_id do evento em vez de user_id
-      try {
-        await sendApplicationNotification(
-          event,
-          event.contractor_id,
-          "Nova candidatura recebida",
-          `${providerName} se candidatou ao seu evento "${event.name}".`,
-          "new_application"
-        );
-        console.log('Application notification sent to contractor:', event.contractor_id);
-      } catch (notificationError) {
-        console.error('Error sending application notification:', notificationError);
+      // Garantir que estamos enviando a notificação para o contratante do evento
+      if (event.contractor_id) {
+        try {
+          await sendApplicationNotification(
+            event,
+            event.contractor_id,
+            "Nova candidatura recebida",
+            `${providerName} se candidatou ao seu evento "${event.name}".`,
+            "new_application"
+          );
+          console.log('Application notification sent to contractor:', event.contractor_id);
+        } catch (notificationError) {
+          console.error('Error sending application notification:', notificationError);
+        }
+      } else {
+        console.error('Contractor ID is missing, cannot send notification');
       }
       
       toast.success('Candidatura enviada com sucesso!');

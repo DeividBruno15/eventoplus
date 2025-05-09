@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ApplicationFormContent } from './application-form/ApplicationFormContent';
 import { ApplicationSuccess } from './application-form/ApplicationSuccess';
 import { Event, EventApplication } from '@/types/events';
@@ -88,7 +87,6 @@ export const ApplicationForm = ({
           />
         )}
       </CardContent>
-      {/* Remova o CardFooter duplicado - o botão já está no ApplicationFormContent */}
     </Card>
   );
 };

@@ -56,11 +56,28 @@ export const ExistingApplication = ({ userApplication, onCancelApplication }: Ex
     const fetchConversation = async () => {
       if (currentStatus === 'accepted' && userApplication.provider_id) {
         try {
+          // Fazendo uma consulta para obter o contratante do evento
+          const { data: eventData, error: eventError } = await supabase
+            .from('events')
+            .select('contractor_id')
+            .eq('id', userApplication.event_id)
+            .single();
+            
+          if (eventError) {
+            console.error('Error fetching event contractor ID:', eventError);
+            return;
+          }
+          
+          if (!eventData || !eventData.contractor_id) {
+            console.error('No contractor ID found for event');
+            return;
+          }
+          
           const { data, error } = await supabase.rpc(
             'create_or_get_conversation',
             {
               user_id_one: userApplication.provider_id,
-              user_id_two: userApplication.event_id.split('-')[0] // Temporary solution - should be contractor_id
+              user_id_two: eventData.contractor_id
             }
           );
           

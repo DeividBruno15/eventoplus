@@ -7,20 +7,25 @@ import { notificationsService } from '@/services/notifications';
  */
 export const sendApplicationNotification = async (
   event: Event,
-  contractorId: string,
+  recipientId: string,
   title: string,
   content: string,
   type: string
 ) => {
-  console.log(`Sending notification to contractor ${contractorId} for event ${event.id}:`, {
+  console.log(`Sending notification to user ${recipientId} for event ${event.id}:`, {
     title,
     content,
     type
   });
   
+  if (!recipientId) {
+    console.error('Cannot send notification: recipientId is empty');
+    return false;
+  }
+  
   try {
     const result = await notificationsService.sendNotification({
-      userId: contractorId,
+      userId: recipientId,
       title,
       content,
       type,
@@ -28,9 +33,9 @@ export const sendApplicationNotification = async (
     });
     
     if (result) {
-      console.log(`Successfully sent notification to contractor ${contractorId}`);
+      console.log(`Successfully sent notification to user ${recipientId}`);
     } else {
-      console.error(`Failed to send notification to contractor ${contractorId}`);
+      console.error(`Failed to send notification to user ${recipientId}`);
     }
     
     return result;

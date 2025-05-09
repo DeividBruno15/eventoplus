@@ -3,7 +3,7 @@ import { useState, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
-import { notificationsService } from '@/services/notifications';
+import { sendApplicationNotification } from '../useEventNotifications';
 import { Event } from '@/types/events';
 
 export const useApplicationRejection = (eventId: string) => {
@@ -12,19 +12,21 @@ export const useApplicationRejection = (eventId: string) => {
   const [rejecting, setRejecting] = useState(false);
 
   const notifyApplicant = useCallback(async (providerId: string, reason: string, eventName: string) => {
-    await notificationsService.sendNotification({
-      userId: providerId,
-      title: 'Candidatura rejeitada',
-      content: `Sua candidatura para o evento "${eventName}" foi rejeitada. Motivo: ${reason || 'Não informado'}.`,
-      type: 'application_rejected',
-      link: `/events/${eventId}`
-    });
+    await sendApplicationNotification(
+      { id: eventId } as Event, // Simplificado para uso apenas com id
+      providerId,
+      'Candidatura rejeitada',
+      `Sua candidatura para o evento "${eventName}" foi rejeitada. Motivo: ${reason || 'Não informado'}.`,
+      'application_rejected'
+    );
   }, [eventId]);
 
   const handleRejectApplication = useCallback(async (applicationId: string, providerId: string, reason: string = 'Candidatura não aprovada') => {
     setRejecting(true);
     
     try {
+      console.log(`Rejecting application ${applicationId} for provider ${providerId}`);
+      
       // Call RLS-enabled function to reject the application
       const { data: rejectResult, error: rejectError } = await supabase
         .rpc('reject_application', { 
@@ -36,30 +38,23 @@ export const useApplicationRejection = (eventId: string) => {
         throw rejectError || new Error('Falha ao rejeitar candidatura');
       }
       
+      console.log('Application rejected successfully through RPC');
+      
       // Get event details to include in notification
       const { data: eventData, error: eventError } = await supabase
         .from('events')
-        .select('*')
+        .select('name')
         .eq('id', eventId)
         .single();
 
       if (eventError) {
+        console.error('Error fetching event name:', eventError);
         throw eventError;
       }
 
-      // Convert to Event type with type assertion and handle the service_requests property
-      const event = {
-        ...eventData,
-        service_requests: eventData.service_requests ? 
-          (Array.isArray(eventData.service_requests) ? 
-            eventData.service_requests : 
-            []
-          ) : 
-          []
-      } as unknown as Event;
-
-      // Send notification to the provider
-      await notifyApplicant(providerId, reason, event.name);
+      // Send notification to the provider about the rejection
+      await notifyApplicant(providerId, reason, eventData.name);
+      console.log(`Notification sent to provider ${providerId} about rejection`);
       
       toast({
         title: 'Candidatura rejeitada',

@@ -58,6 +58,11 @@ export const EventInfo = ({ event }: EventInfoProps) => {
             src={event.image_url} 
             alt={event.name} 
             className="w-full h-full object-cover"
+            onError={(e) => {
+              console.error('Error loading event image:', e);
+              // Fallback to hide the broken image
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
           />
         </div>
       )}
