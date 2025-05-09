@@ -14,29 +14,28 @@ serve(async (req) => {
   }
 
   try {
-    // Inicializar cliente Supabase
+    // Initialize Supabase admin client
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
       { auth: { persistSession: false } }
     );
 
-    // Obter dados do request
+    // Get request data
     const { 
       userId, 
       title, 
       content, 
       type, 
-      link, 
-      sendWhatsApp = false 
+      link 
     } = await req.json();
 
-    // Verificar dados obrigatórios
+    // Validate required data
     if (!userId || !title || !content) {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: 'Dados incompletos. userId, title e content são obrigatórios.' 
+          error: 'Incomplete data. userId, title, and content are required.' 
         }),
         {
           status: 400,
@@ -45,7 +44,7 @@ serve(async (req) => {
       );
     }
 
-    // Criar notificação no banco de dados
+    // Create notification in database
     const { data, error } = await supabaseAdmin
       .from('notifications')
       .insert({
@@ -60,65 +59,25 @@ serve(async (req) => {
       .single();
 
     if (error) {
-      throw new Error(`Erro ao criar notificação: ${error.message}`);
-    }
-
-    // Se solicitado, enviar notificação por WhatsApp
-    let whatsappResult = null;
-    if (sendWhatsApp) {
-      try {
-        // Buscar informações do usuário
-        const { data: userData, error: userError } = await supabaseAdmin
-          .from('user_profiles')
-          .select('phone_number, whatsapp_opt_in')
-          .eq('id', userId)
-          .single();
-          
-        if (userError) {
-          console.error('Erro ao buscar perfil do usuário:', userError);
-        } else if (userData?.phone_number && userData?.whatsapp_opt_in) {
-          // Enviar notificação via WhatsApp
-          const whatsappResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-whatsapp-notification`, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              user_id: userId,
-              phone_number: userData.phone_number,
-              message: `${title}\n\n${content}${link ? `\n\nAcesse: ${link}` : ''}`
-            })
-          });
-          
-          if (whatsappResponse.ok) {
-            whatsappResult = await whatsappResponse.json();
-          } else {
-            console.error('Erro ao enviar notificação WhatsApp:', await whatsappResponse.text());
-          }
-        }
-      } catch (whatsappError) {
-        console.error('Erro ao processar notificação WhatsApp:', whatsappError);
-      }
+      throw new Error(`Error creating notification: ${error.message}`);
     }
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        notification: data,
-        whatsapp: whatsappResult
+        notification: data
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );
   } catch (error: any) {
-    console.error('Erro ao processar notificação:', error);
+    console.error('Error processing notification:', error);
     
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: `Erro ao processar notificação: ${error.message}` 
+        error: `Error processing notification: ${error.message}` 
       }),
       {
         status: 500,

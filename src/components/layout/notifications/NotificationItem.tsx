@@ -36,7 +36,7 @@ export const NotificationItem = ({
 }: NotificationItemProps) => {
   const [isHovered, setIsHovered] = useState(false);
   
-  // Função para determinar o ícone com base no tipo de notificação
+  // Function to determine the icon based on notification type
   const getNotificationIcon = () => {
     const type = notification.type || '';
     
@@ -53,7 +53,7 @@ export const NotificationItem = ({
     return <Bell className="h-5 w-5 text-gray-500" />;
   };
   
-  // Formatação de data relativa
+  // Relative time formatting
   const formatRelativeTime = (date: string) => {
     try {
       return formatDistanceToNow(new Date(date), { 
@@ -91,7 +91,7 @@ export const NotificationItem = ({
           </span>
         </div>
         
-        {/* Botões de ação (visíveis apenas no hover) */}
+        {/* Action buttons (visible only on hover) */}
         <div className={cn(
           "absolute right-2 top-2 flex gap-1 transition-opacity",
           isHovered ? "opacity-100" : "opacity-0"
@@ -130,4 +130,4 @@ export const NotificationItem = ({
       </div>
     </div>
   );
-};
+}

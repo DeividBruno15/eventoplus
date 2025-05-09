@@ -1,56 +1,26 @@
 
 import { supabase } from '@/integrations/supabase/client';
 
-interface SendWhatsAppParams {
+interface SendNotificationParams {
   userId: string;
-  phoneNumber: string;
-  message: string;
+  title: string;
+  content: string;
+  type: string;
+  link?: string;
 }
 
 export const notificationsService = {
   /**
-   * Envia uma notificação via WhatsApp
+   * Send a notification to a user
    */
-  async sendWhatsAppNotification({ userId, phoneNumber, message }: SendWhatsAppParams): Promise<boolean> {
+  async sendNotification({ userId, title, content, type, link }: SendNotificationParams): Promise<boolean> {
     try {
-      const { data, error } = await supabase.functions.invoke('send-whatsapp-notification', {
-        body: {
-          user_id: userId,
-          phone_number: phoneNumber,
-          message,
-        },
-      });
-
-      if (error) {
-        console.error('Erro ao enviar notificação WhatsApp:', error);
+      console.log(`Sending notification to ${userId}:`, { title, content, type, link });
+      
+      if (!userId) {
+        console.error('Cannot send notification: Missing userId');
         return false;
       }
-
-      return data.success;
-    } catch (error) {
-      console.error('Erro ao enviar notificação WhatsApp:', error);
-      return false;
-    }
-  },
-
-  /**
-   * Envia uma notificação ao usuário
-   */
-  async sendNotification({
-    userId,
-    title,
-    content,
-    type,
-    link,
-  }: {
-    userId: string;
-    title: string;
-    content: string;
-    type: string;
-    link?: string;
-  }): Promise<boolean> {
-    try {
-      console.log(`Enviando notificação para ${userId}: ${title}`);
       
       const { error } = await supabase
         .from('notifications')
@@ -60,41 +30,23 @@ export const notificationsService = {
           content,
           type,
           link,
-        } as any);
-
+          read: false
+        });
+      
       if (error) {
-        console.error('Erro ao criar notificação:', error);
+        console.error('Error sending notification:', error);
         return false;
       }
-
-      // Buscar informações do usuário para enviar WhatsApp
-      const { data: userData, error: userError } = await supabase
-        .from('user_profiles')
-        .select('phone_number')
-        .eq('id', userId)
-        .single();
-
-      if (userError || !userData?.phone_number) {
-        console.log('Usuário sem número de telefone ou erro:', userError);
-        return true; // Retorna true pois a notificação foi criada com sucesso, apenas o WhatsApp falhou
-      }
-
-      // Enviar também via WhatsApp se o usuário tiver um número de telefone
-      await this.sendWhatsAppNotification({
-        userId,
-        phoneNumber: userData.phone_number,
-        message: `${title}\n\n${content}${link ? `\n\nAcesse: ${window.location.origin}${link}` : ''}`,
-      });
-
+      
       return true;
-    } catch (error) {
-      console.error('Erro ao enviar notificação:', error);
+    } catch (err) {
+      console.error('Unexpected error in sendNotification:', err);
       return false;
     }
   },
-
+  
   /**
-   * Marca uma notificação como lida
+   * Mark a notification as read
    */
   async markAsRead(notificationId: string): Promise<boolean> {
     try {
@@ -102,52 +54,44 @@ export const notificationsService = {
         .from('notifications')
         .update({ read: true })
         .eq('id', notificationId);
-
-      if (error) {
-        console.error('Erro ao marcar notificação como lida:', error);
-        return false;
-      }
-
-      return true;
-    } catch (error) {
-      console.error('Erro ao marcar notificação como lida:', error);
+        
+      return !error;
+    } catch (err) {
+      console.error('Error marking notification as read:', err);
       return false;
     }
   },
-
+  
   /**
-   * Busca as notificações do usuário
+   * Get user notifications
    */
-  async getUserNotifications(userId: string, limit: number = 10, offset: number = 0) {
+  async getUserNotifications(userId: string, limit: number = 20): Promise<any[]> {
     try {
-      const { data, error, count } = await supabase
+      const { data, error } = await supabase
         .from('notifications')
-        .select('*', { count: 'exact' })
+        .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
-        .range(offset, offset + limit - 1);
-
+        .limit(limit);
+      
       if (error) {
-        console.error('Erro ao buscar notificações:', error);
-        return { data: [], count: 0 };
+        console.error('Error fetching notifications:', error);
+        return [];
       }
-
-      return { data: data || [], count: count || 0 };
-    } catch (error) {
-      console.error('Erro ao buscar notificações:', error);
-      return { data: [], count: 0 };
+      
+      return data || [];
+    } catch (err) {
+      console.error('Error fetching notifications:', err);
+      return [];
     }
   },
-
+  
   /**
-   * Configura um listener para notificações em tempo real
+   * Subscribe to real-time notifications
    */
-  subscribeToNotifications(
-    userId: string, 
-    callback: (notification: any) => void
-  ) {
+  subscribeToNotifications(userId: string, callback: (payload: any) => void): () => void {
     const channel = supabase
-      .channel(`user_notifications:${userId}`)
+      .channel(`user_notifications_${userId}`)
       .on('postgres_changes', 
         { 
           event: 'INSERT', 
@@ -160,7 +104,7 @@ export const notificationsService = {
         }
       )
       .subscribe();
-
+    
     return () => {
       supabase.removeChannel(channel);
     };

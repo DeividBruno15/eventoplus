@@ -24,15 +24,8 @@ export const useNotifications = (userId?: string) => {
 
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('notifications')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(10);
-
-      if (error) throw error;
-
+      const data = await notificationsService.getUserNotifications(userId);
+      
       if (data) {
         setNotifications(data as Notification[]);
         setUnreadCount(data.filter(n => !n.read).length);
@@ -47,19 +40,21 @@ export const useNotifications = (userId?: string) => {
 
   const markAsRead = async (notificationId: string) => {
     try {
-      await notificationsService.markAsRead(notificationId);
+      const success = await notificationsService.markAsRead(notificationId);
       
-      // Update local state without refetching
-      setNotifications(prev => 
-        prev.map(notification => 
-          notification.id === notificationId 
-            ? { ...notification, read: true } 
-            : notification
-        )
-      );
-      
-      // Update unread count
-      setUnreadCount(prev => Math.max(0, prev - 1));
+      if (success) {
+        // Update local state without refetching
+        setNotifications(prev => 
+          prev.map(notification => 
+            notification.id === notificationId 
+              ? { ...notification, read: true } 
+              : notification
+          )
+        );
+        
+        // Update unread count
+        setUnreadCount(prev => Math.max(0, prev - 1));
+      }
     } catch (error) {
       console.error('Error marking notification as read:', error);
     }
@@ -75,7 +70,7 @@ export const useNotifications = (userId?: string) => {
         
       if (unreadIds.length === 0) return;
       
-      // Atualizar cada notificação individualmente, já que não temos um método markAllAsRead
+      // Update each notification individually
       for (const id of unreadIds) {
         await notificationsService.markAsRead(id);
       }
@@ -94,7 +89,7 @@ export const useNotifications = (userId?: string) => {
 
   const deleteNotification = async (notificationId: string) => {
     try {
-      // Deletar a notificação diretamente no Supabase, já que não temos um método deleteNotification
+      // Delete the notification directly in Supabase
       const { error } = await supabase
         .from('notifications')
         .delete()
@@ -117,43 +112,36 @@ export const useNotifications = (userId?: string) => {
     }
   };
 
-  const subscribeToNotifications = () => {
-    if (!userId) return () => {};
-    
-    // Subscribe to changes in the notifications table for this user
-    const subscription = supabase
-      .channel(`notifications:${userId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*', // Listen for all events (insert, update, delete)
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${userId}`
-        },
-        (payload) => {
-          console.log('Notification change received:', payload);
-          
-          // Refetch notifications when changes occur
-          fetchNotifications();
-        }
-      )
-      .subscribe();
-    
-    return () => {
-      subscription.unsubscribe();
-    };
-  };
-
+  // Subscribe to real-time notifications
   useEffect(() => {
     if (!userId) return;
 
-    fetchNotifications();
-    const unsubscribe = subscribeToNotifications();
+    const unsubscribe = notificationsService.subscribeToNotifications(
+      userId,
+      (newNotification) => {
+        console.log('New notification received:', newNotification);
+        
+        // Add the new notification to the list
+        setNotifications(prev => [newNotification, ...prev]);
+        
+        // Update unread count
+        setUnreadCount(prev => prev + 1);
+        
+        // Update last updated
+        setLastUpdated(new Date());
+      }
+    );
 
     return () => {
       unsubscribe();
     };
+  }, [userId]);
+
+  // Initial fetch
+  useEffect(() => {
+    if (!userId) return;
+    
+    fetchNotifications();
   }, [userId]);
 
   return {

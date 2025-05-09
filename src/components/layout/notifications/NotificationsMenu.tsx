@@ -34,11 +34,10 @@ export function NotificationsMenu() {
   const [realtime, setRealtime] = useState(false);
   const [deleteInProgress, setDeleteInProgress] = useState<string | null>(null);
 
-  // Efeito para marcar notificações como lidas quando o menu é aberto
+  // Effect to mark notifications as read when the menu is opened
   useEffect(() => {
     if (open && unreadCount > 0) {
-      // Para melhorar a UX, adicionamos um pequeno delay para que o usuário 
-      // possa ver quais notificações são novas antes de marcá-las como lidas
+      // Add a small delay to allow user to see which notifications are new
       const timer = setTimeout(() => {
         markAllAsRead();
       }, 2000);
@@ -47,11 +46,11 @@ export function NotificationsMenu() {
     }
   }, [open, unreadCount, markAllAsRead]);
 
-  // Função para atualizar o estado de realtime e mostrar uma animação
+  // Function to update realtime state and show animation
   useEffect(() => {
     if (unreadCount > 0) {
       setRealtime(true);
-      // Remover a classe após a animação
+      // Remove the class after animation
       const timer = setTimeout(() => {
         setRealtime(false);
       }, 2000);
@@ -60,7 +59,7 @@ export function NotificationsMenu() {
     }
   }, [unreadCount]);
 
-  // Auto refresh a cada minuto
+  // Auto refresh every minute
   useEffect(() => {
     const interval = setInterval(() => {
       if (user?.id) {
@@ -71,7 +70,7 @@ export function NotificationsMenu() {
     return () => clearInterval(interval);
   }, [fetchNotifications, user?.id]);
 
-  // Função para lidar com a exclusão de notificações
+  // Function to handle notification deletion
   const handleDeleteNotification = async (id: string) => {
     try {
       setDeleteInProgress(id);
@@ -165,12 +164,12 @@ export function NotificationsMenu() {
                   key={notification.id}
                   notification={notification}
                   onClick={(notification) => {
-                    // Navegar para o link da notificação se existir
+                    // Navigate to notification link if it exists
                     if (notification.link) {
                       window.location.href = notification.link;
                       setOpen(false);
                     }
-                    // Marcar como lida ao clicar
+                    // Mark as read when clicked
                     if (!notification.read) {
                       markAsRead(notification.id);
                     }
