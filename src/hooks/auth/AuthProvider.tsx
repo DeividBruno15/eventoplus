@@ -83,11 +83,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error) throw error;
   };
 
-  const updatePassword = async (newPassword: string) => {
+  const updatePassword = async (newPassword: string): Promise<void> => {
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     
     if (error) throw error;
-    return true;
   };
 
   const register = async (formData: RegisterFormData) => {

@@ -131,7 +131,11 @@ export const RegisterForm = () => {
           <BasicInfoFields form={form} />
           
           <div className="space-y-2">
-            <PasswordRequirements passwordRequirements={passwordRequirements} />
+            <PasswordRequirements 
+              requirements={passwordRequirements} 
+              passwordStrength={passwordStrength} 
+              strengthLabel={strengthLabel}
+            />
             <PasswordStrengthMeter password={watchPassword} />
           </div>
           
