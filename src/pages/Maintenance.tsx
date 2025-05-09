@@ -1,14 +1,11 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { AlertTriangle, Wrench, Info, ArrowRight } from 'lucide-react';
+import { AlertTriangle, Wrench, Clock, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { toast } from '@/hooks/use-toast';
 
 const Maintenance = () => {
   const [countdown, setCountdown] = useState<number>(0);
-  const [isSubscribed, setIsSubscribed] = useState<boolean>(false);
-  const [email, setEmail] = useState<string>('');
 
   // Simulação de contagem regressiva - defina a data final de manutenção
   useEffect(() => {
@@ -36,145 +33,239 @@ const Maintenance = () => {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const handleSubscribe = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!email.trim()) {
-      toast({
-        title: "Erro",
-        description: "Por favor, insira um e-mail válido",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    // Aqui você implementaria a lógica real para registrar o e-mail
-    console.log("Inscrever email:", email);
-    setIsSubscribed(true);
-    toast({
-      title: "Sucesso",
-      description: "Você será notificado quando o sistema voltar ao ar",
-      variant: "default"
-    });
-  };
-
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-muted/30">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_50%_120%,hsl(var(--primary)/30),transparent_70%)]"></div>
+    <div className="min-h-screen w-full bg-gradient-to-b from-background to-primary/5 flex flex-col">
+      {/* Decorative elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 -left-24 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/3 right-0 w-72 h-72 bg-secondary/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-1/3 w-80 h-80 bg-accent/10 rounded-full blur-3xl"></div>
       </div>
       
-      <main className="flex-grow flex items-center justify-center px-4 relative z-10">
-        <div className="w-full max-w-3xl">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="bg-card rounded-xl shadow-lg border border-border overflow-hidden"
-          >
-            <div className="p-8 md:p-10 space-y-8">
-              <div className="space-y-3">
-                <motion.div 
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.2, type: "spring" }}
-                  className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6"
-                >
-                  <Wrench className="h-8 w-8 text-primary" />
-                </motion.div>
-                
-                <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
-                  Estamos em manutenção
-                </h1>
-                
-                <p className="text-muted-foreground text-lg">
-                  Estamos trabalhando para melhorar sua experiência. 
-                  O sistema estará de volta em breve.
-                </p>
-              </div>
+      <div className="container mx-auto px-4 py-12 flex-1 flex flex-col md:flex-row items-center justify-center gap-8 relative z-10">
+        {/* Ilustração */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6 }}
+          className="w-full md:w-1/2 flex justify-center items-center"
+        >
+          <div className="relative">
+            {/* Círculo decorativo */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-secondary/20 rounded-full blur-md"></div>
+            
+            {/* SVG ilustrativo */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="420"
+              height="360"
+              viewBox="0 0 600 400"
+              fill="none"
+              className="relative z-10"
+            >
+              <motion.path
+                d="M288 152L300 136L312 152H288Z"
+                fill="hsl(var(--primary))"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6 }}
+              />
+              <motion.rect
+                x="294"
+                y="152"
+                width="12"
+                height="40"
+                fill="hsl(var(--primary))"
+                initial={{ scaleY: 0 }}
+                animate={{ scaleY: 1 }}
+                transition={{ delay: 0.8 }}
+              />
+              <motion.circle
+                cx="300"
+                cy="220"
+                r="60"
+                stroke="hsl(var(--primary))"
+                strokeWidth="8"
+                strokeDasharray="377"
+                strokeDashoffset="377"
+                fill="transparent"
+                animate={{ strokeDashoffset: 0 }}
+                transition={{ duration: 1.5, delay: 1, ease: "easeInOut" }}
+              />
+              <motion.circle
+                cx="300"
+                cy="220"
+                r="50"
+                stroke="hsl(var(--secondary))"
+                strokeWidth="4"
+                fill="transparent"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.2 }}
+              />
+              <motion.circle
+                cx="300"
+                cy="220"
+                r="6"
+                fill="hsl(var(--secondary))"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 1.4 }}
+              />
+
+              {/* Engrenagens */}
+              <motion.g
+                animate={{ 
+                  rotate: 360 
+                }}
+                transition={{ 
+                  duration: 10, 
+                  repeat: Infinity, 
+                  ease: "linear" 
+                }}
+                style={{ originX: "270px", originY: "180px" }}
+              >
+                <path
+                  d="M270 150C284.64 150 296 161.36 296 176C296 190.64 284.64 202 270 202C255.36 202 244 190.64 244 176C244 161.36 255.36 150 270 150ZM270 158C259.77 158 252 165.77 252 176C252 186.23 259.77 194 270 194C280.23 194 288 186.23 288 176C288 165.77 280.23 158 270 158Z"
+                  fill="hsl(var(--muted-foreground))"
+                />
+                <path
+                  d="M270 136V146M252 142L258 150M241 158L250 162M238 176H248M241 194L250 190M252 210L258 202M270 216V206M288 210L282 202M300 194L290 190M302 176H292M300 158L290 162M288 142L282 150"
+                  stroke="hsl(var(--muted-foreground))"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                />
+              </motion.g>
+
+              <motion.g
+                animate={{ 
+                  rotate: -360 
+                }}
+                transition={{ 
+                  duration: 15, 
+                  repeat: Infinity, 
+                  ease: "linear" 
+                }}
+                style={{ originX: "350px", originY: "240px" }}
+              >
+                <path
+                  d="M350 215C361.05 215 370 223.95 370 235C370 246.05 361.05 255 350 255C338.95 255 330 246.05 330 235C330 223.95 338.95 215 350 215Z"
+                  fill="hsl(var(--accent))"
+                  fillOpacity="0.5"
+                />
+                <path
+                  d="M350 205V211M338 208L342 214M330 219L336 222M328 231H334M330 245L336 241M338 254L342 248M350 259V253M362 254L359 248M370 245L364 241M372 231H366M370 219L364 222M362 208L359 214"
+                  stroke="hsl(var(--accent))"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                />
+              </motion.g>
+
+              {/* Laptop/tela stylized */}
+              <motion.path
+                d="M200 260H400V320C400 325.52 395.52 330 390 330H210C204.48 330 200 325.52 200 320V260Z"
+                fill="hsl(var(--secondary))"
+                fillOpacity="0.2"
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ delay: 0.4, duration: 0.6 }}
+              />
               
-              <div className="space-y-6">
-                <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
-                  <div className="flex items-center gap-3">
-                    <Info className="h-5 w-5 text-primary" />
-                    <h3 className="font-medium">Tempo estimado para conclusão</h3>
-                  </div>
-                  <div className="mt-3 flex items-center justify-center">
-                    <div className="text-2xl md:text-4xl font-mono font-semibold text-primary">
-                      {formatTime(countdown)}
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <h3 className="font-medium text-lg">O que estamos fazendo?</h3>
-                  <ul className="space-y-2 text-muted-foreground">
-                    <li className="flex gap-2">
-                      <ArrowRight className="h-5 w-5 flex-shrink-0 text-primary" />
-                      <span>Melhorando o desempenho do sistema</span>
-                    </li>
-                    <li className="flex gap-2">
-                      <ArrowRight className="h-5 w-5 flex-shrink-0 text-primary" />
-                      <span>Atualizando para novas funcionalidades</span>
-                    </li>
-                    <li className="flex gap-2">
-                      <ArrowRight className="h-5 w-5 flex-shrink-0 text-primary" />
-                      <span>Reforçando medidas de segurança</span>
-                    </li>
-                  </ul>
-                </div>
-                
-                <div className="border-t border-border pt-6">
-                  {!isSubscribed ? (
-                    <motion.div 
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.4 }}
-                    >
-                      <h3 className="font-medium">Seja notificado quando voltarmos</h3>
-                      <p className="text-sm text-muted-foreground mb-3">
-                        Informe seu e-mail para receber um aviso quando o sistema estiver online.
-                      </p>
-                      <form onSubmit={handleSubscribe} className="flex gap-2 mt-2">
-                        <input
-                          type="email"
-                          placeholder="Seu e-mail"
-                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                        />
-                        <Button type="submit">
-                          Notifique-me
-                        </Button>
-                      </form>
-                    </motion.div>
-                  ) : (
-                    <motion.div 
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="bg-secondary/10 p-4 rounded-lg text-center"
-                    >
-                      <p className="font-medium text-secondary">
-                        Obrigado! Você será notificado quando a manutenção terminar.
-                      </p>
-                    </motion.div>
-                  )}
-                </div>
-              </div>
+              <motion.path
+                d="M180 330H420V340C420 345.52 415.52 350 410 350H190C184.48 350 180 345.52 180 340V330Z"
+                fill="hsl(var(--muted))"
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ delay: 0.6, duration: 0.6 }}
+              />
+              
+              {/* Binary code lines */}
+              <motion.g
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.7 }}
+                transition={{ delay: 1.2 }}
+              >
+                <text x="220" y="280" fill="hsl(var(--primary))" fontSize="10">01001101 01100001 01101110 01110101</text>
+                <text x="220" y="295" fill="hsl(var(--secondary))" fontSize="10">01110100 01100101 01101110 11000011</text>
+                <text x="220" y="310" fill="hsl(var(--primary))" fontSize="10">11000111 11000011 01101111 01101111</text>
+              </motion.g>
+            </svg>
+          </div>
+        </motion.div>
+        
+        {/* Conteúdo de texto */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="w-full md:w-1/2 space-y-8 text-center md:text-left"
+        >
+          <div className="space-y-4">
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10"
+            >
+              <Wrench className="h-8 w-8 text-primary" />
+            </motion.div>
+            
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tighter bg-gradient-to-br from-primary to-primary/70 text-transparent bg-clip-text">
+              Estamos em manutenção
+            </h1>
+            
+            <p className="text-xl text-muted-foreground max-w-lg">
+              Nossa equipe está trabalhando para aprimorar sua experiência. 
+              O sistema estará de volta em breve com novidades.
+            </p>
+          </div>
+          
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl p-6 max-w-md mx-auto md:mx-0"
+          >
+            <div className="flex items-center gap-2 mb-3">
+              <Clock className="h-5 w-5 text-primary" />
+              <h3 className="font-medium">Tempo estimado para conclusão</h3>
             </div>
             
-            <div className="bg-muted p-6 flex items-center justify-between flex-wrap gap-4">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <AlertTriangle className="h-4 w-4" />
-                <span>Caso precise de suporte urgente, entre em contato com nossa equipe.</span>
+            <div className="text-4xl md:text-5xl font-mono font-semibold text-primary">
+              {formatTime(countdown)}
+            </div>
+            
+            <div className="mt-6 space-y-3">
+              <div className="flex items-start gap-2">
+                <Info className="h-5 w-5 mt-0.5 flex-shrink-0 text-primary" />
+                <p className="text-sm text-muted-foreground">
+                  Estamos atualizando nossos sistemas para oferecer 
+                  uma experiência mais rápida, segura e eficiente.
+                </p>
               </div>
-              <Button variant="outline" onClick={() => window.location.href = 'mailto:suporte@eventoplusconect.com'}>
-                Contato de emergência
-              </Button>
             </div>
           </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+            className="pt-4"
+          >
+            <Button variant="outline" onClick={() => window.location.href = 'mailto:suporte@eventoplusconect.com'} className="gap-2">
+              <AlertTriangle className="h-4 w-4" />
+              Precisa de ajuda? Entre em contato
+            </Button>
+          </motion.div>
+        </motion.div>
+      </div>
+      
+      <footer className="py-6 border-t border-border/40 backdrop-blur-sm bg-background/30 mt-auto">
+        <div className="container flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
+          <p>© 2025 EventoPlusConnect. Todos os direitos reservados.</p>
+          <p>Agradecemos sua compreensão e paciência.</p>
         </div>
-      </main>
+      </footer>
     </div>
   );
 };
