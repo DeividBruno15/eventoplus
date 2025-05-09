@@ -12,16 +12,16 @@ interface RecentProvidersProps {
 export const RecentProviders = ({ navigate }: RecentProvidersProps) => {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Prestadores Recentes</CardTitle>
-        <CardDescription>
-          Prestadores de serviços que você contratou
+      <CardHeader className="pb-3">
+        <CardTitle className="text-lg md:text-2xl">Prestadores Recentes</CardTitle>
+        <CardDescription className="text-xs md:text-sm">
+          Prestadores de serviços contratados
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3 md:space-y-4">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-            <div className="flex-shrink-0 w-10 h-10 bg-blue-500/10 rounded-full flex items-center justify-center">
+          <div key={i} className="flex items-center gap-2 md:gap-3 p-2 md:p-3 rounded-lg hover:bg-gray-50 transition-colors">
+            <div className="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 bg-blue-500/10 rounded-full flex items-center justify-center">
               <span className="text-sm font-medium text-blue-600">
                 {String.fromCharCode(65 + i)}
               </span>
@@ -34,15 +34,15 @@ export const RecentProviders = ({ navigate }: RecentProvidersProps) => {
                 {i === 1 ? 'Buffet' : i === 2 ? 'Decoração' : 'Fotografia'}
               </p>
             </div>
-            <Badge variant="outline" className="ml-auto">
+            <Badge variant="outline" className="text-xs ml-auto">
               {i === 1 ? 'Novo' : 'Recorrente'}
             </Badge>
           </div>
         ))}
       </CardContent>
       <CardFooter>
-        <Button variant="ghost" className="w-full" onClick={() => navigate("/service-providers")}>
-          Ver Todos <ExternalLink className="ml-2 h-4 w-4" />
+        <Button variant="ghost" className="w-full text-xs md:text-sm" onClick={() => navigate("/service-providers")}>
+          Ver Todos <ExternalLink className="ml-2 h-3 w-3 md:h-4 md:w-4" />
         </Button>
       </CardFooter>
     </Card>

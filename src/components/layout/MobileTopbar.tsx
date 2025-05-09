@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Settings, Bell, Menu, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -36,28 +37,28 @@ export const MobileTopbar = () => {
   
   return (
     <div className="md:hidden sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-14 items-center justify-between px-4">
+      <div className="flex h-12 items-center justify-between px-3">
         <div>
-          <h1 className="text-lg font-bold">Evento+</h1>
+          <h1 className="text-base font-bold">Evento+</h1>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <ThemeToggle />
           
           <div className="relative">
             <NotificationsMenu />
             <Button
               variant="ghost"
-              size="icon"
+              size="sm"
               aria-label={`Notificações${unreadCount ? ` (${unreadCount} não lidas)` : ''}`}
-              className="relative"
+              className="relative h-8 w-8 p-0"
             >
-              <Bell className="h-5 w-5" />
+              <Bell className="h-4 w-4" />
               {isLoading ? (
-                <Skeleton className="absolute -top-1 -right-1 w-4 h-4 rounded-full" />
+                <Skeleton className="absolute -top-1 -right-1 w-3 h-3 rounded-full" />
               ) : unreadCount > 0 ? (
                 <Badge 
                   variant="destructive" 
-                  className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center p-0 text-[10px]"
+                  className="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center p-0 text-[8px]"
                 >
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </Badge>
@@ -69,10 +70,11 @@ export const MobileTopbar = () => {
             <SheetTrigger asChild>
               <Button
                 variant="ghost"
-                size="icon"
+                size="sm"
                 aria-label="Configurações"
+                className="h-8 w-8 p-0"
               >
-                <Settings className="h-5 w-5" />
+                <Settings className="h-4 w-4" />
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[85vw] sm:w-[350px]">
@@ -80,10 +82,10 @@ export const MobileTopbar = () => {
                 <SheetTitle>Configurações</SheetTitle>
               </SheetHeader>
               
-              <div className="py-6 space-y-4">
+              <div className="py-6 space-y-3">
                 <Button 
                   variant="outline" 
-                  className="w-full justify-start" 
+                  className="w-full justify-start text-sm h-9" 
                   onClick={handleGoToSettings}
                 >
                   <Settings className="mr-2 h-4 w-4" />
@@ -92,7 +94,7 @@ export const MobileTopbar = () => {
                 
                 <Button 
                   variant="outline" 
-                  className="w-full justify-start" 
+                  className="w-full justify-start text-sm h-9" 
                   onClick={() => handleGoToSection('/payments', 'Assinaturas')}
                 >
                   <svg 
@@ -113,7 +115,7 @@ export const MobileTopbar = () => {
                 
                 <Button 
                   variant="outline" 
-                  className="w-full justify-start"
+                  className="w-full justify-start text-sm h-9"
                   onClick={() => handleGoToSection('/support', 'Suporte')}
                 >
                   <svg 
@@ -135,7 +137,7 @@ export const MobileTopbar = () => {
                 
                 <Button 
                   variant="outline" 
-                  className="w-full justify-start"
+                  className="w-full justify-start text-sm h-9"
                   onClick={() => handleGoToSection('/help-center', 'Central de Ajuda')}
                 >
                   <svg 
@@ -153,10 +155,10 @@ export const MobileTopbar = () => {
                   Central de Ajuda
                 </Button>
                 
-                <div className="pt-4 border-t mt-4">
+                <div className="pt-3 border-t mt-3">
                   <Button 
                     variant="outline"
-                    className="w-full justify-start text-destructive hover:text-destructive"
+                    className="w-full justify-start text-sm h-9 text-destructive hover:text-destructive"
                     onClick={() => {
                       // Lógica de logout aqui
                       toast({

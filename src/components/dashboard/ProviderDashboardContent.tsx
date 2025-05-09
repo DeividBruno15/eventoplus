@@ -19,19 +19,19 @@ const ProviderDashboardContent = ({ userName }: ProviderDashboardContentProps) =
   const navigate = useNavigate();
   
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-4 md:space-y-6 animate-fade-in">
       <OnboardingCard />
       
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Olá, {userName}!</h2>
-        <p className="text-muted-foreground mt-2">
+        <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Olá, {userName}!</h2>
+        <p className="text-sm md:text-base text-muted-foreground mt-1 md:mt-2">
           Bem-vindo(a) ao seu Dashboard de Prestador de Serviços.
         </p>
       </div>
       
       <ProviderStats />
       
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-3 md:gap-4 md:grid-cols-2">
         <ServiceRequests navigate={navigate} />
         <ProviderPerformance navigate={navigate} />
       </div>

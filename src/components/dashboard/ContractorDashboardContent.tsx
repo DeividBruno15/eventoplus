@@ -19,22 +19,22 @@ const ContractorDashboardContent = ({ userName }: ContractorDashboardContentProp
   const navigate = useNavigate();
   
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-4 md:space-y-6 animate-fade-in">
       <OnboardingCard />
       
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Olá, {userName}!</h2>
-        <p className="text-muted-foreground mt-2">
+        <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Olá, {userName}!</h2>
+        <p className="text-sm md:text-base text-muted-foreground mt-1 md:mt-2">
           Bem-vindo(a) ao seu Dashboard de Contratante.
         </p>
       </div>
       
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 md:gap-4 md:grid-cols-2 lg:grid-cols-3">
         <UpcomingEvents navigate={navigate} />
         <QuoteStatus />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 md:gap-4 md:grid-cols-2 lg:grid-cols-3">
         <RecentProviders navigate={navigate} />
         <QuickActions navigate={navigate} />
       </div>

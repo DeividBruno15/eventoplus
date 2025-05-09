@@ -51,7 +51,7 @@ export const MobileNavigation = () => {
 
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 bg-background border-t h-16 flex items-center z-50">
-      <div className="flex justify-around w-full px-2">
+      <div className="flex justify-around w-full px-1">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path || 
                           (item.path !== '/dashboard' && location.pathname.startsWith(item.path));
@@ -64,15 +64,15 @@ export const MobileNavigation = () => {
             >
               <div
                 className={cn(
-                  "flex flex-col items-center justify-center p-1 rounded-md transition-all",
+                  "flex flex-col items-center justify-center transition-all",
                   isActive ? "text-primary" : "text-muted-foreground"
                 )}
               >
                 <item.icon className={cn(
-                  "h-5 w-5 mb-1",
+                  "h-5 w-5 mb-0.5",
                   isActive ? "text-primary" : "text-muted-foreground"
                 )} />
-                <span className="text-xs font-medium">{item.label}</span>
+                <span className="text-[10px] font-medium">{item.label}</span>
               </div>
             </button>
           );

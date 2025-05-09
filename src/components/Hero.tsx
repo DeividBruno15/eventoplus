@@ -39,11 +39,11 @@ const Hero = () => {
   }, [animationStep, animationPhase]);
 
   return (
-    <div className="bg-gradient-to-br from-indigo-50/80 via-white to-blue-50/80 pt-20 pb-16 lg:pt-28 lg:pb-24 overflow-hidden">
-      <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-[1400px] grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+    <div className="bg-gradient-to-br from-indigo-50/80 via-white to-blue-50/80 pt-16 pb-12 lg:pt-28 lg:pb-24 overflow-hidden">
+      <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-[1400px] grid lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-center">
         <HeroContent />
         
-        <div className="relative flex justify-center items-center h-[400px]">
+        <div className="relative flex justify-center items-center h-[300px] md:h-[400px]">
           {animationPhase === 'chat' ? (
             <ChatAnimation animationStep={animationStep} />
           ) : animationPhase === 'event' ? (

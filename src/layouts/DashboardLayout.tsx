@@ -48,8 +48,8 @@ const DashboardLayout = () => {
     return (
       <div className="h-screen w-screen flex items-center justify-center">
         <div className="flex flex-col items-center">
-          <Loader2 className="h-12 w-12 animate-spin mb-4 text-primary" />
-          <p className="text-muted-foreground">Verificando autenticação...</p>
+          <Loader2 className="h-10 w-10 animate-spin mb-3 text-primary" />
+          <p className="text-sm text-muted-foreground">Verificando autenticação...</p>
         </div>
       </div>
     );
@@ -82,7 +82,7 @@ const DashboardLayout = () => {
           </header>
 
           {/* Conteúdo principal com transição de página animada */}
-          <main className="flex-1 p-4 pb-20 md:pb-4">
+          <main className="flex-1 p-3 md:p-4 pb-24 md:pb-4">
             <AnimatePresence mode="wait">
               <PageTransition>
                 <Outlet />
