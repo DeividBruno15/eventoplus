@@ -83,3 +83,5 @@ export const SecuritySettings = ({ loading, onDeleteAccount }: SecuritySettingsP
     </Card>
   );
 };
+
+export default SecuritySettings;
