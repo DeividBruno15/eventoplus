@@ -84,29 +84,5 @@ export const notificationsService = {
       console.error('Error fetching notifications:', err);
       return [];
     }
-  },
-  
-  /**
-   * Subscribe to real-time notifications
-   */
-  subscribeToNotifications(userId: string, callback: (payload: any) => void): () => void {
-    const channel = supabase
-      .channel(`user_notifications_${userId}`)
-      .on('postgres_changes', 
-        { 
-          event: 'INSERT', 
-          schema: 'public', 
-          table: 'notifications',
-          filter: `user_id=eq.${userId}`
-        },
-        (payload) => {
-          callback(payload.new);
-        }
-      )
-      .subscribe();
-    
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }
 };

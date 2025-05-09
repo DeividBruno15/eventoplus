@@ -116,24 +116,33 @@ export const useNotifications = (userId?: string) => {
   useEffect(() => {
     if (!userId) return;
 
-    const unsubscribe = notificationsService.subscribeToNotifications(
-      userId,
-      (newNotification) => {
-        console.log('New notification received:', newNotification);
-        
-        // Add the new notification to the list
-        setNotifications(prev => [newNotification, ...prev]);
-        
-        // Update unread count
-        setUnreadCount(prev => prev + 1);
-        
-        // Update last updated
-        setLastUpdated(new Date());
-      }
-    );
+    // Using Supabase's native channel functionality instead of a non-existent subscribeToNotifications method
+    const channel = supabase
+      .channel(`user_notifications_${userId}`)
+      .on('postgres_changes', 
+        { 
+          event: 'INSERT', 
+          schema: 'public', 
+          table: 'notifications',
+          filter: `user_id=eq.${userId}`
+        },
+        (payload) => {
+          console.log('New notification received:', payload.new);
+          
+          // Add the new notification to the list
+          setNotifications(prev => [payload.new as Notification, ...prev]);
+          
+          // Update unread count
+          setUnreadCount(prev => prev + 1);
+          
+          // Update last updated
+          setLastUpdated(new Date());
+        }
+      )
+      .subscribe();
 
     return () => {
-      unsubscribe();
+      supabase.removeChannel(channel);
     };
   }, [userId]);
 
