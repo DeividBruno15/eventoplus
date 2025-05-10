@@ -26,7 +26,7 @@ interface PaymentPlansProps {
   } | null;
 }
 
-export const PaymentPlans = ({ onSuccess }: PaymentPlansProps) => {
+export const PaymentPlans = ({ onSuccess, currentSubscription }: PaymentPlansProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const { subscription, subscribeToPlan, isSubscribing, refetch } = useSubscription();
@@ -158,6 +158,10 @@ export const PaymentPlans = ({ onSuccess }: PaymentPlansProps) => {
   
   // Function to handle Stripe checkout
   const handleStripeCheckout = async (planId: string) => {
+    const planToSubscribe = plans.find(p => p.id === planId);
+    if (planToSubscribe) {
+      console.log(`Subscribing to ${planToSubscribe.name} with price ${planToSubscribe.price}`);
+    }
     await subscribeToPlan(planId, selectedPlan?.name || '', userRole);
   };
   
@@ -183,20 +187,22 @@ export const PaymentPlans = ({ onSuccess }: PaymentPlansProps) => {
     );
   }
   
+  const activeSubscription = currentSubscription || subscription;
+  
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">Escolha seu plano</h2>
       
-      {subscription && (
+      {activeSubscription && activeSubscription.status === 'active' && (
         <CurrentSubscriptionCard 
-          planName={subscription.plan_name} 
-          expiresAt={subscription.expires_at} 
+          planName={activeSubscription.plan_name} 
+          expiresAt={activeSubscription.expires_at} 
         />
       )}
       
       <PlansGrid 
         plans={plans} 
-        currentPlanId={subscription?.plan_id || null} 
+        currentPlanId={activeSubscription?.plan_id || null} 
         isSubscribing={isSubscribing}
         onSelectPlan={handlePlanSelection} 
       />

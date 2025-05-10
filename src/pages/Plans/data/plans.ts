@@ -27,7 +27,7 @@ export const providerPlans: Plan[] = [
     id: "provider-professional",
     name: "Profissional",
     description: "Para profissionais em crescimento",
-    price: 14.90,
+    price: 1490,
     benefits: [
       "Até 5 serviços ativos",
       "Prioridade no ranking de busca",
@@ -46,7 +46,7 @@ export const providerPlans: Plan[] = [
     id: "provider-premium",
     name: "Premium",
     description: "Recursos completos para seu negócio",
-    price: 29.90,
+    price: 2990,
     benefits: [
       "Serviços ilimitados",
       "Destaque nas categorias",
@@ -89,7 +89,7 @@ export const contractorPlans: Plan[] = [
     id: "contractor-connect",
     name: "Conecta",
     description: "Conecte-se com profissionais",
-    price: 14.90,
+    price: 1490,
     benefits: [
       "Contato direto sem limite",
       "Briefings personalizados",
@@ -108,7 +108,7 @@ export const contractorPlans: Plan[] = [
     id: "contractor-management",
     name: "Gestão",
     description: "Controle total dos seus projetos",
-    price: 29.90,
+    price: 2990,
     benefits: [
       "Histórico completo com exportação",
       "Requisições múltiplas",
@@ -151,7 +151,7 @@ export const advertiserPlans: Plan[] = [
     id: "advertiser-alcance",
     name: "Alcance",
     description: "Para quem busca mais visibilidade",
-    price: 14.90,
+    price: 1490,
     benefits: [
       "Cadastro de até 5 locais",
       "Destaque intermediário nas buscas por espaço",
@@ -174,7 +174,7 @@ export const advertiserPlans: Plan[] = [
     id: "advertiser-vitrine",
     name: "Vitrine",
     description: "Para quem quer ocupar o topo das buscas",
-    price: 29.90,
+    price: 2990,
     benefits: [
       "Locais ilimitados",
       "Posição de destaque nas buscas com selo 'Espaço em destaque'",

@@ -51,6 +51,7 @@ export const PaymentMethodSelector = ({
         await onPixCheckout(selectedPlan.id);
       }
     } catch (error) {
+      console.error("Payment error:", error);
       toast({
         title: "Erro",
         description: "Não foi possível processar seu pagamento. Tente novamente mais tarde.",
@@ -124,7 +125,6 @@ export const PaymentMethodSelector = ({
               Realize pagamentos instantâneos usando o sistema PIX integrado com Abacate Pay.
             </p>
           </CardContent>
-          {/* Add future Abacate Pay integration here */}
         </Card>
       </div>
       

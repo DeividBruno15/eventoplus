@@ -116,9 +116,9 @@ function getPlanPrice(planId: string): number {
   if (planId === 'contractor-management') return 2990 // R$ 29.90
   
   // Advertiser plans
-  if (planId === 'advertiser-basic') return 0
-  if (planId === 'advertiser-standard') return 1990 // R$ 19.90
-  if (planId === 'advertiser-premium') return 3990 // R$ 39.90
+  if (planId === 'advertiser-divulgue') return 0
+  if (planId === 'advertiser-alcance') return 1490 // R$ 14.90
+  if (planId === 'advertiser-vitrine') return 2990 // R$ 29.90
   
   // Default price for unknown plans
   return 0
@@ -128,7 +128,7 @@ function getPlanPrice(planId: string): number {
 function isPlanFree(planId: string): boolean {
   return planId === 'provider-essential' || 
          planId === 'contractor-discover' || 
-         planId === 'advertiser-basic';
+         planId === 'advertiser-divulgue';
 }
 
 // Helper function to get plan name based on plan ID
@@ -144,9 +144,9 @@ function getPlanName(planId: string): string {
   if (planId === 'contractor-management') return 'Contractor Management'
 
   // Advertiser plans
-  if (planId === 'advertiser-basic') return 'Advertiser Basic'
-  if (planId === 'advertiser-standard') return 'Advertiser Standard'
-  if (planId === 'advertiser-premium') return 'Advertiser Premium'
+  if (planId === 'advertiser-divulgue') return 'Advertiser Divulgue'
+  if (planId === 'advertiser-alcance') return 'Advertiser Alcance'
+  if (planId === 'advertiser-vitrine') return 'Advertiser Vitrine'
   
   // Default name for unknown plans
   return 'Plano'
