@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Credit, QrCode } from 'lucide-react';
+import { CreditCard, QrCode } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useSubscription } from '@/hooks/useSubscription';
 import { Plan } from "@/pages/Plans/types";
@@ -96,7 +96,7 @@ export const PaymentMethodSelector = ({
         >
           <CardHeader>
             <CardTitle className="flex items-center">
-              <Credit className="mr-2 h-5 w-5" />
+              <CreditCard className="mr-2 h-5 w-5" />
               Cartão de crédito
             </CardTitle>
             <CardDescription>Pagamento seguro via Stripe</CardDescription>
