@@ -39,8 +39,13 @@ serve(async (req) => {
     // Get origin for success/cancel URLs
     const origin = req.headers.get('origin') || 'http://localhost:3000'
 
-    // Get price based on plan ID
+    // Get price based on plan ID - ensure price is greater than 0
     const amount = getPlanPrice(planId)
+    if (amount <= 0 && !isPlanFree(planId)) {
+      throw new Error(`Invalid price for plan ${planId}: ${amount}`)
+    }
+    
+    console.log(`Processing plan ${planId} with price ${amount} for role ${role}`)
 
     // Create a checkout session
     const session = await stripe.checkout.sessions.create({
@@ -110,8 +115,20 @@ function getPlanPrice(planId: string): number {
   if (planId === 'contractor-connect') return 1490 // R$ 14.90
   if (planId === 'contractor-management') return 2990 // R$ 29.90
   
+  // Advertiser plans
+  if (planId === 'advertiser-basic') return 0
+  if (planId === 'advertiser-standard') return 1990 // R$ 19.90
+  if (planId === 'advertiser-premium') return 3990 // R$ 39.90
+  
   // Default price for unknown plans
   return 0
+}
+
+// Helper function to check if plan is free
+function isPlanFree(planId: string): boolean {
+  return planId === 'provider-essential' || 
+         planId === 'contractor-discover' || 
+         planId === 'advertiser-basic';
 }
 
 // Helper function to get plan name based on plan ID
@@ -125,6 +142,11 @@ function getPlanName(planId: string): string {
   if (planId === 'contractor-discover') return 'Contractor Discover'
   if (planId === 'contractor-connect') return 'Contractor Connect'
   if (planId === 'contractor-management') return 'Contractor Management'
+
+  // Advertiser plans
+  if (planId === 'advertiser-basic') return 'Advertiser Basic'
+  if (planId === 'advertiser-standard') return 'Advertiser Standard'
+  if (planId === 'advertiser-premium') return 'Advertiser Premium'
   
   // Default name for unknown plans
   return 'Plano'

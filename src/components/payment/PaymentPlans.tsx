@@ -10,6 +10,7 @@ import { providerPlans, contractorPlans, advertiserPlans } from "@/pages/Plans/d
 import { Plan } from "@/pages/Plans/types";
 import { DowngradeConfirmationDialog } from './DowngradeConfirmationDialog';
 import { supabase } from '@/integrations/supabase/client';
+import { PaymentMethodSelector } from './PaymentMethodSelector';
 
 interface PaymentPlansProps {
   onSelectPlan?: (plan: {id: string, name: string, price: number}) => void;
@@ -30,9 +31,13 @@ export const PaymentPlans = ({ onSuccess }: PaymentPlansProps) => {
   const { subscription, subscribeToPlan, isSubscribing, refetch } = useSubscription();
   const userRole = user?.user_metadata?.role || 'contractor';
   
-  // Estados para controlar o diálogo de downgrade
+  // States to control the downgrade dialog
   const [showDowngradeDialog, setShowDowngradeDialog] = useState(false);
   const [selectedFreePlan, setSelectedFreePlan] = useState<{id: string, name: string, benefits: string[]} | null>(null);
+  
+  // State for payment method screen
+  const [showPaymentMethods, setShowPaymentMethods] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
 
   // Get plans based on user role
   const getPlansForRole = (): Plan[] => {
@@ -48,15 +53,14 @@ export const PaymentPlans = ({ onSuccess }: PaymentPlansProps) => {
   
   const plans = getPlansForRole();
   
-  // Encontra o plano gratuito para o papel do usuário
+  // Find the free plan for the user's role
   const getFreePlan = (): Plan | undefined => {
     return plans.find(p => p.price === 0);
   };
   
-  // Função para lidar com a seleção do plano
-  const handlePlanSelection = async (planId: string) => {
+  // Function to handle plan selection
+  const handlePlanSelection = async (plan: Plan) => {
     try {
-      const plan = plans.find(p => p.id === planId);
       if (!plan) {
         toast({
           title: "Erro",
@@ -66,17 +70,17 @@ export const PaymentPlans = ({ onSuccess }: PaymentPlansProps) => {
         return;
       }
       
-      // Verifica se é um plano gratuito e se o usuário já tem uma assinatura ativa
-      if (plan.price === 0 && subscription && subscription.plan_id !== planId) {
-        // Obtém os benefícios que serão perdidos ao fazer downgrade
+      // Check if it's a free plan and the user already has an active subscription
+      if (plan.price === 0 && subscription && subscription.plan_id !== plan.id) {
+        // Get the benefits that will be lost when downgrading
         const currentPlan = plans.find(p => p.id === subscription.plan_id);
         if (currentPlan && currentPlan.price > 0) {
-          // Filtra os benefícios que existem apenas no plano atual
+          // Filter benefits that exist only in the current plan
           const lostBenefits = currentPlan.benefits.filter(
             benefit => !plan.benefits.includes(benefit)
           );
           
-          // Abre o diálogo de confirmação de downgrade
+          // Open the downgrade confirmation dialog
           setSelectedFreePlan({
             id: plan.id,
             name: plan.name,
@@ -87,8 +91,15 @@ export const PaymentPlans = ({ onSuccess }: PaymentPlansProps) => {
         }
       }
       
-      // Se não for plano gratuito ou o usuário não tem assinatura, procede normalmente
-      await subscribeToPlan(planId, plan.name, userRole);
+      // If it's not a free plan, show payment method selector
+      if (plan.price > 0) {
+        setSelectedPlan(plan);
+        setShowPaymentMethods(true);
+        return;
+      }
+      
+      // If it's a free plan and user doesn't have a subscription, proceed normally
+      await subscribeToPlan(plan.id, plan.name, userRole);
       
       if (onSuccess) {
         onSuccess();
@@ -103,12 +114,12 @@ export const PaymentPlans = ({ onSuccess }: PaymentPlansProps) => {
     }
   };
   
-  // Função para confirmar o downgrade para o plano gratuito
+  // Function to confirm the downgrade to the free plan
   const handleConfirmDowngrade = async () => {
     if (!selectedFreePlan) return;
     
     try {
-      // Invoca a edge function create-subscription diretamente via Supabase
+      // Invoke the edge function create-subscription directly via Supabase
       const { data, error } = await supabase.functions.invoke('create-subscription', {
         body: {
           planId: selectedFreePlan.id,
@@ -119,7 +130,7 @@ export const PaymentPlans = ({ onSuccess }: PaymentPlansProps) => {
       
       if (error) throw new Error(error.message);
       
-      // Atualiza a assinatura no estado local
+      // Update the subscription in the local state
       await refetch();
       
       if (onSuccess) {
@@ -138,22 +149,74 @@ export const PaymentPlans = ({ onSuccess }: PaymentPlansProps) => {
     }
   };
   
-  // Fecha o diálogo de downgrade
+  // Close the downgrade dialog
   const handleCloseDowngradeDialog = () => {
     setShowDowngradeDialog(false);
     setSelectedFreePlan(null);
   };
+  
+  // Function to handle Stripe checkout
+  const handleStripeCheckout = async (planId: string) => {
+    await subscribeToPlan(planId, selectedPlan?.name || '', userRole);
+  };
+  
+  // Function to handle Pix checkout (to be integrated with Abacate Pay)
+  const handlePixCheckout = async (planId: string) => {
+    // Future implementation for Abacate Pay
+    toast({
+      title: "Em breve",
+      description: "Pagamento via PIX com Abacate Pay será implementado em breve.",
+    });
+  };
 
-  // Encontra o plano gratuito
+  // Find the free plan
   const freePlan = getFreePlan();
+
+  // If showing the payment method selector
+  if (showPaymentMethods && selectedPlan) {
+    return (
+      <PaymentMethodSelector 
+        selectedPlan={selectedPlan}
+        onBack={() => setShowPaymentMethods(false)}
+        onStripeCheckout={handleStripeCheckout}
+        onPixCheckout={handlePixCheckout}
+        isProcessing={isSubscribing}
+      />
+    );
+  }
   
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">Escolha seu plano</h2>
       
+      {subscription && (
+        <Card className="bg-muted/50 mb-6">
+          <CardHeader className="pb-3">
+            <CardTitle>Sua assinatura atual</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="font-medium text-lg">{subscription.plan_name}</h3>
+                {new Date(subscription.expires_at) > new Date() && (
+                  <p className="text-sm text-muted-foreground">
+                    Válido até {new Date(subscription.expires_at).toLocaleDateString('pt-BR')}
+                  </p>
+                )}
+              </div>
+              <div>
+                <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                  Ativo
+                </span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      
       <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
         {plans.map((plan) => {
-          // Verifica se este é o plano atual do usuário
+          // Check if this is the user's current plan
           const isCurrentPlan = subscription?.plan_id === plan.id;
           
           return (
@@ -186,7 +249,7 @@ export const PaymentPlans = ({ onSuccess }: PaymentPlansProps) => {
                 <CardDescription>{plan.description}</CardDescription>
                 <div className="mt-2">
                   <span className="text-3xl font-bold">
-                    {plan.price === 0 ? 'Grátis' : `R$ ${plan.price.toFixed(2)}`}
+                    {plan.price === 0 ? 'Grátis' : `R$ ${(plan.price / 100).toFixed(2)}`}
                   </span>
                   {plan.price > 0 && <span className="text-sm text-muted-foreground">/mês</span>}
                 </div>
@@ -205,7 +268,7 @@ export const PaymentPlans = ({ onSuccess }: PaymentPlansProps) => {
                 <Button
                   className="w-full"
                   variant={plan.featured ? 'default' : 'outline'}
-                  onClick={() => handlePlanSelection(plan.id)}
+                  onClick={() => handlePlanSelection(plan)}
                   disabled={isCurrentPlan || isSubscribing}
                 >
                   {isSubscribing 
@@ -223,7 +286,7 @@ export const PaymentPlans = ({ onSuccess }: PaymentPlansProps) => {
         })}
       </div>
       
-      {/* Diálogo de confirmação para downgrade */}
+      {/* Downgrade confirmation dialog */}
       {selectedFreePlan && subscription && (
         <DowngradeConfirmationDialog 
           isOpen={showDowngradeDialog}
@@ -249,7 +312,7 @@ export const PaymentPlans = ({ onSuccess }: PaymentPlansProps) => {
           <div>
             <h4 className="font-medium">Como funciona o processo de pagamento?</h4>
             <p className="text-sm text-muted-foreground">
-              Utilizamos o Stripe como nossa processadora de pagamentos, garantindo segurança e facilidade. Você pode pagar com cartão de crédito.
+              Utilizamos o Stripe para pagamentos com cartão de crédito e em breve o Abacate Pay para pagamentos via PIX, garantindo segurança e facilidade.
             </p>
           </div>
         </div>
