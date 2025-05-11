@@ -66,7 +66,8 @@ export const useSubscription = () => {
         {
           body: {
             planId,
-            role
+            role,
+            paymentMethod: 'card' // Default to card payment method
           }
         }
       );
@@ -107,12 +108,79 @@ export const useSubscription = () => {
     }
   };
 
+  const subscribeWithPix = async (planId: string, planName: string, role: string) => {
+    if (!user) {
+      toast({
+        title: "Erro",
+        description: "Você precisa estar logado para assinar um plano.",
+        variant: "destructive"
+      });
+      return null;
+    }
+
+    setIsSubscribing(true);
+    try {
+      console.log("Creating PIX subscription with:", {
+        planId,
+        planName,
+        role
+      });
+      
+      // Create payment checkout session using the edge function with PIX method
+      const { data: checkoutData, error: checkoutError } = await supabase.functions.invoke(
+        'create-checkout',
+        {
+          body: {
+            planId,
+            role,
+            paymentMethod: 'pix'
+          }
+        }
+      );
+
+      if (checkoutError) {
+        console.error("PIX Checkout error:", checkoutError);
+        throw new Error(checkoutError.message || 'Erro ao processar checkout PIX');
+      }
+      
+      console.log("PIX Checkout result:", checkoutData);
+      
+      // Redirect to Stripe Checkout for PIX
+      if (checkoutData.url) {
+        window.location.href = checkoutData.url;
+      } else {
+        throw new Error('URL de checkout PIX não retornada');
+      }
+      
+      toast({
+        title: "Redirecionando para pagamento PIX",
+        description: "Você será redirecionado para gerar o QR code PIX.",
+      });
+      
+      // Update subscription data
+      await subscriptionQuery.refetch();
+      
+      return true;
+    } catch (error: any) {
+      console.error("PIX Subscription error:", error);
+      toast({
+        title: "Erro na assinatura via PIX",
+        description: error.message || "Não foi possível processar sua assinatura via PIX",
+        variant: "destructive"
+      });
+      return null;
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
+
   return {
     subscription: subscriptionQuery.data,
     isLoading: subscriptionQuery.isLoading,
     isError: subscriptionQuery.isError,
     isSubscribing,
     subscribeToPlan,
+    subscribeWithPix,
     refetch: subscriptionQuery.refetch
   };
 };

@@ -34,7 +34,7 @@ serve(async (req) => {
       throw new Error('User not authenticated')
     }
 
-    const { planId, role } = await req.json()
+    const { planId, role, paymentMethod } = await req.json()
     
     // Get origin for success/cancel URLs
     const origin = req.headers.get('origin') || 'http://localhost:3000'
@@ -47,9 +47,12 @@ serve(async (req) => {
     
     console.log(`Processing plan ${planId} with price ${amount} for role ${role}`)
 
+    // Configure payment based on the selected payment method
+    const paymentMethodTypes = paymentMethod === 'pix' ? ['pix'] : ['card'];
+
     // Create a checkout session
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
+      payment_method_types: paymentMethodTypes,
       customer_email: userData.user.email,
       line_items: [
         {
@@ -67,8 +70,14 @@ serve(async (req) => {
       metadata: {
         planId,
         userId: userData.user.id,
-        role
+        role,
+        paymentMethod
       },
+      payment_method_options: paymentMethod === 'pix' ? {
+        pix: {
+          expires_after_seconds: 3600 // QR code expires after 1 hour
+        }
+      } : undefined,
     })
 
     // Create subscription record in Supabase
@@ -78,7 +87,8 @@ serve(async (req) => {
       plan_name: getPlanName(planId),
       role: role,
       status: 'pending',
-      stripe_subscription_id: session.id
+      stripe_subscription_id: session.id,
+      payment_method: paymentMethod || 'card'
     })
 
     if (subscriptionError) {

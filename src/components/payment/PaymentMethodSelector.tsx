@@ -118,11 +118,11 @@ export const PaymentMethodSelector = ({
               <QrCode className="mr-2 h-5 w-5" />
               PIX
             </CardTitle>
-            <CardDescription>Pagamento instantâneo via Abacate Pay</CardDescription>
+            <CardDescription>Pagamento instantâneo via Stripe</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-sm">
-              Realize pagamentos instantâneos usando o sistema PIX integrado com Abacate Pay.
+              Realize pagamentos instantâneos usando o sistema PIX integrado com Stripe.
             </p>
           </CardContent>
         </Card>
