@@ -7,9 +7,10 @@ interface PlansGridProps {
   currentPlanId: string | null;
   isSubscribing: boolean;
   onSelectPlan: (plan: Plan) => void;
+  isLoading?: boolean; // Added optional isLoading prop
 }
 
-export const PlansGrid = ({ plans, currentPlanId, isSubscribing, onSelectPlan }: PlansGridProps) => {
+export const PlansGrid = ({ plans, currentPlanId, isSubscribing, onSelectPlan, isLoading }: PlansGridProps) => {
   return (
     <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
       {plans.map((plan) => (
@@ -17,7 +18,7 @@ export const PlansGrid = ({ plans, currentPlanId, isSubscribing, onSelectPlan }:
           key={plan.id}
           plan={plan}
           isCurrentPlan={currentPlanId === plan.id}
-          isSubscribing={isSubscribing}
+          isSubscribing={isSubscribing || isLoading || false}
           onSelect={onSelectPlan}
         />
       ))}

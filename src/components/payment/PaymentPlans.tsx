@@ -83,7 +83,7 @@ export const PaymentPlans = ({ onSuccess, currentSubscription }: PaymentPlansPro
           plans={allPlans}
           onSelectPlan={handleSelectPlan}
           currentPlanId={currentSubscription?.plan_id}
-          isLoading={isSubscribing}
+          isSubscribing={isSubscribing}
         />
       </div>
 
