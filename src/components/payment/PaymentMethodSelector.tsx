@@ -118,7 +118,7 @@ export const PaymentMethodSelector = ({
               <QrCode className="mr-2 h-5 w-5" />
               PIX
             </CardTitle>
-            <CardDescription>Pagamento instantâneo via Stripe</CardDescription>
+            <CardDescription>Pagamento instantâneo via PIX</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-sm">

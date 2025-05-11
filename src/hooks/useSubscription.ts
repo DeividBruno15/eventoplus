@@ -67,7 +67,7 @@ export const useSubscription = () => {
           body: {
             planId,
             role,
-            paymentMethod: 'card' // Default to card payment method
+            paymentMethod: 'card' // Explicitly specify card payment method
           }
         }
       );
@@ -133,7 +133,7 @@ export const useSubscription = () => {
           body: {
             planId,
             role,
-            paymentMethod: 'pix'
+            paymentMethod: 'pix' // Explicitly specify pix payment method
           }
         }
       );

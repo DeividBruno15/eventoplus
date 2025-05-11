@@ -45,7 +45,7 @@ serve(async (req) => {
       throw new Error(`Invalid price for plan ${planId}: ${amount}`)
     }
     
-    console.log(`Processing plan ${planId} with price ${amount} for role ${role}`)
+    console.log(`Processing plan ${planId} with price ${amount} for role ${role} using payment method ${paymentMethod}`)
 
     // Configure payment based on the selected payment method
     const paymentMethodTypes = paymentMethod === 'pix' ? ['pix'] : ['card'];
