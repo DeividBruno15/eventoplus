@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CreditCard, QrCode } from 'lucide-react';
+import { CreditCard, QrCode, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useSubscription } from '@/hooks/useSubscription';
 import { Plan } from "@/pages/Plans/types";
@@ -24,6 +24,7 @@ export const PaymentMethodSelector = ({
 }: PaymentMethodSelectorProps) => {
   const [selectedMethod, setSelectedMethod] = useState<'stripe' | 'pix' | null>(null);
   const { toast } = useToast();
+  const [pixUnavailable, setPixUnavailable] = useState(true);
 
   const handleContinue = async () => {
     if (!selectedPlan) {
@@ -45,7 +46,7 @@ export const PaymentMethodSelector = ({
     }
 
     try {
-      if (selectedMethod === 'stripe') {
+      if (selectedMethod === 'stripe' || pixUnavailable) {
         await onStripeCheckout(selectedPlan.id);
       } else if (selectedMethod === 'pix' && onPixCheckout) {
         await onPixCheckout(selectedPlan.id);
@@ -110,8 +111,18 @@ export const PaymentMethodSelector = ({
         </Card>
 
         <Card 
-          className={`cursor-pointer border-2 transition-all ${selectedMethod === 'pix' ? 'border-primary' : 'border-border hover:border-primary/50'}`}
-          onClick={() => setSelectedMethod('pix')}
+          className={`${pixUnavailable ? 'opacity-60' : ''} cursor-pointer border-2 transition-all ${selectedMethod === 'pix' ? 'border-primary' : 'border-border hover:border-primary/50'}`}
+          onClick={() => {
+            if (pixUnavailable) {
+              toast({
+                title: "PIX temporariamente indisponível",
+                description: "Pagamento por PIX está temporariamente indisponível. Por favor, utilize o cartão de crédito.",
+                variant: "warning"
+              });
+            } else {
+              setSelectedMethod('pix');
+            }
+          }}
         >
           <CardHeader>
             <CardTitle className="flex items-center">
@@ -124,6 +135,12 @@ export const PaymentMethodSelector = ({
             <p className="text-sm">
               Realize pagamentos instantâneos usando o sistema PIX integrado com Stripe.
             </p>
+            {pixUnavailable && (
+              <div className="mt-2 text-xs flex items-center text-amber-600">
+                <AlertCircle className="h-3 w-3 mr-1" />
+                Temporariamente indisponível
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

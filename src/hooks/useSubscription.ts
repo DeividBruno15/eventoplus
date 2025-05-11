@@ -67,7 +67,7 @@ export const useSubscription = () => {
           body: {
             planId,
             role,
-            paymentMethod: 'card' // Explicitly specify card payment method
+            paymentMethod: 'card'
           }
         }
       );
@@ -81,7 +81,9 @@ export const useSubscription = () => {
       
       // Redirect to Stripe Checkout
       if (checkoutData.url) {
-        window.location.href = checkoutData.url;
+        // Stripe checkout sessions cannot be displayed in an iframe
+        // Open in top-level window
+        window.top.location.href = checkoutData.url;
       } else {
         throw new Error('URL de checkout não retornada');
       }
@@ -126,41 +128,8 @@ export const useSubscription = () => {
         role
       });
       
-      // Create payment checkout session using the edge function with PIX method
-      const { data: checkoutData, error: checkoutError } = await supabase.functions.invoke(
-        'create-checkout',
-        {
-          body: {
-            planId,
-            role,
-            paymentMethod: 'pix' // Explicitly specify pix payment method
-          }
-        }
-      );
-
-      if (checkoutError) {
-        console.error("PIX Checkout error:", checkoutError);
-        throw new Error(checkoutError.message || 'Erro ao processar checkout PIX');
-      }
-      
-      console.log("PIX Checkout result:", checkoutData);
-      
-      // Redirect to Stripe Checkout for PIX
-      if (checkoutData.url) {
-        window.location.href = checkoutData.url;
-      } else {
-        throw new Error('URL de checkout PIX não retornada');
-      }
-      
-      toast({
-        title: "Redirecionando para pagamento PIX",
-        description: "Você será redirecionado para gerar o QR code PIX.",
-      });
-      
-      // Update subscription data
-      await subscriptionQuery.refetch();
-      
-      return true;
+      // Fall back to card payment as PIX is not enabled in Stripe yet
+      return await subscribeToPlan(planId, planName, role);
     } catch (error: any) {
       console.error("PIX Subscription error:", error);
       toast({

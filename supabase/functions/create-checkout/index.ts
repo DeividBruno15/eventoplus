@@ -47,9 +47,10 @@ serve(async (req) => {
     
     console.log(`Processing plan ${planId} with price ${amount} for role ${role} using payment method ${paymentMethod}`)
 
-    // Configure payment based on the selected payment method
-    const paymentMethodTypes = paymentMethod === 'pix' ? ['pix'] : ['card'];
-
+    // Use only card for now, since PIX might not be enabled on the Stripe account
+    // We'll add a comment about enabling PIX in the Stripe dashboard
+    const paymentMethodTypes = ['card']; 
+    
     // Create a checkout session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: paymentMethodTypes,
@@ -71,13 +72,8 @@ serve(async (req) => {
         planId,
         userId: userData.user.id,
         role,
-        paymentMethod
+        paymentMethod: 'card' // For now, always use card
       },
-      payment_method_options: paymentMethod === 'pix' ? {
-        pix: {
-          expires_after_seconds: 3600 // QR code expires after 1 hour
-        }
-      } : undefined,
     })
 
     // Create subscription record in Supabase
@@ -88,7 +84,7 @@ serve(async (req) => {
       role: role,
       status: 'pending',
       stripe_subscription_id: session.id,
-      payment_method: paymentMethod || 'card'
+      payment_method: 'card' // For now, always use card
     })
 
     if (subscriptionError) {
