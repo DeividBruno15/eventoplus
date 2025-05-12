@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/popover';
 import { useNotificationSounds } from '@/hooks/useNotificationSounds';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/auth';
 import { useToast } from '@/hooks/use-toast';
 
 export function NotificationSettings() {
