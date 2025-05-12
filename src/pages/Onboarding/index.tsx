@@ -48,6 +48,12 @@ const Onboarding = () => {
     }
   }, [user, navigate, toast]);
 
+  // Handler to wrap handleSubmit so it works with the PhoneAndTermsStep component
+  const onSubmitForm = () => {
+    const formData = form.getValues();
+    handleSubmit(formData);
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <div className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -71,7 +77,7 @@ const Onboarding = () => {
               <ConfirmationStep form={form} onNext={goToNext} onBack={goBack} />}
               
             {currentStep === 4 && 
-              <PhoneAndTermsStep form={form} onSubmit={handleSubmit} onBack={goBack} loading={submitting} />}
+              <PhoneAndTermsStep form={form} onSubmit={onSubmitForm} onBack={goBack} loading={submitting} />}
           </CardContent>
         </Card>
       </div>

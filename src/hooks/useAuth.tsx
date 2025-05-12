@@ -79,7 +79,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             person_type: data.person_type,
             document_number: data.document_number,
             role: data.role,
-            phone_number: data.phone_number,
+            phone_number: data.phone_number,  // Updated from number to phone_number
             is_onboarding_complete: false,
           }
         }
