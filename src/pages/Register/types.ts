@@ -21,6 +21,13 @@ export const registerFormSchema = z.object({
   state: z.string().length(2, 'Estado deve ter 2 letras'),
   service_categories: z.array(z.string()).optional(),
   is_onboarding_complete: z.boolean().optional(),
+  // Add onboarding-related fields
+  is_contratante: z.boolean().optional(),
+  is_prestador: z.boolean().optional(),
+  candidata_eventos: z.boolean().optional(),
+  divulga_servicos: z.boolean().optional(),
+  divulga_eventos: z.boolean().optional(),
+  divulga_locais: z.boolean().optional(),
 });
 
 export type RegisterFormData = z.infer<typeof registerFormSchema>;
