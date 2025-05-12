@@ -19,6 +19,7 @@ import { usePasswordValidation } from '@/hooks/usePasswordValidation';
 import { EmailConfirmationDialog } from '@/hooks/auth/EmailConfirmationDialog';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
 
 export const RegisterForm = () => {
   const { register: signUp, signInWithGoogle, loading } = useAuth();
@@ -26,6 +27,7 @@ export const RegisterForm = () => {
   const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
   const [confirmationEmail, setConfirmationEmail] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerFormSchema),
@@ -72,10 +74,9 @@ export const RegisterForm = () => {
       
       await signUp(completeFormData);
       
-      console.log('Registration submitted successfully');
-      // Mostrar diálogo de confirmação
-      setConfirmationEmail(values.email);
-      setShowEmailConfirmation(true);
+      console.log('Registration submitted successfully - redirecting to onboarding');
+      // Redirecionar para o onboarding ao invés de mostrar diálogo
+      navigate('/onboarding');
     } catch (error: any) {
       console.error('Registration error:', error);
       let errorMessage = "Ocorreu um erro ao processar seu cadastro";
