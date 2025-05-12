@@ -9,7 +9,7 @@ import { PlatformUsageStep } from './components/PlatformUsageStep';
 import { ProviderTypeStep } from './components/ProviderTypeStep';
 import { ConfirmationStep } from './components/ConfirmationStep';
 import { PhoneAndTermsStep } from './components/PhoneAndTermsStep';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/auth';
 import { useOnboarding } from './hooks/useOnboarding';
 
 const Onboarding = () => {
@@ -61,28 +61,30 @@ const Onboarding = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <div className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <Card className="w-full max-w-2xl">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold">Bem-vindo(a)! Vamos configurar sua conta</CardTitle>
-            <CardDescription>
+        <Card className="w-full max-w-4xl shadow-lg">
+          <CardHeader className="text-center p-8">
+            <CardTitle className="text-2xl md:text-3xl font-bold">Bem-vindo(a)! Vamos configurar sua conta</CardTitle>
+            <CardDescription className="text-base mt-2">
               Conte-nos como você deseja utilizar nossa plataforma
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-6 md:p-8">
             <OnboardingStepIndicator currentStep={currentStep} totalSteps={4} />
             
-            {currentStep === 1 && 
-              <PlatformUsageStep form={form} onNext={goToNext} />}
-              
-            {currentStep === 2 && 
-              <ProviderTypeStep form={form} onNext={goToNext} onBack={goBack} />}
-              
-            {currentStep === 3 && 
-              <ConfirmationStep form={form} onNext={onCompletePreliminary} onBack={goBack} />}
-              
-            {/* A última etapa só será mostrada depois do registro */}
-            {currentStep === 4 && user && 
-              <PhoneAndTermsStep form={form} onSubmit={onSubmitForm} onBack={goBack} loading={submitting} />}
+            <div className="mt-8">
+              {currentStep === 1 && 
+                <PlatformUsageStep form={form} onNext={goToNext} />}
+                
+              {currentStep === 2 && 
+                <ProviderTypeStep form={form} onNext={goToNext} onBack={goBack} />}
+                
+              {currentStep === 3 && 
+                <ConfirmationStep form={form} onNext={onCompletePreliminary} onBack={goBack} />}
+                
+              {/* A última etapa só será mostrada depois do registro */}
+              {currentStep === 4 && user && 
+                <PhoneAndTermsStep form={form} onSubmit={onSubmitForm} onBack={goBack} loading={submitting} />}
+            </div>
           </CardContent>
         </Card>
       </div>

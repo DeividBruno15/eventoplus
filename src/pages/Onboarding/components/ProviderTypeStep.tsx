@@ -29,13 +29,13 @@ export function ProviderTypeStep({ form, onNext, onBack }: ProviderTypeStepProps
   const canContinue = candidata_eventos || divulga_servicos || divulga_locais;
   
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold mb-2">Como você quer atuar como prestador?</h2>
+        <h2 className="text-2xl font-bold mb-3">Como você quer atuar como prestador?</h2>
         <p className="text-muted-foreground">Você pode escolher mais de uma opção</p>
       </div>
       
-      <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-3">
+      <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         <OnboardingCard
           title="Me candidatar a eventos existentes"
           description="Busque e se candidate a eventos publicados na plataforma"
@@ -61,11 +61,12 @@ export function ProviderTypeStep({ form, onNext, onBack }: ProviderTypeStepProps
         />
       </div>
       
-      <div className="flex justify-between mt-6">
+      <div className="flex justify-between mt-8">
         <Button 
           onClick={onBack}
           variant="outline"
           size="lg"
+          className="px-6"
         >
           Voltar
         </Button>
@@ -73,6 +74,7 @@ export function ProviderTypeStep({ form, onNext, onBack }: ProviderTypeStepProps
           onClick={onNext}
           disabled={!canContinue}
           size="lg"
+          className="px-8"
         >
           Continuar
         </Button>
