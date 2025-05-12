@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -165,12 +164,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       if (!user) throw new Error('User not authenticated');
       
+      // Update both the user_profiles table and user metadata
       const { error } = await supabase
         .from('user_profiles')
         .update({ is_onboarding_complete: status })
         .eq('id', user.id);
         
       if (error) throw error;
+      
+      // Also update the user metadata to reflect the onboarding status
+      await supabase.auth.updateUser({
+        data: { is_onboarding_complete: status }
+      });
+      
+      // Update the local user state
+      if (user) {
+        setUser({
+          ...user,
+          user_metadata: { ...user.user_metadata, is_onboarding_complete: status }
+        });
+      }
     } catch (error) {
       console.error('Error updating onboarding status:', error);
       throw error;

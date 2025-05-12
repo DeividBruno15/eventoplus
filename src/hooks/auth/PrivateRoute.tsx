@@ -13,7 +13,7 @@ const PrivateRoute = ({ children }: PrivateRouteProps) => {
   
   // Effect to check and redirect to onboarding if necessary
   useEffect(() => {
-    if (user && !user.user_metadata?.is_onboarding_complete) {
+    if (user && !user.user_metadata?.is_onboarding_complete && window.location.pathname !== '/onboarding') {
       navigate('/onboarding');
     }
   }, [user, navigate]);

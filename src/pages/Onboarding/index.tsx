@@ -28,10 +28,10 @@ const Onboarding = () => {
 
   useEffect(() => {
     // If the user is already registered and has completed onboarding, redirect to dashboard
-    if (user && user.user_metadata?.is_onboarding_complete) {
+    if (user?.user_metadata?.is_onboarding_complete) {
       navigate('/dashboard');
       toast({
-        title: "Cadastro já finalizado",
+        title: "Onboarding já concluído",
         description: "Seu perfil já está completo",
       });
     }
