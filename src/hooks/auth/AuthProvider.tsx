@@ -164,58 +164,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       if (!user) throw new Error('User not authenticated');
       
-      // Update both the user_profiles table and user metadata
       const { error } = await supabase
         .from('user_profiles')
         .update({ is_onboarding_complete: status })
         .eq('id', user.id);
         
       if (error) throw error;
-      
-      // Also update the user metadata to reflect the onboarding status
-      await supabase.auth.updateUser({
-        data: { is_onboarding_complete: status }
-      });
-      
-      // Update the local user state
-      if (user) {
-        setUser({
-          ...user,
-          user_metadata: { ...user.user_metadata, is_onboarding_complete: status }
-        });
-      }
     } catch (error) {
       console.error('Error updating onboarding status:', error);
-      throw error;
-    }
-  };
-
-  const updateUserPreferences = async (preferences: {
-    is_contratante?: boolean;
-    is_prestador?: boolean;
-    candidata_eventos?: boolean;
-    divulga_servicos?: boolean;
-    divulga_eventos?: boolean;
-    divulga_locais?: boolean;
-  }) => {
-    try {
-      if (!user) throw new Error('User not authenticated');
-      
-      // Update the user_profiles table with new preferences
-      const { error } = await supabase
-        .from('user_profiles')
-        .update(preferences)
-        .eq('id', user.id);
-        
-      if (error) throw error;
-      
-      // Also update the user metadata to reflect these preferences
-      await supabase.auth.updateUser({
-        data: preferences
-      });
-      
-    } catch (error) {
-      console.error('Error updating user preferences:', error);
       throw error;
     }
   };
@@ -238,8 +194,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         register,
         signInWithGoogle,
         updateOnboardingStatus,
-        signOut,
-        updateUserPreferences
+        signOut, // Add signOut as an alias
       }}
     >
       {children}

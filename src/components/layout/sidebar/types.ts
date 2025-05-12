@@ -6,7 +6,6 @@ export type MenuItem = {
   name: string;
   icon: LucideIcon;
   path: string;
-  label?: string; // Add this property
   roles?: string[];
   badge?: number;
   notificationKey?: string;
