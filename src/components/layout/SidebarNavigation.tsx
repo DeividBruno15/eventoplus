@@ -7,7 +7,6 @@ import { UserProfile } from './sidebar/UserProfile';
 import { MenuGroup } from './sidebar/MenuGroup';
 import { LogOut } from 'lucide-react';
 import { useUnreadMessages } from './sidebar/useUnreadMessages';
-import { useUserRoles } from './sidebar/useUserRoles';
 import { SidebarNavigationProps } from './sidebar/types';
 import { Sidebar, SidebarContent, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { getMainMenuItems, getSupportMenuItems } from './sidebar/menu-data';
@@ -24,7 +23,6 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
   const { isMobile } = useSidebar();
   
   const unreadMessages = useUnreadMessages(user?.id);
-  const { hasProviderRole, hasContractorRole } = useUserRoles(user);
   
   const firstName = user?.user_metadata?.first_name || '';
   const lastName = user?.user_metadata?.last_name || '';
@@ -34,9 +32,9 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
   // Get the current path directly from location
   const currentPath = location.pathname;
 
-  // Get menu items based on user role
-  const mainMenuItems = getMainMenuItems(userRole);
-  const supportMenuItems = getSupportMenuItems(userRole);
+  // Get menu items based on user preferences from onboarding
+  const mainMenuItems = getMainMenuItems(user);
+  const supportMenuItems = getSupportMenuItems();
 
   // Update menu items with unread message count only if there are unread messages
   const updatedMainMenuItems = mainMenuItems.map(item => {
@@ -93,8 +91,6 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
             lastName={lastName}
             avatarUrl={avatarUrl}
             userRole={userRole}
-            hasProviderRole={hasProviderRole}
-            hasContractorRole={hasContractorRole}
           />
           
           <SidebarSeparator className="mt-4" />

@@ -26,15 +26,9 @@ const Onboarding = () => {
     handleSubmit
   } = useOnboarding();
 
-  // Aqui alteramos a verificação para direcionar ao registro quando não houver user
   useEffect(() => {
-    if (!user) {
-      // Se o usuário não está autenticado, está na etapa inicial de onboarding
-      return;
-    }
-    
-    // Se já completou o onboarding, redirecionar para o dashboard
-    if (user.user_metadata?.is_onboarding_complete) {
+    // If the user is already registered and has completed onboarding, redirect to dashboard
+    if (user && user.user_metadata?.is_onboarding_complete) {
       navigate('/dashboard');
       toast({
         title: "Cadastro já finalizado",
@@ -47,15 +41,6 @@ const Onboarding = () => {
   const onSubmitForm = () => {
     const formData = form.getValues();
     handleSubmit(formData);
-  };
-
-  // Quando o usuário completa o onboarding, é redirecionado para o registro
-  const onCompletePreliminary = () => {
-    navigate('/register', { 
-      state: { 
-        onboardingData: form.getValues() 
-      } 
-    });
   };
 
   return (
@@ -79,10 +64,9 @@ const Onboarding = () => {
                 <ProviderTypeStep form={form} onNext={goToNext} onBack={goBack} />}
                 
               {currentStep === 3 && 
-                <ConfirmationStep form={form} onNext={onCompletePreliminary} onBack={goBack} />}
+                <ConfirmationStep form={form} onNext={goToNext} onBack={goBack} />}
                 
-              {/* A última etapa só será mostrada depois do registro */}
-              {currentStep === 4 && user && 
+              {currentStep === 4 && 
                 <PhoneAndTermsStep form={form} onSubmit={onSubmitForm} onBack={goBack} loading={submitting} />}
             </div>
           </CardContent>

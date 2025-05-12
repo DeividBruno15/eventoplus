@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -176,6 +177,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const updateUserPreferences = async (preferences: {
+    is_contratante?: boolean;
+    is_prestador?: boolean;
+    candidata_eventos?: boolean;
+    divulga_servicos?: boolean;
+    divulga_eventos?: boolean;
+    divulga_locais?: boolean;
+  }) => {
+    try {
+      if (!user) throw new Error('User not authenticated');
+      
+      // Update the user_profiles table with new preferences
+      const { error } = await supabase
+        .from('user_profiles')
+        .update(preferences)
+        .eq('id', user.id);
+        
+      if (error) throw error;
+      
+      // Also update the user metadata to reflect these preferences
+      await supabase.auth.updateUser({
+        data: preferences
+      });
+      
+    } catch (error) {
+      console.error('Error updating user preferences:', error);
+      throw error;
+    }
+  };
+
   const closeConfirmationDialog = () => {
     setShowEmailConfirmation(false);
   };
@@ -194,7 +225,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         register,
         signInWithGoogle,
         updateOnboardingStatus,
-        signOut, // Add signOut as an alias
+        signOut,
+        updateUserPreferences
       }}
     >
       {children}

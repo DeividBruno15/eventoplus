@@ -3,13 +3,12 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { OnboardingStep, OnboardingFunctionsData, onboardingFunctionsSchema } from '../types';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/auth';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 
 export const useOnboarding = () => {
-  const { user, updateOnboardingStatus } = useAuth();
+  const { user, updateOnboardingStatus, updateUserPreferences } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState<OnboardingStep>(OnboardingStep.PLATFORM_USAGE);
@@ -68,25 +67,17 @@ export const useOnboarding = () => {
     setSubmitting(true);
     
     try {
-      // Salvar dados no perfil do usuário
-      const { error } = await supabase
-        .from('user_profiles')
-        .update({
-          is_contratante: data.is_contratante,
-          is_prestador: data.is_prestador,
-          candidata_eventos: data.candidata_eventos,
-          divulga_servicos: data.divulga_servicos,
-          divulga_eventos: data.divulga_eventos,
-          divulga_locais: data.divulga_locais,
-          phone_number: data.phone_number,
-          whatsapp_opt_in: data.accept_whatsapp,
-          is_onboarding_complete: true
-        })
-        .eq('user_id', user.id);
+      // Update user preferences
+      await updateUserPreferences({
+        is_contratante: data.is_contratante,
+        is_prestador: data.is_prestador,
+        candidata_eventos: data.candidata_eventos,
+        divulga_servicos: data.divulga_servicos,
+        divulga_eventos: data.divulga_eventos,
+        divulga_locais: data.divulga_locais,
+      });
       
-      if (error) throw error;
-      
-      // Atualizar status de onboarding no contexto de autenticação
+      // Update user profile
       await updateOnboardingStatus(true);
       
       toast({
@@ -94,7 +85,7 @@ export const useOnboarding = () => {
         description: "Bem-vindo à plataforma! Seu perfil está pronto para uso.",
       });
       
-      // Redirecionar para o dashboard
+      // Redirect to dashboard
       navigate('/dashboard');
       
     } catch (error: any) {

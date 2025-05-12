@@ -15,4 +15,12 @@ export interface AuthContextType {
   signInWithGoogle: () => Promise<void>;
   updateOnboardingStatus: (status: boolean) => Promise<void>;
   signOut: () => Promise<void>; // Alias para logout
+  updateUserPreferences: (preferences: {
+    is_contratante?: boolean;
+    is_prestador?: boolean;
+    candidata_eventos?: boolean;
+    divulga_servicos?: boolean;
+    divulga_eventos?: boolean;
+    divulga_locais?: boolean;
+  }) => Promise<void>;
 }

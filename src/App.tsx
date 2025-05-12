@@ -1,239 +1,268 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider } from './components/ui/theme-provider';
-import { Toaster } from './components/ui/toaster';
-import { Toaster as SonnerToaster } from './components/ui/sonner';
+
+import { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { ThemeProvider } from '@/components/ui/theme-provider';
+import { Toaster } from '@/components/ui/sonner';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider } from './hooks/auth';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import Home from '@/pages/Home';
+import Dashboard from '@/pages/Dashboard';
+import About from '@/pages/About';
+import Contact from '@/pages/Contact';
+import Login from '@/pages/Login';
+import Register from '@/pages/Register';
+import Onboarding from '@/pages/Onboarding';
+import PrivateRoute from '@/hooks/auth/PrivateRoute';
+import { AuthProvider } from '@/hooks/auth/AuthProvider';
+import { SplashScreen } from '@/components/splash/SplashScreen';
+import { SidebarProvider } from '@/components/ui/sidebar/context';
+import AppLayout from '@/components/layout/AppLayout';
+import ServicesPage from '@/pages/Services';
+import ProvidersPage from '@/pages/Providers';
 
-import Layout from './components/layout/Layout';
-import Index from './pages/Index';
-import About from './pages/About';
-import ServiceProviders from './pages/ServiceProviders';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Profile from './pages/Profile';
-import Dashboard from './pages/Dashboard';
-import NotFound from './pages/NotFound';
-import ForgotPassword from './pages/ForgotPassword';
-import ResetPassword from './pages/ResetPassword';
-import Events from './pages/Events';
-import EventDetail from './pages/EventDetail';
-import CreateEvent from './pages/CreateEvent';
-import RequestQuote from './pages/RequestQuote';
-import PrivateRoute from './hooks/auth/PrivateRoute';
-import Contact from './pages/Contact/index';
-import Settings from './pages/Settings';
-import Maintenance from './pages/Maintenance';
-import Venues from './pages/Venues';
-import CreateVenue from './pages/Venues/CreateVenue';
-import VenueDetails from './pages/Venues/VenueDetails';
-import EditVenue from './pages/Venues/EditVenue';
-import ManageVenues from './pages/Venues/ManageVenues';
-import ManageVenueDetails from './pages/Venues/ManageVenueDetails';
-import DocsHome from './pages/Docs/DocsHome';
-import GettingStarted from './pages/Docs/GettingStarted';
-import Chat from './pages/Chat';
-import Conversation from './pages/Conversation';
-import HelpCenter from './pages/HelpCenter';
-import Notifications from './pages/Notifications';
-import Payments from './pages/Payments';
-import Plans from './pages/Plans';
-import PaymentSuccess from './pages/Venues/PaymentSuccess';
-import ProviderProfile from './pages/ProviderProfile';
-import UserProfile from './pages/UserProfile';
-import Support from './pages/Support';
-import WhatsAppAssistant from './pages/WhatsAppAssistant';
-import Onboarding from './pages/Onboarding';
-
+// Create a query client
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: false,
-      retry: false,
+      staleTime: 60 * 1000, // 1 minute
     },
-  }
+  },
 });
 
-const isMaintenance = false;
+// Componente para controlar quando mostrar navbar e footer
+const PageWrapper = ({ children }: { children: React.ReactNode }) => {
+  const location = useLocation();
+  const isAppPage = location.pathname.startsWith('/dashboard') || 
+                    location.pathname.startsWith('/events') ||
+                    location.pathname.startsWith('/chat') ||
+                    location.pathname.startsWith('/venues') ||
+                    location.pathname.startsWith('/profile') ||
+                    location.pathname.startsWith('/settings') ||
+                    location.pathname.startsWith('/payments') ||
+                    location.pathname.startsWith('/help-center') ||
+                    location.pathname.startsWith('/support') ||
+                    location.pathname.startsWith('/services') ||
+                    location.pathname.startsWith('/providers');
+  
+  return isAppPage ? children : (
+    <>
+      <Navbar />
+      <main className="flex-grow">
+        {children}
+      </main>
+      <Footer />
+    </>
+  );
+};
 
 function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="light" storageKey="ui-theme">
-        <AuthProvider>
-          <BrowserRouter>
-            <Routes>
-              {isMaintenance ? (
-                <>
-                  <Route path="/maintenance" element={<Maintenance />} />
-                  <Route path="*" element={<Navigate to="/maintenance" />} />
-                </>
-              ) : (
-                <>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/contact" element={<Contact />} />
-
-                  {/* Rota de onboarding vem antes do registro */}
-                  <Route path="/onboarding" element={<Onboarding />} />
-                  <Route path="/register" element={<Register />} />
-                  
-                  <Route path="/forgot-password" element={<ForgotPassword />} />
-                  <Route path="/reset-password" element={<ResetPassword />} />
-
-                  <Route element={<Layout />}>
-                    <Route 
-                      path="/profile"
-                      element={
-                        <PrivateRoute>
-                          <Profile />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
-                      path="/user-profile/:id"
-                      element={<UserProfile />}
-                    />
-                    <Route 
-                      path="/dashboard"
-                      element={
-                        <PrivateRoute>
-                          <Dashboard />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route 
-                      path="/events"
-                      element={<Events />}
-                    />
-                    <Route 
-                      path="/events/:id"
-                      element={<EventDetail />}
-                    />
-                    <Route 
-                      path="/events/create"
-                      element={
-                        <PrivateRoute>
-                          <CreateEvent />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route path="/service-providers" element={<ServiceProviders />} />
-                    <Route path="/provider/:id" element={<ProviderProfile />} />
-                    <Route 
-                      path="/request-quote"
-                      element={
-                        <PrivateRoute>
-                          <RequestQuote />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route 
-                      path="/settings"
-                      element={
-                        <PrivateRoute>
-                          <Settings />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route path="/docs" element={<DocsHome />} />
-                    <Route path="/docs/getting-started" element={<GettingStarted />} />
-                    <Route 
-                      path="/venues"
-                      element={<Venues />}
-                    />
-                    <Route 
-                      path="/venues/create"
-                      element={
-                        <PrivateRoute>
-                          <CreateVenue />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route path="/venues/:id" element={<VenueDetails />} />
-                    <Route 
-                      path="/venues/edit/:id"
-                      element={
-                        <PrivateRoute>
-                          <EditVenue />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route 
-                      path="/venues/manage"
-                      element={
-                        <PrivateRoute>
-                          <ManageVenues />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route 
-                      path="/venues/manage/:id"
-                      element={
-                        <PrivateRoute>
-                          <ManageVenueDetails />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route 
-                      path="/venues/payment-success"
-                      element={<PaymentSuccess />}
-                    />
-                    <Route 
-                      path="/chat"
-                      element={
-                        <PrivateRoute>
-                          <Chat />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route 
-                      path="/conversation/:id"
-                      element={
-                        <PrivateRoute>
-                          <Conversation />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route path="/help" element={<HelpCenter />} />
-                    <Route 
-                      path="/notifications"
-                      element={
-                        <PrivateRoute>
-                          <Notifications />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route 
-                      path="/payments"
-                      element={
-                        <PrivateRoute>
-                          <Payments />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route path="/plans" element={<Plans />} />
-                    <Route path="/support" element={<Support />} />
-                    <Route 
-                      path="/whatsapp-assistant"
-                      element={
-                        <PrivateRoute>
-                          <WhatsAppAssistant />
-                        </PrivateRoute>
-                      }
-                    />
-                  </Route>
-                  <Route path="*" element={<NotFound />} />
-                </>
-              )}
-            </Routes>
-          </BrowserRouter>
-          <Toaster />
-          <SonnerToaster />
-        </AuthProvider>
+  const [showSplash, setShowSplash] = useState(true);
+  
+  useEffect(() => {
+    // Verificar se já mostrou a splash screen nesta sessão
+    const splashShown = sessionStorage.getItem('splashShown');
+    
+    if (splashShown) {
+      setShowSplash(false);
+    } else {
+      // Marcar que já mostrou a splash screen
+      sessionStorage.setItem('splashShown', 'true');
+      
+      // Esconder splash após 3 segundos
+      const timer = setTimeout(() => {
+        setShowSplash(false);
+      }, 3000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, []);
+  
+  if (showSplash) {
+    return (
+      <ThemeProvider defaultTheme="light" storageKey="theme-preference">
+        <SplashScreen />
       </ThemeProvider>
-    </QueryClientProvider>
+    );
+  }
+  
+  return (
+    <ThemeProvider defaultTheme="light" storageKey="theme-preference">
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <Router>
+            <Routes>
+              <Route path="/" element={
+                <PageWrapper>
+                  <Home />
+                </PageWrapper>
+              } />
+              <Route path="/about" element={
+                <PageWrapper>
+                  <About />
+                </PageWrapper>
+              } />
+              <Route path="/contact" element={
+                <PageWrapper>
+                  <Contact />
+                </PageWrapper>
+              } />
+              <Route path="/login" element={
+                <PageWrapper>
+                  <Login />
+                </PageWrapper>
+              } />
+              <Route path="/register" element={
+                <PageWrapper>
+                  <Register />
+                </PageWrapper>
+              } />
+              <Route path="/onboarding" element={
+                <PageWrapper>
+                  <Onboarding />
+                </PageWrapper>
+              } />
+              
+              {/* Páginas privadas com layout de app */}
+              <Route path="/dashboard" element={
+                <PrivateRoute>
+                  <SidebarProvider>
+                    <AppLayout>
+                      <Dashboard />
+                    </AppLayout>
+                  </SidebarProvider>
+                </PrivateRoute>
+              } />
+              
+              <Route path="/events/*" element={
+                <PrivateRoute>
+                  <SidebarProvider>
+                    <AppLayout>
+                      {/* Component será substituído depois */}
+                      <div className="container mx-auto p-6">
+                        <h1 className="text-2xl font-bold">Eventos</h1>
+                      </div>
+                    </AppLayout>
+                  </SidebarProvider>
+                </PrivateRoute>
+              } />
+              
+              <Route path="/venues/*" element={
+                <PrivateRoute>
+                  <SidebarProvider>
+                    <AppLayout>
+                      {/* Component será substituído depois */}
+                      <div className="container mx-auto p-6">
+                        <h1 className="text-2xl font-bold">Locais</h1>
+                      </div>
+                    </AppLayout>
+                  </SidebarProvider>
+                </PrivateRoute>
+              } />
+              
+              <Route path="/providers/*" element={
+                <PrivateRoute>
+                  <SidebarProvider>
+                    <AppLayout>
+                      <ProvidersPage />
+                    </AppLayout>
+                  </SidebarProvider>
+                </PrivateRoute>
+              } />
+              
+              <Route path="/services/*" element={
+                <PrivateRoute>
+                  <SidebarProvider>
+                    <AppLayout>
+                      <ServicesPage />
+                    </AppLayout>
+                  </SidebarProvider>
+                </PrivateRoute>
+              } />
+              
+              <Route path="/chat/*" element={
+                <PrivateRoute>
+                  <SidebarProvider>
+                    <AppLayout>
+                      {/* Component será substituído depois */}
+                      <div className="container mx-auto p-6">
+                        <h1 className="text-2xl font-bold">Chat</h1>
+                      </div>
+                    </AppLayout>
+                  </SidebarProvider>
+                </PrivateRoute>
+              } />
+              
+              <Route path="/profile/*" element={
+                <PrivateRoute>
+                  <SidebarProvider>
+                    <AppLayout>
+                      {/* Component será substituído depois */}
+                      <div className="container mx-auto p-6">
+                        <h1 className="text-2xl font-bold">Perfil</h1>
+                      </div>
+                    </AppLayout>
+                  </SidebarProvider>
+                </PrivateRoute>
+              } />
+              
+              <Route path="/settings/*" element={
+                <PrivateRoute>
+                  <SidebarProvider>
+                    <AppLayout>
+                      {/* Component será substituído depois */}
+                      <div className="container mx-auto p-6">
+                        <h1 className="text-2xl font-bold">Configurações</h1>
+                      </div>
+                    </AppLayout>
+                  </SidebarProvider>
+                </PrivateRoute>
+              } />
+              
+              <Route path="/payments/*" element={
+                <PrivateRoute>
+                  <SidebarProvider>
+                    <AppLayout>
+                      {/* Component será substituído depois */}
+                      <div className="container mx-auto p-6">
+                        <h1 className="text-2xl font-bold">Pagamentos</h1>
+                      </div>
+                    </AppLayout>
+                  </SidebarProvider>
+                </PrivateRoute>
+              } />
+              
+              <Route path="/help-center/*" element={
+                <PrivateRoute>
+                  <SidebarProvider>
+                    <AppLayout>
+                      {/* Component será substituído depois */}
+                      <div className="container mx-auto p-6">
+                        <h1 className="text-2xl font-bold">Central de Ajuda</h1>
+                      </div>
+                    </AppLayout>
+                  </SidebarProvider>
+                </PrivateRoute>
+              } />
+              
+              <Route path="/support/*" element={
+                <PrivateRoute>
+                  <SidebarProvider>
+                    <AppLayout>
+                      {/* Component será substituído depois */}
+                      <div className="container mx-auto p-6">
+                        <h1 className="text-2xl font-bold">Suporte</h1>
+                      </div>
+                    </AppLayout>
+                  </SidebarProvider>
+                </PrivateRoute>
+              } />
+            </Routes>
+          </Router>
+          <Toaster richColors position="top-right" />
+        </AuthProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }
 

@@ -2,8 +2,8 @@
 import { Form } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BasicInfoFields } from './BasicInfoFields';
 import { AddressFields } from '@/components/address/AddressFields';
 import { DocumentFields } from './DocumentFields';
@@ -28,36 +28,16 @@ export const RegisterForm = () => {
   const [confirmationEmail, setConfirmationEmail] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const location = useLocation();
   
-  // Obter dados do onboarding, se disponíveis
-  const onboardingData = location.state?.onboardingData || {};
-
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
       person_type: 'fisica',
-      role: onboardingData.is_prestador ? 'provider' : 'contractor',
-      // Inclua quaisquer outros valores do onboarding que sejam relevantes
+      role: 'contractor', // Default role, but this is less important now
       is_onboarding_complete: false,
-      // ... outros campos do onboarding se necessário
     },
     mode: 'onBlur',
   });
-
-  // Atualizar o formulário com os dados de onboarding quando disponíveis
-  useEffect(() => {
-    if (onboardingData && Object.keys(onboardingData).length > 0) {
-      // Preencher os campos do formulário com os valores do onboarding
-      if (onboardingData.is_prestador) {
-        form.setValue('role', 'provider');
-      } else if (onboardingData.is_contratante) {
-        form.setValue('role', 'contractor');
-      }
-      
-      // Você pode adicionar mais atualizações de campos aqui conforme necessário
-    }
-  }, [onboardingData, form]);
 
   const selectedRole = form.watch('role');
   const watchPassword = form.watch('password', '');
@@ -87,23 +67,10 @@ export const RegisterForm = () => {
       // Log form data for debugging
       console.log('Submitting registration with data:', values);
       
-      // Mesclar os dados do onboarding com os dados do formulário
-      const completeFormData: RegisterFormData = {
-        ...values,
-        // Incorporar os dados relevantes do onboarding, se disponíveis
-        is_contratante: onboardingData.is_contratante || false,
-        is_prestador: onboardingData.is_prestador || false,
-        candidata_eventos: onboardingData.candidata_eventos || false,
-        divulga_servicos: onboardingData.divulga_servicos || false,
-        divulga_eventos: onboardingData.divulga_eventos || false,
-        divulga_locais: onboardingData.divulga_locais || false,
-        is_onboarding_complete: false, // Será atualizado na etapa final do onboarding
-      };
-      
-      await signUp(completeFormData);
+      await signUp(values);
       
       console.log('Registration submitted successfully - redirecting to onboarding');
-      // Redirecionar para a etapa final do onboarding (etapa 4)
+      // Redirect to onboarding flow right away
       navigate('/onboarding');
     } catch (error: any) {
       console.error('Registration error:', error);

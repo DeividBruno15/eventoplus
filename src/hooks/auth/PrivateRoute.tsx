@@ -11,14 +11,14 @@ const PrivateRoute = ({ children }: PrivateRouteProps) => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   
-  // Efeito para verificar e redirecionar para o onboarding se necessário
+  // Effect to check and redirect to onboarding if necessary
   useEffect(() => {
     if (user && !user.user_metadata?.is_onboarding_complete) {
       navigate('/onboarding');
     }
   }, [user, navigate]);
 
-  // Se estiver carregando, mostrar um spinner ou componente de loading
+  // If loading, show a spinner or loading component
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -27,12 +27,12 @@ const PrivateRoute = ({ children }: PrivateRouteProps) => {
     );
   }
 
-  // Se não estiver autenticado, redireciona para o login
+  // If not authenticated, redirect to login
   if (!user) {
     return <Navigate to="/login" replace />;
   }
 
-  // Usuário autenticado
+  // Authenticated user
   return <>{children}</>;
 };
 
