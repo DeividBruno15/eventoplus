@@ -30,7 +30,7 @@ const queryClient = new QueryClient({
   },
 });
 
-// Componente para controlar quando mostrar navbar e footer
+// Component to control when to show navbar and footer
 const PageWrapper = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const isAppPage = location.pathname.startsWith('/dashboard') || 
@@ -60,16 +60,16 @@ function App() {
   const [showSplash, setShowSplash] = useState(true);
   
   useEffect(() => {
-    // Verificar se já mostrou a splash screen nesta sessão
+    // Check if splash screen has already been shown in this session
     const splashShown = sessionStorage.getItem('splashShown');
     
     if (splashShown) {
       setShowSplash(false);
     } else {
-      // Marcar que já mostrou a splash screen
+      // Mark that splash screen has been shown
       sessionStorage.setItem('splashShown', 'true');
       
-      // Esconder splash após 3 segundos
+      // Hide splash after 3 seconds
       const timer = setTimeout(() => {
         setShowSplash(false);
       }, 3000);
@@ -78,186 +78,182 @@ function App() {
     }
   }, []);
   
-  if (showSplash) {
-    return (
-      <ThemeProvider defaultTheme="light" storageKey="theme-preference">
-        <SplashScreen />
-      </ThemeProvider>
-    );
-  }
-  
   return (
     <ThemeProvider defaultTheme="light" storageKey="theme-preference">
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <Router>
-            <Routes>
-              <Route path="/" element={
-                <PageWrapper>
-                  <Home />
-                </PageWrapper>
-              } />
-              <Route path="/about" element={
-                <PageWrapper>
-                  <About />
-                </PageWrapper>
-              } />
-              <Route path="/contact" element={
-                <PageWrapper>
-                  <Contact />
-                </PageWrapper>
-              } />
-              <Route path="/login" element={
-                <PageWrapper>
-                  <Login />
-                </PageWrapper>
-              } />
-              <Route path="/register" element={
-                <PageWrapper>
-                  <Register />
-                </PageWrapper>
-              } />
-              <Route path="/onboarding" element={
-                <PageWrapper>
-                  <Onboarding />
-                </PageWrapper>
-              } />
-              
-              {/* Páginas privadas com layout de app */}
-              <Route path="/dashboard" element={
-                <PrivateRoute>
-                  <SidebarProvider>
-                    <AppLayout>
-                      <Dashboard />
-                    </AppLayout>
-                  </SidebarProvider>
-                </PrivateRoute>
-              } />
-              
-              <Route path="/events/*" element={
-                <PrivateRoute>
-                  <SidebarProvider>
-                    <AppLayout>
-                      {/* Component será substituído depois */}
-                      <div className="container mx-auto p-6">
-                        <h1 className="text-2xl font-bold">Eventos</h1>
-                      </div>
-                    </AppLayout>
-                  </SidebarProvider>
-                </PrivateRoute>
-              } />
-              
-              <Route path="/venues/*" element={
-                <PrivateRoute>
-                  <SidebarProvider>
-                    <AppLayout>
-                      {/* Component será substituído depois */}
-                      <div className="container mx-auto p-6">
-                        <h1 className="text-2xl font-bold">Locais</h1>
-                      </div>
-                    </AppLayout>
-                  </SidebarProvider>
-                </PrivateRoute>
-              } />
-              
-              <Route path="/providers/*" element={
-                <PrivateRoute>
-                  <SidebarProvider>
-                    <AppLayout>
-                      <ProvidersPage />
-                    </AppLayout>
-                  </SidebarProvider>
-                </PrivateRoute>
-              } />
-              
-              <Route path="/services/*" element={
-                <PrivateRoute>
-                  <SidebarProvider>
-                    <AppLayout>
-                      <ServicesPage />
-                    </AppLayout>
-                  </SidebarProvider>
-                </PrivateRoute>
-              } />
-              
-              <Route path="/chat/*" element={
-                <PrivateRoute>
-                  <SidebarProvider>
-                    <AppLayout>
-                      {/* Component será substituído depois */}
-                      <div className="container mx-auto p-6">
-                        <h1 className="text-2xl font-bold">Chat</h1>
-                      </div>
-                    </AppLayout>
-                  </SidebarProvider>
-                </PrivateRoute>
-              } />
-              
-              <Route path="/profile/*" element={
-                <PrivateRoute>
-                  <SidebarProvider>
-                    <AppLayout>
-                      {/* Component será substituído depois */}
-                      <div className="container mx-auto p-6">
-                        <h1 className="text-2xl font-bold">Perfil</h1>
-                      </div>
-                    </AppLayout>
-                  </SidebarProvider>
-                </PrivateRoute>
-              } />
-              
-              <Route path="/settings/*" element={
-                <PrivateRoute>
-                  <SidebarProvider>
-                    <AppLayout>
-                      {/* Component será substituído depois */}
-                      <div className="container mx-auto p-6">
-                        <h1 className="text-2xl font-bold">Configurações</h1>
-                      </div>
-                    </AppLayout>
-                  </SidebarProvider>
-                </PrivateRoute>
-              } />
-              
-              <Route path="/payments/*" element={
-                <PrivateRoute>
-                  <SidebarProvider>
-                    <AppLayout>
-                      {/* Component será substituído depois */}
-                      <div className="container mx-auto p-6">
-                        <h1 className="text-2xl font-bold">Pagamentos</h1>
-                      </div>
-                    </AppLayout>
-                  </SidebarProvider>
-                </PrivateRoute>
-              } />
-              
-              <Route path="/help-center/*" element={
-                <PrivateRoute>
-                  <SidebarProvider>
-                    <AppLayout>
-                      {/* Component será substituído depois */}
-                      <div className="container mx-auto p-6">
-                        <h1 className="text-2xl font-bold">Central de Ajuda</h1>
-                      </div>
-                    </AppLayout>
-                  </SidebarProvider>
-                </PrivateRoute>
-              } />
-              
-              <Route path="/support/*" element={
-                <PrivateRoute>
-                  <SidebarProvider>
-                    <AppLayout>
-                      {/* Component será substituído depois */}
-                      <div className="container mx-auto p-6">
-                        <h1 className="text-2xl font-bold">Suporte</h1>
-                      </div>
-                    </AppLayout>
-                  </SidebarProvider>
-                </PrivateRoute>
-              } />
-            </Routes>
+            {showSplash ? (
+              <SplashScreen />
+            ) : (
+              <Routes>
+                <Route path="/" element={
+                  <PageWrapper>
+                    <Home />
+                  </PageWrapper>
+                } />
+                <Route path="/about" element={
+                  <PageWrapper>
+                    <About />
+                  </PageWrapper>
+                } />
+                <Route path="/contact" element={
+                  <PageWrapper>
+                    <Contact />
+                  </PageWrapper>
+                } />
+                <Route path="/login" element={
+                  <PageWrapper>
+                    <Login />
+                  </PageWrapper>
+                } />
+                <Route path="/register" element={
+                  <PageWrapper>
+                    <Register />
+                  </PageWrapper>
+                } />
+                <Route path="/onboarding" element={
+                  <PageWrapper>
+                    <Onboarding />
+                  </PageWrapper>
+                } />
+                
+                {/* Private pages with app layout */}
+                <Route path="/dashboard" element={
+                  <PrivateRoute>
+                    <SidebarProvider>
+                      <AppLayout>
+                        <Dashboard />
+                      </AppLayout>
+                    </SidebarProvider>
+                  </PrivateRoute>
+                } />
+                
+                <Route path="/events/*" element={
+                  <PrivateRoute>
+                    <SidebarProvider>
+                      <AppLayout>
+                        {/* Component will be replaced later */}
+                        <div className="container mx-auto p-6">
+                          <h1 className="text-2xl font-bold">Eventos</h1>
+                        </div>
+                      </AppLayout>
+                    </SidebarProvider>
+                  </PrivateRoute>
+                } />
+                
+                <Route path="/venues/*" element={
+                  <PrivateRoute>
+                    <SidebarProvider>
+                      <AppLayout>
+                        {/* Component will be replaced later */}
+                        <div className="container mx-auto p-6">
+                          <h1 className="text-2xl font-bold">Locais</h1>
+                        </div>
+                      </AppLayout>
+                    </SidebarProvider>
+                  </PrivateRoute>
+                } />
+                
+                <Route path="/providers/*" element={
+                  <PrivateRoute>
+                    <SidebarProvider>
+                      <AppLayout>
+                        <ProvidersPage />
+                      </AppLayout>
+                    </SidebarProvider>
+                  </PrivateRoute>
+                } />
+                
+                <Route path="/services/*" element={
+                  <PrivateRoute>
+                    <SidebarProvider>
+                      <AppLayout>
+                        <ServicesPage />
+                      </AppLayout>
+                    </SidebarProvider>
+                  </PrivateRoute>
+                } />
+                
+                <Route path="/chat/*" element={
+                  <PrivateRoute>
+                    <SidebarProvider>
+                      <AppLayout>
+                        {/* Component will be replaced later */}
+                        <div className="container mx-auto p-6">
+                          <h1 className="text-2xl font-bold">Chat</h1>
+                        </div>
+                      </AppLayout>
+                    </SidebarProvider>
+                  </PrivateRoute>
+                } />
+                
+                <Route path="/profile/*" element={
+                  <PrivateRoute>
+                    <SidebarProvider>
+                      <AppLayout>
+                        {/* Component will be replaced later */}
+                        <div className="container mx-auto p-6">
+                          <h1 className="text-2xl font-bold">Perfil</h1>
+                        </div>
+                      </AppLayout>
+                    </SidebarProvider>
+                  </PrivateRoute>
+                } />
+                
+                <Route path="/settings/*" element={
+                  <PrivateRoute>
+                    <SidebarProvider>
+                      <AppLayout>
+                        {/* Component will be replaced later */}
+                        <div className="container mx-auto p-6">
+                          <h1 className="text-2xl font-bold">Configurações</h1>
+                        </div>
+                      </AppLayout>
+                    </SidebarProvider>
+                  </PrivateRoute>
+                } />
+                
+                <Route path="/payments/*" element={
+                  <PrivateRoute>
+                    <SidebarProvider>
+                      <AppLayout>
+                        {/* Component will be replaced later */}
+                        <div className="container mx-auto p-6">
+                          <h1 className="text-2xl font-bold">Pagamentos</h1>
+                        </div>
+                      </AppLayout>
+                    </SidebarProvider>
+                  </PrivateRoute>
+                } />
+                
+                <Route path="/help-center/*" element={
+                  <PrivateRoute>
+                    <SidebarProvider>
+                      <AppLayout>
+                        {/* Component will be replaced later */}
+                        <div className="container mx-auto p-6">
+                          <h1 className="text-2xl font-bold">Central de Ajuda</h1>
+                        </div>
+                      </AppLayout>
+                    </SidebarProvider>
+                  </PrivateRoute>
+                } />
+                
+                <Route path="/support/*" element={
+                  <PrivateRoute>
+                    <SidebarProvider>
+                      <AppLayout>
+                        {/* Component will be replaced later */}
+                        <div className="container mx-auto p-6">
+                          <h1 className="text-2xl font-bold">Suporte</h1>
+                        </div>
+                      </AppLayout>
+                    </SidebarProvider>
+                  </PrivateRoute>
+                } />
+              </Routes>
+            )}
           </Router>
           <Toaster richColors position="top-right" />
         </AuthProvider>

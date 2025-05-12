@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 interface SplashScreenProps {
@@ -13,18 +13,22 @@ export const SplashScreen = ({
   redirect = '/login' 
 }: SplashScreenProps) => {
   const [show, setShow] = useState(true);
-  const navigate = useNavigate();
+  const [shouldRedirect, setShouldRedirect] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setShow(false);
       setTimeout(() => {
-        navigate(redirect);
-      }, 500); // Pequeno delay para a animação acontecer
+        setShouldRedirect(true);
+      }, 500); // Small delay for the animation to complete
     }, duration);
 
     return () => clearTimeout(timer);
-  }, [navigate, redirect, duration]);
+  }, [duration]);
+
+  if (shouldRedirect) {
+    return <Navigate to={redirect} replace />;
+  }
 
   return (
     <>
