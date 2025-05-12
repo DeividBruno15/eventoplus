@@ -117,7 +117,7 @@ export const PaymentMethodSelector = ({
               toast({
                 title: "PIX temporariamente indisponível",
                 description: "Pagamento por PIX está temporariamente indisponível. Por favor, utilize o cartão de crédito.",
-                variant: "warning"
+                variant: "default"  // Changed from "warning" to "default" to fix the type error
               });
             } else {
               setSelectedMethod('pix');
