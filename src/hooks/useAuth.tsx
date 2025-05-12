@@ -1,4 +1,3 @@
-
 import { useState, useEffect, createContext, useContext } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -79,7 +78,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             person_type: data.person_type,
             document_number: data.document_number,
             role: data.role,
-            phone_number: data.phone_number,  // Updated from number to phone_number
+            number: data.number,  // Using 'number' instead of 'phone_number' to match the RegisterFormData type
             is_onboarding_complete: false,
           }
         }
