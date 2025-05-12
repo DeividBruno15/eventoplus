@@ -1,9 +1,10 @@
 
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { FormMessage } from '@/components/ui/form';
+import { Checkbox } from '@/components/ui/checkbox';
 import { UseFormReturn } from 'react-hook-form';
 import { OnboardingFunctionsData } from '../types';
+import { AlertCircle } from 'lucide-react';
 
 interface TermsStepProps {
   form: UseFormReturn<OnboardingFunctionsData>;
@@ -11,6 +12,8 @@ interface TermsStepProps {
 }
 
 export const TermsStep = ({ form, loading }: TermsStepProps) => {
+  const acceptTerms = form.watch('accept_terms');
+
   return (
     <>
       <div className="text-center mb-6">
@@ -33,23 +36,45 @@ export const TermsStep = ({ form, loading }: TermsStepProps) => {
         </ul>
       </div>
       
-      <div className="flex items-center space-x-2">
-        <input
-          type="checkbox"
-          id="accept_terms"
-          className="rounded border-gray-300"
-          {...form.register('accept_terms')}
-        />
-        <Label htmlFor="accept_terms">
-          Li e concordo com os termos de serviço
-        </Label>
+      <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4">
+        <div className="flex">
+          <div className="flex-shrink-0">
+            <AlertCircle className="h-5 w-5 text-blue-500" />
+          </div>
+          <div className="ml-3">
+            <p className="text-sm text-blue-700">
+              Ao aceitar estes termos, você também concorda com nossa Política de Privacidade, que explica como coletamos e utilizamos seus dados.
+            </p>
+          </div>
+        </div>
       </div>
-      <FormMessage>{form.formState.errors.accept_terms?.message}</FormMessage>
+      
+      <FormField
+        control={form.control}
+        name="accept_terms"
+        render={({ field }) => (
+          <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+            <FormControl>
+              <Checkbox
+                checked={field.value}
+                onCheckedChange={field.onChange}
+                required
+              />
+            </FormControl>
+            <div className="space-y-1 leading-none">
+              <FormLabel>
+                Li e concordo com os termos de serviço
+              </FormLabel>
+              <FormMessage />
+            </div>
+          </FormItem>
+        )}
+      />
       
       <Button 
         type="submit" 
-        className="w-full"
-        disabled={loading || !form.watch('accept_terms')}
+        className="w-full mt-6"
+        disabled={loading || !acceptTerms}
       >
         {loading ? "Processando..." : "Finalizar Cadastro"}
       </Button>

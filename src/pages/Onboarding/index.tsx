@@ -10,10 +10,10 @@ import { ProviderTypeStep } from './components/ProviderTypeStep';
 import { ConfirmationStep } from './components/ConfirmationStep';
 import { PhoneAndTermsStep } from './components/PhoneAndTermsStep';
 import { useAuth } from '@/hooks/useAuth';
-import { OnboardingStep } from './types';
+import { OnboardingStep, OnboardingFunctionsData } from './types';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { OnboardingFunctionsData, onboardingFunctionsSchema } from './types';
+import { onboardingFunctionsSchema } from './types';
 import { useOnboardingFunctions } from '@/hooks/useOnboardingFunctions';
 
 const Onboarding = () => {
