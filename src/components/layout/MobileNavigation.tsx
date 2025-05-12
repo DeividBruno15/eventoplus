@@ -16,9 +16,9 @@ export const MobileNavigation = () => {
   
   // Get the base menu items - always show Dashboard, Chat and Profile on mobile
   const baseItems = [
-    { icon: LayoutDashboard, label: 'Início', path: '/dashboard' },
-    { icon: MessageSquare, label: 'Chat', path: '/chat' },
-    { icon: User, label: 'Perfil', path: '/profile' },
+    { icon: LayoutDashboard, name: 'Início', path: '/dashboard' },
+    { icon: MessageSquare, name: 'Chat', path: '/chat' },
+    { icon: User, name: 'Perfil', path: '/profile' },
   ];
   
   // Get dynamic menu items based on user preferences
@@ -63,7 +63,7 @@ export const MobileNavigation = () => {
                   "h-5 w-5 mb-0.5",
                   isActive ? "text-primary" : "text-muted-foreground"
                 )} />
-                <span className="text-[10px] font-medium">{item.label}</span>
+                <span className="text-[10px] font-medium">{item.name}</span>
               </div>
             </button>
           );
