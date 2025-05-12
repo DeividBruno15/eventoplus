@@ -3,17 +3,22 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form } from '@/components/ui/form';
 
-import { OnboardingStepIndicator } from './components/OnboardingStepIndicator';
-import { WhatsAppStep } from './components/WhatsAppStep';
-import { TermsStep } from './components/TermsStep';
+import { OnboardingStepIndicator } from '@/components/onboarding/OnboardingStepIndicator';
+import { PlatformUsageStep } from './components/PlatformUsageStep';
+import { ProviderTypeStep } from './components/ProviderTypeStep';
+import { ConfirmationStep } from './components/ConfirmationStep';
+import { WhatsAppStep } from '@/components/onboarding/WhatsAppStep';
+import { TermsStep } from '@/components/onboarding/TermsStep';
 import { useOnboarding } from './hooks/useOnboarding';
+import { useAuth } from '@/hooks/useAuth';
+import { OnboardingStep } from './types';
 
 const Onboarding = () => {
-  const { user, form, step, loading, handleSubmit } = useOnboarding();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { form, currentStep, submitting, goToNext, goBack, handleSubmit } = useOnboarding();
 
   useEffect(() => {
     if (!user) {
@@ -37,14 +42,19 @@ const Onboarding = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <OnboardingStepIndicator currentStep={step} />
+            <OnboardingStepIndicator currentStep={currentStep} totalSteps={4} />
             
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-                {step === 1 && <WhatsAppStep form={form} />}
-                {step === 2 && <TermsStep form={form} loading={loading} />}
-              </form>
-            </Form>
+            {currentStep === OnboardingStep.PLATFORM_USAGE && 
+              <PlatformUsageStep form={form} onNext={goToNext} />}
+              
+            {currentStep === OnboardingStep.PROVIDER_TYPE && 
+              <ProviderTypeStep form={form} onNext={goToNext} onBack={goBack} />}
+              
+            {currentStep === OnboardingStep.CONFIRMATION && 
+              <ConfirmationStep form={form} onNext={goToNext} onBack={goBack} />}
+              
+            {currentStep === OnboardingStep.PHONE_TERMS && 
+              <WhatsAppStep form={form} onSubmit={handleSubmit} onBack={goBack} loading={submitting} />}
           </CardContent>
         </Card>
       </div>
