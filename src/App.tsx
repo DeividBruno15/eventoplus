@@ -1,4 +1,3 @@
-
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './components/ui/theme-provider';
 import { Toaster } from './components/ui/toaster';
@@ -79,14 +78,10 @@ function App() {
                   <Route path="/reset-password" element={<ResetPassword />} />
                   <Route path="/contact" element={<Contact />} />
 
-                  {/* Nova rota de onboarding */}
+                  {/* Rota de onboarding com alta prioridade */}
                   <Route 
                     path="/onboarding" 
-                    element={
-                      <PrivateRoute>
-                        <Onboarding />
-                      </PrivateRoute>
-                    } 
+                    element={<Onboarding />} 
                   />
 
                   <Route element={<Layout />}>

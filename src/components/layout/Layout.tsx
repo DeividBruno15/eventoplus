@@ -45,7 +45,7 @@ export default function Layout() {
               <UserMenu />
             </div>
           </header>
-          <main className="flex-1 overflow-auto">
+          <main className="flex-1 overflow-auto p-4">
             <Outlet />
           </main>
         </div>

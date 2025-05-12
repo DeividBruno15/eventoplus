@@ -23,9 +23,14 @@ const DashboardLayout = () => {
   const navigate = useNavigate();
   const { isMobile } = useBreakpoint('md');
 
-  // Verificar status de autenticação
+  // Verificar status de autenticação e onboarding
   useEffect(() => {
     if (user) {
+      // Verificar se o usuário completou o onboarding
+      if (!user.user_metadata?.is_onboarding_complete) {
+        navigate('/onboarding');
+        return;
+      }
       setIsLoggedIn(true);
     } else {
       // Pequeno delay para verificar se o usuário está realmente deslogado
@@ -36,7 +41,7 @@ const DashboardLayout = () => {
       
       return () => clearTimeout(timer);
     }
-  }, [user]);
+  }, [user, navigate]);
 
   // Função para navegação
   const handleNavigate = (path: string) => {
@@ -61,8 +66,8 @@ const DashboardLayout = () => {
   }
 
   return (
-    <SidebarProvider defaultOpen={!window.matchMedia("(max-width: 768px)").matches}>
-      <div className="flex flex-col md:flex-row min-h-screen w-full">
+    <SidebarProvider>
+      <div className="flex flex-col md:flex-row min-h-screen w-full bg-background">
         {/* Sidebar para desktop */}
         <SidebarNavigation onNavigate={handleNavigate} />
         

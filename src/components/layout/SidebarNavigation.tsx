@@ -13,6 +13,7 @@ import { Sidebar, SidebarContent, SidebarMenuButton, SidebarMenuItem } from '@/c
 import { getMainMenuItems, getSupportMenuItems } from './sidebar/menu-data';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
+import { useSidebar } from '@/components/ui/sidebar/context';
 
 export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
   const { session, user, logout } = useAuth();
   const { toast } = useToast();
   const { isDesktop } = useBreakpoint('md');
+  const { isMobile } = useSidebar();
   
   const unreadMessages = useUnreadMessages(user?.id);
   const { hasProviderRole, hasContractorRole } = useUserRoles(user);
@@ -71,18 +73,17 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
     onNavigate(path);
   };
 
-  // Não renderizar o sidebar em dispositivos móveis
-  if (!isDesktop) {
+  if (isMobile) {
     return null;
   }
 
   return (
     <Sidebar>
-      <SidebarContent className="flex flex-col px-0 py-0 overflow-hidden">
+      <SidebarContent className="flex flex-col px-3 py-2 h-full">
         {/* Fixed content - Logo and User Profile */}
-        <div className="flex-shrink-0">
+        <div className="flex-shrink-0 mb-4">
           {/* Logo */}
-          <div className="flex justify-center items-center pt-4 pb-2">
+          <div className="flex justify-center items-center py-4">
             <h1 className="text-2xl font-bold text-primary">Evento+</h1>
           </div>
           
@@ -96,12 +97,12 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
             hasContractorRole={hasContractorRole}
           />
           
-          <SidebarSeparator className="mt-2" />
+          <SidebarSeparator className="mt-4" />
         </div>
 
         {/* Scrollable menu items */}
-        <ScrollArea className="flex-grow overflow-hidden">
-          <div className="py-4">
+        <ScrollArea className="flex-grow overflow-hidden pr-1">
+          <div className="py-2 space-y-6">
             <MenuGroup 
               items={updatedMainMenuItems} 
               activePath={currentPath} 
@@ -110,7 +111,7 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
             
             <SidebarSeparator className="my-4" />
             
-            <div className="space-y-8">
+            <div className="space-y-6">
               <MenuGroup 
                 items={supportMenuItems} 
                 activePath={currentPath} 
@@ -118,7 +119,7 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
               />
               
               {/* Adicionar botão de logout aqui, após os itens de suporte */}
-              <div className="px-3">
+              <div className="px-1 mt-6">
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     onClick={handleLogout}
@@ -138,7 +139,7 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
 };
 
 const SidebarSeparator = ({ className = "" }) => (
-  <div className={`px-3 ${className}`}>
+  <div className={`${className}`}>
     <Separator className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-700 to-transparent" />
   </div>
 );

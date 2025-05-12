@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,35 +10,23 @@ import { ProviderTypeStep } from './components/ProviderTypeStep';
 import { ConfirmationStep } from './components/ConfirmationStep';
 import { PhoneAndTermsStep } from './components/PhoneAndTermsStep';
 import { useAuth } from '@/hooks/useAuth';
-import { OnboardingStep, OnboardingFunctionsData } from './types';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { onboardingFunctionsSchema } from './types';
-import { useOnboardingFunctions } from '@/hooks/useOnboardingFunctions';
+import { useOnboarding } from './hooks/useOnboarding';
 
 const Onboarding = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { saveUserFunctions, loading: submitting } = useOnboardingFunctions();
   
-  const form = useForm<OnboardingFunctionsData>({
-    resolver: zodResolver(onboardingFunctionsSchema),
-    defaultValues: {
-      is_contratante: false,
-      is_prestador: false,
-      candidata_eventos: false,
-      divulga_servicos: false,
-      divulga_eventos: false,
-      divulga_locais: false,
-      phone_number: '',
-      accept_whatsapp: true,
-      accept_terms: false,
-    },
-  });
-  
-  const [currentStep, setCurrentStep] = useState<OnboardingStep>(OnboardingStep.PLATFORM_USAGE);
+  const {
+    form,
+    currentStep,
+    submitting,
+    goToNext,
+    goBack,
+    handleSubmit
+  } = useOnboarding();
 
+  // Verificar se o usuário já completou o onboarding
   useEffect(() => {
     if (!user) {
       navigate('/login');
@@ -47,47 +35,21 @@ const Onboarding = () => {
         description: "Você precisa estar logado para acessar esta página",
         variant: "destructive",
       });
+      return;
+    }
+    
+    // Se já completou o onboarding, redirecionar para o dashboard
+    if (user.user_metadata?.is_onboarding_complete) {
+      navigate('/dashboard');
+      toast({
+        title: "Cadastro já finalizado",
+        description: "Seu perfil já está completo",
+      });
     }
   }, [user, navigate, toast]);
 
-  const goToNext = () => {
-    const { is_prestador } = form.getValues();
-    
-    if (currentStep === OnboardingStep.PLATFORM_USAGE) {
-      if (is_prestador) {
-        setCurrentStep(OnboardingStep.PROVIDER_TYPE);
-      } else {
-        setCurrentStep(OnboardingStep.CONFIRMATION);
-      }
-    } else if (currentStep === OnboardingStep.PROVIDER_TYPE) {
-      setCurrentStep(OnboardingStep.CONFIRMATION);
-    } else if (currentStep === OnboardingStep.CONFIRMATION) {
-      setCurrentStep(OnboardingStep.PHONE_TERMS);
-    }
-  };
-
-  const goBack = () => {
-    const { is_prestador } = form.getValues();
-    
-    if (currentStep === OnboardingStep.PROVIDER_TYPE) {
-      setCurrentStep(OnboardingStep.PLATFORM_USAGE);
-    } else if (currentStep === OnboardingStep.CONFIRMATION) {
-      if (is_prestador) {
-        setCurrentStep(OnboardingStep.PROVIDER_TYPE);
-      } else {
-        setCurrentStep(OnboardingStep.PLATFORM_USAGE);
-      }
-    } else if (currentStep === OnboardingStep.PHONE_TERMS) {
-      setCurrentStep(OnboardingStep.CONFIRMATION);
-    }
-  };
-
-  const handleSubmit = () => {
-    saveUserFunctions(form.getValues());
-  };
-
   return (
-    <div className="min-h-screen flex flex-col bg-page">
+    <div className="min-h-screen flex flex-col bg-background">
       <div className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <Card className="w-full max-w-2xl">
           <CardHeader className="text-center">
@@ -99,16 +61,16 @@ const Onboarding = () => {
           <CardContent>
             <OnboardingStepIndicator currentStep={currentStep} totalSteps={4} />
             
-            {currentStep === OnboardingStep.PLATFORM_USAGE && 
+            {currentStep === 1 && 
               <PlatformUsageStep form={form} onNext={goToNext} />}
               
-            {currentStep === OnboardingStep.PROVIDER_TYPE && 
+            {currentStep === 2 && 
               <ProviderTypeStep form={form} onNext={goToNext} onBack={goBack} />}
               
-            {currentStep === OnboardingStep.CONFIRMATION && 
+            {currentStep === 3 && 
               <ConfirmationStep form={form} onNext={goToNext} onBack={goBack} />}
               
-            {currentStep === OnboardingStep.PHONE_TERMS && 
+            {currentStep === 4 && 
               <PhoneAndTermsStep form={form} onSubmit={handleSubmit} onBack={goBack} loading={submitting} />}
           </CardContent>
         </Card>
