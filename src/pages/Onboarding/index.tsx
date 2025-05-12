@@ -1,24 +1,43 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 import { OnboardingStepIndicator } from '@/components/onboarding/OnboardingStepIndicator';
 import { PlatformUsageStep } from './components/PlatformUsageStep';
 import { ProviderTypeStep } from './components/ProviderTypeStep';
 import { ConfirmationStep } from './components/ConfirmationStep';
-import { WhatsAppStep } from '@/components/onboarding/WhatsAppStep';
-import { TermsStep } from '@/components/onboarding/TermsStep';
-import { useOnboarding } from './hooks/useOnboarding';
+import { PhoneAndTermsStep } from './components/PhoneAndTermsStep';
 import { useAuth } from '@/hooks/useAuth';
 import { OnboardingStep } from './types';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { OnboardingFunctionsData, onboardingFunctionsSchema } from './types';
+import { useOnboardingFunctions } from '@/hooks/useOnboardingFunctions';
 
 const Onboarding = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { form, currentStep, submitting, goToNext, goBack, handleSubmit } = useOnboarding();
+  const { saveUserFunctions, loading: submitting } = useOnboardingFunctions();
+  
+  const form = useForm<OnboardingFunctionsData>({
+    resolver: zodResolver(onboardingFunctionsSchema),
+    defaultValues: {
+      is_contratante: false,
+      is_prestador: false,
+      candidata_eventos: false,
+      divulga_servicos: false,
+      divulga_eventos: false,
+      divulga_locais: false,
+      phone_number: '',
+      accept_whatsapp: true,
+      accept_terms: false,
+    },
+  });
+  
+  const [currentStep, setCurrentStep] = useState<OnboardingStep>(OnboardingStep.PLATFORM_USAGE);
 
   useEffect(() => {
     if (!user) {
@@ -30,6 +49,42 @@ const Onboarding = () => {
       });
     }
   }, [user, navigate, toast]);
+
+  const goToNext = () => {
+    const { is_prestador } = form.getValues();
+    
+    if (currentStep === OnboardingStep.PLATFORM_USAGE) {
+      if (is_prestador) {
+        setCurrentStep(OnboardingStep.PROVIDER_TYPE);
+      } else {
+        setCurrentStep(OnboardingStep.CONFIRMATION);
+      }
+    } else if (currentStep === OnboardingStep.PROVIDER_TYPE) {
+      setCurrentStep(OnboardingStep.CONFIRMATION);
+    } else if (currentStep === OnboardingStep.CONFIRMATION) {
+      setCurrentStep(OnboardingStep.PHONE_TERMS);
+    }
+  };
+
+  const goBack = () => {
+    const { is_prestador } = form.getValues();
+    
+    if (currentStep === OnboardingStep.PROVIDER_TYPE) {
+      setCurrentStep(OnboardingStep.PLATFORM_USAGE);
+    } else if (currentStep === OnboardingStep.CONFIRMATION) {
+      if (is_prestador) {
+        setCurrentStep(OnboardingStep.PROVIDER_TYPE);
+      } else {
+        setCurrentStep(OnboardingStep.PLATFORM_USAGE);
+      }
+    } else if (currentStep === OnboardingStep.PHONE_TERMS) {
+      setCurrentStep(OnboardingStep.CONFIRMATION);
+    }
+  };
+
+  const handleSubmit = () => {
+    saveUserFunctions(form.getValues());
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-page">
@@ -54,7 +109,7 @@ const Onboarding = () => {
               <ConfirmationStep form={form} onNext={goToNext} onBack={goBack} />}
               
             {currentStep === OnboardingStep.PHONE_TERMS && 
-              <WhatsAppStep form={form} onSubmit={handleSubmit} onBack={goBack} loading={submitting} />}
+              <PhoneAndTermsStep form={form} onSubmit={handleSubmit} onBack={goBack} loading={submitting} />}
           </CardContent>
         </Card>
       </div>

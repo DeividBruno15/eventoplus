@@ -5,10 +5,10 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { FormItem, FormControl, FormLabel, FormMessage } from '@/components/ui/form';
 import { UseFormReturn } from 'react-hook-form';
-import { OnboardingFormData } from '../types';
+import { OnboardingFunctionsData } from '../types';
 
 interface WhatsAppStepProps {
-  form: UseFormReturn<OnboardingFormData>;
+  form: UseFormReturn<OnboardingFunctionsData>;
 }
 
 export const WhatsAppStep = ({ form }: WhatsAppStepProps) => {

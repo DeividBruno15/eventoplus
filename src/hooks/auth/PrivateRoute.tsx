@@ -7,10 +7,10 @@ interface PrivateRouteProps {
 }
 
 const PrivateRoute = ({ children }: PrivateRouteProps) => {
-  const { user, isLoadingAuth } = useAuth();
+  const { user, loading } = useAuth();
 
-  // Se estiver carregando, poderia mostrar um spinner ou componente de loading
-  if (isLoadingAuth) {
+  // Se estiver carregando, mostrar um spinner ou componente de loading
+  if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary" />
