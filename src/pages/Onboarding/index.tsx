@@ -11,13 +11,11 @@ import { ConfirmationStep } from './components/ConfirmationStep';
 import { PhoneAndTermsStep } from './components/PhoneAndTermsStep';
 import { useAuth } from '@/hooks/auth';
 import { useOnboarding } from './hooks/useOnboarding';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 const Onboarding = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const isMobile = useIsMobile();
   
   const {
     form,
@@ -62,20 +60,18 @@ const Onboarding = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <div className="flex-grow flex items-center justify-center py-6 px-4 sm:px-6 lg:px-8">
+      <div className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <Card className="w-full max-w-4xl shadow-lg">
-          <CardHeader className={isMobile ? "p-5" : "text-center p-8"}>
-            <CardTitle className={isMobile ? "text-xl" : "text-2xl md:text-3xl font-bold"}>
-              Bem-vindo(a)! Vamos configurar sua conta
-            </CardTitle>
-            <CardDescription className="text-sm mt-2">
+          <CardHeader className="text-center p-8">
+            <CardTitle className="text-2xl md:text-3xl font-bold">Bem-vindo(a)! Vamos configurar sua conta</CardTitle>
+            <CardDescription className="text-base mt-2">
               Conte-nos como você deseja utilizar nossa plataforma
             </CardDescription>
           </CardHeader>
-          <CardContent className={isMobile ? "p-4 pt-0" : "p-6 md:p-8"}>
+          <CardContent className="p-6 md:p-8">
             <OnboardingStepIndicator currentStep={currentStep} totalSteps={4} />
             
-            <div className="mt-6">
+            <div className="mt-8">
               {currentStep === 1 && 
                 <PlatformUsageStep form={form} onNext={goToNext} />}
                 
