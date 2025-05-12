@@ -1,8 +1,11 @@
 
-import { Check, Calendar, Briefcase, Search, Megaphone, Building, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { OnboardingFunctionsData } from '@/pages/Onboarding/types';
+import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
+import { OnboardingFunctionsData } from '../types';
+import { Button } from '@/components/ui/button';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
+import { Calendar, Briefcase, Building, UserSearch, Megaphone } from 'lucide-react';
 
 interface ConfirmationStepProps {
   form: UseFormReturn<OnboardingFunctionsData>;
@@ -16,86 +19,120 @@ export function ConfirmationStep({ form, onNext, onBack }: ConfirmationStepProps
     is_prestador, 
     candidata_eventos, 
     divulga_servicos, 
-    divulga_locais, 
-    divulga_eventos 
+    divulga_locais 
   } = form.watch();
-
-  const features = [
-    {
-      id: 'criar_eventos',
-      enabled: is_contratante,
-      label: 'Criar e gerenciar eventos',
-      icon: Calendar
-    },
-    {
-      id: 'contratar_prestadores',
-      enabled: is_contratante,
-      label: 'Ver e contratar prestadores',
-      icon: Search
-    },
-    {
-      id: 'candidatar',
-      enabled: candidata_eventos,
-      label: 'Se candidatar a eventos',
-      icon: Briefcase
-    },
-    {
-      id: 'divulgar_servicos',
-      enabled: divulga_servicos,
-      label: 'Divulgar seus serviços',
-      icon: Megaphone
-    },
-    {
-      id: 'divulgar_locais',
-      enabled: divulga_locais,
-      label: 'Anunciar locais de evento',
-      icon: Building
-    }
-  ];
   
-  return (
-    <div className="space-y-8">
-      <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold mb-3">Tudo certo!</h2>
-        <p className="text-muted-foreground">Aqui está o que você poderá fazer na plataforma:</p>
+  const isMobile = useIsMobile();
+  
+  const getSelectionCount = () => {
+    let count = 0;
+    if (is_contratante) count++;
+    if (is_prestador) count++;
+    if (divulga_locais && !is_prestador) count++; // Só contar se não for prestador
+    return count;
+  };
+  
+  const hasFunctionsSelected = () => {
+    if (is_prestador) {
+      return candidata_eventos || divulga_servicos || divulga_locais;
+    }
+    return true;
+  };
+  
+  const renderSelectedRole = (role: string, icon: React.ReactNode, subtitle: string) => (
+    <div className="flex items-start gap-3 p-3 bg-primary/5 rounded-md">
+      <div className="bg-primary text-white p-2 rounded-md shrink-0">
+        {icon}
       </div>
-      
-      <div className="bg-muted/30 rounded-lg p-6 md:p-8 space-y-5">
-        {features.filter(f => f.enabled).map(feature => (
-          <div key={feature.id} className="flex items-center space-x-4">
-            <div className="bg-primary/10 text-primary rounded-full p-2 flex-shrink-0">
-              <Check className="h-5 w-5" />
+      <div>
+        <h4 className="font-medium">{role}</h4>
+        <p className="text-sm text-muted-foreground">{subtitle}</p>
+      </div>
+    </div>
+  );
+  
+  const renderProviderFunctions = () => {
+    if (!is_prestador) return null;
+    
+    return (
+      <div className="mt-4 space-y-2">
+        <h3 className="text-md font-medium">Você vai atuar como prestador:</h3>
+        <div className="space-y-2">
+          {candidata_eventos && (
+            <div className="flex items-center gap-2 text-sm">
+              <UserSearch className="h-4 w-4 text-primary" />
+              <span>Candidatar-se a eventos existentes</span>
             </div>
-            <div className="flex items-center space-x-3">
-              <feature.icon className="h-5 w-5 text-muted-foreground" />
-              <span className="text-base">{feature.label}</span>
+          )}
+          
+          {divulga_servicos && (
+            <div className="flex items-center gap-2 text-sm">
+              <Megaphone className="h-4 w-4 text-primary" />
+              <span>Divulgar meus serviços</span>
             </div>
-          </div>
-        ))}
-        
-        <div className="flex items-start space-x-4 pt-4 border-t border-border mt-4">
-          <div className="bg-amber-100 text-amber-600 rounded-full p-2 flex-shrink-0">
-            <ArrowRight className="h-5 w-5" />
-          </div>
-          <span className="text-sm">Você pode mudar isso a qualquer momento no seu perfil</span>
+          )}
+          
+          {divulga_locais && (
+            <div className="flex items-center gap-2 text-sm">
+              <Building className="h-4 w-4 text-primary" />
+              <span>Anunciar locais para eventos</span>
+            </div>
+          )}
         </div>
       </div>
+    );
+  };
+  
+  return (
+    <div className="space-y-6">
+      <div className="text-center mb-4">
+        <h2 className="text-xl md:text-2xl font-bold mb-2">Confirme suas escolhas</h2>
+        <p className="text-muted-foreground text-sm">
+          Você selecionou {getSelectionCount()} {getSelectionCount() === 1 ? 'função' : 'funções'}
+        </p>
+      </div>
       
-      <div className="flex justify-between mt-8">
+      <div className="space-y-4">
+        {is_contratante && renderSelectedRole(
+          "Contratante", 
+          <Calendar className="h-5 w-5" />, 
+          "Você poderá criar eventos e contratar prestadores de serviços"
+        )}
+        
+        {is_prestador && renderSelectedRole(
+          "Prestador de serviços", 
+          <Briefcase className="h-5 w-5" />, 
+          "Você poderá oferecer seus serviços para eventos"
+        )}
+        
+        {divulga_locais && !is_prestador && renderSelectedRole(
+          "Anunciante de locais", 
+          <Building className="h-5 w-5" />, 
+          "Você poderá divulgar espaços para a realização de eventos"
+        )}
+        
+        {renderProviderFunctions()}
+      </div>
+      
+      <div className={cn(
+        "flex justify-between mt-6",
+        isMobile ? "flex-col gap-3" : ""
+      )}>
         <Button 
           onClick={onBack}
           variant="outline"
-          size="lg"
-          className="px-6"
+          size={isMobile ? "default" : "lg"}
+          className={isMobile ? "w-full" : "px-6"}
         >
           Voltar
         </Button>
         <Button 
           onClick={onNext}
-          size="lg"
-          className="px-8"
+          disabled={!hasFunctionsSelected()}
+          size={isMobile ? "default" : "lg"}
+          className={isMobile ? "w-full" : "px-8"}
         >
-          Completar cadastro
+          Continuar para cadastro
         </Button>
       </div>
     </div>

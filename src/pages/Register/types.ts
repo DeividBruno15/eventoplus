@@ -2,32 +2,31 @@
 import { z } from 'zod';
 
 export const registerFormSchema = z.object({
-  email: z.string().email('Email inválido'),
-  password: z.string().min(8, 'A senha deve ter no mínimo 8 caracteres')
-    .regex(/[A-Z]/, 'A senha deve conter pelo menos uma letra maiúscula')
-    .regex(/[a-z]/, 'A senha deve conter pelo menos uma letra minúscula')
-    .regex(/[0-9]/, 'A senha deve conter pelo menos um número')
-    .regex(/[^A-Za-z0-9]/, 'A senha deve conter pelo menos um caractere especial'),
-  first_name: z.string().min(2, 'Nome deve ter no mínimo 2 caracteres'),
-  last_name: z.string().min(2, 'Sobrenome deve ter no mínimo 2 caracteres'),
-  person_type: z.enum(['fisica', 'juridica']),
-  document_number: z.string().min(11, 'CPF/CNPJ inválido'),
   role: z.enum(['contractor', 'provider', 'advertiser']),
-  zipcode: z.string().min(8, 'CEP inválido'),
-  street: z.string().min(2, 'Rua é obrigatória'),
-  number: z.string().min(1, 'Número é obrigatório'),
-  neighborhood: z.string(),
-  city: z.string().min(2, 'Cidade é obrigatória'),
-  state: z.string().length(2, 'Estado deve ter 2 letras'),
+  first_name: z.string().min(2, { message: "Nome deve ter pelo menos 2 caracteres" }),
+  last_name: z.string().min(2, { message: "Sobrenome deve ter pelo menos 2 caracteres" }),
+  email: z.string().email({ message: "E-mail inválido" }),
+  password: z.string().min(8, { message: "Senha deve ter pelo menos 8 caracteres" }),
+  person_type: z.enum(['fisica', 'juridica']),
+  document_number: z.string().min(11, { message: "Documento inválido" }),
+  address: z.string().min(5, { message: "Endereço deve ter pelo menos 5 caracteres" }),
+  city: z.string().min(2, { message: "Cidade deve ter pelo menos 2 caracteres" }),
+  state: z.string().min(2, { message: "Estado deve ter pelo menos 2 caracteres" }),
+  zipcode: z.string().min(8, { message: "CEP inválido" }).optional(),
   service_categories: z.array(z.string()).optional(),
-  is_onboarding_complete: z.boolean().optional(),
-  // Add onboarding-related fields
-  is_contratante: z.boolean().optional(),
-  is_prestador: z.boolean().optional(),
-  candidata_eventos: z.boolean().optional(),
-  divulga_servicos: z.boolean().optional(),
-  divulga_eventos: z.boolean().optional(),
-  divulga_locais: z.boolean().optional(),
+  accept_terms: z.boolean().refine(val => val === true, {
+    message: 'Você precisa aceitar os termos de serviço',
+  }),
+  // Campos do onboarding
+  is_contratante: z.boolean().default(false),
+  is_prestador: z.boolean().default(false),
+  candidata_eventos: z.boolean().default(false),
+  divulga_servicos: z.boolean().default(false),
+  divulga_eventos: z.boolean().default(false),
+  divulga_locais: z.boolean().default(false),
+  is_onboarding_complete: z.boolean().default(false),
+  phone_number: z.string().optional(),
+  accept_whatsapp: z.boolean().default(true),
 });
 
 export type RegisterFormData = z.infer<typeof registerFormSchema>;

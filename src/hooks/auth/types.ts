@@ -14,5 +14,5 @@ export interface AuthContextType {
   register: (formData: RegisterFormData) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   updateOnboardingStatus: (status: boolean) => Promise<void>;
-  signOut: () => Promise<void>; // Add signOut method alias for logout
+  signOut: () => Promise<void>; // Alias for logout
 }
