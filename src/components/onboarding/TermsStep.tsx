@@ -8,12 +8,17 @@ import { AlertCircle } from 'lucide-react';
 
 interface TermsStepProps {
   form: UseFormReturn<OnboardingFunctionsData>;
-  onNext: () => void;
-  onBack: () => void;
+  onNext?: () => void;
+  onBack?: () => void;
+  loading?: boolean;
 }
 
-export function TermsStep({ form, onNext, onBack }: TermsStepProps) {
+export function TermsStep({ form, onNext, onBack, loading }: TermsStepProps) {
   const acceptTerms = form.watch('accept_terms');
+
+  const handleNext = () => {
+    if (onNext) onNext();
+  };
 
   return (
     <div className="space-y-6">
@@ -76,22 +81,36 @@ export function TermsStep({ form, onNext, onBack }: TermsStepProps) {
           />
           
           <div className="flex justify-between mt-8">
-            <Button 
-              type="button"
-              onClick={onBack}
-              variant="outline"
-              size="lg"
-            >
-              Voltar
-            </Button>
-            <Button 
-              type="button"
-              disabled={!acceptTerms}
-              onClick={onNext}
-              size="lg"
-            >
-              Continuar
-            </Button>
+            {onBack && (
+              <Button 
+                type="button"
+                onClick={onBack}
+                variant="outline"
+                size="lg"
+              >
+                Voltar
+              </Button>
+            )}
+            {onNext && (
+              <Button 
+                type="button"
+                disabled={!acceptTerms || loading}
+                onClick={handleNext}
+                size="lg"
+              >
+                {loading ? "Processando..." : "Continuar"}
+              </Button>
+            )}
+            {!onNext && (
+              <Button 
+                type="submit"
+                disabled={!acceptTerms || loading}
+                size="lg"
+                className="ml-auto"
+              >
+                {loading ? "Processando..." : "Finalizar cadastro"}
+              </Button>
+            )}
           </div>
         </form>
       </Form>
