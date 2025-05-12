@@ -1,73 +1,116 @@
-# Welcome to your Lovable project
 
-## Project info
+# Evento+ - Plataforma de Eventos
 
-**URL**: https://lovable.dev/projects/e7aea05a-8419-497e-8408-1e2b11f061e8
+## Visão Geral
 
-## How can I edit this code?
+Evento+ é uma plataforma que conecta organizadores de eventos com prestadores de serviços e locais para realização de eventos. A plataforma facilita a criação, divulgação e gestão de eventos, além de permitir que prestadores de serviços se candidatem a oportunidades.
 
-There are several ways of editing your application.
+## Funcionalidades Principais
 
-**Use Lovable**
+- Registro e autenticação de usuários (contratantes, prestadores, anunciantes)
+- Criação e gestão de eventos
+- Candidatura a eventos por prestadores de serviços
+- Anúncio de locais para eventos
+- Troca de mensagens entre usuários
+- Sistema de avaliações
+- Painel administrativo
+- Versão mobile-first para futura conversão em app nativo
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/e7aea05a-8419-497e-8408-1e2b11f061e8) and start prompting.
+## Tecnologias Utilizadas
 
-Changes made via Lovable will be committed automatically to this repo.
+- **Frontend:** React, Vite, TypeScript, TailwindCSS, ShadcnUI
+- **Backend:** Supabase (Banco de dados PostgreSQL, Autenticação, Armazenamento)
+- **Mobile:** Estrutura compatível com CapacitorJS para futuro app nativo
 
-**Use your preferred IDE**
+## Estrutura do Projeto
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+/
+├── public/            # Arquivos estáticos
+├── src/
+│   ├── components/    # Componentes reutilizáveis
+│   ├── hooks/         # Hooks personalizados
+│   ├── layouts/       # Layouts da aplicação
+│   ├── lib/           # Utilitários e funções auxiliares
+│   ├── pages/         # Páginas da aplicação
+│   ├── types/         # Definições de tipos TypeScript
+│   ├── utils/         # Funções utilitárias
+│   ├── App.tsx        # Componente raiz da aplicação
+│   └── main.tsx       # Ponto de entrada da aplicação
+├── capacitor.config.ts # Configuração para CapacitorJS
+└── package.json       # Dependências do projeto
 ```
 
-**Edit a file directly in GitHub**
+## Versão Mobile
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+O projeto está preparado para ser convertido em um aplicativo móvel nativo usando CapacitorJS. A versão mobile mantém todas as funcionalidades da plataforma web, mas com uma interface otimizada para dispositivos móveis.
 
-**Use GitHub Codespaces**
+### Características da Versão Mobile:
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- Navegação inferior (bottom tabs)
+- Interface otimizada para toque
+- Splash screen
+- Notificações push
+- Layout responsivo
 
-## What technologies are used for this project?
+## Como Executar o Projeto
 
-This project is built with:
+### Pré-requisitos
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- Node.js (versão 16 ou superior)
+- npm ou yarn
 
-## How can I deploy this project?
+### Instalação
 
-Simply open [Lovable](https://lovable.dev/projects/e7aea05a-8419-497e-8408-1e2b11f061e8) and click on Share -> Publish.
+1. Clone o repositório
+2. Instale as dependências:
+   ```
+   npm install
+   ```
+3. Inicie o servidor de desenvolvimento:
+   ```
+   npm run dev
+   ```
 
-## Can I connect a custom domain to my Lovable project?
+### Construir para Produção
 
-Yes, you can!
+```
+npm run build
+```
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Preparação para Capacitor (App Nativo)
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+1. Construa o projeto:
+   ```
+   npm run build
+   ```
+
+2. Inicialize Capacitor:
+   ```
+   npx cap init
+   ```
+
+3. Adicione as plataformas desejadas:
+   ```
+   npx cap add android
+   npx cap add ios
+   ```
+
+4. Sincronize o projeto:
+   ```
+   npx cap sync
+   ```
+
+5. Abra o projeto na IDE nativa:
+   ```
+   npx cap open android
+   npx cap open ios
+   ```
+
+## Funcionalidades Futuras
+
+- Integração com pagamentos
+- Sistema de assinaturas
+- Módulo de relatórios avançados
+- Integração com calendários externos
+- Recursos de marketing para eventos

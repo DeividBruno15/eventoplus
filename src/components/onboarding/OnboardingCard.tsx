@@ -21,7 +21,7 @@ export function OnboardingCard({ title, description, icon: Icon, selected, onCli
       )}
       onClick={onClick}
     >
-      <CardContent className="p-6 flex flex-col h-full">
+      <CardContent className="p-4 sm:p-6 flex flex-col h-full">
         <div className="flex flex-col sm:flex-row items-start gap-4 h-full">
           <div className={cn(
             'p-3 rounded-md mb-2 sm:mb-0',

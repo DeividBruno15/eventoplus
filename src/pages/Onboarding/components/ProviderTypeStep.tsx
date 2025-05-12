@@ -35,7 +35,7 @@ export function ProviderTypeStep({ form, onNext, onBack }: ProviderTypeStepProps
         <p className="text-muted-foreground">Você pode escolher mais de uma opção</p>
       </div>
       
-      <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 grid-cols-1 md:grid-cols-3">
         <OnboardingCard
           title="Me candidatar a eventos existentes"
           description="Busque e se candidate a eventos publicados na plataforma"

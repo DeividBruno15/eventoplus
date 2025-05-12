@@ -41,7 +41,7 @@ export function PlatformUsageStep({ form, onNext }: PlatformUsageStepProps) {
         <p className="text-muted-foreground">Você pode escolher mais de uma opção</p>
       </div>
       
-      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
+      <div className="grid gap-6 grid-cols-1 md:grid-cols-3">
         <OnboardingCard
           title="Divulgar eventos e contratar prestadores"
           description="Crie eventos e encontre profissionais qualificados para seus eventos"
