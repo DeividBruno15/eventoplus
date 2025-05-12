@@ -63,7 +63,7 @@ export const MobileTopbar = () => {
         <div className="flex items-center gap-1">
           <ThemeToggle />
           
-          {/* Only one notification icon */}
+          {/* Apenas um componente de notificações */}
           <NotificationsMenu />
           
           <Sheet open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>

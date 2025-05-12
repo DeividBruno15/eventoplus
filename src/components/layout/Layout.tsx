@@ -9,6 +9,7 @@ import { UserMenu } from './UserMenu';
 import { NotificationSettings } from './notifications/NotificationSettings';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { SidebarProvider } from '@/components/ui/sidebar/context';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 
 export default function Layout() {
   const navigate = useNavigate();
@@ -40,12 +41,13 @@ export default function Layout() {
               )}
             </div>
             <div className="flex items-center space-x-2">
+              <ThemeToggle />
               <NotificationSettings />
               <NotificationsMenu />
               <UserMenu />
             </div>
           </header>
-          <main className="flex-1 overflow-auto p-4">
+          <main className="flex-1 overflow-auto p-4 md:p-6 lg:p-8">
             <Outlet />
           </main>
         </div>

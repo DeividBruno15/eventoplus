@@ -1,4 +1,3 @@
-
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './components/ui/theme-provider';
 import { Toaster } from './components/ui/toaster';
@@ -74,16 +73,14 @@ function App() {
                   <Route path="/" element={<Index />} />
                   <Route path="/about" element={<About />} />
                   <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
-                  <Route path="/forgot-password" element={<ForgotPassword />} />
-                  <Route path="/reset-password" element={<ResetPassword />} />
                   <Route path="/contact" element={<Contact />} />
 
-                  {/* Rota de onboarding com alta prioridade */}
-                  <Route 
-                    path="/onboarding" 
-                    element={<Onboarding />} 
-                  />
+                  {/* Rota de onboarding vem antes do registro */}
+                  <Route path="/onboarding" element={<Onboarding />} />
+                  <Route path="/register" element={<Register />} />
+                  
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
 
                   <Route element={<Layout />}>
                     <Route 

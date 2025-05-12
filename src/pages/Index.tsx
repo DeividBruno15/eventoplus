@@ -1,32 +1,55 @@
 
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import Hero from '../components/Hero';
-import FeatureSection from '../components/FeatureSection';
-import ServiceCategories from '../components/ServiceCategories';
-import CallToAction from '../components/CallToAction';
-import PlanSection from '../components/PlanSection';
-import FAQ from '../components/FAQ';
-import UserTypeSection from '../components/UserTypeSection';
+// Este é apenas um exemplo de como padronizar os espaçamentos em todas as páginas
+// Adicione a classe "section-padding" aos containers principais das suas páginas
+
+import React from 'react';
+import Navbar from '@/components/Navbar';
+import Hero from '@/components/Hero';
+import FeatureSection from '@/components/FeatureSection';
+import ServiceCategories from '@/components/ServiceCategories';
+import UserTypeSection from '@/components/UserTypeSection';
+import TestimonialSection from '@/components/TestimonialSection';
+import PlanSection from '@/components/PlanSection';
+import FAQ from '@/components/FAQ';
+import CallToAction from '@/components/CallToAction';
+import Footer from '@/components/Footer';
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-indigo-50 to-white overflow-x-hidden">
+    <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
-      <main className="overflow-x-hidden">
-        <Hero />
-        <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-b from-indigo-50 to-white z-[-1]"></div>
+      <main className="flex-grow">
+        <section className="section-padding">
+          <Hero />
+        </section>
+        
+        <section className="section-padding bg-muted/30">
           <FeatureSection />
-        </div>
-        <UserTypeSection />
-        <ServiceCategories />
-        <div className="relative bg-gray-50 py-8 md:py-16">
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-white to-green-50 opacity-50 z-[-1]"></div>
+        </section>
+        
+        <section className="section-padding">
+          <ServiceCategories />
+        </section>
+        
+        <section className="section-padding bg-muted/30">
+          <UserTypeSection />
+        </section>
+        
+        <section className="section-padding">
+          <TestimonialSection />
+        </section>
+        
+        <section className="section-padding bg-muted/30">
           <PlanSection />
-        </div>
-        <FAQ />
-        <CallToAction />
+        </section>
+        
+        <section className="section-padding">
+          <FAQ />
+        </section>
+        
+        <section className="section-padding bg-primary/5">
+          <CallToAction />
+        </section>
       </main>
       <Footer />
     </div>

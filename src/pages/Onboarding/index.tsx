@@ -26,15 +26,10 @@ const Onboarding = () => {
     handleSubmit
   } = useOnboarding();
 
-  // Verificar se o usuário já completou o onboarding
+  // Aqui alteramos a verificação para direcionar ao registro quando não houver user
   useEffect(() => {
     if (!user) {
-      navigate('/login');
-      toast({
-        title: "Acesso negado",
-        description: "Você precisa estar logado para acessar esta página",
-        variant: "destructive",
-      });
+      // Se o usuário não está autenticado, está na etapa inicial de onboarding
       return;
     }
     
@@ -54,14 +49,23 @@ const Onboarding = () => {
     handleSubmit(formData);
   };
 
+  // Quando o usuário completa o onboarding, é redirecionado para o registro
+  const onCompletePreliminary = () => {
+    navigate('/register', { 
+      state: { 
+        onboardingData: form.getValues() 
+      } 
+    });
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <div className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <Card className="w-full max-w-2xl">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold">Bem-vindo(a)! Vamos finalizar seu cadastro</CardTitle>
+            <CardTitle className="text-2xl font-bold">Bem-vindo(a)! Vamos configurar sua conta</CardTitle>
             <CardDescription>
-              Apenas mais alguns passos para você começar a usar a plataforma
+              Conte-nos como você deseja utilizar nossa plataforma
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -74,9 +78,10 @@ const Onboarding = () => {
               <ProviderTypeStep form={form} onNext={goToNext} onBack={goBack} />}
               
             {currentStep === 3 && 
-              <ConfirmationStep form={form} onNext={goToNext} onBack={goBack} />}
+              <ConfirmationStep form={form} onNext={onCompletePreliminary} onBack={goBack} />}
               
-            {currentStep === 4 && 
+            {/* A última etapa só será mostrada depois do registro */}
+            {currentStep === 4 && user && 
               <PhoneAndTermsStep form={form} onSubmit={onSubmitForm} onBack={goBack} loading={submitting} />}
           </CardContent>
         </Card>
