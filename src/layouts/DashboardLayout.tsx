@@ -23,14 +23,14 @@ const DashboardLayout = () => {
   const navigate = useNavigate();
   const { isMobile } = useBreakpoint('md');
 
-  // Verificar status de autenticação e onboarding
+  // Verificar status de autenticação
   useEffect(() => {
     if (user) {
-      // Verificar se o usuário completou o onboarding
-      if (!user.user_metadata?.is_onboarding_complete) {
-        navigate('/onboarding');
-        return;
-      }
+      // Remover temporariamente a verificação de onboarding
+      // if (!user.user_metadata?.is_onboarding_complete) {
+      //   navigate('/onboarding');
+      //   return;
+      // }
       setIsLoggedIn(true);
     } else {
       // Pequeno delay para verificar se o usuário está realmente deslogado

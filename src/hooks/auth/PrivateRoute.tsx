@@ -13,11 +13,12 @@ const PrivateRoute = ({ children }: PrivateRouteProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  useEffect(() => {
-    if (user && !user.user_metadata?.is_onboarding_complete) {
-      navigate('/onboarding');
-    }
-  }, [user, navigate]);
+  // Comentando temporariamente a verificação de onboarding
+  // useEffect(() => {
+  //   if (user && !user.user_metadata?.is_onboarding_complete) {
+  //     navigate('/onboarding');
+  //   }
+  // }, [user, navigate]);
 
   if (loading) {
     return (
