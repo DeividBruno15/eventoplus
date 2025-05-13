@@ -1,3 +1,4 @@
+
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './components/ui/theme-provider';
 import { Toaster } from './components/ui/toaster';
@@ -44,6 +45,8 @@ import UserProfile from './pages/UserProfile';
 import Support from './pages/Support';
 import WhatsAppAssistant from './pages/WhatsAppAssistant';
 import Onboarding from './pages/Onboarding';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -55,6 +58,17 @@ const queryClient = new QueryClient({
 });
 
 const isMaintenance = false;
+
+// Component to wrap public pages with navbar and footer
+const PublicPageWrapper = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <>
+      <Navbar />
+      {children}
+      <Footer />
+    </>
+  );
+};
 
 function App() {
   return (
@@ -70,18 +84,17 @@ function App() {
                 </>
               ) : (
                 <>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/contact" element={<Contact />} />
+                  {/* Public routes with Navbar and Footer */}
+                  <Route path="/" element={<PublicPageWrapper><Index /></PublicPageWrapper>} />
+                  <Route path="/about" element={<PublicPageWrapper><About /></PublicPageWrapper>} />
+                  <Route path="/contact" element={<PublicPageWrapper><Contact /></PublicPageWrapper>} />
+                  <Route path="/login" element={<PublicPageWrapper><Login /></PublicPageWrapper>} />
+                  <Route path="/onboarding" element={<PublicPageWrapper><Onboarding /></PublicPageWrapper>} />
+                  <Route path="/register" element={<PublicPageWrapper><Register /></PublicPageWrapper>} />
+                  <Route path="/forgot-password" element={<PublicPageWrapper><ForgotPassword /></PublicPageWrapper>} />
+                  <Route path="/reset-password" element={<PublicPageWrapper><ResetPassword /></PublicPageWrapper>} />
 
-                  {/* Rota de onboarding vem antes do registro */}
-                  <Route path="/onboarding" element={<Onboarding />} />
-                  <Route path="/register" element={<Register />} />
-                  
-                  <Route path="/forgot-password" element={<ForgotPassword />} />
-                  <Route path="/reset-password" element={<ResetPassword />} />
-
+                  {/* Private routes with Layout */}
                   <Route element={<Layout />}>
                     <Route 
                       path="/profile"
