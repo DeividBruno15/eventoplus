@@ -1,7 +1,8 @@
 
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/auth';
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface PrivateRouteProps {
   children: React.ReactNode;
@@ -10,15 +11,14 @@ interface PrivateRouteProps {
 const PrivateRoute = ({ children }: PrivateRouteProps) => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   
-  // Efeito para verificar e redirecionar para o onboarding se necessário
   useEffect(() => {
     if (user && !user.user_metadata?.is_onboarding_complete) {
       navigate('/onboarding');
     }
   }, [user, navigate]);
 
-  // Se estiver carregando, mostrar um spinner ou componente de loading
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -27,12 +27,12 @@ const PrivateRoute = ({ children }: PrivateRouteProps) => {
     );
   }
 
-  // Se não estiver autenticado, redireciona para o login
   if (!user) {
-    return <Navigate to="/login" replace />;
+    // Save the location the user was trying to access for redirect after login
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Usuário autenticado
+  // User authenticated
   return <>{children}</>;
 };
 
