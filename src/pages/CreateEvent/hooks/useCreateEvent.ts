@@ -87,17 +87,21 @@ export const useCreateEvent = () => {
         }
       }
       
-      // Prepare event object for saving - Removendo colunas inexistentes
+      // Convert date from DD/MM/YYYY to ISO format YYYY-MM-DD
+      let isoDate = eventData.event_date;
+      if (eventData.event_date && eventData.event_date.includes('/')) {
+        const [day, month, year] = eventData.event_date.split('/');
+        isoDate = `${year}-${month}-${day}`;
+      }
+      
+      // Prepare event object for saving
       const eventToSave = {
         name: eventData.name,
         description: eventData.description,
-        event_date: eventData.event_date,
+        event_date: isoDate,
         event_time: eventData.event_time,
         location: formattedAddress,
-        // Apenas use o zipcode que existe na tabela
         zipcode: eventData.zipcode,
-        // Armazenamos os dados de endereço como parte do objeto location e removemos os campos inexistentes
-        // Removemos a referência a venue_id que não existe na tabela
         service_requests: prepareServiceRequestsForStorage(eventData.service_requests),
         image_url: imageUrl,
         contractor_id: user.id,
