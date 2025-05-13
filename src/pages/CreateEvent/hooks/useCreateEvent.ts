@@ -19,6 +19,40 @@ export const useCreateEvent = () => {
   const { fetchEvent, event } = useFetchEvent();
 
   /**
+   * Envia os dados do evento para o webhook do n8n
+   * @param eventData Dados do evento a serem enviados
+   */
+  const sendEventToN8n = async (event: any) => {
+    try {
+      const eventoData = {
+        evento_id: event.id,
+        nome: event.name,
+        data: event.event_date,
+        tipo_servico: event.service_type,
+        local: event.location,
+      };
+
+      console.log("Enviando dados para webhook:", eventoData);
+
+      const response = await fetch("https://deveventoplus.app.n8n.cloud/webhook-test/novoevento", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(eventoData),
+      });
+
+      const data = await response.json();
+      console.log("Evento enviado para o n8n:", data);
+      return true;
+    } catch (error) {
+      console.error("Erro ao enviar evento para o n8n:", error);
+      // Não interrompe o fluxo em caso de erro no webhook
+      return false;
+    }
+  };
+
+  /**
    * Creates or updates an event
    * @param eventData The event data to save
    * @param eventId Optional event ID for updates
@@ -75,16 +109,27 @@ export const useCreateEvent = () => {
       console.log("Saving event with data:", eventToSave);
       
       let response;
+      let savedEvent;
       
       if (eventId) {
         response = await supabase
           .from('events')
           .update(eventToSave)
-          .eq('id', eventId);
+          .eq('id', eventId)
+          .select();
+          
+        if (response.data && response.data.length > 0) {
+          savedEvent = response.data[0];
+        }
       } else {
         response = await supabase
           .from('events')
-          .insert(eventToSave);
+          .insert(eventToSave)
+          .select();
+          
+        if (response.data && response.data.length > 0) {
+          savedEvent = response.data[0];
+        }
       }
 
       if (response.error) {
@@ -93,6 +138,14 @@ export const useCreateEvent = () => {
       }
       
       console.log("Event saved successfully:", response);
+      
+      // Enviar dados para o webhook do n8n
+      if (savedEvent) {
+        await sendEventToN8n(savedEvent);
+      } else {
+        console.warn("Evento salvo, mas não foi possível recuperar os dados para enviar ao webhook");
+      }
+      
       toast.success("Evento salvo com sucesso!");
       return true;
     } catch (error: any) {
