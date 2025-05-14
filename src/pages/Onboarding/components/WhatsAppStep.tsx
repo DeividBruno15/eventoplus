@@ -6,6 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { UseFormReturn } from 'react-hook-form';
 import { OnboardingFunctionsData } from '@/pages/Onboarding/types';
 import { Smartphone } from 'lucide-react';
+import { useState } from 'react';
 
 interface WhatsAppStepProps {
   form: UseFormReturn<OnboardingFunctionsData>;
@@ -15,6 +16,25 @@ interface WhatsAppStepProps {
 }
 
 export const WhatsAppStep = ({ form, onSubmit, onBack, loading }: WhatsAppStepProps) => {
+  const [formattedPhone, setFormattedPhone] = useState(form.getValues('phone_number') || '');
+  
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, '');
+    
+    if (value.length <= 11) {
+      // Formata o número enquanto digita
+      if (value.length > 2) {
+        value = `(${value.substring(0, 2)}) ${value.substring(2)}`;
+      }
+      if (value.length > 9) {
+        value = `${value.substring(0, 10)}-${value.substring(10)}`;
+      }
+      
+      setFormattedPhone(value);
+      form.setValue('phone_number', value);
+    }
+  };
+
   return (
     <>
       <div className="text-center mb-6">
@@ -39,7 +59,9 @@ export const WhatsAppStep = ({ form, onSubmit, onBack, loading }: WhatsAppStepPr
               <Input
                 type="tel"
                 placeholder="(00) 00000-0000"
-                {...field}
+                value={formattedPhone}
+                onChange={handlePhoneChange}
+                className="focus:border-green-500 focus:ring-green-500"
               />
             </FormControl>
             <FormDescription>
@@ -54,15 +76,16 @@ export const WhatsAppStep = ({ form, onSubmit, onBack, loading }: WhatsAppStepPr
         control={form.control}
         name="accept_whatsapp"
         render={({ field }) => (
-          <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+          <FormItem className="flex flex-row items-start space-x-3 space-y-0 mt-4">
             <FormControl>
               <Checkbox
                 checked={field.value}
                 onCheckedChange={field.onChange}
+                className="data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
               />
             </FormControl>
             <div className="space-y-1 leading-none">
-              <FormLabel>
+              <FormLabel className="cursor-pointer">
                 Quero receber notificações por WhatsApp
               </FormLabel>
               <FormDescription>
@@ -87,6 +110,7 @@ export const WhatsAppStep = ({ form, onSubmit, onBack, loading }: WhatsAppStepPr
           onClick={onSubmit}
           disabled={loading}
           size="lg"
+          className="bg-green-600 hover:bg-green-700 text-white"
         >
           Continuar
         </Button>

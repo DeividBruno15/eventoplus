@@ -5,7 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { UserProfile } from './sidebar/UserProfile';
 import { MenuGroup } from './sidebar/MenuGroup';
-import { LogOut } from 'lucide-react';
+import { LogOut, Settings } from 'lucide-react';
 import { useUnreadMessages } from './sidebar/useUnreadMessages';
 import { useUserRoles } from './sidebar/useUserRoles';
 import { SidebarNavigationProps } from './sidebar/types';
@@ -14,6 +14,8 @@ import { getMainMenuItems, getSupportMenuItems } from './sidebar/menu-data';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { useSidebar } from '@/components/ui/sidebar/context';
+import { useState } from 'react';
+import { useHover } from '@/hooks/useHover';
 
 export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
   const navigate = useNavigate();
@@ -22,6 +24,7 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
   const { toast } = useToast();
   const { isDesktop } = useBreakpoint('md');
   const { isMobile } = useSidebar();
+  const [logoutHover, logoutHoverRef] = useHover();
   
   const unreadMessages = useUnreadMessages(user?.id);
   const { hasProviderRole, hasContractorRole } = useUserRoles(user);
@@ -84,7 +87,7 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
         <div className="flex-shrink-0 mb-4">
           {/* Logo */}
           <div className="flex justify-center items-center py-4">
-            <h1 className="text-2xl font-bold text-primary">Evento+</h1>
+            <h1 className="text-2xl font-bold text-primary">Evento<span className="text-secondary">+</span></h1>
           </div>
           
           <UserProfile 
@@ -118,16 +121,32 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
                 onItemClick={handleItemClick} 
               />
               
-              {/* Adicionar botão de logout aqui, após os itens de suporte */}
-              <div className="px-1 mt-6">
+              {/* Adicionar botão de configurações e logout */}
+              <div className="px-1 mt-6 space-y-2">
                 <SidebarMenuItem>
                   <SidebarMenuButton
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 text-red-500 hover:text-red-600 hover:translate-x-1 transition-all duration-300"
+                    onClick={() => navigate('/settings')}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-accent hover:text-accent-foreground transition-all duration-300 ${
+                      currentPath === '/settings' ? 'bg-accent text-accent-foreground' : ''
+                    }`}
                   >
-                    <LogOut className="h-5 w-5" />
-                    <span>Sair</span>
+                    <Settings className="h-5 w-5" />
+                    <span>Configurações</span>
                   </SidebarMenuButton>
+                </SidebarMenuItem>
+                
+                <SidebarMenuItem>
+                  <div ref={logoutHoverRef} className="w-full">
+                    <SidebarMenuButton
+                      onClick={handleLogout}
+                      className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 transition-all duration-300 ${
+                        logoutHover ? 'translate-x-1' : ''
+                      }`}
+                    >
+                      <LogOut className="h-5 w-5" />
+                      <span>Sair</span>
+                    </SidebarMenuButton>
+                  </div>
                 </SidebarMenuItem>
               </div>
             </div>

@@ -10,23 +10,40 @@ import { NotificationSettings } from './notifications/NotificationSettings';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { SidebarProvider } from '@/components/ui/sidebar/context';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { Toaster } from '@/components/ui/toaster';
+import { useEffect, useState } from 'react';
 
 export default function Layout() {
   const navigate = useNavigate();
   const { isOpen, toggleSidebar } = useNavigationState();
   const { isDesktop } = useBreakpoint('md');
+  const [isScrolled, setIsScrolled] = useState(false);
   
   const handleNavigate = (path: string) => {
     navigate(path);
   };
 
+  // Detectar scroll para adicionar efeito de sombra no header
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-full bg-gray-50">
+      <div className="flex h-screen w-full bg-background">
         <SidebarNavigation onNavigate={handleNavigate} />
         
         <div className="flex-1 flex flex-col h-full overflow-hidden">
-          <header className="h-16 border-b bg-white px-4 flex items-center justify-between">
+          <header className={`h-16 border-b z-10 bg-background/95 backdrop-blur-sm px-4 flex items-center justify-between sticky top-0 transition-shadow duration-300 ${
+            isScrolled ? 'shadow-sm' : ''
+          }`}>
             <div className="flex items-center">
               {!isDesktop && (
                 <Button 
@@ -51,6 +68,7 @@ export default function Layout() {
             <Outlet />
           </main>
         </div>
+        <Toaster />
       </div>
     </SidebarProvider>
   );
