@@ -73,7 +73,6 @@ export const RegisterForm = () => {
   const onSubmit = async (values: RegisterFormData) => {
     if (!allRequirementsMet) {
       toast({
-        title: "Requisitos não atendidos",
         description: "Por favor, verifique os critérios de segurança da senha.",
         variant: "destructive"
       });
@@ -131,7 +130,6 @@ export const RegisterForm = () => {
       
       setFormError(errorMessage);
       toast({
-        title: "Erro ao cadastrar",
         description: errorMessage,
         variant: "destructive",
       });

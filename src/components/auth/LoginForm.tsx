@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,7 @@ import { LoginDivider } from './LoginDivider';
 import { GoogleLoginButton } from './GoogleLoginButton';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
@@ -76,7 +75,6 @@ export const LoginForm = ({ loading, onSubmit, onGoogleLogin }: LoginFormProps) 
       setFormError(errorMessage);
       toast({
         variant: "destructive",
-        title: "Erro ao fazer login",
         description: errorMessage
       });
     }
