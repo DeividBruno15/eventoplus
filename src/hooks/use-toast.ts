@@ -22,7 +22,7 @@ export type ToasterToast = ToastProps & {
 
 // Creating an interface compatible with the original hook return type
 export interface UseToastResult {
-  toast: (props: Omit<ToasterToast, "id">) => void;
+  toast: (props: { title?: React.ReactNode; description?: React.ReactNode; variant?: "default" | "destructive" }) => void;
   dismiss: (toastId?: string) => void;
   toasts: ToasterToast[];
 }
@@ -42,10 +42,18 @@ export function useToast(): UseToastResult {
   return { 
     toast: (props) => {
       const { title, description, variant, ...rest } = props;
-      toast(title, {
-        description,
-        ...rest
-      });
+      if (title) {
+        toast(title, {
+          description,
+          ...rest
+        });
+      } else if (description) {
+        // If there's no title but there is a description, use the description as the main message
+        toast(description, rest);
+      } else {
+        // Fallback if neither title nor description is provided
+        toast("Notification", rest);
+      }
     },
     dismiss,
     toasts: [] // Sonner doesn't expose a way to get all toasts, so we return an empty array
