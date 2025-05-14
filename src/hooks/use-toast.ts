@@ -22,7 +22,13 @@ export type ToasterToast = ToastProps & {
 
 // Creating an interface compatible with the original hook return type
 export interface UseToastResult {
-  toast: (props: { title?: React.ReactNode; description?: React.ReactNode; variant?: "default" | "destructive" }) => void;
+  toast: (props: { 
+    title?: React.ReactNode; 
+    description?: React.ReactNode; 
+    variant?: "default" | "destructive";
+    duration?: number;
+    // Add any other props that might be needed
+  }) => void;
   dismiss: (toastId?: string) => void;
   toasts: ToasterToast[];
 }
@@ -41,12 +47,16 @@ export function useToast(): UseToastResult {
   // We need to return an object with the same shape as UseToastResult
   return { 
     toast: (props) => {
-      const { title, description, variant, ...rest } = props;
+      const { title, description, variant, duration, ...rest } = props;
+      
+      const options = {
+        description,
+        duration,
+        ...rest
+      };
+      
       if (title) {
-        toast(title, {
-          description,
-          ...rest
-        });
+        toast(title, options);
       } else if (description) {
         // If there's no title but there is a description, use the description as the main message
         toast(description, rest);
