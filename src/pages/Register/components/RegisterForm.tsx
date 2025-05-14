@@ -73,6 +73,7 @@ export const RegisterForm = () => {
   const onSubmit = async (values: RegisterFormData) => {
     if (!allRequirementsMet) {
       toast({
+        title: "Erro de validação",
         description: "Por favor, verifique os critérios de segurança da senha.",
         variant: "destructive"
       });
@@ -130,6 +131,7 @@ export const RegisterForm = () => {
       
       setFormError(errorMessage);
       toast({
+        title: "Erro",
         description: errorMessage,
         variant: "destructive",
       });

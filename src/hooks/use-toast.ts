@@ -7,11 +7,35 @@ import {
 
 import {
   Toaster,
-  toast
+  toast as sonnerToast
 } from "sonner";
 
 // Re-export for backwards compatibility
-export { toast };
+export const toast = (props: {
+  title?: React.ReactNode;
+  description?: React.ReactNode;
+  variant?: "default" | "destructive";
+  duration?: number;
+  [key: string]: any;
+}) => {
+  const { title, description, variant, duration, ...rest } = props;
+  
+  const options = {
+    description,
+    duration,
+    ...rest
+  };
+  
+  if (title) {
+    sonnerToast(title, options);
+  } else if (description) {
+    // If there's no title but there is a description, use the description as the main message
+    sonnerToast(description, rest);
+  } else {
+    // Fallback if neither title nor description is provided
+    sonnerToast("Notification", rest);
+  }
+};
 
 export type ToasterToast = ToastProps & {
   id: string;
@@ -27,7 +51,7 @@ export interface UseToastResult {
     description?: React.ReactNode; 
     variant?: "default" | "destructive";
     duration?: number;
-    // Add any other props that might be needed
+    [key: string]: any;
   }) => void;
   dismiss: (toastId?: string) => void;
   toasts: ToasterToast[];
@@ -38,33 +62,15 @@ export function useToast(): UseToastResult {
   // In Sonner, there's no direct useToast equivalent, so we'll create a wrapper
   const dismiss = (toastId?: string) => {
     if (toastId) {
-      toast.dismiss(toastId);
+      sonnerToast.dismiss(toastId);
     } else {
-      toast.dismiss();
+      sonnerToast.dismiss();
     }
   };
   
   // We need to return an object with the same shape as UseToastResult
   return { 
-    toast: (props) => {
-      const { title, description, variant, duration, ...rest } = props;
-      
-      const options = {
-        description,
-        duration,
-        ...rest
-      };
-      
-      if (title) {
-        toast(title, options);
-      } else if (description) {
-        // If there's no title but there is a description, use the description as the main message
-        toast(description, rest);
-      } else {
-        // Fallback if neither title nor description is provided
-        toast("Notification", rest);
-      }
-    },
+    toast,
     dismiss,
     toasts: [] // Sonner doesn't expose a way to get all toasts, so we return an empty array
   };
