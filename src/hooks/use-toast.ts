@@ -6,8 +6,9 @@ import {
 } from "@/components/ui/toast";
 
 import {
-  useToast as useToastBase
-} from "@/components/ui/use-toast";
+  useToast as useToastBase,
+  toast as toastBase
+} from "@/components/ui/sonner";
 
 export type ToasterToast = ToastProps & {
   id: string;
@@ -16,7 +17,7 @@ export type ToasterToast = ToastProps & {
   action?: ToastActionElement;
 };
 
-// Criando uma interface compatível com o tipo retornado do hook original
+// Creating an interface compatible with the original hook return type
 export interface UseToastResult {
   toast: (props: Omit<ToasterToast, "id">) => void;
   dismiss: (toastId?: string) => void;
@@ -28,4 +29,4 @@ export function useToast(): UseToastResult {
   return { toast, dismiss, toasts };
 }
 
-export { toast } from "@/components/ui/use-toast";
+export const toast = toastBase;
