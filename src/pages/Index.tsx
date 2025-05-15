@@ -3,7 +3,6 @@
 // Adicione a classe "section-padding" aos containers principais das suas páginas
 
 import React from 'react';
-import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import FeatureSection from '@/components/FeatureSection';
 import ServiceCategories from '@/components/ServiceCategories';
@@ -12,12 +11,10 @@ import TestimonialSection from '@/components/TestimonialSection';
 import PlanSection from '@/components/PlanSection';
 import FAQ from '@/components/FAQ';
 import CallToAction from '@/components/CallToAction';
-import Footer from '@/components/Footer';
 
 const Index = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
       <main className="flex-grow">
         <section className="section-padding">
           <Hero />
@@ -51,7 +48,6 @@ const Index = () => {
           <CallToAction />
         </section>
       </main>
-      <Footer />
     </div>
   );
 };

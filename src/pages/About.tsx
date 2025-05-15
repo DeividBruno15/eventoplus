@@ -1,6 +1,4 @@
 
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
 import AboutHero from '../components/about/AboutHero';
 import UserTypesSection from '../components/about/UserTypesSection';
 import MissionVision from '../components/about/MissionVision';
@@ -11,8 +9,6 @@ import AboutCTA from '../components/about/AboutCTA';
 const About = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-50 to-white">
-      <Navbar />
-      
       <main className="container py-16">
         <div className="max-w-5xl mx-auto space-y-16">
           {/* Hero Section */}
@@ -34,8 +30,6 @@ const About = () => {
           <AboutCTA />
         </div>
       </main>
-      
-      <Footer />
     </div>
   );
 };
