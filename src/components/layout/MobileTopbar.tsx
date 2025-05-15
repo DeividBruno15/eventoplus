@@ -58,7 +58,7 @@ export const MobileTopbar = () => {
     <div className="md:hidden sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-12 items-center justify-between px-3">
         <div>
-          <h1 className="text-base font-bold">Evento+</h1>
+          <img src="/lovable-uploads/da4d2305-aa9f-41b9-962b-9a5911539ac0.png" alt="Evento+" className="h-6" />
         </div>
         <div className="flex items-center gap-1">
           <ThemeToggle />

@@ -65,7 +65,7 @@ const Navbar = () => {
     <nav className="bg-white shadow-sm sticky top-0 z-50 w-full">
       <div className="max-w-[1440px] mx-auto px-4 py-4 md:px-6 lg:px-8 flex items-center justify-between">
         <Link to="/" className="flex items-center">
-          <span className="text-2xl font-bold text-primary">Evento<span className="text-secondary">+</span></span>
+          <img src="/lovable-uploads/da4d2305-aa9f-41b9-962b-9a5911539ac0.png" alt="Evento+" className="h-8" />
         </Link>
 
         {/* Centralized Desktop Navigation */}
