@@ -87,7 +87,7 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
         <div className="flex-shrink-0 mb-4">
           {/* Logo */}
           <div className="flex justify-center items-center py-4">
-            <img src="/lovable-uploads/da4d2305-aa9f-41b9-962b-9a5911539ac0.png" alt="Evento+" className="h-8" />
+            <img src="/lovable-uploads/a4f48969-d51e-49f4-a9f0-dff6cf208b26.png" alt="Evento+" className="h-8" />
           </div>
           
           <UserProfile 

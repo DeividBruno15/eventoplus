@@ -9,7 +9,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <Link to="/" className="flex items-center">
-              <img src="/lovable-uploads/da4d2305-aa9f-41b9-962b-9a5911539ac0.png" alt="Evento+" className="h-8" />
+              <img src="/lovable-uploads/a4f48969-d51e-49f4-a9f0-dff6cf208b26.png" alt="Evento+" className="h-8" />
             </Link>
             <p className="mt-4 text-sm">
               Conectando contratantes, prestadores de serviços e anunciantes de espaços para eventos de forma rápida, segura e personalizada.
