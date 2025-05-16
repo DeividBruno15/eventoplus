@@ -6,7 +6,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { Bell, BellOff, Check, Trash2 } from 'lucide-react';
+import { Bell, BellOff, Check } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';

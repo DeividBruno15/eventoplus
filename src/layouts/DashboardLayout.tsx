@@ -85,7 +85,7 @@ const DashboardLayout = () => {
             </AnimatePresence>
           </main>
           
-          {/* Mobile Navigation - Make sure it's shown properly on mobile */}
+          {/* Navegação móvel - Garantir que seja exibida corretamente em dispositivos móveis */}
           {isMobile && <MobileNavigation />}
         </div>
       </div>
