@@ -62,7 +62,7 @@ const DashboardLayout = () => {
     <SidebarProvider>
       <div className="flex flex-col md:flex-row min-h-screen w-full bg-background">
         {/* Sidebar para desktop */}
-        <SidebarNavigation onNavigate={handleNavigate} />
+        {!isMobile && <SidebarNavigation onNavigate={handleNavigate} />}
         
         <div className="flex-grow flex flex-col">
           {/* Header com menu do usuário para desktop */}

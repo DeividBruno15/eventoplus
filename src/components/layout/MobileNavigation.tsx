@@ -1,5 +1,4 @@
 
-import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/auth';
 import { cn } from '@/lib/utils';
@@ -13,13 +12,15 @@ import {
 } from 'lucide-react';
 import { NotificationBadge } from './notifications/NotificationBadge';
 import { useUnreadMessages } from './sidebar/useUnreadMessages';
+import { useNotifications } from '@/hooks/useNotifications';
 
-export const MobileNavigation = () => {
+const MobileNavigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
   const userRole = user?.user_metadata?.role || 'contractor';
   const unreadMessages = useUnreadMessages(user?.id);
+  const { unreadCount } = useNotifications(user?.id);
   
   // Determinar qual conjunto de ícones mostrar com base no papel do usuário
   const getNavigationItems = () => {
