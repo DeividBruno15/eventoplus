@@ -2,7 +2,7 @@
 import React from 'react';
 
 export const MobileTopbar = () => {
-  // We're hiding this component completely since we're using bottom navigation
+  // Not using this component since we're using bottom navigation
   return null;
 };
 
