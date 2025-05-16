@@ -13,7 +13,6 @@ import { SidebarProvider } from "@/components/ui/sidebar/context";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import MobileNavigation from "@/components/layout/MobileNavigation";
-import MobileTopbar from "@/components/layout/MobileTopbar";
 
 const DashboardLayout = () => {
   // Inicialmente, defina como null para não redirecionar imediatamente durante a verificação
@@ -72,9 +71,6 @@ const DashboardLayout = () => {
         <SidebarNavigation onNavigate={handleNavigate} />
         
         <div className="flex-grow flex flex-col">
-          {/* Mobile Topbar */}
-          <MobileTopbar />
-          
           {/* Header com menu do usuário para desktop */}
           <header className="hidden md:flex sticky top-0 z-10 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="flex h-14 items-center justify-end px-4 w-full">
@@ -96,7 +92,7 @@ const DashboardLayout = () => {
           </main>
           
           {/* Mobile Navigation */}
-          <MobileNavigation />
+          {isMobile && <MobileNavigation />}
         </div>
       </div>
     </SidebarProvider>
