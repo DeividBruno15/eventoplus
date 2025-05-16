@@ -15,7 +15,6 @@ import { useBreakpoint } from "@/hooks/useBreakpoint";
 import MobileNavigation from "@/components/layout/MobileNavigation";
 
 const DashboardLayout = () => {
-  // Inicialmente, defina como null para não redirecionar imediatamente durante a verificação
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const { user } = useAuth();
   const location = useLocation();
@@ -25,11 +24,6 @@ const DashboardLayout = () => {
   // Verificar status de autenticação
   useEffect(() => {
     if (user) {
-      // Remover temporariamente a verificação de onboarding
-      // if (!user.user_metadata?.is_onboarding_complete) {
-      //   navigate('/onboarding');
-      //   return;
-      // }
       setIsLoggedIn(true);
     } else {
       // Pequeno delay para verificar se o usuário está realmente deslogado
@@ -91,7 +85,7 @@ const DashboardLayout = () => {
             </AnimatePresence>
           </main>
           
-          {/* Mobile Navigation */}
+          {/* Mobile Navigation - Make sure it's shown properly on mobile */}
           {isMobile && <MobileNavigation />}
         </div>
       </div>

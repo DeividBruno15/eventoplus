@@ -11,7 +11,6 @@ import {
   Building, 
   Building2 
 } from 'lucide-react';
-import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { NotificationBadge } from './notifications/NotificationBadge';
 import { useUnreadMessages } from './sidebar/useUnreadMessages';
 
