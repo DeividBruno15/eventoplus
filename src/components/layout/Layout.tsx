@@ -2,7 +2,6 @@
 import { Outlet, useNavigate } from 'react-router-dom';
 import { SidebarNavigation } from './SidebarNavigation';
 import { useNavigationState } from './sidebar/useNavigationState';
-import { NotificationsMenu } from './notifications/NotificationsMenu';
 import { Button } from '@/components/ui/button';
 import { Menu } from 'lucide-react';
 import { UserMenu } from './UserMenu';
@@ -58,8 +57,7 @@ export default function Layout() {
             </div>
             <div className="flex items-center space-x-2">
               <ThemeToggle />
-              {/* Removido NotificationSettings, mantendo apenas NotificationsMenu */}
-              <NotificationsMenu />
+              {/* Removed NotificationsMenu here, it's now in UserMenu component */}
               <UserMenu />
             </div>
           </header>

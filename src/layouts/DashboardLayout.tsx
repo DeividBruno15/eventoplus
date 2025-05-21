@@ -1,8 +1,6 @@
-
 import { Outlet, useLocation } from "react-router-dom";
 import { SidebarNavigation } from "@/components/layout/SidebarNavigation";
 import { UserMenu } from "@/components/layout/UserMenu";
-import { NotificationsMenu } from "@/components/layout/notifications/NotificationsMenu";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/auth";
 import { Navigate, useNavigate } from "react-router-dom";
@@ -61,22 +59,21 @@ const DashboardLayout = () => {
   return (
     <SidebarProvider>
       <div className="flex flex-col md:flex-row min-h-screen w-full bg-background">
-        {/* Sidebar para desktop */}
+        {/* Sidebar for desktop */}
         {!isMobile && <SidebarNavigation onNavigate={handleNavigate} />}
         
         <div className="flex-grow flex flex-col">
-          {/* Header com menu do usuário para desktop */}
+          {/* Header with user menu for desktop */}
           <header className="hidden md:flex sticky top-0 z-10 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="flex h-14 items-center justify-end px-4 w-full">
               <div className="flex items-center gap-4">
                 <ThemeToggle />
-                <NotificationsMenu />
                 <UserMenu />
               </div>
             </div>
           </header>
 
-          {/* Conteúdo principal com transição de página animada */}
+          {/* Main content with page transition animation */}
           <main className="flex-1 p-3 md:p-4 pb-24 md:pb-4">
             <AnimatePresence mode="wait">
               <PageTransition>
@@ -85,7 +82,7 @@ const DashboardLayout = () => {
             </AnimatePresence>
           </main>
           
-          {/* Navegação móvel */}
+          {/* Mobile navigation */}
           {isMobile && <MobileNavigation />}
         </div>
       </div>
