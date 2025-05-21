@@ -43,7 +43,7 @@ const VenuesGrid: React.FC<VenuesGridProps> = ({
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {[...Array(8)].map((_, i) => (
           <Card key={i} className="overflow-hidden">
             <Skeleton className="h-48 w-full" />
@@ -80,7 +80,7 @@ const VenuesGrid: React.FC<VenuesGridProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       {announcements.map((announcement) => {
         const createdDate = new Date(announcement.created_at);
         const venueTypeName = getVenueTypeName(announcement.venue_type);

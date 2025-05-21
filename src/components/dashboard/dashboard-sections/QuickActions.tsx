@@ -10,7 +10,7 @@ interface QuickActionsProps {
 
 export const QuickActions = ({ navigate }: QuickActionsProps) => {
   return (
-    <Card className="lg:col-span-2">
+    <Card className="h-full lg:col-span-2">
       <CardHeader className="pb-3">
         <CardTitle className="text-lg md:text-2xl">Ações Rápidas</CardTitle>
         <CardDescription className="text-xs md:text-sm">
