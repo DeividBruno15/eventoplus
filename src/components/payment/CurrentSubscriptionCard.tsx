@@ -11,7 +11,7 @@ export const CurrentSubscriptionCard = ({ planName, expiresAt }: CurrentSubscrip
   const isActive = new Date(expiresAt) > new Date();
   
   return (
-    <Card className="bg-muted/50 mb-6 border border-primary/40">
+    <Card className="bg-muted/50 mb-6 border border-primary/20">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center">
           <CheckCircle className="h-5 w-5 text-primary mr-2" />
@@ -28,11 +28,13 @@ export const CurrentSubscriptionCard = ({ planName, expiresAt }: CurrentSubscrip
               </p>
             )}
           </div>
-          <div>
-            <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-              Ativo
-            </span>
-          </div>
+          {isActive && (
+            <div>
+              <span className="inline-flex items-center rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                Ativo
+              </span>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

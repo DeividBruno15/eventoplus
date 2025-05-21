@@ -6,7 +6,6 @@ import { NotificationsMenu } from './notifications/NotificationsMenu';
 import { Button } from '@/components/ui/button';
 import { Menu } from 'lucide-react';
 import { UserMenu } from './UserMenu';
-import { NotificationSettings } from './notifications/NotificationSettings';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { SidebarProvider } from '@/components/ui/sidebar/context';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
@@ -59,7 +58,7 @@ export default function Layout() {
             </div>
             <div className="flex items-center space-x-2">
               <ThemeToggle />
-              <NotificationSettings />
+              {/* Removido NotificationSettings, mantendo apenas NotificationsMenu */}
               <NotificationsMenu />
               <UserMenu />
             </div>

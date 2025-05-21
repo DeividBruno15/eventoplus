@@ -29,10 +29,11 @@ import Plans from '@/pages/Plans';
 import Support from '@/pages/Support';
 import WhatsAppAssistant from '@/pages/WhatsAppAssistant';
 import PrivateRoute from '@/hooks/auth/PrivateRoute';
+import DashboardLayout from '@/layouts/DashboardLayout';
 
 export const privateRoutes: RouteObject[] = [
   {
-    element: <Layout />,
+    element: <DashboardLayout />,
     children: [
       {
         path: '/dashboard',
@@ -119,7 +120,7 @@ export const privateRoutes: RouteObject[] = [
         element: <PrivateRoute><Conversation /></PrivateRoute>
       },
       {
-        path: '/help',
+        path: '/help-center',
         element: <HelpCenter />
       },
       {

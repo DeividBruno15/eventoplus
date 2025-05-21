@@ -121,20 +121,8 @@ export const SidebarNavigation = ({ onNavigate }: SidebarNavigationProps) => {
                 onItemClick={handleItemClick} 
               />
               
-              {/* Adicionar botão de configurações e logout */}
+              {/* Adicionar apenas botão de logout - Removendo configurações duplicadas */}
               <div className="px-1 mt-6 space-y-2">
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    onClick={() => navigate('/settings')}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-accent hover:text-accent-foreground transition-all duration-300 ${
-                      currentPath === '/settings' ? 'bg-accent text-accent-foreground' : ''
-                    }`}
-                  >
-                    <Settings className="h-5 w-5" />
-                    <span>Configurações</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                
                 <SidebarMenuItem>
                   <div ref={logoutHoverRef} className="w-full">
                     <SidebarMenuButton
