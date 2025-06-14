@@ -1,51 +1,50 @@
 
-import { Users, Search, MapPin } from 'lucide-react';
+import { Search, MessageSquare, Star, MapPin } from 'lucide-react';
 
 const FeatureSection = () => {
   const features = [
     {
-      icon: Users,
-      title: "Compare e escolha o melhor orçamento",
-      description: "Receba múltiplas propostas de profissionais qualificados e escolha a melhor opção para seu evento."
+      title: 'Encontre prestadores e espaços',
+      description: 'Conectamos você a profissionais qualificados e locais ideais para garantir o sucesso do seu evento.',
+      icon: <Search className="w-12 h-12 text-primary mb-4" />
     },
     {
-      icon: Search,
-      title: "Encontre prestadores e espaços",
-      description: "Busque por categoria, localização e avaliações para encontrar os melhores prestadores e espaços."
+      title: 'Solicite orçamentos personalizados',
+      description: 'Descreva suas necessidades e receba propostas detalhadas dos melhores prestadores.',
+      icon: <MessageSquare className="w-12 h-12 text-primary mb-4" />
     },
     {
-      icon: MapPin,
-      title: "Anuncie seus espaços para eventos",
-      description: "Proprietários de espaços podem anunciar seus locais e conectar-se com organizadores de eventos."
+      title: 'Compare e escolha a melhor opção',
+      description: 'Analise perfis, avaliações e preços para tomar a decisão mais adequada ao seu evento.',
+      icon: <Star className="w-12 h-12 text-primary mb-4" />
+    },
+    {
+      title: 'Anuncie seus espaços para eventos',
+      description: 'Proprietários de locais podem cadastrar e divulgar seus espaços para organizadores de eventos.',
+      icon: <MapPin className="w-12 h-12 text-primary mb-4" />
     }
   ];
 
   return (
-    <section className="py-20 bg-gray-50">
-      <div className="container mx-auto px-4 max-w-7xl">
+    <section className="py-20 bg-white">
+      <div className="container mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl lg:text-4xl font-bold mb-6 text-gray-900">Como funciona o Evento+</h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Nossa plataforma conecta contratantes, prestadores de serviços e anunciantes de espaços, 
-            facilitando a organização de eventos perfeitos.
+          <h2 className="text-3xl font-bold mb-4">Como funciona o Evento+</h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Descubra como nossa plataforma facilita o planejamento do seu evento, conectando você aos melhores profissionais e locais do mercado.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {features.map((feature, index) => {
-            const Icon = feature.icon;
-            return (
-              <div key={index} className="text-center group">
-                <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300">
-                  <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-primary/20 transition-colors">
-                    <Icon className="w-8 h-8 text-primary" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-4 text-gray-900">{feature.title}</h3>
-                  <p className="text-gray-600 leading-relaxed">{feature.description}</p>
-                </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {features.map((feature, index) => (
+            <div key={index} className="bg-white p-8 rounded-lg border border-muted shadow-sm hover:shadow-md transition-shadow text-center">
+              <div className="flex justify-center">
+                {feature.icon}
               </div>
-            );
-          })}
+              <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
+              <p className="text-gray-600">{feature.description}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>
