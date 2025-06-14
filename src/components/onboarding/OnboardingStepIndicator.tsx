@@ -1,10 +1,9 @@
 
 import React from 'react';
 import { CheckCircle } from 'lucide-react';
-import { OnboardingStep } from '@/pages/Onboarding/types';
 
 interface OnboardingStepIndicatorProps {
-  currentStep: OnboardingStep;
+  currentStep: number;
   totalSteps: number;
 }
 
