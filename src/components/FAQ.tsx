@@ -5,62 +5,66 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { HelpCircle } from "lucide-react";
 
 const FAQ = () => {
   const faqs = [
     {
       question: "Como funciona a plataforma Evento+?",
-      answer: "A Evento+ conecta três principais usuários: contratantes que buscam organizar eventos, prestadores de serviços qualificados e anunciantes de espaços para eventos. Nossa plataforma facilita a comunicação, negociação e contratação através de uma interface intuitiva e direta."
+      answer: "A Evento+ conecta contratantes, prestadores de serviços e anunciantes de espaços. Contratantes podem buscar e contratar profissionais, prestadores podem oferecer seus serviços, e anunciantes podem divulgar seus espaços para eventos."
     },
     {
-      question: "Quais tipos de profissionais posso encontrar?",
-      answer: "Nossa plataforma reúne diversos tipos de prestadores de serviços para eventos, incluindo fotógrafos, DJs, buffets, decoradores, cerimonialistas, bartenders, segurança, entre outros. Todos os profissionais passam por uma verificação para garantir a qualidade dos serviços."
+      question: "É seguro contratar pela plataforma?",
+      answer: "Sim! Todos os prestadores passam por um processo de verificação. Além disso, você pode ver avaliações de outros clientes antes de contratar. Nossa plataforma também oferece suporte durante todo o processo."
     },
     {
-      question: "Como faço para anunciar meu espaço para eventos?",
-      answer: "Para anunciar seu espaço para eventos, você precisa criar uma conta como anunciante, preencher as informações detalhadas sobre o local, adicionar fotos de qualidade, definir a disponibilidade e os preços. Após a aprovação, seu espaço estará visível para potenciais clientes."
+      question: "Como são feitos os pagamentos?",
+      answer: "Os pagamentos são processados de forma segura através da nossa plataforma. Oferecemos diversas opções de pagamento e garantias tanto para contratantes quanto para prestadores."
     },
     {
-      question: "Como funciona o sistema de comunicação entre contratantes e prestadores?",
-      answer: "A Evento+ oferece um sistema de chat integrado que permite comunicação direta entre contratantes e prestadores de serviços. Você pode discutir detalhes do evento, negociar valores e esclarecer dúvidas sem precisar sair da plataforma."
+      question: "Posso cancelar minha assinatura a qualquer momento?",
+      answer: "Sim, você pode cancelar sua assinatura a qualquer momento através das configurações da sua conta. Não há multas por cancelamento."
     },
     {
-      question: "É possível gerenciar múltiplos eventos na plataforma?",
-      answer: "Sim! Contratantes podem gerenciar múltiplos eventos simultaneamente, organizando equipes de prestadores, agendamentos e locais em um painel centralizado. Isso facilita o controle e acompanhamento de cada etapa do planejamento."
+      question: "Como funciona o sistema de avaliações?",
+      answer: "Após cada evento, tanto contratantes quanto prestadores podem avaliar uns aos outros. Isso ajuda a manter a qualidade dos serviços e a confiança na plataforma."
     },
     {
-      question: "Como são garantidas a qualidade e segurança dos serviços?",
-      answer: "A Evento+ implementa um sistema de avaliações e reviews dos prestadores e espaços, permitindo que contratantes anteriores compartilhem suas experiências. Além disso, verificamos as credenciais dos profissionais e incentivamos a transparência na comunicação e negociação."
+      question: "Há suporte ao cliente disponível?",
+      answer: "Sim! Oferecemos suporte via chat, email e telefone. Nosso time está sempre pronto para ajudar com qualquer dúvida ou problema que você possa ter."
     }
   ];
 
   return (
     <section className="py-20 bg-white">
-      <div className="container mx-auto">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold mb-4 flex items-center justify-center gap-3">
-            <HelpCircle className="h-8 w-8 text-primary" />
-            Perguntas Frequentes
-          </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Confira as respostas para as dúvidas mais comuns sobre a plataforma Evento+
+      <div className="container mx-auto px-4 max-w-4xl">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl lg:text-4xl font-bold mb-6 text-gray-900">Perguntas frequentes</h2>
+          <p className="text-lg text-gray-600">
+            Encontre respostas para as dúvidas mais comuns sobre nossa plataforma
           </p>
         </div>
 
-        <div className="max-w-3xl mx-auto">
-          <Accordion type="single" collapsible className="w-full">
-            {faqs.map((faq, index) => (
-              <AccordionItem key={index} value={`item-${index}`}>
-                <AccordionTrigger className="text-left">
-                  {faq.question}
-                </AccordionTrigger>
-                <AccordionContent>
-                  <p className="text-gray-600">{faq.answer}</p>
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+        <Accordion type="single" collapsible className="space-y-4">
+          {faqs.map((faq, index) => (
+            <AccordionItem key={index} value={`item-${index}`} className="bg-gray-50 rounded-lg px-6">
+              <AccordionTrigger className="text-left font-semibold text-gray-900 hover:text-primary">
+                {faq.question}
+              </AccordionTrigger>
+              <AccordionContent className="text-gray-600 leading-relaxed pb-4">
+                {faq.answer}
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+
+        <div className="text-center mt-12">
+          <p className="text-gray-600 mb-4">Não encontrou a resposta que procurava?</p>
+          <a 
+            href="/contact" 
+            className="text-primary hover:text-primary/80 font-medium underline"
+          >
+            Entre em contato conosco
+          </a>
         </div>
       </div>
     </section>

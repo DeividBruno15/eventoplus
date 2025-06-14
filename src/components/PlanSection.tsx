@@ -11,34 +11,44 @@ import { providerPlans, contractorPlans, advertiserPlans } from "../pages/Plans/
 const PlanSection = () => {
   return (
     <section className="py-20 bg-gray-50">
-      <div className="container mx-auto">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold mb-4">Planos e Benefícios</h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Escolha o plano ideal para suas necessidades e comece a crescer conosco
+      <div className="container mx-auto px-4 max-w-7xl">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl lg:text-4xl font-bold mb-6 text-gray-900">Planos e benefícios</h2>
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+            Escolha o plano ideal para suas necessidades e comece a crescer conosco. 
+            Todos os planos incluem suporte e atualizações gratuitas.
           </p>
         </div>
 
         <Tabs defaultValue="providers" className="space-y-12">
-          <TabsList className="grid w-full grid-cols-3 max-w-[600px] mx-auto">
-            <TabsTrigger value="providers">Para Prestadores</TabsTrigger>
-            <TabsTrigger value="contractors">Para Contratantes</TabsTrigger>
-            <TabsTrigger value="advertisers">Para Anunciantes</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 max-w-[600px] mx-auto h-12">
+            <TabsTrigger value="providers" className="text-sm">Para Prestadores</TabsTrigger>
+            <TabsTrigger value="contractors" className="text-sm">Para Contratantes</TabsTrigger>
+            <TabsTrigger value="advertisers" className="text-sm">Para Anunciantes</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="providers" className="space-y-4">
+          <TabsContent value="providers" className="space-y-8">
+            <div className="text-center max-w-3xl mx-auto">
+              <p className="text-gray-600">
+                Para prestadores de serviços que desejam expandir seus negócios e conectar-se com mais clientes.
+              </p>
+            </div>
             <PricingTable plans={providerPlans} />
           </TabsContent>
           
-          <TabsContent value="contractors" className="space-y-4">
+          <TabsContent value="contractors" className="space-y-8">
+            <div className="text-center max-w-3xl mx-auto">
+              <p className="text-gray-600">
+                Para organizadores de eventos que buscam os melhores profissionais e serviços.
+              </p>
+            </div>
             <PricingTable plans={contractorPlans} />
           </TabsContent>
           
-          <TabsContent value="advertisers" className="space-y-4">
-            <div className="max-w-3xl mx-auto mb-8">
-              <p className="text-center text-gray-600">
-                Para proprietários de espaços e locais que desejam aumentar a visibilidade 
-                e atrair mais eventos. Anuncie seu espaço e conecte-se diretamente com organizadores de eventos.
+          <TabsContent value="advertisers" className="space-y-8">
+            <div className="text-center max-w-3xl mx-auto">
+              <p className="text-gray-600">
+                Para proprietários de espaços que desejam aumentar a visibilidade e atrair mais eventos.
               </p>
             </div>
             <PricingTable plans={advertiserPlans} />
