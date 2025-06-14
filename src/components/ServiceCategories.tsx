@@ -1,5 +1,4 @@
-
-import { Camera, Music, Utensils, Car, Palette, Users, Mic, Gift } from 'lucide-react';
+import { Camera, Music, Utensils, Car, Palette, Users, Mic, Gift, MapPin } from 'lucide-react';
 
 const ServiceCategories = () => {
   const categories = [
